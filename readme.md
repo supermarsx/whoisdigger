@@ -2,7 +2,7 @@
 
 
 
-[![Build Status](https://travis-ci.org/eduardomota/whoisdigger.svg?branch=master)](https://travis-ci.org/eduardomota/whoisdigger)![https://david-dm.org/eduardomota/whoisdigger.svg](https://david-dm.org/eduardomota/whoisdigger.svg)![https://scrutinizer-ci.com/g/eduardomota/whoisdigger/badges/quality-score.png](https://scrutinizer-ci.com/g/eduardomota/whoisdigger/badges/quality-score.png)
+![Build Status](https://travis-ci.org/eduardomota/whoisdigger.svg?branch=master)  ![https://david-dm.org/eduardomota/whoisdigger.svg](https://david-dm.org/eduardomota/whoisdigger.svg) ![https://scrutinizer-ci.com/g/eduardomota/whoisdigger/badges/quality-score.png](https://scrutinizer-ci.com/g/eduardomota/whoisdigger/badges/quality-score.png)
 
 **Be aware that this application is in alpha stage..**
 
