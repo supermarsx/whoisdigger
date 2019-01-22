@@ -65,6 +65,9 @@ module.exports = {
       'avgsmoothingfactor1': 0.1, // Smoothing factor to calculate whois request time, last 10 requests average (default: 0.1)
       'asfoverride': false, // Use alternative smoothing factor based on the amount of processed whois requests (default: true)
       'assumeuniregistryasunavailable': true // Assume domain as unavailable when Uniregistry query limit is reached (default: true)
+    },
+    'lookupdefault': {
+      'server': "" 
     }
   }
 };

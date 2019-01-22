@@ -22,13 +22,13 @@ export function fileReadLines(filePath, lines = 2) {
 
 // Read range of lines from file
 export function fileReadLinesRange(filePath, startline = 0, lines = 2) {
-  endline = startline + lines;
+  var endline = startline + lines;
   var lineReader = require('readline').createInterface({
     input: require('fs').createReadStream(filePath),
   });
   var lineCounter = startline;
   var wantedLines = [];
-  lineReader.on('line', function(line) {
+  lineReader.on('line', function(line, endline) {
     lineCounter++;
     wantedLines.push(line);
     if (lineCounter == endline) {

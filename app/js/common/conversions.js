@@ -21,7 +21,7 @@ function msToHumanTime(duration) {
     hours = parseInt((duration / (1000 * 60 * 60)).toFixed(6) % 24),
     days = parseInt((duration / (1000 * 60 * 60 * 24)).toFixed(6) % 7),
     weeks = parseInt((duration / (1000 * 60 * 60 * 24 * 7)).toFixed(6) % 4),
-    months = parseInt((duration / (1000 * 60 * 60 * 24 * 7 * 4)).toFixed(6) % 12);
+    months = parseInt((duration / (1000 * 60 * 60 * 24 * 7 * 4)).toFixed(6) % 12),
     years = parseInt((duration / (1000 * 60 * 60 * 24 * 7 * 4 * 12)).toFixed(6) % 10);
   var time = '';
 

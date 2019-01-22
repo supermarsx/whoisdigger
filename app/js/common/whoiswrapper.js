@@ -4,10 +4,14 @@ const util = require('util'),
   parseRawData = require('./parse-raw-data.js'),
   debug = require('debug')('whoiswrapper');
 
-var appSettings = require('../appsettings.js');
+var {
+  appSettings
+} = require('../appsettings.js');
 
-async function lookup(domain, options = null) {
-  var domainResults = await lookupProm(domain).catch(function(err) {
+var defaultoptions = appSettings.lookupdefault;
+
+async function lookup(domain, options = defaultoptions) {
+  var domainResults = await lookupProm(domain, options).catch(function(err) {
     debug(err);
     return err;
   });

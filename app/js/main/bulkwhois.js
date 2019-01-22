@@ -328,6 +328,8 @@ ipcMain.on('ondragstart', function(event, filePath) {
 
 // Bulk domain, reset ui counters
 function resetUiCounters(event) {
+  //var send = event.sender.send;
+
   debug("Resetting bulk whois UI counters");
   var startingValue = 0;
   var defaultValue = '-';
