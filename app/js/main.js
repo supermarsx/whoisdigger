@@ -4,21 +4,23 @@ const electron = require('electron'),
   dedent = require('dedent-js'),
   util = require('util'),
   parseRawData = require('./common/parse-raw-data.js'),
-  whois = require('./common/whoiswrapper.js'),
-  remote = require('electron').remote,
   debug = require('debug')('main'),
   debugb = require('debug')('renderer');
 
 require('./main/singlewhois.js');
 require('./main/bulkwhois.js');
-var appSettings = require('./appsettings.js');
+
+var {
+  appSettings
+} = require('./appsettings.js');
 
 const {
   app,
   BrowserWindow,
   Menu,
   ipcMain,
-  dialog
+  dialog,
+  remote
 } = electron;
 
 let mainWindow,
@@ -43,7 +45,7 @@ app.on('ready', function() {
     protocol: appSettings.url.protocol,
     slashes: appSettings.url.slashes
   }));
-  debug('Loading URL: {0}//{1}'.format(appSettings.url.protocol,appSettings.url.pathname));
+  debug('Loading URL: {0}//{1}'.format(appSettings.url.protocol, appSettings.url.pathname));
   debug('Window object: %o', mainWindow);
 
   // mainWindow show when ready

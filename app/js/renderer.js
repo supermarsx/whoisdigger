@@ -6,19 +6,20 @@ const electron = require('electron'),
   util = require('util'),
   whois = require('whois'),
   parseRawData = require('../js/common/parse-raw-data.js'),
-  lookup = util.promisify(whois.lookup),
-  dialog = require('electron').remote,
-  fs = require("fs"),
-  remote = require('electron').remote;
+  fs = require("fs");
 
 require('../js/renderer/singlewhois.js');
 require('../js/renderer/bulkwhois.js');
 
-var appSettings = require('../js/appsettings.js');
+const {
+  appSettings
+} = require('../js/appsettings.js');
 
 const {
-  ipcRenderer
-} = require('electron');
+  ipcRenderer,
+  remote,
+  dialog
+} = electron;
 
 $(document).ready(function() { // When document is ready
   ipcRenderer.send('app:debug', "Document is ready");
@@ -98,24 +99,27 @@ $(document).ready(function() { // When document is ready
 
 // Startup checks
 function startup() {
+  var {
+    navigation
+  } = appSettings;
   ipcRenderer.send('app:debug', "Checking renderer startup vars");
-  ipcRenderer.send('app:debug', "Show Developer tools toggle: {0}".format(appSettings.navigation.devtools));
-  if (appSettings.navigation.devtools == true) {
+  ipcRenderer.send('app:debug', "Show Developer tools toggle: {0}".format(navigation.devtools));
+  if (navigation.devtools == true) {
     $('#navTabDevTools').removeClass('is-force-hidden');
   }
-  ipcRenderer.send('app:debug', "Show extended menu collapsed: {0}".format(appSettings.navigation.extendedcollapsed));
-  if (appSettings.navigation.extendedcollapsed == true) {
+  ipcRenderer.send('app:debug', "Show extended menu collapsed: {0}".format(navigation.extendedcollapsed));
+  if (navigation.extendedcollapsed == true) {
     $('#navButtonExpandedMenu').toggleClass('is-active');
     $('.is-specialmenu').toggleClass('is-hidden');
   }
-  ipcRenderer.send('app:debug', "Show extended menu collapse button: {0}".format(appSettings.navigation.extendedmenu));
-  if (appSettings.navigation.extendedmenu == false) {
+  ipcRenderer.send('app:debug', "Show extended menu collapse button: {0}".format(navigation.extendedmenu));
+  if (navigation.extendedmenu == false) {
     $('#navButtonExpandedMenu').addClass('is-force-hidden');
   }
 }
 
 // Load different panel parts //////////////////
 function loadContents() {
-    $('#include.navbar').load(path.join(__dirname, '../html/navigation/navbar.html'));
-    $('#include.navbar.tabs').load(path.join(__dirname, '../html/navigation/navbar.tabs.html'));
+  $('#include.navbar').load(path.join(__dirname, '../html/navigation/navbar.html'));
+  $('#include.navbar.tabs').load(path.join(__dirname, '../html/navigation/navbar.tabs.html'));
 }

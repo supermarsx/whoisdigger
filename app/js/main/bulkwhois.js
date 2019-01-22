@@ -3,20 +3,22 @@ const electron = require('electron'),
   url = require('url'),
   dedent = require('dedent-js'),
   util = require('util'),
-  remote = require('electron').remote,
   whois = require('../common/whoiswrapper.js'),
   conversions = require('../common/conversions.js'),
   debug = require('debug')('main.bulkwhois');
 
 require('../common/stringformat.js');
-var appSettings = require('../appsettings.js');
+var {
+  appSettings
+} = require('../appsettings.js');
 
 const {
   app,
   BrowserWindow,
   Menu,
   ipcMain,
-  dialog
+  dialog,
+  remote
 } = electron;
 
 const {
@@ -274,7 +276,7 @@ ipcMain.on('bulkwhois:lookup.continue', function(event) {
 
         });
     }, timebetween * y);
-  } (bulkWhois.input.domainsPending[j], j));
+  }(bulkWhois.input.domainsPending[j], j));
 
 
   // Set Timer

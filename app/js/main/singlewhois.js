@@ -1,7 +1,6 @@
 const electron = require('electron'),
   path = require('path'),
   url = require('url'),
-  remote = require('electron').remote,
   whois = require('../common/whoiswrapper.js'),
   debug = require('debug')('main.singlewhois');
 
@@ -12,10 +11,13 @@ const {
   BrowserWindow,
   Menu,
   ipcMain,
-  dialog
+  dialog,
+  remote
 } = electron;
 
-var appSettings = require('../appsettings.js');
+var {
+  appSettings
+} = require('../appsettings.js');
 
 ipcMain.on('singlewhois:lookup', function(event, domain) {
   debug('Starting whois lookup');

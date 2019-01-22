@@ -1,23 +1,17 @@
 const util = require('util'),
   whois = require('whois'),
   lookupProm = util.promisify(whois.lookup),
-  parseRawData = require('./parse-raw-data.js');
+  parseRawData = require('./parse-raw-data.js'),
+  debug = require('debug')('whoiswrapper');
 
 var appSettings = require('../appsettings.js');
 
-async function lookup(domain, options) {
-  var domainResults = await lookupProm(domain).catch(function(err) { console.log(err)});
+async function lookup(domain, options = null) {
+  var domainResults = await lookupProm(domain).catch(function(err) {
+    debug(err);
+    return err;
+  });
   return domainResults;
-
-  //console.log('lookup->' + domain);
-  //bulkWhois.stats.current.received++;
-  //bulkWhois.stats.current.waiting--;
-  //console.log('cwaiting->' + bulkWhois.stats.current.waiting);
-  //console.log('creceived->' + bulkWhois.stats.current.received);
-
-  //mainWindow.webContents.send('bulkwhois:status.update', 'perftimestart', performance.now());
-  //mainWindow.webContents.send('bulkwhois:status.update', 'waiting', bulkWhois.stats.current.waiting);
-
 }
 
 function toJSON(resultsText) {
@@ -50,6 +44,7 @@ function isDomainAvailable(resultsText, resultsJSON) {
       }
       break;
     case (resultsText == null):
+    case (resultsText == ''):
     case (resultsJSON.hasOwnProperty('error')):
     case (resultsJSON.hasOwnProperty('errno')):
     case (resultsText.includes('You  are  not  authorized  to  access or query our Whois')):
