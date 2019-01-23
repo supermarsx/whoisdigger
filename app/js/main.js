@@ -19,8 +19,7 @@ const {
   remote
 } = electron;
 
-let mainWindow,
-  showFrame = true;
+let mainWindow;
 
 // when app is ready
 app.on('ready', function() {
@@ -64,7 +63,7 @@ function startup() {
   } = appSettings;
   debug('Doing startup checks');
   debug('Developer tools at startup: {0}'.format(startup.devtools));
-  if (startup.devtools == true) {
+  if (startup.devtools === true) {
     mainWindow.toggleDevTools();
   }
 }

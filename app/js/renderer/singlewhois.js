@@ -100,6 +100,7 @@ $('#swButtonSearch').click(function() {
   $('#swTable:not(.is-hidden)').addClass('is-hidden');
   tableReset();
   ipcRenderer.send("singlewhois:lookup", singleWhois.input.domain);
+  return undefined;
 });
 
 // Open simple whois model

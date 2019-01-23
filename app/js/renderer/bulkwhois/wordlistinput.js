@@ -1,6 +1,5 @@
 /** global: appSettings */
-const whois = require('../../common/whoiswrapper.js'),
-  conversions = require('../../common/conversions.js');
+const conversions = require('../../common/conversions.js');
 
 var bwWordlistContents;
 

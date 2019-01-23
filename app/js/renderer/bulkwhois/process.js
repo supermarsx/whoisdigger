@@ -7,12 +7,13 @@ const {
   ipcRenderer
 } = require('electron');
 
+/*
 // Receive whois lookup reply
 ipcRenderer.on('bulkwhois:results', function(event, domain, domainResults) {
 
   //ipcRenderer.send('app:debug', "Whois domain reply for {0}:\n {1}".format(domain, domainResults));
 
-  /*
+
   (function() {
     var result;
     if (typeof domainResults === 'object') {
@@ -26,13 +27,16 @@ ipcRenderer.on('bulkwhois:results', function(event, domain, domainResults) {
     }
     return result;
   })();
-  */
-});
 
+});
+*/
+
+/*
 // Receive bulk whois results
 ipcRenderer.on('bulkwhois:resultreceive', function(event, results) {
-  event = results = null;
+
 });
+*/
 
 // Bulk whois processing, ui status update
 ipcRenderer.on('bulkwhois:status.update', function(event, stat, value) {
