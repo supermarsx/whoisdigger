@@ -1,5 +1,5 @@
-var whois = require('../../common/whoiswrapper.js');
-var conversions = require('../../common/conversions.js');
+var whois = require('../../common/whoiswrapper.js'),
+  conversions = require('../../common/conversions.js');
 
 require('../../common/stringformat.js');
 
@@ -12,7 +12,9 @@ ipcRenderer.on('bulkwhois:results', function(event, domain, domainResults) {
 
   //ipcRenderer.send('app:debug', "Whois domain reply for {0}:\n {1}".format(domain, domainResults));
 
-  var domainResultsJSON = (function() {
+  /*
+  (function() {
+    var result;
     if (typeof domainResults === 'object') {
       JSON.stringify(domainResults, null, 2);
       result = domainResults.map(function(data) {
@@ -23,35 +25,37 @@ ipcRenderer.on('bulkwhois:results', function(event, domain, domainResults) {
       result = parseRawData(domainResults);
     }
     return result;
-  });
+  })();
+  */
 });
 
 // Receive bulk whois results
 ipcRenderer.on('bulkwhois:resultreceive', function(event, results) {
-
+  event = results = null;
 });
 
 // Bulk whois processing, ui status update
 ipcRenderer.on('bulkwhois:status.update', function(event, stat, value) {
   ipcRenderer.send('app:debug', "{0}, value update to {1}".format(stat, value)); // status update
+  var percent;
   switch (stat) {
     case 'start':
-      if ($('#bwpButtonNext').hasClass('is-hidden') == false) {
+      if ($('#bwpButtonNext').hasClass('is-hidden') === false) {
         $('#bwpButtonNext').addClass('is-hidden');
         $('#bwpButtonPause').removeClass('is-hidden');
         $('#bwpButtonStop').removeClass('is-hidden');
       }
       break;
     case 'domains.processed': // processed domains
-      var percent = parseFloat(value / parseInt($('#bwTableProcessingTotal').text()) * 100).toFixed(1);
+      percent = parseFloat(value / parseInt($('#bwTableProcessingTotal').text()) * 100).toFixed(1);
       $('#bwTableProcessingProcessed').text('{0} ({1}%)'.format(value, percent));
       break;
     case 'domains.waiting': // whois requests waiting reply
-      var percent = parseFloat(value / parseInt($('#bwTableProcessingSent').text()) * 100).toFixed(1);
+      percent = parseFloat(value / parseInt($('#bwTableProcessingSent').text()) * 100).toFixed(1);
       $('#bwTableProcessingWaiting').text('{0} ({1}%)'.format(value, percent));
       break;
     case 'domains.sent': // sent whois requests
-      var percent = parseFloat(value / parseInt($('#bwTableProcessingTotal').text()) * 100).toFixed(1);
+      percent = parseFloat(value / parseInt($('#bwTableProcessingTotal').text()) * 100).toFixed(1);
       $('#bwTableProcessingSent').text('{0} ({1}%)'.format(value, percent));
       break;
     case 'domains.total': // total domains
@@ -59,6 +63,7 @@ ipcRenderer.on('bulkwhois:status.update', function(event, stat, value) {
       break;
     case 'time.current': // current time
       $('#bwTableProcessingCurrentTime').text('{0}'.format(value));
+      break;
     case 'time.remaining': // remaining time
       $('#bwTableProcessingRemainingTime').text('{0}'.format(value));
       break;
@@ -107,7 +112,7 @@ ipcRenderer.on('bulkwhois:status.update', function(event, stat, value) {
 
 // Bulk processing, pause/continue process
 $('#bwpButtonPause').click(function() {
-  searchStatus = $('#bwpButtonPauseText').text();
+  var searchStatus = $('#bwpButtonPauseText').text();
   switch (searchStatus) {
     case 'Continue':
       $('#bwpButtonPause').removeClass('is-success').addClass('is-warning');

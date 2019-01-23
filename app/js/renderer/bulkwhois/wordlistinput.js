@@ -1,5 +1,8 @@
-var whois = require('../../common/whoiswrapper.js');
-var conversions = require('../../common/conversions.js');
+/** global: appSettings */
+const whois = require('../../common/whoiswrapper.js'),
+  conversions = require('../../common/conversions.js');
+
+var bwWordlistContents;
 
 require('../../common/stringformat.js');
 
@@ -12,27 +15,31 @@ const {
 } = require('./auxiliary.js');
 
 // Wordlist input, contents confirmation container
-ipcRenderer.on('bulkwhois:wordlistinput.confirmation', function(event) {
+ipcRenderer.on('bulkwhois:wordlistinput.confirmation', function() {
+  var bwFileStats = [];
+  const {
+    lookup
+  } = appSettings;
+
   bwWordlistContents = $('#bwwWordlistText').val().toString();
-  if (bwWordlistContents == '' && bwWordlistContents == null) {
+  if (bwWordlistContents == '' && bwWordlistContents === null) {
     $('#bwWordlistConfirm').addClass('is-hidden');
     $('#bwEntry').removeClass('is-hidden');
   } else {
     $('#bwwLoadingInfo').text('Loading wordlist stats...');
-    var bwFileStats = [];
     $('#bwwLoadingInfo').text('Getting line count...');
     bwFileStats['linecount'] = bwWordlistContents.toString().split('\n').length;
 
-    if (appSettings.lookup.randomize.timebetween == true) {
-      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * appSettings.lookup.randomize.timebetweenmin);
-      bwFileStats['maxestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * appSettings.lookup.randomize.timebetweenmax);
-      $('#bwwtimebetweenmin').text('{0}ms '.format(appSettings.lookup.randomize.timebetweenmin));
-      $('#bwwtimebetweenmax').text('/ {0}ms'.format(appSettings.lookup.randomize.timebetweenmax));
+    if (lookup.randomize.timebetween === true) {
+      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.randomize.timebetweenmin);
+      bwFileStats['maxestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.randomize.timebetweenmax);
+      $('#bwwtimebetweenmin').text('{0}ms '.format(lookup.randomize.timebetweenmin));
+      $('#bwwtimebetweenmax').text('/ {0}ms'.format(lookup.randomize.timebetweenmax));
       $('#bwwTableMinMaxEstimate').text('{0} to {1}'.format(bwFileStats['minestimate'], bwFileStats['maxestimate']));
     } else {
-      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * appSettings.lookup.timebetween);
+      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.timebetween);
       $('#bwwtimebetweenmaxtext').addClass('is-hidden');
-      $('#bwwtimebetweenmin').text(appSettings.lookup.timebetween + 'ms');
+      $('#bwwtimebetweenmin').text(lookup.timebetween + 'ms');
       $('#bwwTableMinMaxEstimate').text('> {0}'.format(bwFileStats['minestimate']));
     }
 
@@ -76,8 +83,8 @@ $('#bwwButtonCancel').click(function() {
 
 // Wordlist input, proceed to bulk whois
 $('#bwwButtonConfirm').click(function() {
-  var bwDomainArray = bwWordlistContents.toString().split('\n').map(Function.prototype.call, String.prototype.trim);
-  var bwTldsArray = $('#bwwSearchTlds').val().toString().split(',');
+  var bwDomainArray = bwWordlistContents.toString().split('\n').map(Function.prototype.call, String.prototype.trim),
+    bwTldsArray = $('#bwwSearchTlds').val().toString().split(',');
 
   tableReset(bwDomainArray.length, bwTldsArray.length);
   $('#bwWordlistConfirm').addClass('is-hidden');

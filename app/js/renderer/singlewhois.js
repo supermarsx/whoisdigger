@@ -1,4 +1,5 @@
-var whois = require('../common/whoiswrapper.js');
+var whois = require('../common/whoiswrapper.js'),
+  parseRawData = require('../common/parse-raw-data.js');
 
 const {
   ipcRenderer
@@ -13,10 +14,14 @@ var singleWhois = {
 
 // Single Whois, whois reply processing
 ipcRenderer.on('singlewhois:results', function(event, domainResults) {
-
+  const {
+    isDomainAvailable
+  } = whois;
+  var domainStatus, domainResultsJSON;
   //ipcRenderer.send('app:debug', "Whois domain reply:\n {0}".format(domainResults));
 
-  var domainResultsJSON = (function() {
+  domainResultsJSON = (function() {
+    var result;
     if (typeof domainResults === 'object') {
       JSON.stringify(domainResults, null, 2);
       result = domainResults.map(function(data) {
@@ -27,10 +32,10 @@ ipcRenderer.on('singlewhois:results', function(event, domainResults) {
       result = parseRawData(domainResults);
     }
     return result;
-  });
+  })();
 
   // Check domain status
-  domainStatus = whois.isDomainAvailable(domainResults);
+  domainStatus = isDomainAvailable(domainResults);
 
   switch (domainStatus) {
     case 'querylimituniregistry':

@@ -1,5 +1,9 @@
-var whois = require('../../common/whoiswrapper.js');
-var conversions = require('../../common/conversions.js');
+/** global: appSettings */
+var whois = require('../../common/whoiswrapper.js'),
+  conversions = require('../../common/conversions.js'),
+  fs = require('fs'),
+  bwFileContents;
+
 
 require('../../common/stringformat.js');
 
@@ -13,41 +17,47 @@ const {
 
 // File input, path and information confirmation container
 ipcRenderer.on('bulkwhois:fileinput.confirmation', function(event, filePath, isDragDrop = false) {
+  const {
+    misc,
+    lookup
+  } = appSettings;
+  var bwFileStats;
+
   //console.log(filePath);
-  if (filePath == undefined) {
+  if (filePath === undefined) {
     //console.log(filePath);
     $('#bwFileInputLoading').addClass('is-hidden');
     $('#bwEntry').removeClass('is-hidden');
   } else {
     $('#bwLoadingInfo').text('Loading file stats...');
-    if (isDragDrop == true) {
+    if (isDragDrop === true) {
       $('#bwEntry').addClass('is-hidden');
       $('#bwFileInputLoading').removeClass('is-hidden');
-      var bwFileStats = fs.statSync(filePath);
+      bwFileStats = fs.statSync(filePath);
       bwFileStats['filename'] = filePath.replace(/^.*[\\\/]/, '');
-      bwFileStats['humansize'] = conversions.byteToHumanFileSize(bwFileStats['size'], appSettings.misc.usestandardsize);
+      bwFileStats['humansize'] = conversions.byteToHumanFileSize(bwFileStats['size'], misc.usestandardsize);
       $('#bwfLoadingInfo').text('Loading file contents...');
       bwFileContents = fs.readFileSync(filePath);
     } else {
-      var bwFileStats = fs.statSync(filePath[0]);
+      bwFileStats = fs.statSync(filePath[0]);
       bwFileStats['filename'] = filePath[0].replace(/^.*[\\\/]/, '');
-      bwFileStats['humansize'] = conversions.byteToHumanFileSize(bwFileStats['size'], appSettings.misc.usestandardsize);
+      bwFileStats['humansize'] = conversions.byteToHumanFileSize(bwFileStats['size'], misc.usestandardsize);
       $('#bwfLoadingInfo').text('Loading file contents...');
       bwFileContents = fs.readFileSync(filePath[0]);
     }
     $('#bwfLoadingInfo').text('Getting line count...');
     bwFileStats['linecount'] = bwFileContents.toString().split('\n').length;
 
-    if (appSettings.lookup.randomize.timebetween == true) {
-      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * appSettings.lookup.randomize.timebetweenmin);
-      bwFileStats['maxestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * appSettings.lookup.randomize.timebetweenmax);
-      $('#bwftimebetweenmin').text('{0}ms '.format(appSettings.lookup.randomize.timebetweenmin));
-      $('#bwftimebetweenmax').text('/ {0}ms'.format(appSettings.lookup.randomize.timebetweenmax));
+    if (lookup.randomize.timebetween === true) {
+      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.randomize.timebetweenmin);
+      bwFileStats['maxestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.randomize.timebetweenmax);
+      $('#bwftimebetweenmin').text('{0}ms '.format(lookup.randomize.timebetweenmin));
+      $('#bwftimebetweenmax').text('/ {0}ms'.format(lookup.randomize.timebetweenmax));
       $('#bwfTableMinMaxEstimate').text('{0} to {1}'.format(bwFileStats['minestimate'], bwFileStats['maxestimate']));
     } else {
-      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * appSettings.lookup.timebetween);
+      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.timebetween);
       $('#bwftimebetweenmaxtext').addClass('is-hidden');
-      $('#bwftimebetweenmin').text(appSettings.lookup.timebetween + 'ms');
+      $('#bwftimebetweenmin').text(lookup.timebetween + 'ms');
       $('#bwfTableMinMaxEstimate').text('> {0}'.format(bwFileStats['minestimate']));
     }
 

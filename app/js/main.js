@@ -1,9 +1,5 @@
 const electron = require('electron'),
-  path = require('path'),
   url = require('url'),
-  dedent = require('dedent-js'),
-  util = require('util'),
-  parseRawData = require('./common/parse-raw-data.js'),
   debug = require('debug')('main'),
   debugb = require('debug')('renderer');
 
@@ -63,9 +59,12 @@ app.on('ready', function() {
 
 // Startup execution
 function startup() {
+  const {
+    startup
+  } = appSettings;
   debug('Doing startup checks');
-  debug('Developer tools at startup: {0}'.format(appSettings.startup.devtools));
-  if (appSettings.startup.devtools == true) {
+  debug('Developer tools at startup: {0}'.format(startup.devtools));
+  if (startup.devtools == true) {
     mainWindow.toggleDevTools();
   }
 }
