@@ -16,15 +16,15 @@ const {
 } = require('./auxiliary.js');
 
 // File input, path and information confirmation container
-ipcRenderer.on('bulkwhois:fileinput.confirmation', function(event, filePath, isDragDrop = false) {
+ipcRenderer.on('bulkwhois:fileinput.confirmation', function(event, filePath = null, isDragDrop = false) {
   const {
     misc,
     lookup
   } = appSettings;
-  var bwFileStats;
+  var bwFileStats; // File stats, size, last changed, etc
 
   //console.log(filePath);
-  if (filePath === undefined) {
+  if (filePath === undefined || filePath == '' || filePath === null) {
     //console.log(filePath);
     $('#bwFileInputLoading').addClass('is-hidden');
     $('#bwEntry').removeClass('is-hidden');

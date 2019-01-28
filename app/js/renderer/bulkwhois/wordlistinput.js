@@ -1,9 +1,9 @@
 /** global: appSettings */
-const conversions = require('../../common/conversions.js');
+const conversions = require('../../common/conversions.js'); // Conversions helper
 
-var bwWordlistContents;
+var bwWordlistContents; // Global wordlist input contents
 
-require('../../common/stringformat.js');
+require('../../common/stringformat.js'); // String format override
 
 const {
   ipcRenderer

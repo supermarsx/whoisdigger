@@ -1,19 +1,5 @@
-var whois = require('../common/whoiswrapper.js');
-var conversions = require('../common/conversions.js');
-
-require('../common/stringformat.js');
-
-require('./bulkwhois/wordlistinput.js');
-require('./bulkwhois/fileinput.js');
-require('./bulkwhois/process.js');
-require('./bulkwhois/export.js');
-
-const {
-  ipcRenderer
-} = require('electron');
-
-// Prevent drag over redirect
-document.addEventListener('dragover', function(event) {
-  event.preventDefault();
-  return false;
-}, false);
+/* Bulk whois handling */
+require('./bulkwhois/wordlistinput.js'); // Bulk whois by wordlist input
+require('./bulkwhois/fileinput.js'); // Bulk whois by file input
+require('./bulkwhois/process.js'); // Bulk whois requests processing
+require('./bulkwhois/export.js'); // Export processing

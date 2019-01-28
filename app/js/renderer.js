@@ -117,3 +117,9 @@ function loadContents() {
   $('#include.navbar').load(path.join(__dirname, '../html/navigation/navbar.html'));
   $('#include.navbar.tabs').load(path.join(__dirname, '../html/navigation/navbar.tabs.html'));
 }
+
+// Prevent drag over redirect
+document.addEventListener('dragover', function(event) {
+  event.preventDefault();
+  return false;
+}, false);

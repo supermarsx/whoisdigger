@@ -44,17 +44,18 @@ ipcRenderer.on('singlewhois:results', function(event, domainResults) {
       $('#swMessageError').removeClass('is-hidden');
       break;
     case 'unavailable':
+    console.log(domainResultsJSON);
       $('#swMessageUnavailable').removeClass('is-hidden');
       $('#swMessageWhoisResults').text(domainResults);
 
-      $('#swTableDomain').attr('href', "http://" + domainResultsJSON['domainName']);
-      $('#swTableDomain').text(domainResultsJSON['domainName']);
+      $('#swTableDomain').attr('href', "http://" + domainResultsJSON['domainName'] || domainResultsJSON['domain']);
+      $('#swTableDomain').text(domainResultsJSON['domainName'] || domainResultsJSON['domain']);
 
       $('#swTableUpdate').text(domainResultsJSON['updatedDate']);
       $('#swTableRegistrar').text(domainResultsJSON['registrar']);
-      $('#swTableCreation').text(domainResultsJSON['creationDate']);
-      $('#swTableCompany').text(domainResultsJSON['registrantOrganization']);
-      $('#swTableExpiry').text(domainResultsJSON['registrarRegistrationExpirationDate']);
+      $('#swTableCreation').text(domainResultsJSON['creationDate'] || domainResultsJSON['createdDate'] || domainResultsJSON['created']);
+      $('#swTableCompany').text(domainResultsJSON['registrantOrganization'] || domainResultsJSON['registrant']);
+      $('#swTableExpiry').text(domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires']);
       $('#swTableWhoisInfo.is-hidden').removeClass('is-hidden');
       break;
     case 'available':

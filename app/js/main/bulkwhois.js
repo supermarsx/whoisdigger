@@ -5,12 +5,21 @@ const electron = require('electron'),
   util = require('util'),
   whois = require('../common/whoiswrapper.js'),
   conversions = require('../common/conversions.js'),
-  debug = require('debug')('main.bulkwhois');
+  debug = require('debug')('main.bulkwhois'),
+  defaultBulkWhois = require('./bulkwhois/process.defaults.js');
 
+require('./bulkwhois/fileinput.js');
+require('./bulkwhois/wordlistinput.js');
+require('./bulkwhois/export.js');
 require('../common/stringformat.js');
+
 var {
   appSettings
 } = require('../appsettings.js');
+
+var {
+  resetObject
+} = require('../common/resetobj.js');
 
 const {
   app,
@@ -26,13 +35,20 @@ const {
 } = require('perf_hooks');
 
 var defaultValue = null; // Changing this implies changing all dependant comparisons
-var defaultBulkWhois = require('./bulkwhois.defaults.js');
 var bulkWhois; // BulkWhois object
 
 // Bulk Domain whois lookup
 ipcMain.on('bulkwhois:lookup', function(event, domains, tlds) {
-  resetUiCounters(event); // Reset UI counters
-  bulkWhois = resetVar(); // Reset var
+  resetUiCounters(event); // Reset UI counters, pass window param
+  bulkWhois = resetObject(defaultBulkWhois); // Reset var
+  var {
+    lookup,
+    misc
+  } = appSettings;
+
+  var {
+    results
+  } = bulkWhois;
 
   bulkWhois.input.domains = domains; // Domain array
   bulkWhois.input.tlds = tlds; // TLDs array
@@ -47,28 +63,28 @@ ipcMain.on('bulkwhois:lookup', function(event, domains, tlds) {
 
       bulkWhois.input.domainsPending[bulkWhois.stats.domains.processed] = bulkWhois.input.domains[i] + '.' + bulkWhois.input.tlds[j];
 
-      if (appSettings.lookup.randomize.timebetween == true) { // Time between each request is random?
-        timebetween = Math.floor((Math.random() * appSettings.lookup.randomize.timebetweenmax) + appSettings.lookup.randomize.timebetweenmin);
+      if (lookup.randomize.timebetween == true) { // Time between each request is random?
+        timebetween = Math.floor((Math.random() * lookup.randomize.timebetweenmax) + lookup.randomize.timebetweenmin);
       } else {
-        timebetween = appSettings.lookup.timebetween;
+        timebetween = lookup.timebetween;
       }
 
       (function(domain, y, z) { // y = i = Domain array index, and z = j = TLD array index
         id = (y + 1) * (z + 1);
         bulkWhois.processingIDs[id] = setTimeout(function() {
 
-          var follow, timeout, timebetween, reqtime;
+          var follow, timeout, timebetween, lastStatus, reqtime = [];
 
-          if (appSettings.lookup.randomize.follow == true) { // Request follow depth is randomized?
-            follow = Math.floor((Math.random() * appSettings.lookup.randomize.followmax) + appSettings.lookup.randomize.followmin);
+          if (lookup.randomize.follow === true) { // Request follow depth is randomized?
+            follow = Math.floor((Math.random() * lookup.randomize.followmax) + lookup.randomize.followmin);
           } else {
-            follow = appSettings.lookup.follow;
+            follow = lookup.follow;
           }
 
-          if (appSettings.lookup.randomize.timeout == true) { // Request timeout is randomized?
-            timeout = Math.floor((Math.random() * appSettings.lookup.randomize.timeoutmax) + appSettings.lookup.randomize.timeoutmin);
+          if (lookup.randomize.timeout === true) { // Request timeout is randomized?
+            timeout = Math.floor((Math.random() * lookup.randomize.timeoutmax) + lookup.randomize.timeoutmin);
           } else {
-            timeout = appSettings.lookup.timeout;
+            timeout = lookup.timeout;
           }
 
           bulkWhois.stats.domains.sent++; // Requests sent
@@ -77,47 +93,50 @@ ipcMain.on('bulkwhois:lookup', function(event, domains, tlds) {
           bulkWhois.stats.domains.waiting++; // Waiting in queue
           event.sender.send('bulkwhois:status.update', 'domains.waiting', bulkWhois.stats.domains.waiting); // Waiting in queue, update stats
 
-          reqtime = performance.now();
+          reqtime[id] = performance.now();
           whois.lookup(domain, {
               "follow": follow,
               "timeout": timeout
             })
             .then(function(data) {
-              reqtime = performance.now() - reqtime;
+              reqtime[id] = performance.now() - reqtime[id];
 
-              if (bulkWhois.stats.reqtimes.minimum == null || bulkWhois.stats.reqtimes.minimum > reqtime) {
-                bulkWhois.stats.reqtimes.minimum = reqtime.toFixed(2);
+              if (bulkWhois.stats.reqtimes.minimum == null || bulkWhois.stats.reqtimes.minimum > reqtime[id]) {
+                bulkWhois.stats.reqtimes.minimum = reqtime[id].toFixed(2);
                 event.sender.send('bulkwhois:status.update', 'reqtimes.minimum', bulkWhois.stats.reqtimes.minimum);
               }
-              if (bulkWhois.stats.reqtimes.maximum == null || bulkWhois.stats.reqtimes.maximum < reqtime) {
-                bulkWhois.stats.reqtimes.maximum = reqtime.toFixed(2);
+              if (bulkWhois.stats.reqtimes.maximum == null || bulkWhois.stats.reqtimes.maximum < reqtime[id]) {
+                bulkWhois.stats.reqtimes.maximum = reqtime[id].toFixed(2);
                 event.sender.send('bulkwhois:status.update', 'reqtimes.maximum', bulkWhois.stats.reqtimes.maximum);
               }
-              bulkWhois.stats.reqtimes.last = reqtime.toFixed(2);
+              bulkWhois.stats.reqtimes.last = reqtime[id].toFixed(2);
               event.sender.send('bulkwhois:status.update', 'reqtimes.last', bulkWhois.stats.reqtimes.last);
 
-              if (appSettings.misc.asfoverride == true) {
+              if (misc.asfoverride === true) {
                 var lastweight = (bulkWhois.stats.domains.sent - bulkWhois.stats.domains.waiting) / bulkWhois.stats.domains.processed;
                 bulkWhois.stats.reqtimes.average = ((bulkWhois.stats.reqtimes.average * lastweight) +
-                  ((1 - lastweight) * reqtime.toFixed(2))).toFixed(2);
+                  ((1 - lastweight) * reqtime[id].toFixed(2))).toFixed(2);
               } else {
-                bulkWhois.stats.reqtimes.average = ((reqtime.toFixed(2) * appSettings.misc.avgsmoothingfactor1) +
-                  ((1 - appSettings.misc.avgsmoothingfactor1) * bulkWhois.stats.reqtimes.average)).toFixed(2);
+                bulkWhois.stats.reqtimes.average = ((reqtime[id].toFixed(2) * misc.avgsmoothingfactor1) +
+                  ((1 - misc.avgsmoothingfactor1) * bulkWhois.stats.reqtimes.average)).toFixed(2);
               }
 
               domainAvailable = whois.isDomainAvailable(data);
+
               switch (domainAvailable) {
                 case 'available':
                   bulkWhois.stats.status.available++;
                   event.sender.send('bulkwhois:status.update', 'status.available', bulkWhois.stats.status.available);
                   bulkWhois.stats.laststatus.available = domain;
                   event.sender.send('bulkwhois:status.update', 'laststatus.available', bulkWhois.stats.laststatus.available);
+                  lastStatus = 'available';
                   break;
                 case 'unavailable':
                   bulkWhois.stats.status.unavailable++;
                   event.sender.send('bulkwhois:status.update', 'status.unavailable', bulkWhois.stats.status.unavailable);
                   bulkWhois.stats.laststatus.unavailable = domain;
                   event.sender.send('bulkwhois:status.update', 'laststatus.unavailable', bulkWhois.stats.laststatus.unavailable);
+                  lastStatus = 'unavailable';
                   break;
                 case 'querylimituniregistry':
                 case 'error':
@@ -125,41 +144,54 @@ ipcMain.on('bulkwhois:lookup', function(event, domains, tlds) {
                   event.sender.send('bulkwhois:status.update', 'status.error', bulkWhois.stats.status.error);
                   bulkWhois.stats.laststatus.error = domain;
                   event.sender.send('bulkwhois:status.update', 'laststatus.error', bulkWhois.stats.laststatus.error);
+                  lastStatus = 'error';
                   break;
 
               }
 
-
               debug('Average request time {0}ms'.format(bulkWhois.stats.reqtimes.average));
-              event.sender.send('bulkwhois:status.update', 'reqtimes.average', bulkWhois.stats.reqtimes.average);
 
+              event.sender.send('bulkwhois:status.update', 'reqtimes.average', bulkWhois.stats.reqtimes.average);
               event.sender.send('bulkwhois:results', domain, data);
               bulkWhois.stats.domains.waiting--; // Waiting in queue
               event.sender.send('bulkwhois:status.update', 'domains.waiting', bulkWhois.stats.domains.waiting); // Waiting in queue, update stats
+
+              domainResultsJSON = whois.toJSON(data);
+
+              results.id[id] = id;
+              results.domain[id] = domain;
+              results.status[id] = lastStatus;
+              results.registrar[id] = domainResultsJSON['registrar'];
+              results.company[id] = domainResultsJSON['registrantOrganization'] || domainResultsJSON['registrant'];
+              results.updatedate[id] = domainResultsJSON['creationDate'] || domainResultsJSON['createdDate'] || domainResultsJSON['created'];
+              results.creationdate[id] = domainResultsJSON['updatedDate'];
+              results.expirydate[id] = domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires'];
+              results.whoisreply[id] = data;
+              results.whoisjson[id] = domainResultsJSON;
+              results.requesttime[id] = reqtime[id];
             })
             .catch(function(data) {
-              reqtime = performance.now() - reqtime;
-
               debug("An error ocurred while performing a whois lookup");
+              reqtime[id] = performance.now() - reqtime[id];
 
-              if (bulkWhois.stats.reqtimes.minimum == null || bulkWhois.stats.reqtimes.minimum > reqtime) {
-                bulkWhois.stats.reqtimes.minimum = reqtime.toFixed(2);
+              if (bulkWhois.stats.reqtimes.minimum == null || bulkWhois.stats.reqtimes.minimum > reqtime[id]) {
+                bulkWhois.stats.reqtimes.minimum = reqtime[id].toFixed(2);
                 event.sender.send('bulkwhois:status.update', 'reqtimes.minimum', bulkWhois.stats.reqtimes.minimum);
               }
-              if (bulkWhois.stats.reqtimes.maximum == null || bulkWhois.stats.reqtimes.maximum < reqtime) {
-                bulkWhois.stats.reqtimes.maximum = reqtime.toFixed(2);
+              if (bulkWhois.stats.reqtimes.maximum == null || bulkWhois.stats.reqtimes.maximum < reqtime[id]) {
+                bulkWhois.stats.reqtimes.maximum = reqtime[id].toFixed(2);
                 event.sender.send('bulkwhois:status.update', 'reqtimes.maximum', bulkWhois.stats.reqtimes.maximum);
               }
-              bulkWhois.stats.reqtimes.last = reqtime.toFixed(2);
+              bulkWhois.stats.reqtimes.last = reqtime[id].toFixed(2);
               event.sender.send('bulkwhois:status.update', 'reqtimes.last', bulkWhois.stats.reqtimes.last);
 
-              if (appSettings.misc.asfoverride == true) {
+              if (misc.asfoverride === true) {
                 var lastweight = (bulkWhois.stats.domains.sent - bulkWhois.stats.domains.waiting) / bulkWhois.stats.domains.processed;
                 bulkWhois.stats.reqtimes.average = ((bulkWhois.stats.reqtimes.average * lastweight) +
-                  ((1 - lastweight) * reqtime.toFixed(2))).toFixed(2);
+                  ((1 - lastweight) * reqtime[id].toFixed(2))).toFixed(2);
               } else {
-                bulkWhois.stats.reqtimes.average = ((reqtime.toFixed(2) * appSettings.misc.avgsmoothingfactor1) +
-                  ((1 - appSettings.misc.avgsmoothingfactor1) * bulkWhois.stats.reqtimes.average)).toFixed(2);
+                bulkWhois.stats.reqtimes.average = ((reqtime[id].toFixed(2) * misc.avgsmoothingfactor1) +
+                  ((1 - misc.avgsmoothingfactor1) * bulkWhois.stats.reqtimes.average)).toFixed(2);
               }
 
               bulkWhois.stats.status.error++;
@@ -168,29 +200,44 @@ ipcMain.on('bulkwhois:lookup', function(event, domains, tlds) {
               event.sender.send('bulkwhois:status.update', 'laststatus.error', bulkWhois.stats.laststatus.error);
 
               debug('Average request time {0}ms'.format(bulkWhois.stats.reqtimes.average));
-              event.sender.send('bulkwhois:status.update', 'reqtimes.average', bulkWhois.stats.reqtimes.average);
 
+              event.sender.send('bulkwhois:status.update', 'reqtimes.average', bulkWhois.stats.reqtimes.average);
               event.sender.send('bulkwhois:results', domain, data);
               bulkWhois.stats.domains.waiting--; // Waiting in queue
               event.sender.send('bulkwhois:status.update', 'domains.waiting', bulkWhois.stats.domains.waiting); // Waiting in queue, update stats
+
+              domainResultsJSON = whois.toJSON(data);
+
+              results.id[id] = id;
+              results.domain[id] = domain;
+              results.status[id] = lastStatus;
+              results.registrar[id] = domainResultsJSON['registrar'];
+              results.company[id] = domainResultsJSON['registrantOrganization'] || domainResultsJSON['registrant'];
+              results.updatedate[id] = domainResultsJSON['creationDate'] || domainResultsJSON['createdDate'] || domainResultsJSON['created'];
+              results.creationdate[id] = domainResultsJSON['updatedDate'];
+              results.expirydate[id] = domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires'];
+              results.whoisreply[id] = data;
+              results.whoisjson[id] = domainResultsJSON;
+              results.requesttime[id] = reqtime[id];
             });
         }, timebetween * (y + 1) * (z + 1));
       }(bulkWhois.input.domains[i] + '.' + bulkWhois.input.tlds[j], i, j));
     }
   }
 
-  if (appSettings.lookup.randomize.timebetween == true) {
-    bulkWhois.stats.time.remainingcounter = bulkWhois.stats.domains.total * appSettings.lookup.randomize.timebetweenmax;
+  if (lookup.randomize.timebetween === true) {
+    bulkWhois.stats.time.remainingcounter = bulkWhois.stats.domains.total * lookup.randomize.timebetweenmax;
   } else {
-    bulkWhois.stats.time.remainingcounter = bulkWhois.stats.domains.total * appSettings.lookup.timebetween;
+    bulkWhois.stats.time.remainingcounter = bulkWhois.stats.domains.total * lookup.timebetween;
   }
 
-  if (appSettings.lookup.randomize.timeout == true) {
-    bulkWhois.stats.time.remainingcounter += appSettings.lookup.randomize.timeoutmax;
+  if (lookup.randomize.timeout === true) {
+    bulkWhois.stats.time.remainingcounter += lookup.randomize.timeoutmax;
   } else {
-    bulkWhois.stats.time.remainingcounter += appSettings.lookup.timeout;
+    bulkWhois.stats.time.remainingcounter += lookup.timeout;
   }
 
+  // Bulk whois counter/timer
   bulkWhois.stats.time.counter = setInterval(function() {
     bulkWhois.stats.time.currentcounter += 1000;
     bulkWhois.stats.time.remainingcounter -= 1000;
@@ -298,24 +345,6 @@ ipcMain.on('bulkwhois:lookup.continue', function(event) {
   }, 1000);
 });
 
-// Bulk domain, file input path
-ipcMain.on('bulkwhois:input.file', function(event) {
-  debug("Waiting for file selection");
-  var filePath = dialog.showOpenDialog({
-    title: "Select wordlist file",
-    buttonLabel: "Open",
-    properties: ['openFile', 'showHiddenFiles']
-  });
-  debug("Using selected file at {0}".format(filePath));
-  event.sender.send('bulkwhois:fileinput.confirmation', filePath);
-});
-
-// Bulk domain, wordlist input
-ipcMain.on('bulkwhois:input.wordlist', function(event) {
-  debug("Using wordlist input");
-  event.sender.send('bulkwhois:wordlistinput.confirmation');
-});
-
 // On drag and drop file
 ipcMain.on('ondragstart', function(event, filePath) {
   event.sender.startDrag({
@@ -331,6 +360,8 @@ function resetUiCounters(event) {
   //var send = event.sender.send;
 
   debug("Resetting bulk whois UI counters");
+
+
   var startingValue = 0;
   var defaultValue = '-';
 
@@ -362,12 +393,4 @@ function resetUiCounters(event) {
   event.sender.send('bulkwhois:status.update', 'laststatus.unavailable', defaultValue);
   event.sender.send('bulkwhois:status.update', 'laststatus.error', defaultValue);
 
-}
-
-// Reset bulkWhois object to default values
-function resetVar() {
-  debug("Resetting global bulkWhois object");
-  returnValue = JSON.parse(JSON.stringify(defaultBulkWhois));
-  debug("bulkWhois object: {0}".format(returnValue));
-  return returnValue;
 }
