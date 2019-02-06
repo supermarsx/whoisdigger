@@ -15,12 +15,15 @@
   "license": "ISC",
   "dependencies": {
     "bulma": "^0.7.2",
+    "change-case": "^3.1.0",
+    "csv": "^5.1.1",
     "debug": "^4.1.1",
+    "dedent-js": "^1.0.1",
     "electron": "^3.1.2",
     "electron-packager": "^13.0.1",
+    "html-entities": "^1.2.1",
     "jquery": "^3.3.1",
-    "whois": "^2.9.1",
-    "whois-json": "^2.1.0",
-    "whois-ux": "0.0.2"
+    "jszip": "^3.1.5",
+    "whois": "^2.9.1"
   }
 }

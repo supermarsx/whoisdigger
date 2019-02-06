@@ -6,11 +6,10 @@ const {
   BrowserWindow,
   Menu,
   ipcMain,
-  dialog,
-  remote
+  dialog
 } = electron;
 
-// Bulk domain, file input path
+// File input, select file dialog
 ipcMain.on('bulkwhois:input.file', function(event) {
   debug("Waiting for file selection");
   var filePath = dialog.showOpenDialog({

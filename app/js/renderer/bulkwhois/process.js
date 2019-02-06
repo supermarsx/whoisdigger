@@ -106,12 +106,9 @@ ipcRenderer.on('bulkwhois:status.update', function(event, stat, value) {
       $('#bwpButtonStop').addClass('is-hidden');
       $('#bwpButtonNext').removeClass('is-hidden');
       break;
-
     default:
       break;
-
   }
-
 });
 
 // Bulk processing, pause/continue process
@@ -131,7 +128,7 @@ $('#bwpButtonPause').click(function() {
       ipcRenderer.send('bulkwhois:lookup.pause');
       break;
     default:
-
+      break;
   }
 });
 

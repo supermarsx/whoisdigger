@@ -19,6 +19,9 @@ async function lookup(domain, options = defaultoptions) {
 }
 
 function toJSON(resultsText) {
+  if (resultsText.includes("lookup: timeout")) {
+    return "timeout";
+  }
   if (typeof resultsText === 'object') {
     JSON.stringify(resultsText, null, 2);
     resultsJSON = resultsText.map(function(data) {
@@ -54,6 +57,8 @@ function isDomainAvailable(resultsText, resultsJSON) {
     case (resultsText.includes('You  are  not  authorized  to  access or query our Whois')):
     case (resultsText.includes('ERROR:101:')):
     case (resultsText.includes('IP Address Has Reached Rate Limit')):
+    case (resultsText.includes('Too many connection attempts')):
+    case (resultsText.includes('Your request is being rate limited')):
       return 'error';
       break;
     case (resultsJSON.hasOwnProperty('domainName')):

@@ -1,5 +1,7 @@
-var whois = require('../../common/whoiswrapper.js');
-var conversions = require('../../common/conversions.js');
+var whois = require('../../common/whoiswrapper.js'),
+  conversions = require('../../common/conversions.js'),
+  defaultExportOptions = require('./export.defaults.js'),
+  results, options;
 
 require('../../common/stringformat.js');
 
@@ -7,18 +9,33 @@ const {
   ipcRenderer
 } = require('electron');
 
-var defaultExportOptions = require('./export.defaults.js');
-
 var {
   resetObject
 } = require('../../common/resetobj.js');
 
+var {
+  getExportOptions,
+  setExportOptions
+} = require('./auxiliary.js');
+
+ipcRenderer.on('bulkwhois:result.receive', function(event, rcvResults) {
+  ipcRenderer.send('app:debug', "Results are ready for export {0}".format(rcvResults));
+  results = rcvResults;
+  console.log("%o", results);
+});
+
+ipcRenderer.on('bulkwhois:export.cancel', function(event) {
+  $('#bwExportLoading').addClass('is-hidden');
+  $('#bwEntry').removeClass('is-hidden');
+});
+
 // Export options, confirm export
 $('#bweButtonExport').click(function() {
   $('#bwExport').addClass('is-hidden');
-  $('#bwExportLoading').removeClass('is-hidden');
   options = getExportOptions();
-  ipcRenderer.send("bulkwhois:export", options);
+  $.when($('#bwExportLoading').removeClass('is-hidden').delay(10)).done(function() {
+    ipcRenderer.send("bulkwhois:export", results, options);
+  });
 });
 
 // Export options, cancel export
@@ -27,15 +44,7 @@ $('#bweButtonCancel').click(function() {
   $('#bwEntry').removeClass('is-hidden');
 });
 
-// Get export options from the form
-function getExportOptions() {
-  var options = resetObject();
-  options = {
-    'filetype': $('#bweSelectFiletype').attr('value'),
-    'domains': $('#bweSelectDomains').attr('value'),
-    'errors': $('#bweSelectErrors').attr('value'),
-    'information': $('#bweSelectInformation').attr('value'),
-    'whoisreply': $('#bweSelectWhoisreply').attr('value')
-  }
-  return options;
-}
+$('#bweSelectPreset').change(function() {
+  preset = $('#bweSelectPreset').val();
+  setExportOptions(preset);
+});

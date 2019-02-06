@@ -490,6 +490,9 @@
               <div class="columns">
                 <div class="column is-two-fifths has-text-right">
                   <div class="field">
+                    <span style="line-height: 2.25em; margin-right: 10px;">Preset</span>
+                  </div>
+                  <div class="field">
                     <span style="line-height: 2.25em; margin-right: 10px;">File Type</span>
                   </div>
                   <div class="field">
@@ -506,6 +509,16 @@
                   </div>
                 </div>
                 <div class="column has-text-left">
+                  <div class="field">
+                    <div class="select">
+                      <select id="bweSelectPreset">
+                        <option value="none">None</option>
+                        <option value="availableonly">Only Available</option>
+                        <option value="allbutnoreply">All but no Whois reply</option>
+                        <option value="import">Analyser export/import</option>
+                      </select>
+                    </div>
+                  </div>
                   <div class="field">
                     <div class="select">
                       <select id="bweSelectFiletype">

@@ -7,7 +7,7 @@ module.exports = {
       'frame': false, // Is basic frame shown (default: false)
       'show': false, // Show app before load (default: false)
       'height': 700, // Window height in pixels (default: 700)
-      'width': 1000, // Window width in pixels (default: 1000)
+      'width': 1200, // Window width in pixels (default: 1000)
       'icon': path.join(__dirname, '../icons/app.png') // App icon path (default: ...app.png)
     },
     'url': {
@@ -38,7 +38,7 @@ module.exports = {
       'extendedmenu': true // Enable extended navigation toggle (default: true)
     },
     'startup': { // At app startup
-      'devtools': false, // Enable/Show developer tools at startup (default: false)
+      'devtools': true, // Enable/Show developer tools at startup (default: false)
       'loadconfig': false // Load custom/override app settings trough user file (default: true)
     },
     'customconfig': {
@@ -67,7 +67,15 @@ module.exports = {
       'assumeuniregistryasunavailable': true // Assume domain as unavailable when Uniregistry query limit is reached (default: true)
     },
     'lookupdefault': {
-      'server': "" 
+      'server': ""
+    },
+    'export': { // Export configurations
+      'enclosure': '"', // Field enclosing char
+      'separator': ',', // Field separator char
+      'linebreak': '\n', // Line breaker char
+      'textfile': '.txt', // Text file extension
+      'csvfile': '.csv', // Comma separated values file extension
+      'zipfile': '.zip' // Compressed file extension
     }
   }
 };
