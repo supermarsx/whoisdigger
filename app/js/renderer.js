@@ -5,6 +5,8 @@ const electron = require('electron'),
 require('../js/renderer/singlewhois.js');
 require('../js/renderer/bulkwhois.js');
 
+window.$ = window.jQuery = require('jquery');
+
 const {
   appSettings
 } = require('../js/appsettings.js');

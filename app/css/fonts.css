@@ -1,0 +1,51 @@
+/* Cousine Regular */
+
+@font-face {
+    font-family: "Cousine";
+    src: url("../fonts/Cousine-Regular/Cousine-Regular.eot");
+    src: url("../fonts/Cousine-Regular/Cousine-Regular.eot?#iefix") format('embedded-opentype'),
+         url("../fonts/Cousine-Regular/Cousine-Regular.woff2") format('woff2'),
+         url("../fonts/Cousine-Regular/Cousine-Regular.woff") format('woff'),
+         url("../fonts/Cousine-Regular/Cousine-Regular.ttf") format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* Cousine Italic */
+
+@font-face {
+    font-family: "Cousine";
+    src: url("../fonts/Cousine-Italic/Cousine-Italic.eot");
+    src: url("../fonts/Cousine-Italic/Cousine-Italic.eot?#iefix") format('embedded-opentype'),
+         url("../fonts/Cousine-Italic/Cousine-Italic.woff2") format('woff2'),
+         url("../fonts/Cousine-Italic/Cousine-Italic.woff") format('woff'),
+         url("../fonts/Cousine-Italic/Cousine-Italic.ttf") format('truetype');
+    font-weight: 400;
+    font-style: italic;
+}
+
+/* Cousine Bold Italic */
+
+@font-face {
+    font-family: "Cousine";
+    src: url("../fonts/Cousine-BoldItalic/Cousine-BoldItalic.eot");
+    src: url("../fonts/Cousine-BoldItalic/Cousine-BoldItalic.eot?#iefix") format('embedded-opentype'),
+         url("../fonts/Cousine-BoldItalic/Cousine-BoldItalic.woff2") format('woff2'),
+         url("../fonts/Cousine-BoldItalic/Cousine-BoldItalic.woff") format('woff'),
+         url("../fonts/Cousine-BoldItalic/Cousine-BoldItalic.ttf") format('truetype');
+    font-weight: 700;
+    font-style: italic;
+}
+
+/* Cousine Bold */
+
+@font-face {
+    font-family: "Cousine";
+    src: url("../fonts/Cousine-Bold/Cousine-Bold.eot");
+    src: url("../fonts/Cousine-Bold/Cousine-Bold.eot?#iefix") format('embedded-opentype'),
+         url("../fonts/Cousine-Bold/Cousine-Bold.woff2") format('woff2'),
+         url("../fonts/Cousine-Bold/Cousine-Bold.woff") format('woff'),
+         url("../fonts/Cousine-Bold/Cousine-Bold.ttf") format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}

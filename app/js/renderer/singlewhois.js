@@ -1,6 +1,8 @@
 var whois = require('../common/whoiswrapper.js'),
   parseRawData = require('../common/parse-raw-data.js');
 
+window.$ = window.jQuery = require('jquery');
+
 const {
   ipcRenderer
 } = require('electron');
@@ -55,7 +57,7 @@ ipcRenderer.on('singlewhois:results', function(event, domainResults) {
       $('#swTableRegistrar').text(domainResultsJSON['registrar']);
       $('#swTableCreation').text(domainResultsJSON['creationDate'] || domainResultsJSON['createdDate'] || domainResultsJSON['created']);
       $('#swTableCompany').text(domainResultsJSON['registrantOrganization'] || domainResultsJSON['registrant']);
-      $('#swTableExpiry').text(domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires']);
+      $('#swTableExpiry').text(domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires'] || domainResultsJSON['Registry Expiry Date']);
       $('#swTableWhoisInfo.is-hidden').removeClass('is-hidden');
       break;
     case 'available':

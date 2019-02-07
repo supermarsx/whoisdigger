@@ -15,7 +15,8 @@ var {
 
 var {
   getExportOptions,
-  setExportOptions
+  setExportOptions,
+  setExportOptionsEx
 } = require('./auxiliary.js');
 
 ipcRenderer.on('bulkwhois:result.receive', function(event, rcvResults) {
@@ -45,6 +46,11 @@ $('#bweButtonCancel').click(function() {
 });
 
 $('#bweSelectPreset').change(function() {
-  preset = $('#bweSelectPreset').val();
+  var preset = $('#bweSelectPreset').val();
   setExportOptions(preset);
+});
+
+$('#bweSelectFiletype').change(function() {
+  var filetype = $('#bweSelectFiletype').val();
+  setExportOptionsEx(filetype);
 });

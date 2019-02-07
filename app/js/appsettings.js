@@ -62,8 +62,8 @@ module.exports = {
     },
     'misc': { // Miscellaneous configurations
       'usestandardsize': true, // Use SI size measures for filesizes (ex: kB instead of KiB) (default: true)
-      'avgsmoothingfactor1': 0.1, // Smoothing factor to calculate whois request time, last 10 requests average (default: 0.1)
-      'asfoverride': false, // Use alternative smoothing factor based on the amount of processed whois requests (default: true)
+      'asfoverride': false, // Use true average instead of alternative smoothed average based on the amount of processed whois requests (default: true)
+      'avgsmoothingfactor1': 0.1, // Smoothing factor to calculate average whois request time, last 10 requests average (default: 0.1 (0.1 = last 10 requests; 0.05 = last 20 requests))
       'assumeuniregistryasunavailable': true // Assume domain as unavailable when Uniregistry query limit is reached (default: true)
     },
     'lookupdefault': {

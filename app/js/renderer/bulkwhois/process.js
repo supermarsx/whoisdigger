@@ -51,15 +51,15 @@ ipcRenderer.on('bulkwhois:status.update', function(event, stat, value) {
       }
       break;
     case 'domains.processed': // processed domains
-      percent = parseFloat(value / parseInt($('#bwTableProcessingTotal').text()) * 100).toFixed(1);
+      percent = parseFloat((value / parseInt($('#bwTableProcessingTotal').text()) * 100).toFixed(1)) || 0;
       $('#bwTableProcessingProcessed').text('{0} ({1}%)'.format(value, percent));
       break;
     case 'domains.waiting': // whois requests waiting reply
-      percent = parseFloat(value / parseInt($('#bwTableProcessingSent').text()) * 100).toFixed(1);
+      percent = parseFloat((value / parseInt($('#bwTableProcessingSent').text()) * 100).toFixed(1)) || 0;
       $('#bwTableProcessingWaiting').text('{0} ({1}%)'.format(value, percent));
       break;
     case 'domains.sent': // sent whois requests
-      percent = parseFloat(value / parseInt($('#bwTableProcessingTotal').text()) * 100).toFixed(1);
+      percent = parseFloat((value / parseInt($('#bwTableProcessingTotal').text()) * 100).toFixed(1)) || 0;
       $('#bwTableProcessingSent').text('{0} ({1}%)'.format(value, percent));
       break;
     case 'domains.total': // total domains
@@ -84,13 +84,16 @@ ipcRenderer.on('bulkwhois:status.update', function(event, stat, value) {
       $('#bwTableProcessingReqAvg').text('{0}ms'.format(value));
       break;
     case 'status.available': // Domains available
-      $('#bwTableProcessingDomAvail').text('{0}'.format(value));
+      percent = parseFloat((value / parseInt($('#bwTableProcessingTotal').text()) * 100).toFixed(1)) || 0;
+      $('#bwTableProcessingDomAvail').text('{0} ({1}%)'.format(value, percent));
       break;
     case 'status.unavailable': // Domains unavailable
-      $('#bwTableProcessingDomUnavail').text('{0}'.format(value));
+      percent = parseFloat((value / parseInt($('#bwTableProcessingTotal').text()) * 100).toFixed(1)) || 0;
+      $('#bwTableProcessingDomUnavail').text('{0} ({1}%)'.format(value, percent));
       break;
     case 'status.error': // Domains error
-      $('#bwTableProcessingDomError').text('{0}'.format(value));
+      percent = parseFloat((value / parseInt($('#bwTableProcessingTotal').text()) * 100).toFixed(1)) || 0;
+      $('#bwTableProcessingDomError').text('{0} ({1}%)'.format(value, percent));
       break;
     case 'laststatus.available': // Last available domain
       $('#bwTableProcessingLastDomAvail').text('{0}'.format(value));

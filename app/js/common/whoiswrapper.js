@@ -13,7 +13,7 @@ var defaultoptions = appSettings.lookupdefault;
 async function lookup(domain, options = defaultoptions) {
   var domainResults = await lookupProm(domain, options).catch(function(err) {
     debug(err);
-    return err;
+    return "Whois lookup error, {0}".format(err);
   });
   return domainResults;
 }
@@ -59,6 +59,8 @@ function isDomainAvailable(resultsText, resultsJSON) {
     case (resultsText.includes('IP Address Has Reached Rate Limit')):
     case (resultsText.includes('Too many connection attempts')):
     case (resultsText.includes('Your request is being rate limited')):
+    case (resultsText.includes('Could not retrieve Whois data')):
+    case (resultsText.includes('Whois lookup error')):
       return 'error';
       break;
     case (resultsJSON.hasOwnProperty('domainName')):

@@ -57,24 +57,41 @@ function setExportOptions(preset) {
       break;
   }
 
-  function lockFields() {
-    if ($('#bweSelectFiletype').prop("disabled") === false) {
-      $('#bweSelectFiletype').prop("disabled", true);
-      $('#bweSelectDomains').prop("disabled", true);
-      $('#bweSelectErrors').prop("disabled", true);
-      $('#bweSelectInformation').prop("disabled", true);
-      $('#bweSelectWhoisreply').prop("disabled", true);
-    }
-  }
+}
 
-  function unlockFields() {
-    if ($('#bweSelectFiletype').prop("disabled") === true) {
-      $('#bweSelectFiletype').prop("disabled", false);
-      $('#bweSelectDomains').prop("disabled", false);
-      $('#bweSelectErrors').prop("disabled", false);
-      $('#bweSelectInformation').prop("disabled", false);
-      $('#bweSelectWhoisreply').prop("disabled", false);
-    }
+function setExportOptionsEx(filetype) {
+  switch (filetype) {
+    case 'txt':
+      lockFields(true);
+      break;
+    case 'csv':
+      unlockFields(true);
+      break;
+  }
+}
+
+function lockFields(isTxt = false) {
+  if (isTxt === false) {
+    $('#bweSelectFiletype').prop("disabled", true);
+    $('#bweSelectDomains').prop("disabled", true);
+    $('#bweSelectErrors').prop("disabled", true);
+  }
+  if ($('#bweSelectWhoisreply').prop("disabled") === false) {
+    $('#bweSelectInformation').prop("disabled", true);
+    $('#bweSelectWhoisreply').prop("disabled", true);
+  }
+}
+
+function unlockFields(isTxt = false) {
+  if (isTxt === true) {
+    $('#bweSelectFiletype').prop("disabled", false);
+  }
+  if ($('#bweSelectWhoisreply').prop("disabled") === true && $('#bweSelectFiletype').val() == 'csv') {
+    $('#bweSelectFiletype').prop("disabled", false);
+    $('#bweSelectDomains').prop("disabled", false);
+    $('#bweSelectErrors').prop("disabled", false);
+    $('#bweSelectInformation').prop("disabled", false);
+    $('#bweSelectWhoisreply').prop("disabled", false);
   }
 }
 
@@ -84,5 +101,6 @@ module.exports = {
   getExportOptions: getExportOptions,
   getExprtOptns: getExportOptions,
   setExportOptions: setExportOptions,
-  setExprtOptns: setExportOptions
+  setExprtOptns: setExportOptions,
+  setExportOptionsEx: setExportOptionsEx
 }

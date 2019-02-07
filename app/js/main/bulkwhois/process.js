@@ -53,6 +53,7 @@ ipcMain.on('bulkwhois:lookup', function(event, domains, tlds) {
   event.sender.send('bulkwhois:status.update', 'domains.total', bulkWhois.stats.domains.total); // Display total amount of domains
 
   console.log("OK");
+  bulkWhois.stats.reqtimes.minimum = 99999;
 
   for (var j = 0; j < bulkWhois.input.tlds.length; j++) { // TLDs index
     for (var i = 0; i < bulkWhois.input.domains.length; i++) { // Domains index
@@ -96,24 +97,25 @@ ipcMain.on('bulkwhois:lookup', function(event, domains, tlds) {
 
           // Process whois reply data
           function processData(event, data = null, isError = false, id) {
-            reqtime[id] = performance.now() - reqtime[id];
-            if (bulkWhois.stats.reqtimes.minimum == null || bulkWhois.stats.reqtimes.minimum > reqtime[id]) {
-              bulkWhois.stats.reqtimes.minimum = reqtime[id].toFixed(2);
+            reqtime[id] = Number(performance.now() - reqtime[id]).toFixed(2);
+            if (Number(bulkWhois.stats.reqtimes.minimum) > Number(reqtime[id])) {
+              bulkWhois.stats.reqtimes.minimum = reqtime[id];
               event.sender.send('bulkwhois:status.update', 'reqtimes.minimum', bulkWhois.stats.reqtimes.minimum);
             }
-            if (bulkWhois.stats.reqtimes.maximum == null || bulkWhois.stats.reqtimes.maximum < reqtime[id]) {
-              bulkWhois.stats.reqtimes.maximum = reqtime[id].toFixed(2);
+            if (Number(bulkWhois.stats.reqtimes.maximum) < Number(reqtime[id])) {
+              bulkWhois.stats.reqtimes.maximum = reqtime[id];
               event.sender.send('bulkwhois:status.update', 'reqtimes.maximum', bulkWhois.stats.reqtimes.maximum);
             }
-            bulkWhois.stats.reqtimes.last = reqtime[id].toFixed(2);
+            bulkWhois.stats.reqtimes.last = reqtime[id];
             event.sender.send('bulkwhois:status.update', 'reqtimes.last', bulkWhois.stats.reqtimes.last);
 
-            if (misc.asfoverride === true) {
-              var lastweight = (bulkWhois.stats.domains.sent - bulkWhois.stats.domains.waiting) / bulkWhois.stats.domains.processed;
-              bulkWhois.stats.reqtimes.average = ((bulkWhois.stats.reqtimes.average * lastweight) +
-                ((1 - lastweight) * reqtime[id].toFixed(2))).toFixed(2);
-            } else {
-              bulkWhois.stats.reqtimes.average = ((reqtime[id].toFixed(2) * misc.avgsmoothingfactor1) +
+            if (misc.asfoverride === true) { // True average
+              var lastweight = Number((bulkWhois.stats.domains.sent - bulkWhois.stats.domains.waiting) / bulkWhois.stats.domains.processed).toFixed(2);
+              bulkWhois.stats.reqtimes.average = Number((Number(bulkWhois.stats.reqtimes.average) * lastweight) +
+                ((1 - lastweight) * reqtime[id])).toFixed(2);
+            } else { // Alternative weighted average
+              bulkWhois.stats.reqtimes.average = bulkWhois.stats.reqtimes.average || reqtime[id];
+              bulkWhois.stats.reqtimes.average = ((reqtime[id] * misc.avgsmoothingfactor1) +
                 ((1 - misc.avgsmoothingfactor1) * bulkWhois.stats.reqtimes.average)).toFixed(2);
             }
 
@@ -159,7 +161,7 @@ ipcMain.on('bulkwhois:lookup', function(event, domains, tlds) {
             bulkWhois.stats.domains.waiting--; // Waiting in queue
             event.sender.send('bulkwhois:status.update', 'domains.waiting', bulkWhois.stats.domains.waiting); // Waiting in queue, update stats
 
-            domainResultsJSON = whois.toJSON(data);///////////----------------
+            domainResultsJSON = whois.toJSON(data);
 
             results.id[id] = id;
             results.domain[id] = domain;
