@@ -52,7 +52,7 @@ ipcMain.on('bulkwhois:lookup', function(event, domains, tlds) {
   bulkWhois.stats.domains.total = bulkWhois.input.tlds.length * bulkWhois.input.domains.length; // Domain quantity times tld quantity
   event.sender.send('bulkwhois:status.update', 'domains.total', bulkWhois.stats.domains.total); // Display total amount of domains
 
-  console.log("OK");
+  //console.log("OK");
   bulkWhois.stats.reqtimes.minimum = 99999;
 
   for (var j = 0; j < bulkWhois.input.tlds.length; j++) { // TLDs index

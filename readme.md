@@ -2,9 +2,11 @@
 
 
 
-![Build Status](https://travis-ci.org/eduardomota/whoisdigger.svg?branch=master)  ![https://david-dm.org/eduardomota/whoisdigger.svg](https://david-dm.org/eduardomota/whoisdigger.svg) ![https://scrutinizer-ci.com/g/eduardomota/whoisdigger/badges/quality-score.png](https://scrutinizer-ci.com/g/eduardomota/whoisdigger/badges/quality-score.png)
+![Build Status](https://scrutinizer-ci.com/g/eduardomota/whoisdigger/badges/build.png?b=master)  ![https://david-dm.org/eduardomota/whoisdigger.svg](https://david-dm.org/eduardomota/whoisdigger.svg) ![https://scrutinizer-ci.com/g/eduardomota/whoisdigger/badges/quality-score.png](https://scrutinizer-ci.com/g/eduardomota/whoisdigger/badges/quality-score.png)
 
-**Be aware that this application is in alpha stage..**
+![Whoisdigger app](https://github.com/whois-team/website/raw/master/images/projects/whoisdigger.gif)
+
+**This application is in alpha stage..**
 
 Whoisdigger is bulk whois lookup, cross-platform, desktop application built on Electron. Made with builders and creators in mind allowing anyone to look for their favorite domain mashups without risk of third-party logging, domain squatting and other domain lookup related issues.
 
