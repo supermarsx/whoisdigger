@@ -22,7 +22,7 @@ Its your sole responsibility what you do with this tool, its intended to let any
 - [x] Bulk whois - drag & drop file input
 - [x] Bulk whois - lookup processing
 - [ ] Bulk whois - lookup pause/continue mechanism
-- [ ] Bulk whois - csv/txt export mechanism
+- [x] Bulk whois - csv/txt export mechanism
 
 ### How to run direct from source
 
