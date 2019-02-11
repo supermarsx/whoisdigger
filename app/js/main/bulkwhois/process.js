@@ -62,7 +62,7 @@ ipcMain.on('bulkwhois:lookup', function(event, domains, tlds) {
 
       bulkWhois.input.domainsPending[bulkWhois.stats.domains.processed] = bulkWhois.input.domains[i] + '.' + bulkWhois.input.tlds[j];
 
-      if (lookup.randomize.timebetween == true) { // Time between each request is random?
+      if (lookup.randomize.timebetween === true) { // Time between each request is random?
         timebetween = Math.floor((Math.random() * lookup.randomize.timebetweenmax) + lookup.randomize.timebetweenmin);
       } else {
         timebetween = lookup.timebetween;
@@ -245,7 +245,7 @@ ipcMain.on('bulkwhois:lookup.continue', function(event) {
   var follow, timeout, timebetween;
 
 
-  if (appSettings.lookup.randomize.timebetween == true) {
+  if (appSettings.lookup.randomize.timebetween === true) {
     timebetween = Math.floor((Math.random() * appSettings.lookup.randomize.timebetweenmax) + appSettings.lookup.randomize.timebetweenmin);
   } else {
     timebetween = appSettings.lookup.timebetween;
@@ -254,12 +254,12 @@ ipcMain.on('bulkwhois:lookup.continue', function(event) {
 
   (function(domain, y) {
 
-    if (appSettings.lookup.randomize.follow == true) {
+    if (appSettings.lookup.randomize.follow === true) {
       follow = Math.floor((Math.random() * appSettings.lookup.randomize.followmax) + appSettings.lookup.randomize.followmin);
     } else {
       follow = appSettings.lookup.follow;
     }
-    if (appSettings.lookup.randomize.timeout == true) {
+    if (appSettings.lookup.randomize.timeout === true) {
       timeout = Math.floor((Math.random() * appSettings.lookup.randomize.timeoutmax) + appSettings.lookup.randomize.timeoutmin);
     } else {
       timeout = appSettings.lookup.timeout;
@@ -304,7 +304,7 @@ ipcMain.on('bulkwhois:lookup.continue', function(event) {
 
     event.sender.send('bulkwhois:status.update', 'time.current', bulkWhois.stats.time.current);
     event.sender.send('bulkwhois:status.update', 'time.remaining', bulkWhois.stats.time.remaining);
-    if (bulkWhois.stats.domains.total == bulkWhois.stats.domains.sent && bulkWhois.stats.domains.waiting == 0) {
+    if (bulkWhois.stats.domains.total === bulkWhois.stats.domains.sent && bulkWhois.stats.domains.waiting === 0) {
       clearTimeout(bulkWhois.stats.time.counter);
       event.sender.send('bulkwhois:status.update', 'finished');
     }

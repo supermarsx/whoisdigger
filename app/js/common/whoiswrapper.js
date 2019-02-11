@@ -44,7 +44,7 @@ function isDomainAvailable(resultsText, resultsJSON) {
 
   switch (true) {
     case (resultsText.includes('Uniregistry') && resultsText.includes('Query limit exceeded')):
-      if (appSettings.misc.assumeuniregistryasunavailable == true) {
+      if (appSettings.misc.assumeuniregistryasunavailable === true) {
         return 'unavailable';
       } else {
         return 'querylimituniregistry';

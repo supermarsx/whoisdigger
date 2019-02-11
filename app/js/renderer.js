@@ -43,7 +43,7 @@ $(document).ready(function() { // When document is ready
 
   // Assign [ESC] to close message/modal
   $(document).keyup(function(event) {
-    if (event.keyCode == 27) {
+    if (event.keyCode === 27) {
       ipcRenderer.send('app:debug', "Used [ESC] key, {0}".format(event.keyCode));
       if ($('#swMessageWhois').hasClass('is-active')) {
         $('#swMessageWhoisClose').click();

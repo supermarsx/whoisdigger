@@ -1,13 +1,10 @@
 <p align="center"><img width=30% src="https://github.com/whois-team/brand/blob/master/png/whoisteam_black.png"></p>
 <p align="center"><img width=60% src="https://github.com/whois-team/brand/blob/master/png/whoisdigger_black.png"></p>
 
-
 <p align="center"><a href="https://github.com/whois-team/whoisdigger/blob/master/package.json"><img src="https://img.shields.io/badge/electron-%5E4.0.0-blue.svg"></a>  <a href="https://scrutinizer-ci.com/g/whois-team/whoisdigger/build-status/master"><img src="https://scrutinizer-ci.com/g/whois-team/whoisdigger/badges/build.png?b=master"></a>  <a href="https://david-dm.org/whois-team/whoisdigger"><img src="https://david-dm.org/whois-team/whoisdigger/status.svg"></a>  <a href="https://scrutinizer-ci.com/g/whois-team/whoisdigger/?branch=master"><img src="https://scrutinizer-ci.com/g/whois-team/whoisdigger/badges/quality-score.png?b=master"></a></p>
 <p align="center"><a href="https://www.codacy.com/app/eduardomota/whoisdigger"><img src="https://api.codacy.com/project/badge/Grade/2611b6567d054839a88faa504839e63d"></a>  <a href="https://snyk.io/test/github/whois-team/whoisdigger"><img src="https://snyk.io/test/github/whois-team/whoisdigger/badge.svg"></a>  <a href="https://app.fossa.io/projects/git%2Bgithub.com%2Fwhois-team%2Fwhoisdigger"><img src="https://app.fossa.io/api/projects/git%2Bgithub.com%2Fwhois-team%2Fwhoisdigger.svg?type=shield"></a>  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/github/license/whois-team/whoisdigger.svg?style=flat"></a></p>
 
-
 <hr>
-
 
 ![Whoisdigger app](https://github.com/whois-team/website/raw/master/images/projects/whoisdigger.gif)  
 
@@ -15,29 +12,26 @@
 
 Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on Electron. Made with builders and creators in mind, rapidly lookup up your favorite domain mashups without risk of third-party logging, domain squatting and other domain lookup issues.
 
-
 ## Features
 
-- Fast single domain lookup and raw reply
-- File or manual wordlist bulk whois
-- Drag and drop wordlist file
-- Bulk raw whois replies (txt) and/or field formatted replies (.csv)
+  - Fast single domain lookup and raw reply
+  - File or manual wordlist bulk whois
+  - Drag and drop wordlist file
+  - Bulk raw whois replies (txt) and/or field formatted replies (.csv)
 
 ### Planned features
 
-- Bulk pause/continue mechanism
-- Bulk analyser
-- Domain monitor
-- Misc tools
-- Options
-- Help page
-- Proxy integration
-
+  - Bulk pause/continue mechanism
+  - Bulk analyser
+  - Domain monitor
+  - Misc tools
+  - Options
+  - Help page
+  - Proxy integration
 
 ## Be aware that
 
 Its your sole responsibility what you do with this tool, its intended to let anyone have a chance at finding a good domain in a crowded space. Is also known that repeated whois requests to a server will eventually result in IP blacklisting, you should have a conservative value for time between requests and bit of common sense to minimize the risk of blocks, don't do huge bulk lookups at once or with the same ip, preferably use different proxies between requests.
-
 
 ## Quick Start
 
@@ -76,10 +70,8 @@ npm run debug-cmd
 
 Check out releases and download the latest release for your architecture/OS.
 
-
 ![Latest tag](https://img.shields.io/github/tag/whois-team/whoisdigger.svg?label=Latest%20tag&style=flat)
 [![Check out releases](https://img.shields.io/badge/Checkout%20releases-%20-orange.svg)](https://github.com/whois-team/whoisdigger/releases)
-
 
 ### Using wordlists
 
@@ -126,7 +118,6 @@ Linux
 npm run package-linux
 ```
 
-
 ## Built With
 
 <a href="https://electronjs.org/"><img height=40px src="https://electronjs.org/images/electron-logo.svg"></a>
@@ -134,7 +125,6 @@ npm run package-linux
 <a href="https://jquery.org/"><img height=40px src="https://upload.wikimedia.org/wikipedia/sco/9/9e/JQuery_logo.svg"></a>
 
 <a href="https://bulma.io/"><img height=40px src="https://bulma.io/images/made-with-bulma.png"></a>
-
 
 ## License
 
