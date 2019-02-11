@@ -1,5 +1,7 @@
 # Whoisdigger
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/387ffb6994f64f41badbfd8fa95cd0a5)](https://app.codacy.com/app/eduardomota/whoisdigger?utm_source=github.com&utm_medium=referral&utm_content=whois-team/whoisdigger&utm_campaign=Badge_Grade_Dashboard)
+
 
 
 ![Build Status](https://scrutinizer-ci.com/g/eduardomota/whoisdigger/badges/build.png?b=master)  ![https://david-dm.org/eduardomota/whoisdigger.svg](https://david-dm.org/eduardomota/whoisdigger.svg) ![https://scrutinizer-ci.com/g/eduardomota/whoisdigger/badges/quality-score.png](https://scrutinizer-ci.com/g/eduardomota/whoisdigger/badges/quality-score.png)
