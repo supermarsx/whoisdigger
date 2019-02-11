@@ -1,8 +1,11 @@
-<p align="center"><img width=40% src="https://github.com/whois-team/brand/blob/master/png/whoisteam_black.png"></p>
-<p align="center"><img width=80% src="https://github.com/whois-team/brand/blob/master/png/whoisdigger_black.png"></p>
+<p align="center"><img width=30% src="https://github.com/whois-team/brand/blob/master/png/whoisteam_black.png"></p>
+<p align="center"><img width=60% src="https://github.com/whois-team/brand/blob/master/png/whoisdigger_black.png"></p>
 
 
-<p align="center"><img src="https://img.shields.io/badge/electron-%5E4.0.0-blue.svg" href="https://github.com/whois-team/whoisdigger/blob/master/package.json">  <img src="https://img.shields.io/badge/current%20state-alpha-red.svg">  <img src="https://scrutinizer-ci.com/g/whois-team/whoisdigger/badges/build.png?b=master" href="https://scrutinizer-ci.com/g/whois-team/whoisdigger/build-status/master">  <img src="https://david-dm.org/whois-team/whoisdigger/status.svg" href="https://david-dm.org/whois-team/whoisdigger">  <img src="https://scrutinizer-ci.com/g/whois-team/whoisdigger/badges/quality-score.png?b=master" href="https://scrutinizer-ci.com/g/whois-team/whoisdigger/?branch=master">  <img src="https://api.codacy.com/project/badge/Grade/2611b6567d054839a88faa504839e63d" href="https://www.codacy.com/app/eduardomota/whoisdigger">  <img src="https://snyk.io/test/github/whois-team/whoisdigger/badge.svg" href="https://snyk.io/test/github/whois-team/whoisdigger">  <img src="https://img.shields.io/github/license/whois-team/whoisdigger.svg?style=flat" href="https://opensource.org/licenses/MIT"></p>
+<p align="center"><img src="https://img.shields.io/badge/electron-%5E4.0.0-blue.svg" href="https://github.com/whois-team/whoisdigger/blob/master/package.json">  <img src="https://scrutinizer-ci.com/g/whois-team/whoisdigger/badges/build.png?b=master" href="https://scrutinizer-ci.com/g/whois-team/whoisdigger/build-status/master">  <img src="https://david-dm.org/whois-team/whoisdigger/status.svg" href="https://david-dm.org/whois-team/whoisdigger">  <img src="https://scrutinizer-ci.com/g/whois-team/whoisdigger/badges/quality-score.png?b=master" href="https://scrutinizer-ci.com/g/whois-team/whoisdigger/?branch=master">  <img src="https://api.codacy.com/project/badge/Grade/2611b6567d054839a88faa504839e63d" href="https://www.codacy.com/app/eduardomota/whoisdigger">  <img src="https://snyk.io/test/github/whois-team/whoisdigger/badge.svg" href="https://snyk.io/test/github/whois-team/whoisdigger">  <img src="https://img.shields.io/github/license/whois-team/whoisdigger.svg?style=flat" href="https://opensource.org/licenses/MIT"></p>
+
+
+<hr>
 
 
 ![Whoisdigger app](https://github.com/whois-team/website/raw/master/images/projects/whoisdigger.gif)  
@@ -127,7 +130,7 @@ npm run package-linux
 
 <img height=40px src="https://electronjs.org/images/electron-logo.svg" href="https://electronjs.org/">
 
-<img height=40px style="background-color: #0769AD; border-radius: 5px;" src="https://jquery.com/jquery-wp-content/themes/jquery/images/logo-jquery.png" href="https://bulma.io/">
+<img height=40px src="https://upload.wikimedia.org/wikipedia/sco/9/9e/JQuery_logo.svg" href="https://jquery.org/">
 
 <img height=40px src="https://bulma.io/images/made-with-bulma.png" href="https://bulma.io/">
 
