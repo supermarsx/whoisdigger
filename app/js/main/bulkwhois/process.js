@@ -217,7 +217,7 @@ ipcMain.on('bulkwhois:lookup', function(event, domains, tlds) {
     bulkWhois.stats.time.current = conversions.msToHumanTime(bulkWhois.stats.time.currentcounter);
     event.sender.send('bulkwhois:status.update', 'time.current', bulkWhois.stats.time.current);
     event.sender.send('bulkwhois:status.update', 'time.remaining', bulkWhois.stats.time.remaining);
-    if (bulkWhois.stats.domains.total == bulkWhois.stats.domains.sent && bulkWhois.stats.domains.waiting == 0) {
+    if (bulkWhois.stats.domains.total == bulkWhois.stats.domains.sent && bulkWhois.stats.domains.waiting === 0) {
       clearTimeout(bulkWhois.stats.time.counter);
       event.sender.send("bulkwhois:result.receive", results);
       event.sender.send('bulkwhois:status.update', 'finished');

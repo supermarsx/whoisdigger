@@ -76,7 +76,7 @@ html {
 }
 
 .is-force-hidden {
-  display: none !important;
+  display: none;
 }
 
 @media screen and (min-width: 1088px) {

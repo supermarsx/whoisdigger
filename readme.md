@@ -8,26 +8,26 @@
 
 ![Whoisdigger app](https://github.com/whois-team/website/raw/master/images/projects/whoisdigger.gif)  
 
-**This application is in alpha stage..**
+This application is in **alpha stage..**
 
 Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on Electron. Made with builders and creators in mind, rapidly lookup up your favorite domain mashups without risk of third-party logging, domain squatting and other domain lookup issues.
 
 ## Features
 
-  - Fast single domain lookup and raw reply
-  - File or manual wordlist bulk whois
-  - Drag and drop wordlist file
-  - Bulk raw whois replies (txt) and/or field formatted replies (.csv)
+- Fast single domain lookup and raw reply
+- File or manual wordlist bulk whois
+- Drag and drop wordlist file
+- Bulk raw whois replies (txt) and/or field formatted replies (.csv)
 
 ### Planned features
 
-  - Bulk pause/continue mechanism
-  - Bulk analyser
-  - Domain monitor
-  - Misc tools
-  - Options
-  - Help page
-  - Proxy integration
+- Bulk pause/continue mechanism
+- Bulk analyser
+- Domain monitor
+- Misc tools
+- Options
+- Help page
+- Proxy integration
 
 ## Be aware that
 
@@ -87,6 +87,10 @@ tow
 ```
 
 Wordlists by manual input should follow the same rules with the only difference of being pasted at input stage.
+
+#### Sample wordlists
+
+Whoisdigger provides sample wordlists as example for testing purposes inside `sample_lists` folder.
 
 ### Exporting bulk processing results
 
