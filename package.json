@@ -1,7 +1,7 @@
 {
   "name": "whoisdigger",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.2",
+  "description": "Bulk whois lookup tool",
   "main": "./app/js/main.js",
   "scripts": {
     "start": "electron .",
@@ -14,7 +14,7 @@
     "package-linux": "electron-packager . whoisdigger --overwrite --asar=true --platform=linux --arch=x64 --icon=app/icons/app.png --prune=true --out=release-builds",
     "package-all": "npm run package-mac & npm run package-linux & npm run package-win"
   },
-  "author": "",
+  "author": "Eduardo Mota",
   "license": "MIT",
   "dependencies": {
     "bulma": "^0.7.2",
