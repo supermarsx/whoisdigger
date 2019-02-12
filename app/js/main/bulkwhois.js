@@ -1,12 +1,5 @@
 const electron = require('electron'),
-  path = require('path'),
-  url = require('url'),
-  dedent = require('dedent-js'),
-  util = require('util'),
-  whois = require('../common/whoiswrapper.js'),
-  conversions = require('../common/conversions.js'),
-  debug = require('debug')('main.bulkwhois'),
-  defaultBulkWhois = require('./bulkwhois/process.defaults.js');
+  debug = require('debug')('main.bulkwhois');
 
 require('./bulkwhois/fileinput.js'); // File input
 require('./bulkwhois/wordlistinput.js'); // Wordlist input
@@ -22,6 +15,10 @@ const {
   dialog,
   remote
 } = electron;
+
+var {
+  appSettings
+} = require('../appsettings.js');
 
 // On drag and drop file
 ipcMain.on('ondragstart', function(event, filePath) {
