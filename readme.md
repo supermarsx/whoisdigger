@@ -75,7 +75,7 @@ Check out releases and download the latest release for your architecture/OS.
 
 ### Using wordlists
 
-Wordlist files should have one word per line without TLDs suffixes, spaces or special characters if intended, they should follow the example below:
+Wordlist files should have one word per line without TLDs suffixes, spaces or special characters if intended, they should also be in UTF-8 encoded and follow the example below:
 
 wordlist.txt (Text file)
 ```
