@@ -23,8 +23,11 @@ let mainWindow;
 
 // when app is ready
 app.on('ready', function() {
-  debug('App is starting');
-
+  debug("App is starting");
+  debug("'appSettings.window.show': {0}".format(appSettings.window.show));
+  debug("'appSettings.window.height': {0}".format(appSettings.window.height));
+  debug("'appSettings.window.width': {0}".format(appSettings.window.width));
+  
   // mainWindow window init
   mainWindow = new BrowserWindow({
     frame: appSettings.window.frame,
@@ -40,8 +43,9 @@ app.on('ready', function() {
     protocol: appSettings.url.protocol,
     slashes: appSettings.url.slashes
   }));
-  debug('Loading URL: {0}//{1}'.format(appSettings.url.protocol, appSettings.url.pathname));
-  debug('Window object: %o', mainWindow);
+  debug("'appSettings.url.protocol': {0}".format(appSettings.url.protocol));
+  debug("'appSettings.url.pathname': {0}".format(appSettings.url.pathname));
+  debug("'mainWindow' object: %o", mainWindow);
 
   // mainWindow show when ready
   mainWindow.once('ready-to-show', function() {
@@ -62,7 +66,7 @@ function startup() {
     startup
   } = appSettings;
   debug('Doing startup checks');
-  debug('Developer tools at startup: {0}'.format(startup.devtools));
+  debug("'startup.devtools': {0}".format(startup.devtools));
   if (startup.devtools === true) {
     mainWindow.toggleDevTools();
   }
@@ -70,6 +74,7 @@ function startup() {
 
 // When minimize button is clicked
 ipcMain.on('app:minimize', function() {
+  debug("App minimized");
   mainWindow.minimize();
 });
 

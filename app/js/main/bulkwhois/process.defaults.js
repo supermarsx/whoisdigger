@@ -1,6 +1,8 @@
 var defaultFirstValue = null, // Default that is equivalent or similar to null value: null, undefined, false..
   defaultSecondValue = 0, // Default numeric starting value
-  defaultThirdValue = '-'; // Default value other than null or numeric start
+  defaultThirdValue = '-',
+  defaultForthValue = '.',
+  defaultFifthValue = 99999;
 
 
 // Default BulkWhois values
@@ -8,7 +10,8 @@ module.exports = {
   'input': {
     'domains': [],
     'domainsPending': [],
-    'tlds': []
+    'tlds': [],
+    'tldSeparator': defaultForthValue
   },
   'stats': {
     'domains': {
@@ -25,7 +28,7 @@ module.exports = {
       'remainingcounter': defaultSecondValue
     },
     'reqtimes': {
-      'minimum': defaultFirstValue,
+      'minimum': defaultFifthValue,
       'average': defaultFirstValue,
       'maximum': defaultFirstValue,
       'last': defaultFirstValue

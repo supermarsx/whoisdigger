@@ -8,7 +8,7 @@
 
 ![Whoisdigger app](https://github.com/whois-team/website/raw/master/images/projects/whoisdigger.gif)  
 
-This application is in **alpha stage..**
+This application is in **alpha stage**
 
 Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on Electron. Made with builders and creators in mind, rapidly lookup up your favorite domain mashups without risk of third-party logging, domain squatting and other domain lookup issues.
 
@@ -18,10 +18,10 @@ Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on
 - File or manual wordlist bulk whois
 - Drag and drop wordlist file
 - Bulk raw whois replies (txt) and/or field formatted replies (.csv)
+- Bulk stop/pause/continue mechanism
 
 ### Planned features
 
-- Bulk pause/continue mechanism
 - Bulk analyser
 - Domain monitor
 - Misc tools
@@ -45,6 +45,12 @@ Clone whoisdigger code to your local machine
 
 ```
 git clone https://github.com/whois-team/whoisdigger
+```
+
+If you have missing dependencies run
+
+```
+npm install
 ```
 
 After clone, run using

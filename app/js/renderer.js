@@ -98,17 +98,16 @@ function startup() {
   var {
     navigation
   } = appSettings;
-  ipcRenderer.send('app:debug', "Checking renderer startup vars");
-  ipcRenderer.send('app:debug', "Show Developer tools toggle: {0}".format(navigation.devtools));
+  ipcRenderer.send('app:debug', "'navigation.devtools': {0}".format(navigation.devtools));
   if (navigation.devtools === true) {
     $('#navTabDevTools').removeClass('is-force-hidden');
   }
-  ipcRenderer.send('app:debug', "Show extended menu collapsed: {0}".format(navigation.extendedcollapsed));
+  ipcRenderer.send('app:debug', "'navigation.extendedcollapsed': {0}".format(navigation.extendedcollapsed));
   if (navigation.extendedcollapsed === true) {
     $('#navButtonExpandedMenu').toggleClass('is-active');
     $('.is-specialmenu').toggleClass('is-hidden');
   }
-  ipcRenderer.send('app:debug', "Show extended menu collapse button: {0}".format(navigation.extendedmenu));
+  ipcRenderer.send('app:debug', "'navigation.extendedmenu': {0}".format(navigation.extendedmenu));
   if (navigation.extendedmenu === false) {
     $('#navButtonExpandedMenu').addClass('is-force-hidden');
   }

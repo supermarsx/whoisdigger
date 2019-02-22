@@ -137,6 +137,37 @@ $('#bwpButtonPause').click(function() {
   }
 });
 
+// Trigger Bulk whois Stop modal
+$('#bwpButtonStop').click(function() {
+  ipcRenderer.send('app:debug', "Pausing whois & opening stop modal");
+  $('#bwpButtonPauseText').text() == 'Continue' ? $('#bwpButtonPause').click() : false;
+  $('#bwpButtonPause').click();
+  $('#bwpStopModal').addClass('is-active');
+
+});
+
+// Close modal and allow continue
+$('#bwpStopModalButtonContinue').click(function() {
+  ipcRenderer.send('app:debug', "Closing Stop modal & continue");
+  $('#bwpStopModal').removeClass('is-active');
+});
+
+// Stop bulk whois entirely and scrape everything
+$('#bwpStopModalButtonStop').click(function() {
+  ipcRenderer.send('app:debug', "Closing Stop modal & going back to start");
+  $('#bwpStopModal').removeClass('is-active');
+  $('#bwProcessing').addClass('is-hidden');
+  $('#bwEntry').removeClass('is-hidden');
+});
+
+// Stop bulk whois entirely and save/export
+$('#bwpStopModalButtonStopSave').click(function() {
+  ipcRenderer.send('app:debug', "Closing Stop modal & exporting");
+  $('#bwpStopModal').removeClass('is-active');
+  $('#bwProcessing').addClass('is-hidden');
+  $('#bwExport').removeClass('is-hidden');
+});
+
 // Bulk processing, proceed to export options
 $('#bwpButtonNext').click(function() {
   $('#bwProcessing').addClass('is-hidden');

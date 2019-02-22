@@ -327,6 +327,24 @@
               </a>
             </div>
             <div id="bwProcessing" class="container is-clearfix is-hidden">
+              <!-- Cancel Bulk whois modal -->
+              <div id="bwpStopModal" class="modal">
+                <div class="modal-background"></div>
+                <div class="modal-card">
+                  <header class="modal-card-head">
+                    <p class="modal-card-title">Stop bulk whois</p>
+                    <button class="delete" aria-label="close"></button>
+                  </header>
+                  <section class="modal-card-body">
+                    Are you sure you want to stop your bulk whois lookup, make sure you want to save all the current results or
+                  </section>
+                  <footer class="modal-card-foot">
+                    <button id="bwpStopModalButtonStop" class="button is-danger">Stop without saving</button>
+                    <button id="bwpStopModalButtonStopSave" class="button is-warning">Stop and save</button>
+                    <button id="bwpStopModalButtonContinue" class="button">Continue</button>
+                  </footer>
+                </div>
+              </div>
               <!-- Processing bulk whois -->
               <h4 class="title is-4 has-text-centered">Processing Bulk Whois</h4>
               <hr>
