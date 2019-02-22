@@ -121,9 +121,7 @@ $('#bwpButtonPause').click(function() {
   var searchStatus = $('#bwpButtonPauseText').text();
   switch (searchStatus) {
     case 'Continue':
-      $('#bwpButtonPause').removeClass('is-success').addClass('is-warning');
-      $('#bwpButtonPauseIcon').removeClass('fa-play').addClass('fa-pause');
-      $('#bwpButtonPauseText').text('Pause');
+      setPauseButton();
       ipcRenderer.send('bulkwhois:lookup.continue');
       break;
     case 'Pause':
@@ -137,13 +135,18 @@ $('#bwpButtonPause').click(function() {
   }
 });
 
+function setPauseButton() {
+  $('#bwpButtonPause').removeClass('is-success').addClass('is-warning');
+  $('#bwpButtonPauseIcon').removeClass('fa-play').addClass('fa-pause');
+  $('#bwpButtonPauseText').text('Pause');
+}
+
 // Trigger Bulk whois Stop modal
 $('#bwpButtonStop').click(function() {
   ipcRenderer.send('app:debug', "Pausing whois & opening stop modal");
-  $('#bwpButtonPauseText').text() == 'Continue' ? $('#bwpButtonPause').click() : false;
-  $('#bwpButtonPause').click();
+  console.log($('#bwpButtonPause').text());
+  $('#bwpButtonPause').text().includes('Pause') ? $('#bwpButtonPause').click() : false;
   $('#bwpStopModal').addClass('is-active');
-
 });
 
 // Close modal and allow continue
@@ -157,6 +160,7 @@ $('#bwpStopModalButtonStop').click(function() {
   ipcRenderer.send('app:debug', "Closing Stop modal & going back to start");
   $('#bwpStopModal').removeClass('is-active');
   $('#bwProcessing').addClass('is-hidden');
+  setPauseButton();
   $('#bwEntry').removeClass('is-hidden');
 });
 
@@ -165,6 +169,7 @@ $('#bwpStopModalButtonStopSave').click(function() {
   ipcRenderer.send('app:debug', "Closing Stop modal & exporting");
   $('#bwpStopModal').removeClass('is-active');
   $('#bwProcessing').addClass('is-hidden');
+  setPauseButton();
   $('#bwExport').removeClass('is-hidden');
 });
 
