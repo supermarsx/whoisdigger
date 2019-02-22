@@ -41,15 +41,10 @@ To stay on the bleeding edge of whoisdigger updates do `git clone` or for more s
 
 For this you'll need to have `node`, `npm` and `git`.
 
-Clone whoisdigger code to your local machine
+Clone whoisdigger code and install dependencies to your local machine
 
 ```
 git clone https://github.com/whois-team/whoisdigger
-```
-
-If you have missing dependencies run
-
-```
 npm install
 ```
 
