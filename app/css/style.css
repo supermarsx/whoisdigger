@@ -88,3 +88,15 @@ html {
     display: flex;
   }
 }
+
+input:not(:checked) + div {
+  background-color: hsla(348, 100%, 96%, 8);
+}
+
+input:checked + div {
+  background-color: hsla(141, 75%, 96%, 8);
+}
+
+input {
+  display: none;
+}

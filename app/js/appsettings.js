@@ -12,7 +12,7 @@ module.exports = {
     },
     'url': {
       'pathname': path.join(__dirname, '../html/mainPanel.html'), // Main html file location
-      'protocol': 'file:', // Path protcol (default: file:)
+      'protocol': 'file:', // Path protocol (default: file:)
       'slashes': true // Path slashes (default: true)
     },
     'lookup': { // Whois lookup default values
@@ -65,9 +65,6 @@ module.exports = {
       'asfoverride': false, // Use true average instead of alternative smoothed average based on the amount of processed whois requests (default: true)
       'avgsmoothingfactor1': 0.1, // Smoothing factor to calculate average whois request time, last 10 requests average (default: 0.1 (0.1 = last 10 requests; 0.05 = last 20 requests))
       'assumeuniregistryasunavailable': true // Assume domain as unavailable when Uniregistry query limit is reached (default: true)
-    },
-    'lookupdefault': {
-      'server': ""
     },
     'export': { // Export configurations
       'enclosure': '"', // Field enclosing char

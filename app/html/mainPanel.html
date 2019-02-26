@@ -188,7 +188,7 @@
             </table>
 
           </div>
-          <div id="bwMainContainer" class="tab-content ">
+          <div id="bwMainContainer" class="tab-content">
             <!-- Bulk Whois panel -->
             <div id="bwEntry" class="container is-clearfix">
               <!-- Input selection -->
@@ -284,8 +284,6 @@
                 </span>
                 <span>Cancel</span>
               </a>
-
-
             </div>
             <div id="bwWordlistLoading" class="container is-clearfix is-hidden">
               <!-- Waiting loading -->
@@ -337,7 +335,7 @@
                   </header>
                   <section class="modal-card-body">
                     Are you sure you want to stop your bulk whois lookup?
-                    <br/>
+                    <br />
                     Make sure you want to save all the current results, discard them or continue processing.
                   </section>
                   <footer class="modal-card-foot uk-text-center">
@@ -604,12 +602,265 @@
             </div>
           </div>
           <div id="bwaMainContainer" class="tab-content">
+            <div id="bwaEntry" class="container is-clearfix">
+              <!-- Input selection -->
+              <div class="columns">
+                <div class="column">
+                  <a id="bweButtonFileInput" class="button is-large box-shadow-5">
+                    <span class="icon is-large">
+                      <i class="fas fa-file-upload"></i>
+                    </span>
+                    <span>Open results (.csv)</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="bwmMainContainer" class="tab-content">
+            <div id="bwmEntry" class="container is-clearfix">
+              <!-- Input selection -->
+              <div class="columns">
+                <div class="column">
+                  <a id="bweButtonFileInput" class="button is-large box-shadow-5">
+                    <span class="icon is-large">
+                      <i class="fas fa-file-upload"></i>
+                    </span>
+                    <span>Open results (.csv)</span>
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
           <div id="toMainContainer" class="tab-content">
-            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+            <div id="toEntry" class="container is-clearfix">
+              <h4 class="title is-4 has-text-centered">Wordlist Tools</h4>
+              <h5>Select your preferred process options and start processing your wordlist</h5>
+              <hr>
+              <table id="toTable" class="table is-striped is-hoverable is-fullwidth">
+                <tr>
+                  <th>Add to wordlist</th>
+                  <td id="#" class="is-expanded">
+                    <label>
+                      <input type="checkbox" value="1">
+                      <div class="button is-small">Prefix</div>
+                    </label>
+                    <label>
+                      <input type="checkbox" value="1">
+                      <div class="button is-small">Suffix</div>
+                    </label>
+                    <label>
+                      <input type="checkbox" value="1">
+                      <div class="button is-small">Prefix & Suffix</div>
+                    </label>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Sorting wordlist</th>
+                  <td id="#" class="is-expanded">
+                    <label>
+                      <input type="checkbox" name="sort" value="1">
+                      <div class="button is-small">Alphanumeric</div>
+                    </label>
+                    <label>
+                      <input type="checkbox" name="sort" value="1">
+                      <div class="button is-small">Alphanumeric (reverse)</div>
+                    </label>
+                    <label>
+                      <input type="checkbox" name="sort" value="1">
+                      <div class="button is-small">Randomize</div>
+                    </label>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Trim/Delete</th>
+                  <td id="#" class="is-expanded">
+                    <label>
+                      <input type="checkbox" value="1">
+                      <div class="button is-small">Spaces</div>
+                    </label>
+                    <label>
+                      <input type="checkbox" value="1">
+                      <div class="button is-small">Blank lines</div>
+                    </label>
+                    <label>
+                      <input type="checkbox" value="1">
+                      <div class="button is-small">Non alphanumeric</div>
+                    </label>
+                    <label>
+                      <input type="checkbox" value="1">
+                      <div class="button is-small">Duplicates</div>
+                    </label>
+                    <label>
+                      <input type="checkbox" value="1">
+                      <div class="button is-small">Regex</div>
+                    </label>
+                    <label>
+                      <input type="checkbox" value="1">
+                      <div class="button is-small">String</div>
+                    </label>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Convert to</th>
+                  <td id="#" class="is-expanded">
+                    <label>
+                      <input type="checkbox" value="1">
+                      <div class="button is-small">Lowercase</div>
+                    </label>
+                    <label>
+                      <input type="checkbox" value="1">
+                      <div class="button is-small">Uppercase</div>
+                    </label>
+                    <label>
+                      <input type="checkbox" value="1">
+                      <div class="button is-small">ROT13</div>
+                    </label>
+                    <label>
+                      <input type="checkbox" value="1">
+                      <div class="button is-small">L33t</div>
+                    </label>
+                    <label>
+                      <input type="checkbox" value="1">
+                      <div class="button is-small">UTF-8</div>
+                    </label>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Replace in wordlist</th>
+                  <td id="#" class="is-expanded">
+                    <label>
+                      <input type="checkbox" name="sort" value="1">
+                      <div class="button is-small">String</div>
+                    </label>
+                    <label>
+                      <input type="checkbox" name="sort" value="1">
+                      <div class="button is-small">Regex</div>
+                    </label>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Further file manipulation</th>
+                  <td id="#" class="is-expanded">
+                    <label>
+                      <input type="checkbox" value="1">
+                      <div class="button is-small">Concatenate</div>
+                    </label>
+                    <label>
+                      <input type="checkbox" value="1">
+                      <div class="button is-small">Split</div>
+                    </label>
+                  </td>
+                </tr>
+              </table>
+              <a id="#" class="button is-medium is-success">
+                <span class="icon is-small">
+                  <i class="fas fa-draw-polygon"></i>
+                </span>
+                <span>Start process</span>
+              </a>
+            </div>
           </div>
           <div id="opMainContainer" class="tab-content">
-            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+            <div id="toEntry" class="container is-clearfix">
+              <h4 class="title is-4 has-text-centered">Options</h4>
+              <h5>Set your preferred whoisdigger options</h5>
+              <hr>
+              <table id="toTable" class="table is-striped is-hoverable is-fullwidth">
+                <tr>
+                  <th colspan=2><h4 class="title is-5">window</h4></th>
+                </tr>
+                <tr>
+                  <th>frame <span class="content is-small">(is basic frame shown)</span></th>
+                  <td id="#" class="is-expanded">
+                  
+                  </td>
+                </tr>
+                <tr>
+                  <th>show <span class="content is-small">(show app before load)</span></th>
+                  <td id="#" class="is-expanded">
+
+                  </td>
+                </tr>
+                <tr>
+                  <th>height <span class="content is-small">(window height in pixels)</span></th>
+                  <td id="#" class="is-expanded">
+
+                  </td>
+                </tr>
+                <tr>
+                  <th>width <span class="content is-small">(windows width in pixels)</span></th>
+                  <td id="#" class="is-expanded">
+
+                  </td>
+                </tr>
+                <tr>
+                  <th>icon <span class="content is-small">(app icon path)</span></th>
+                  <td id="#" class="is-expanded">
+
+                  </td>
+                </tr>
+                <tr>
+                  <th colspan=2><h4 class="title is-5">url</h4></th>
+                </tr>
+                <tr>
+                  <th>pathname <span class="content is-small">(main html file)</span></th>
+                  <td id="#" class="is-expanded">
+
+                  </td>
+                </tr>
+                <tr>
+                  <th>protocol <span class="content is-small">(path protocol)</span></th>
+                  <td id="#" class="is-expanded">
+
+                  </td>
+                </tr>
+                <tr>
+                  <th>slashes <span class="content is-small">(path slashes)</span></th>
+                  <td id="#" class="is-expanded">
+
+                  </td>
+                </tr>
+                <tr>
+                  <th colspan=2><h4 class="title is-5">lookup</h4></th>
+                </tr>
+                <tr>
+                  <th colspan=2><h4 class="title is-5">lookup.randomize</h4></th>
+                </tr>
+                <tr>
+                  <th colspan=2><h4 class="title is-5">navigation</h4></th>
+                </tr>
+                <tr>
+                  <th colspan=2><h4 class="title is-5">startup</h4></th>
+                </tr>
+                <tr>
+                  <th colspan=2><h4 class="title is-5">customconfig</h4></th>
+                </tr>
+                <tr>
+                  <th colspan=2><h4 class="title is-5">performance.single</h4></th>
+                </tr>
+                <tr>
+                  <th colspan=2><h4 class="title is-5">performance.bulk</h4></th>
+                </tr>
+                <tr>
+                  <th colspan=2><h4 class="title is-5">misc</h4></th>
+                </tr>
+                <tr>
+                  <th colspan=2><h4 class="title is-5">export</h4></th>
+                </tr>
+              </table>
+              <a id="#" class="button is-medium is-success">
+                <span class="icon is-small">
+                  <i class="far fa-save"></i>
+                </span>
+                <span>Save</span>
+              </a>
+              <a id="#" class="button is-medium is-danger">
+                <span class="icon is-small">
+                  <i class="fas fa-undo"></i>
+                </span>
+                <span>Restore defaults</span>
+              </a>
+            </div>
           </div>
           <div id="heMainContainer" class="tab-content">
             <section class="section">

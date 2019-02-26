@@ -107,12 +107,12 @@ ipcMain.on('bulkwhois:lookup', function(event, domains, tlds) {
   sender.send('bulkwhois:status.update', 'domains.processed', stats.domains.processed);
 
   randomize.timebetween ? // Counter total time
-    stats.time.remainingcounter = stats.domains.total * randomize.timebetweenmax :
-    stats.time.remainingcounter = stats.domains.total * lookup.timebetween;
+    (stats.time.remainingcounter = stats.domains.total * randomize.timebetweenmax) :
+    (stats.time.remainingcounter = stats.domains.total * lookup.timebetween);
 
   randomize.timeout ? // Counter add timeout
-    stats.time.remainingcounter += randomize.timeoutmax :
-    stats.time.remainingcounter += lookup.timeout;
+    (stats.time.remainingcounter += randomize.timeoutmax) :
+    (stats.time.remainingcounter += lookup.timeout);
 
   counter(event);
 
@@ -203,12 +203,12 @@ ipcMain.on('bulkwhois:lookup.continue', function(event) {
   sender.send('bulkwhois:status.update', 'domains.processed', stats.domains.processed);
 
   randomize.timebetween ? // Counter total time
-    stats.time.remainingcounter = stats.domains.total * randomize.timebetweenmax :
-    stats.time.remainingcounter = stats.domains.total * lookup.timebetween;
+    (stats.time.remainingcounter = stats.domains.total * randomize.timebetweenmax) :
+    (stats.time.remainingcounter = stats.domains.total * lookup.timebetween);
 
   randomize.timeout ? // Counter add timeout
-    stats.time.remainingcounter += randomize.timeoutmax :
-    stats.time.remainingcounter += lookup.timeout;
+    (stats.time.remainingcounter += randomize.timeoutmax) :
+    (stats.time.remainingcounter += lookup.timeout);
 
   counter(event);
 

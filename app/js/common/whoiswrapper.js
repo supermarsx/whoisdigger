@@ -8,7 +8,7 @@ var {
   appSettings
 } = require('../appsettings.js');
 
-var defaultoptions = appSettings.lookupdefault;
+var defaultoptions = appSettings.lookup.server;
 
 async function lookup(domain, options = defaultoptions) {
   var domainResults = await lookupProm(domain, options).catch(function(err) {
