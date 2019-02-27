@@ -76,7 +76,7 @@ ipcRenderer.on('singlewhois:results', function(event, domainResults) {
 });
 
 // Simple Whois, trigger search by using [ENTER] key
-document.getElementById('swInputDomain').addEventListener("keyup", function(event) {
+$('#swInputDomain').keyup(function(event) {
   // Cancel the default action, if needed
   event.preventDefault();
   // Number 13 is the "Enter" key on the keyboard

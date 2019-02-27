@@ -19,7 +19,7 @@ const {
 
 $(document).ready(function() { // When document is ready
   ipcRenderer.send('app:debug', "Document is ready");
-  //loadContents();
+
   startup();
 
   // Button/Toggle special menu items

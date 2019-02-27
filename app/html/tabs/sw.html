@@ -1,0 +1,109 @@
+<div id="swSearchControls" class="field has-addons box-shadow-5">
+  <p class="control is-large is-expanded">
+    <input id="swInputDomain" class="input is-large" type="text" placeholder="Domain name (ex.: whoisteam.com)">
+  </p>
+  <p class="control">
+    <a id="swButtonSearch" class="button is-large has-background-white"><i class="fas fa-search"></i></a>
+  </p>
+</div>
+<div id="swMessageError" class="notification is-danger box-shadow-5 is-hidden">
+  <button data-notif="swMessageError" class="delete"></button> Whois lookup failed, an error has ocurred. Check your internet connection, domain validity, amount of whois requests or whois server. <a class="swMessageWhoisOpen" href="#">Check
+    response.</a>
+</div>
+<div id="swMessageAvailable" class="notification is-success box-shadow-5 is-hidden">
+  <button data-notif="swMessageAvailable" class="delete"></button> Domain is available for registry. <a class="swMessageWhoisOpen" href="#">Check the whois request response.</a>
+</div>
+<div id="swMessageUnavailable" class="notification is-danger box-shadow-5 is-hidden">
+  <button data-notif="swMessageUnavailable" class="delete"></button> Domain is unavailable for registry. <a class="swMessageWhoisOpen" href="#">Check the whois request response.</a>
+</div>
+<div id="swMessageWhois" class="modal">
+  <div class="modal-background"></div>
+  <div class="modal-content">
+    <div class="box">
+      <div class="highlight-full">
+        <figure class="highlight">
+          <pre id="swMessageWhoisResults" class="has-text-left">
+          </pre>
+        </figure>
+      </div>
+    </div>
+  </div>
+  <button id="swMessageWhoisClose" class="modal-close is-large" aria-label="close"></button>
+</div>
+<div class="container is-hidden">
+  <div class="columns">
+    <div class="column">
+      <span class="tag is-success is-medium">.com</span>
+    </div>
+    <div class="column">
+      <span class="tag is-success is-medium">.net</span>
+    </div>
+    <div class="column">
+      <span class="tag is-success is-medium">.org</span>
+    </div>
+    <div class="column">
+      <span class="tag is-success is-medium">.info</span>
+    </div>
+    <div class="column">
+      <span class="tag is-success is-medium">.xyz</span>
+    </div>
+    <div class="column">
+      <span class="tag is-success is-medium">.io</span>
+    </div>
+    <div class="column">
+      <span class="tag is-success is-medium">.ly</span>
+    </div>
+    <div class="column">
+      <span class="tag is-success is-medium">.me</span>
+    </div>
+  </div>
+  <div class="columns">
+    <div class="column">
+      <span class="tag is-success is-medium">.co</span>
+    </div>
+    <div class="column">
+      <span class="tag is-success is-medium">.it</span>
+    </div>
+    <div class="column">
+      <span class="tag is-success is-medium">.tv</span>
+    </div>
+    <div class="column">
+      <span class="tag is-success is-medium">.by</span>
+    </div>
+    <div class="column">
+      <span class="tag is-success is-medium">.us</span>
+    </div>
+    <div class="column">
+      <span class="tag is-success is-medium">.eu</span>
+    </div>
+    <div class="column">
+      <span class="tag is-success is-medium">.de</span>
+    </div>
+    <div class="column">
+      <span class="tag is-success is-medium">.ru</span>
+    </div>
+  </div>
+</div>
+<table id="swTableWhoisInfo" class="table is-fullwidth is-hidden">
+  <tr>
+    <td colspan=4 class="is-expanded" style="border-bottom: none; text-align: right;"><button data-notif="swTableWhoisInfo" class="delete"></button></td>
+  </tr>
+  <tr>
+    <th>Domain:</th>
+    <td class="is-expanded"><a id="swTableDomain" href="#" target="_blank">n/a</a></td>
+    <th>Update Date:</th>
+    <td id="swTableUpdate" class="is-expanded">n/a</td>
+  </tr>
+  <tr>
+    <th>Registrar:</th>
+    <td id="swTableRegistrar" class="is-expanded">n/a</td>
+    <th>Creation Date:</th>
+    <td id="swTableCreation" class="is-expanded">n/a</td>
+  </tr>
+  <tr>
+    <th>Company:</th>
+    <td id="swTableCompany" class="is-expanded">n/a</td>
+    <th>Expiry Date:</th>
+    <td id="swTableExpiry" class="is-expanded">n/a</td>
+  </tr>
+</table>

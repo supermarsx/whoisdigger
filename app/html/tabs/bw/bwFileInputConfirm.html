@@ -1,0 +1,44 @@
+<h4 class="title is-4 has-text-centered">File Import</h4>
+<hr>
+<table id="bwfTableFileInfo" class="table is-striped is-hoverable is-fullwidth">
+  <tr>
+    <th>Filename:</th>
+    <td id="bwfTableFilename" class="is-expanded">n/a</td>
+  </tr>
+  <tr>
+    <th>Last modified:</th>
+    <td id="bwfTableFileLastModified" class="is-expanded">n/a</td>
+  </tr>
+  <tr>
+    <th>Last accessed:</th>
+    <td id="bwfTableFileLastAccessed">n/a</td>
+  </tr>
+  <tr>
+    <th>File Size:</br><span class="content is-small">(File size + Lines/Domains)</span></th>
+    <td id="bwfTableFileSize" class="is-expanded" style="vertical-align: middle;">n/a</td>
+  </tr>
+  <tr>
+    <th>Min.<span id="bwftimebetweenmaxtext">/Max</span> Estimated Time per TLD:</br><span class="content is-small">(<span id="bwftimebetweenmin"></span><span id="bwftimebetweenmax"></span> per domain)</span></th>
+    <td id="bwfTableMinMaxEstimate" class="is-expanded" style="vertical-align: middle;">n/a</td>
+  </tr>
+  <tr>
+    <th>File preview</th>
+    <td id="bwfTableFilePreview" class="is-expanded">n/a</td>
+  </tr>
+  <tr>
+    <th>Search TLD(s)</br><span class="content is-small">(multiple TLDs separated by comma)</span></th>
+    <td style="vertical-align: middle;"><input id="bwfSearchTlds" class="input" type="text" placeholder="com,net,org,io"></td>
+  </tr>
+</table>
+<a id="bwfButtonConfirm" class="button is-medium is-success">
+  <span class="icon is-small">
+    <i class="fas fa-check"></i>
+  </span>
+  <span>Start</span>
+</a>
+<a id="bwfButtonCancel" class="button is-medium is-danger">
+  <span class="icon is-small">
+    <i class="fas fa-undo"></i>
+  </span>
+  <span>Cancel</span>
+</a>

@@ -39,7 +39,7 @@ module.exports = {
     },
     'startup': { // At app startup
       'devtools': false, // Enable/Show developer tools at startup (default: false)
-      'loadconfig': false // Load custom/override app settings trough user file (default: true)
+      'loadconfig': false // Load custom/override app settings through user file (default: true)
     },
     'customconfig': {
       'filepath': 'appconfig.js' // Custom configuration filename on apps directory (default: appconfig.js)
@@ -49,7 +49,7 @@ module.exports = {
         'request': {
           'timers': true, // enable performance timer for requests
           'averages': true, // enable average calcs
-          'stopwatch': true // enable elapsed and remaining time to complete
+          'stopwatch': true // enable elapsed time to complete
         }
       },
       'bulk': {
