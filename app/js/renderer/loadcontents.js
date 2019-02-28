@@ -43,7 +43,7 @@ function loadhtml() {
   $('#toEntry').load(path.to + "toEntry.html");
 
   // Options container
-  $('#opEntry').load(path.to + "opEntry.html");
+  $('#opEntry').load(path.op + "opEntry.html");
 
   // Help container
   $('#heMainContainer').load(path.tab + "he.html");
