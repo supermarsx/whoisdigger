@@ -214,6 +214,22 @@ ipcMain.on('bulkwhois:lookup.continue', function(event) {
 
 });
 
+// Bulk domain, stop process
+ipcMain.on('bulkwhois:lookup.stop', function(event) {
+  var {
+    results,
+    stats
+  } = bulkWhois;
+
+  var {
+    sender
+  } = event;
+  
+  clearTimeout(stats.time.counter);
+  sender.send('bulkwhois:result.receive', results);
+  sender.send('bulkwhois:status.update', 'finished');
+})
+
 // Process domain
 function processDomain(domain, index, timebetween, follow, timeout, event) {
   debug("Domain: {0}, id: {1}, timebetween: {2}".format(domain, index, timebetween));

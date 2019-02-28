@@ -144,7 +144,6 @@ function setPauseButton() {
 // Trigger Bulk whois Stop modal
 $('#bwpButtonStop').click(function() {
   ipcRenderer.send('app:debug', "Pausing whois & opening stop modal");
-  console.log($('#bwpButtonPause').text());
   $('#bwpButtonPause').text().includes('Pause') ? $('#bwpButtonPause').click() : false;
   $('#bwpStopModal').addClass('is-active');
 });
@@ -167,6 +166,7 @@ $('#bwpStopModalButtonStop').click(function() {
 // Stop bulk whois entirely and save/export
 $('#bwpStopModalButtonStopSave').click(function() {
   ipcRenderer.send('app:debug', "Closing Stop modal & exporting");
+  ipcRenderer.send('bulkwhois:lookup.stop');
   $('#bwpStopModal').removeClass('is-active');
   $('#bwProcessing').addClass('is-hidden');
   setPauseButton();

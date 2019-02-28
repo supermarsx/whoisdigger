@@ -21,8 +21,10 @@ var {
 
 ipcRenderer.on('bulkwhois:result.receive', function(event, rcvResults) {
   ipcRenderer.send('app:debug', "Results are ready for export {0}".format(rcvResults));
+  /*
   results = rcvResults;
   console.log("%o", results);
+  */
 });
 
 ipcRenderer.on('bulkwhois:export.cancel', function(event) {

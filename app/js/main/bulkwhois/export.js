@@ -153,10 +153,10 @@ ipcMain.on('bulkwhois:export', function(event, results, options) {
       });
     }
 
-    switch (options.whoisreply | options.filetype) {
-      case ('yes+inlineseparate' | 'csv'):
-      case ('yes+block' | 'csv'):
-      case (true | 'txt'):
+    switch (true) {
+      case (options.whoisreply == 'yes+inlineseparate' && options.filetype == 'csv'):
+      case (options.whoisreply == 'yes+block' && options.filetype == 'csv'):
+      case (options.filetype == 'txt'):
         if (JSZip.support.uint8array) {
           contentZip.generateAsync({
             type: "uint8array"
@@ -186,9 +186,6 @@ ipcMain.on('bulkwhois:export', function(event, results, options) {
         }
         break;
     }
-
-
-
   }
   event.sender.send('bulkwhois:export.cancel');
 
