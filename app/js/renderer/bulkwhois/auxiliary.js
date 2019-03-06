@@ -15,7 +15,7 @@ function tableReset(dLength = 0, tLength = 0) {
 
 // Get export options from the form
 function getExportOptions() {
-  var options = resetObject();
+  var options = {};
   options = {
     'filetype': $('#bweSelectFiletype').val(),
     'domains': $('#bweSelectDomains').val(),

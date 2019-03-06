@@ -46,7 +46,7 @@ ipcRenderer.on('singlewhois:results', function(event, domainResults) {
       $('#swMessageError').removeClass('is-hidden');
       break;
     case 'unavailable':
-    console.log(domainResultsJSON);
+    //console.log(domainResultsJSON);
       $('#swMessageUnavailable').removeClass('is-hidden');
       $('#swMessageWhoisResults').text(domainResults);
 

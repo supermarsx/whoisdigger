@@ -21,13 +21,12 @@ var {
 
 ipcRenderer.on('bulkwhois:result.receive', function(event, rcvResults) {
   ipcRenderer.send('app:debug', "Results are ready for export {0}".format(rcvResults));
-  /*
+
   results = rcvResults;
-  console.log("%o", results);
-  */
+  //console.log("%o", results);
 });
 
-ipcRenderer.on('bulkwhois:export.cancel', function(event) {
+ipcRenderer.on('bulkwhois:export.cancel', function() {
   $('#bwExportLoading').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 });
