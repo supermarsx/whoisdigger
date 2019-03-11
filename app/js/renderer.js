@@ -2,8 +2,9 @@
 const electron = require('electron'),
   path = require('path');
 
-require('../js/renderer/singlewhois.js');
-require('../js/renderer/bulkwhois.js');
+require('../js/renderer/sw.js');
+require('../js/renderer/bw.js');
+require('../js/renderer/bwa.js');
 
 window.$ = window.jQuery = require('jquery');
 
@@ -57,11 +58,17 @@ $(document).ready(function() { // When document is ready
   });
 
   // Prevent drop redirect
-  document.addEventListener('drop', function(event) {
+  $(document).on('drop', function(event) {
     ipcRenderer.send('app:debug', "Preventing drag and drop redirect");
     event.preventDefault();
     return false;
-  }, false);
+  });
+
+  // Prevent drag over redirect
+  $(document).on('dragover', function(event) {
+    event.preventDefault();
+    return false;
+  });
 
   // Toggle devtools
   $('#navTabDevTools').click(function() {
@@ -118,9 +125,3 @@ function loadContents() {
   $('#include.navbar').load(path.join(__dirname, '../html/navigation/navbar.html'));
   $('#include.navbar.tabs').load(path.join(__dirname, '../html/navigation/navbar.tabs.html'));
 }
-
-// Prevent drag over redirect
-document.addEventListener('dragover', function(event) {
-  event.preventDefault();
-  return false;
-}, false);

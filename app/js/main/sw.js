@@ -19,7 +19,7 @@ var {
   appSettings
 } = require('../appsettings.js');
 
-ipcMain.on('singlewhois:lookup', function(event, domain) {
+ipcMain.on('sw:lookup', function(event, domain) {
   debug('Starting whois lookup');
   whois.lookup(domain)
     .then(function(data) {

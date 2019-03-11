@@ -18,7 +18,7 @@ const {
   remote
 } = electron;
 
-ipcMain.on('bulkwhois:export', function(event, results, options) {
+ipcMain.on('bw:export', function(event, results, options) {
   debug('options: \n {0}'.format(JSON.stringify(options)));
   //debug('results: \n {0}'.format(JSON.stringify(results)));
 
@@ -62,7 +62,7 @@ ipcMain.on('bulkwhois:export', function(event, results, options) {
   });
   if (filePath === undefined || filePath == '' || filePath === null) {
     debug("Using selected file at {0}".format(filePath));
-    event.sender.send('bulkwhois:export.cancel');
+    event.sender.send('bw:export.cancel');
   } else {
     var contentsExport = "",
       contentsHeader = "",
@@ -187,6 +187,6 @@ ipcMain.on('bulkwhois:export', function(event, results, options) {
         break;
     }
   }
-  event.sender.send('bulkwhois:export.cancel');
+  event.sender.send('bw:export.cancel');
 
 });

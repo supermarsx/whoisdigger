@@ -10,7 +10,7 @@ const {
 } = electron;
 
 // File input, select file dialog
-ipcMain.on('bulkwhois:input.file', function(event) {
+ipcMain.on('bw:input.file', function(event) {
   debug("Waiting for file selection");
   var filePath = dialog.showOpenDialog({
     title: "Select wordlist file",
@@ -18,5 +18,15 @@ ipcMain.on('bulkwhois:input.file', function(event) {
     properties: ['openFile', 'showHiddenFiles']
   });
   debug("Using selected file at {0}".format(filePath));
-  event.sender.send('bulkwhois:fileinput.confirmation', filePath);
+  event.sender.send('bw:fileinput.confirmation', filePath);
+});
+
+// On drag and drop file
+ipcMain.on('ondragstart', function(event, filePath) {
+  event.sender.startDrag({
+    file: filePath,
+    icon: appSettings.window.icon
+  });
+  debug('File drag filepath: {0}'.format(filePath));
+  event.sender.send('bw:fileinput.confirmation', filePath, true);
 });

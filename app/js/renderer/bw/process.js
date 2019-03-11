@@ -41,7 +41,7 @@ ipcRenderer.on('bulkwhois:resultreceive', function(event, results) {
 */
 
 // Bulk whois processing, ui status update
-ipcRenderer.on('bulkwhois:status.update', function(event, stat, value) {
+ipcRenderer.on('bw:status.update', function(event, stat, value) {
   ipcRenderer.send('app:debug', "{0}, value update to {1}".format(stat, value)); // status update
   var percent;
   switch (stat) {
@@ -122,13 +122,13 @@ $('#bwpButtonPause').click(function() {
   switch (searchStatus) {
     case 'Continue':
       setPauseButton();
-      ipcRenderer.send('bulkwhois:lookup.continue');
+      ipcRenderer.send('bw:lookup.continue');
       break;
     case 'Pause':
       $('#bwpButtonPause').removeClass('is-warning').addClass('is-success');
       $('#bwpButtonPauseIcon').removeClass('fa-pause').addClass('fa-play');
       $('#bwpButtonPauseText').text('Continue');
-      ipcRenderer.send('bulkwhois:lookup.pause');
+      ipcRenderer.send('bw:lookup.pause');
       break;
     default:
       break;
@@ -166,7 +166,7 @@ $('#bwpStopModalButtonStop').click(function() {
 // Stop bulk whois entirely and save/export
 $('#bwpStopModalButtonStopSave').click(function() {
   ipcRenderer.send('app:debug', "Closing Stop modal & exporting");
-  ipcRenderer.send('bulkwhois:lookup.stop');
+  ipcRenderer.send('bw:lookup.stop');
   $('#bwpStopModal').removeClass('is-active');
   $('#bwProcessing').addClass('is-hidden');
   setPauseButton();

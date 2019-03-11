@@ -14,7 +14,7 @@ const {
 } = require('./auxiliary.js');
 
 // Wordlist input, contents confirmation container
-ipcRenderer.on('bulkwhois:wordlistinput.confirmation', function() {
+ipcRenderer.on('bw:wordlistinput.confirmation', function() {
   var bwFileStats = [];
   const {
     lookup
@@ -71,7 +71,7 @@ $('#bwiButtonCancel').click(function() {
 // Wordlist Input, Proceed to confirmation
 $('#bwiButtonConfirm').click(function() {
   $('#bwWordlistInput').addClass('is-hidden');
-  ipcRenderer.send("bulkwhois:input.wordlist");
+  ipcRenderer.send("bw:input.wordlist");
 });
 
 // Wordlist input, cancel confirmation
@@ -89,10 +89,10 @@ $('#bwwButtonConfirm').click(function() {
   $('#bwWordlistConfirm').addClass('is-hidden');
   $('#bwProcessing').removeClass('is-hidden');
 
-  ipcRenderer.send("bulkwhois:lookup", bwDomainArray, bwTldsArray);
+  ipcRenderer.send("bw:lookup", bwDomainArray, bwTldsArray);
 });
 
-document.getElementById('bwwSearchTlds').addEventListener("keyup", function(event) {
+$('#bwwSearchTlds').keyup(function() {
   // Cancel the default action, if needed
   event.preventDefault();
   // Number 13 is the "Enter" key on the keyboard

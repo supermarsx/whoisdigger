@@ -16,7 +16,7 @@ const {
 } = require('./auxiliary.js');
 
 // File input, path and information confirmation container
-ipcRenderer.on('bulkwhois:fileinput.confirmation', function(event, filePath = null, isDragDrop = false) {
+ipcRenderer.on('bw:fileinput.confirmation', function(event, filePath = null, isDragDrop = false) {
   const {
     misc,
     lookup
@@ -88,7 +88,7 @@ ipcRenderer.on('bulkwhois:fileinput.confirmation', function(event, filePath = nu
 $('#bweButtonFileInput').click(function() {
   $('#bwEntry').addClass('is-hidden');
   $.when($('#bwFileInputLoading').removeClass('is-hidden').delay(10)).done(() => {
-    ipcRenderer.send("bulkwhois:input.file");
+    ipcRenderer.send("bw:input.file");
   });
 });
 
@@ -107,12 +107,12 @@ $('#bwfButtonConfirm').click(function() {
   $('#bwFileInputConfirm').addClass('is-hidden');
   $('#bwProcessing').removeClass('is-hidden');
 
-  ipcRenderer.send("bulkwhois:lookup", bwDomainArray, bwTldsArray);
+  ipcRenderer.send("bw:lookup", bwDomainArray, bwTldsArray);
 });
 
 // Bulk whois file input by drag and drop
 (function() {
-  var holder = document.getElementById('bwMainContainer');
+  var holder = $('#bwMainContainer');
   holder.ondragover = function() {
     return false;
   };
@@ -135,8 +135,35 @@ $('#bwfButtonConfirm').click(function() {
   };
 })();
 
-// Enter when confirming file input bulk whois
-document.getElementById('bwfSearchTlds').addEventListener("keyup", function(event) {
+/*
+$("html").on("dragover", function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+  console.log('dragging');
+});
+
+$("html").on("dragleave", function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    console.log('dragging');
+});
+
+$("html").on("drop", function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    alert("Dropped!");
+});*/
+
+$('#bwMainContainer').on('drop', function(event) {
+  event.preventDefault();
+  for (let f of event.dataTransfer.files) {
+    ipcRenderer.send('File(s) you dragged here: {0}'.format(f.path));
+    ipcRenderer.send('ondragstart', f.path);
+  }
+  return false;
+});
+
+$('#bwfSearchTlds').keyup(function(event) {
   // Cancel the default action, if needed
   event.preventDefault();
   // Number 13 is the "Enter" key on the keyboard

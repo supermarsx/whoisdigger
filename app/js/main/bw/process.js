@@ -34,7 +34,7 @@ var bulkWhois; // BulkWhois object
 var reqtime = [];
 
 // Bulk Domain whois lookup
-ipcMain.on('bulkwhois:lookup', function(event, domains, tlds) {
+ipcMain.on('bw:lookup', function(event, domains, tlds) {
   resetUiCounters(event); // Reset UI counters, pass window param
   bulkWhois = resetObject(defaultBulkWhois); // Reset var
   reqtime = [];
@@ -83,7 +83,7 @@ ipcMain.on('bulkwhois:lookup', function(event, domains, tlds) {
   input.tlds = tlds; // TLDs array
 
   stats.domains.total = input.tlds.length * input.domains.length; // Domain quantity times tld quantity
-  sender.send('bulkwhois:status.update', 'domains.total', stats.domains.total); // Display total amount of domains
+  sender.send('bw:status.update', 'domains.total', stats.domains.total); // Display total amount of domains
 
   // Compile domains to process
   for (var tld in input.tlds) {
@@ -104,7 +104,7 @@ ipcMain.on('bulkwhois:lookup', function(event, domains, tlds) {
   } // End processing for loop
 
   stats.domains.processed = Number(domain) + 1;
-  sender.send('bulkwhois:status.update', 'domains.processed', stats.domains.processed);
+  sender.send('bw:status.update', 'domains.processed', stats.domains.processed);
 
   randomize.timebetween ? // Counter total time
     (stats.time.remainingcounter = stats.domains.total * randomize.timebetweenmax) :
@@ -119,7 +119,7 @@ ipcMain.on('bulkwhois:lookup', function(event, domains, tlds) {
 });
 
 // Pause bulk whois process
-ipcMain.on('bulkwhois:lookup.pause', function(event) {
+ipcMain.on('bw:lookup.pause', function(event) {
 
   // bulkWhois section
   var {
@@ -146,7 +146,7 @@ ipcMain.on('bulkwhois:lookup.pause', function(event) {
 });
 
 // Bulk domain, continue bulk whois process
-ipcMain.on('bulkwhois:lookup.continue', function(event) {
+ipcMain.on('bw:lookup.continue', function(event) {
   debug('Continuing bulk whois requests');
 
   // Go through the remaining domains and queue them again using setTimeouts
@@ -200,7 +200,7 @@ ipcMain.on('bulkwhois:lookup.continue', function(event) {
   } // End processing for loop
 
   stats.domains.processed = Number(domain);
-  sender.send('bulkwhois:status.update', 'domains.processed', stats.domains.processed);
+  sender.send('bw:status.update', 'domains.processed', stats.domains.processed);
 
   randomize.timebetween ? // Counter total time
     (stats.time.remainingcounter = stats.domains.total * randomize.timebetweenmax) :
@@ -215,7 +215,7 @@ ipcMain.on('bulkwhois:lookup.continue', function(event) {
 });
 
 // Bulk domain, stop process
-ipcMain.on('bulkwhois:lookup.stop', function(event) {
+ipcMain.on('bw:lookup.stop', function(event) {
   var {
     results,
     stats
@@ -224,10 +224,10 @@ ipcMain.on('bulkwhois:lookup.stop', function(event) {
   var {
     sender
   } = event;
-  
+
   clearTimeout(stats.time.counter);
-  sender.send('bulkwhois:result.receive', results);
-  sender.send('bulkwhois:status.update', 'finished');
+  sender.send('bw:result.receive', results);
+  sender.send('bw:status.update', 'finished');
 })
 
 // Process domain
@@ -268,10 +268,10 @@ function processDomain(domain, index, timebetween, follow, timeout, event) {
     processingIDs[index] = setTimeout(function() {
 
       stats.domains.sent++; // Add to requests sent
-      sender.send('bulkwhois:status.update', 'domains.sent', stats.domains.sent); // Requests sent, update stats
+      sender.send('bw:status.update', 'domains.sent', stats.domains.sent); // Requests sent, update stats
 
       stats.domains.waiting++; // Waiting in queue
-      sender.send('bulkwhois:status.update', 'domains.waiting', stats.domains.waiting); // Waiting in queue, update stats
+      sender.send('bw:status.update', 'domains.waiting', stats.domains.waiting); // Waiting in queue, update stats
 
       reqtime[index] = performance.now();
 
@@ -295,16 +295,16 @@ function processDomain(domain, index, timebetween, follow, timeout, event) {
 
         Number(reqtimes.minimum) > Number(reqtime[index]) ? (function() {
           reqtimes.minimum = reqtime[index];
-          sender.send('bulkwhois:status.update', 'reqtimes.minimum', reqtimes.minimum)
+          sender.send('bw:status.update', 'reqtimes.minimum', reqtimes.minimum)
         })() : false;
 
         Number(reqtimes.maximum) < Number(reqtime[index]) ? (function() {
           reqtimes.maximum = reqtime[index];
-          sender.send('bulkwhois:status.update', 'reqtimes.maximum', reqtimes.maximum);
+          sender.send('bw:status.update', 'reqtimes.maximum', reqtimes.maximum);
         })() : false;
 
         reqtimes.last = reqtime[index];
-        sender.send('bulkwhois:status.update', 'reqtimes.last', reqtimes.last);
+        sender.send('bw:status.update', 'reqtimes.last', reqtimes.last);
 
         misc.asfoverride ? (function() { // true average
           lastweight = Number((stats.domains.sent - stats.domains.waiting) / stats.domains.processed).toFixed(2);
@@ -316,32 +316,32 @@ function processDomain(domain, index, timebetween, follow, timeout, event) {
 
         isError ? (function() { // whois lookup error
           status.error++;
-          sender.send('bulkwhois:status.update', 'status.error', status.error);
+          sender.send('bw:status.update', 'status.error', status.error);
           stats.laststatus.error = domain;
-          sender.send('bulkwhois:status.update', 'laststatus.error', stats.laststatus.error);
+          sender.send('bw:status.update', 'laststatus.error', stats.laststatus.error);
         })() : (function() {
           domainAvailable = whois.isDomainAvailable(data);
           switch (domainAvailable) {
             case 'available':
               status.available++;
-              sender.send('bulkwhois:status.update', 'status.available', status.available);
+              sender.send('bw:status.update', 'status.available', status.available);
               stats.laststatus.available = domain;
-              sender.send('bulkwhois:status.update', 'laststatus.available', stats.laststatus.available);
+              sender.send('bw:status.update', 'laststatus.available', stats.laststatus.available);
               lastStatus = 'available';
               break;
             case 'unavailable':
               status.unavailable++;
-              sender.send('bulkwhois:status.update', 'status.unavailable', status.unavailable);
+              sender.send('bw:status.update', 'status.unavailable', status.unavailable);
               bulkWhois.stats.laststatus.unavailable = domain;
-              sender.send('bulkwhois:status.update', 'laststatus.unavailable', stats.laststatus.unavailable);
+              sender.send('bw:status.update', 'laststatus.unavailable', stats.laststatus.unavailable);
               lastStatus = 'unavailable';
               break;
             case 'querylimituniregistry':
             case 'error':
               status.error++;
-              sender.send('bulkwhois:status.update', 'status.error', status.error);
+              sender.send('bw:status.update', 'status.error', status.error);
               stats.laststatus.error = domain;
-              sender.send('bulkwhois:status.update', 'laststatus.error', stats.laststatus.error);
+              sender.send('bw:status.update', 'laststatus.error', stats.laststatus.error);
               lastStatus = 'error';
               break;
           }
@@ -349,10 +349,10 @@ function processDomain(domain, index, timebetween, follow, timeout, event) {
 
         debug('Average request time {0}ms'.format(reqtimes.average));
 
-        sender.send('bulkwhois:status.update', 'reqtimes.average', reqtimes.average);
+        sender.send('bw:status.update', 'reqtimes.average', reqtimes.average);
         //sender.send('bulkwhois:results', domain, data);
         stats.domains.waiting--; // Waiting in queue
-        sender.send('bulkwhois:status.update', 'domains.waiting', stats.domains.waiting); // Waiting in queue, update stats
+        sender.send('bw:status.update', 'domains.waiting', stats.domains.waiting); // Waiting in queue, update stats
 
         domainResultsJSON = whois.toJSON(data);
 
@@ -399,12 +399,12 @@ function counter(event, start = true) {
         })() :
         stats.time.remaining = conversions.msToHumanTime(stats.time.remainingcounter);
       stats.time.current = conversions.msToHumanTime(stats.time.currentcounter);
-      sender.send('bulkwhois:status.update', 'time.current', stats.time.current);
-      sender.send('bulkwhois:status.update', 'time.remaining', stats.time.remaining);
+      sender.send('bw:status.update', 'time.current', stats.time.current);
+      sender.send('bw:status.update', 'time.remaining', stats.time.remaining);
       (stats.domains.total == stats.domains.sent && stats.domains.waiting === 0) ? (function() {
         clearTimeout(stats.time.counter);
-        sender.send('bulkwhois:result.receive', results);
-        sender.send('bulkwhois:status.update', 'finished');
+        sender.send('bw:result.receive', results);
+        sender.send('bw:status.update', 'finished');
         //console.log(bulkWhois);
       })() : null;
     }, 1000);

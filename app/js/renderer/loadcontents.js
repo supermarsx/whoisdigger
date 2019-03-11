@@ -35,6 +35,7 @@ function loadhtml() {
 
   // Bulk whois analyser containers
   $('#bwaEntry').load(path.bwa + "bwaEntry.html");
+  $('#bwaFileInputLoading').load(path.bwa + "bwaFileInputLoading.html");
 
   // bulk domain monitor
   $('#bwmEntry').load(path.bwm + "bwmEntry.html");

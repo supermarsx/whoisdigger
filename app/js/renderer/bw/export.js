@@ -19,14 +19,14 @@ var {
   setExportOptionsEx
 } = require('./auxiliary.js');
 
-ipcRenderer.on('bulkwhois:result.receive', function(event, rcvResults) {
+ipcRenderer.on('bw:result.receive', function(event, rcvResults) {
   ipcRenderer.send('app:debug', "Results are ready for export {0}".format(rcvResults));
 
   results = rcvResults;
   //console.log("%o", results);
 });
 
-ipcRenderer.on('bulkwhois:export.cancel', function() {
+ipcRenderer.on('bw:export.cancel', function() {
   $('#bwExportLoading').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 });
@@ -36,7 +36,7 @@ $('#bweButtonExport').click(function() {
   $('#bwExport').addClass('is-hidden');
   options = getExportOptions();
   $.when($('#bwExportLoading').removeClass('is-hidden').delay(10)).done(function() {
-    ipcRenderer.send("bulkwhois:export", results, options);
+    ipcRenderer.send("bw:export", results, options);
   });
 });
 

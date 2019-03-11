@@ -3,8 +3,8 @@ const electron = require('electron'),
   debug = require('debug')('main'),
   debugb = require('debug')('renderer');
 
-require('./main/singlewhois.js');
-require('./main/bulkwhois.js');
+require('./main/sw.js');
+require('./main/bw.js');
 
 var {
   appSettings
@@ -27,7 +27,7 @@ app.on('ready', function() {
   debug("'appSettings.window.show': {0}".format(appSettings.window.show));
   debug("'appSettings.window.height': {0}".format(appSettings.window.height));
   debug("'appSettings.window.width': {0}".format(appSettings.window.width));
-  
+
   // mainWindow window init
   mainWindow = new BrowserWindow({
     frame: appSettings.window.frame,

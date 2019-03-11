@@ -11,7 +11,7 @@ const {
 } = electron;
 
 // Bulk domain, wordlist input
-ipcMain.on('bulkwhois:input.wordlist', function(event) {
+ipcMain.on('bw:input.wordlist', function(event) {
   debug("Using wordlist input");
-  event.sender.send('bulkwhois:wordlistinput.confirmation');
+  event.sender.send('bw:wordlistinput.confirmation');
 });
