@@ -15,7 +15,7 @@ var singleWhois = {
 }
 
 // Single Whois, whois reply processing
-ipcRenderer.on('singlewhois:results', function(event, domainResults) {
+ipcRenderer.on('sw:results', function(event, domainResults) {
   const {
     isDomainAvailable
   } = whois;
