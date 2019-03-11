@@ -102,7 +102,7 @@ $('#swButtonSearch').click(function() {
   $('.notification:not(.is-hidden)').addClass('is-hidden');
   $('#swTable:not(.is-hidden)').addClass('is-hidden');
   tableReset();
-  ipcRenderer.send("singlewhois:lookup", singleWhois.input.domain);
+  ipcRenderer.send("sw:lookup", singleWhois.input.domain);
   return undefined;
 });
 
