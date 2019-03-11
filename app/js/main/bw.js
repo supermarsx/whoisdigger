@@ -1,5 +1,5 @@
 const electron = require('electron'),
-  debug = require('debug')('main.bulkwhois');
+  debug = require('debug')('main.bw');
 
 require('./bw/fileinput.js'); // File input
 require('./bw/wordlistinput.js'); // Wordlist input

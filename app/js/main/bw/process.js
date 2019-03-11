@@ -1,7 +1,7 @@
 const electron = require('electron'),
   whois = require('../../common/whoiswrapper.js'),
   conversions = require('../../common/conversions.js'),
-  debug = require('debug')('main.bulkwhois.process'),
+  debug = require('debug')('main.bw.process'),
   defaultBulkWhois = require('./process.defaults.js');
 
 var {

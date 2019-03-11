@@ -2,7 +2,7 @@ const electron = require('electron'),
   fs = require('fs'),
   path = require('path'),
   conversions = require('../../common/conversions.js'),
-  debug = require('debug')('main.bulkwhois.export'),
+  debug = require('debug')('main.bw.export'),
   JSZip = require('jszip');
 
 var {

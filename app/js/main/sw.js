@@ -2,7 +2,7 @@ const electron = require('electron'),
   path = require('path'),
   url = require('url'),
   whois = require('../common/whoiswrapper.js'),
-  debug = require('debug')('main.singlewhois');
+  debug = require('debug')('main.sw');
 
 require('../main.js');
 
@@ -24,10 +24,10 @@ ipcMain.on('sw:lookup', function(event, domain) {
   whois.lookup(domain)
     .then(function(data) {
       debug('Sending back whois reply');
-      event.sender.send('singlewhois:results', data);
+      event.sender.send('sw:results', data);
     })
     .catch(function(err) {
       debug('Whois lookup threw an error');
-      event.sender.send('singlewhois:results', err);
+      event.sender.send('sw:results', err);
     });
 });

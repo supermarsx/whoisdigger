@@ -1,5 +1,5 @@
 const electron = require('electron'),
-  debug = require('debug')('main.bulkwhois.fileinput');
+  debug = require('debug')('main.bw.fileinput');
 
 const {
   app,

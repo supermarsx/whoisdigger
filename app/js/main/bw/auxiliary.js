@@ -1,4 +1,4 @@
-var debug = require('debug')('main.bulkwhois.auxiliary');
+var debug = require('debug')('main.bw.auxiliary');
 
 // Reset ui counters at process stage
 function resetUiCounters(event) {
