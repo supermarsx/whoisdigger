@@ -46,70 +46,70 @@ ipcRenderer.on('bw:status.update', function(event, stat, value) {
   var percent;
   switch (stat) {
     case 'start':
-      if ($('#bwpButtonNext').hasClass('is-hidden') === false) {
-        $('#bwpButtonNext').addClass('is-hidden');
-        $('#bwpButtonPause').removeClass('is-hidden');
-        $('#bwpButtonStop').removeClass('is-hidden');
+      if ($('#bwProcessingButtonNext').hasClass('is-hidden') === false) {
+        $('#bwProcessingButtonNext').addClass('is-hidden');
+        $('#bwProcessingButtonPause').removeClass('is-hidden');
+        $('#bwProcessingButtonStop').removeClass('is-hidden');
       }
       break;
     case 'domains.processed': // processed domains
-      percent = parseFloat((value / parseInt($('#bwTableProcessingTotal').text(), base) * 100).toFixed(1)) || 0;
-      $('#bwTableProcessingProcessed').text('{0} ({1}%)'.format(value, percent));
+      percent = parseFloat((value / parseInt($('#bwProcessingSpanTotal').text(), base) * 100).toFixed(1)) || 0;
+      $('#bwProcessingSpanProcessed').text('{0} ({1}%)'.format(value, percent));
       break;
     case 'domains.waiting': // whois requests waiting reply
-      percent = parseFloat((value / parseInt($('#bwTableProcessingSent').text(), base) * 100).toFixed(1)) || 0;
-      $('#bwTableProcessingWaiting').text('{0} ({1}%)'.format(value, percent));
+      percent = parseFloat((value / parseInt($('#bwProcessingSpanSent').text(), base) * 100).toFixed(1)) || 0;
+      $('#bwProcessingSpanWaiting').text('{0} ({1}%)'.format(value, percent));
       break;
     case 'domains.sent': // sent whois requests
-      percent = parseFloat((value / parseInt($('#bwTableProcessingTotal').text(), base) * 100).toFixed(1)) || 0;
-      $('#bwTableProcessingSent').text('{0} ({1}%)'.format(value, percent));
+      percent = parseFloat((value / parseInt($('#bwProcessingSpanTotal').text(), base) * 100).toFixed(1)) || 0;
+      $('#bwProcessingSpanSent').text('{0} ({1}%)'.format(value, percent));
       break;
     case 'domains.total': // total domains
-      $('#bwTableProcessingTotal').text(value);
+      $('#bwProcessingSpanTotal').text(value);
       break;
     case 'time.current': // current time
-      $('#bwTableProcessingCurrentTime').text('{0}'.format(value));
+      $('#bwProcessingSpanTimecurrent').text('{0}'.format(value));
       break;
     case 'time.remaining': // remaining time
-      $('#bwTableProcessingRemainingTime').text('{0}'.format(value));
+      $('#bwProcessingSpanTimeremaining').text('{0}'.format(value));
       break;
     case 'reqtimes.maximum': // maximum request reply time
-      $('#bwTableProcessingReqMax').text('{0}ms'.format(value));
+      $('#bwProcessingSpanReqtimemax').text('{0}ms'.format(value));
       break;
     case 'reqtimes.minimum': // minimum request reply time
-      $('#bwTableProcessingReqMin').text('{0}ms'.format(value));
+      $('#bwProcessingSpanReqtimemin').text('{0}ms'.format(value));
       break;
     case 'reqtimes.last': // last request reply time
-      $('#bwTableProcessingReqLast').text('{0}ms'.format(value));
+      $('#bwProcessingSpanReqtimelast').text('{0}ms'.format(value));
       break;
     case 'reqtimes.average': // Average request reply time
-      $('#bwTableProcessingReqAvg').text('{0}ms'.format(value));
+      $('#bwProcessingSpanReqtimeavg').text('{0}ms'.format(value));
       break;
     case 'status.available': // Domains available
-      percent = parseFloat((value / parseInt($('#bwTableProcessingTotal').text(), base) * 100).toFixed(1)) || 0;
-      $('#bwTableProcessingDomAvail').text('{0} ({1}%)'.format(value, percent));
+      percent = parseFloat((value / parseInt($('#bwProcessingSpanTotal').text(), base) * 100).toFixed(1)) || 0;
+      $('#bwProcessingSpanStatusavailable').text('{0} ({1}%)'.format(value, percent));
       break;
     case 'status.unavailable': // Domains unavailable
-      percent = parseFloat((value / parseInt($('#bwTableProcessingTotal').text(), base) * 100).toFixed(1)) || 0;
-      $('#bwTableProcessingDomUnavail').text('{0} ({1}%)'.format(value, percent));
+      percent = parseFloat((value / parseInt($('#bwProcessingSpanTotal').text(), base) * 100).toFixed(1)) || 0;
+      $('#bwProcessingSpanStatusunavailable').text('{0} ({1}%)'.format(value, percent));
       break;
     case 'status.error': // Domains error
-      percent = parseFloat((value / parseInt($('#bwTableProcessingTotal').text(), base) * 100).toFixed(1)) || 0;
-      $('#bwTableProcessingDomError').text('{0} ({1}%)'.format(value, percent));
+      percent = parseFloat((value / parseInt($('#bwProcessingSpanTotal').text(), base) * 100).toFixed(1)) || 0;
+      $('#bwProcessingSpanStatuserror').text('{0} ({1}%)'.format(value, percent));
       break;
     case 'laststatus.available': // Last available domain
-      $('#bwTableProcessingLastDomAvail').text('{0}'.format(value));
+      $('#bwProcessingSpanLaststatusavailable').text('{0}'.format(value));
       break;
     case 'laststatus.unavailable': // Last unavailable domain
-      $('#bwTableProcessingLastDomUnavail').text('{0}'.format(value));
+      $('#bwProcessingSpanLaststatusunavailable').text('{0}'.format(value));
       break;
     case 'laststatus.error': // Last error domain
-      $('#bwTableProcessingLastDomError').text('{0}'.format(value));
+      $('#bwProcessingSpanLaststatuserror').text('{0}'.format(value));
       break;
     case 'finished': // Finished
-      $('#bwpButtonPause').addClass('is-hidden');
-      $('#bwpButtonStop').addClass('is-hidden');
-      $('#bwpButtonNext').removeClass('is-hidden');
+      $('#bwProcessingButtonPause').addClass('is-hidden');
+      $('#bwProcessingButtonStop').addClass('is-hidden');
+      $('#bwProcessingButtonNext').removeClass('is-hidden');
       break;
     default:
       break;
@@ -117,17 +117,17 @@ ipcRenderer.on('bw:status.update', function(event, stat, value) {
 });
 
 // Bulk processing, pause/continue process
-$('#bwpButtonPause').click(function() {
-  var searchStatus = $('#bwpButtonPauseText').text();
+$('#bwProcessingButtonPause').click(function() {
+  var searchStatus = $('#bwProcessingButtonPauseSpanText').text();
   switch (searchStatus) {
     case 'Continue':
       setPauseButton();
       ipcRenderer.send('bw:lookup.continue');
       break;
     case 'Pause':
-      $('#bwpButtonPause').removeClass('is-warning').addClass('is-success');
-      $('#bwpButtonPauseIcon').removeClass('fa-pause').addClass('fa-play');
-      $('#bwpButtonPauseText').text('Continue');
+      $('#bwProcessingButtonPause').removeClass('is-warning').addClass('is-success');
+      $('#bwProcessingButtonPauseicon').removeClass('fa-pause').addClass('fa-play');
+      $('#bwProcessingButtonPauseSpanText').text('Continue');
       ipcRenderer.send('bw:lookup.pause');
       break;
     default:
@@ -136,26 +136,26 @@ $('#bwpButtonPause').click(function() {
 });
 
 function setPauseButton() {
-  $('#bwpButtonPause').removeClass('is-success').addClass('is-warning');
-  $('#bwpButtonPauseIcon').removeClass('fa-play').addClass('fa-pause');
-  $('#bwpButtonPauseText').text('Pause');
+  $('#bwProcessingButtonPause').removeClass('is-success').addClass('is-warning');
+  $('#bwProcessingButtonPauseicon').removeClass('fa-play').addClass('fa-pause');
+  $('#bwProcessingButtonPauseSpanText').text('Pause');
 }
 
 // Trigger Bulk whois Stop modal
-$('#bwpButtonStop').click(function() {
+$('#bwProcessingButtonStop').click(function() {
   ipcRenderer.send('app:debug', "Pausing whois & opening stop modal");
-  $('#bwpButtonPause').text().includes('Pause') ? $('#bwpButtonPause').click() : false;
-  $('#bwpStopModal').addClass('is-active');
+  $('#bwProcessingButtonPause').text().includes('Pause') ? $('#bwProcessingButtonPause').click() : false;
+  $('#bwProcessingModalStop').addClass('is-active');
 });
 
 // Close modal and allow continue
-$('#bwpStopModalButtonContinue').click(function() {
+$('#bwProcessingModalStopButtonContinue').click(function() {
   ipcRenderer.send('app:debug', "Closing Stop modal & continue");
-  $('#bwpStopModal').removeClass('is-active');
+  $('#bwProcessingModalStop').removeClass('is-active');
 });
 
 // Stop bulk whois entirely and scrape everything
-$('#bwpStopModalButtonStop').click(function() {
+$('#bwProcessingModalStopButtonStop').click(function() {
   ipcRenderer.send('app:debug', "Closing Stop modal & going back to start");
   $('#bwpStopModal').removeClass('is-active');
   $('#bwProcessing').addClass('is-hidden');
@@ -164,17 +164,17 @@ $('#bwpStopModalButtonStop').click(function() {
 });
 
 // Stop bulk whois entirely and save/export
-$('#bwpStopModalButtonStopSave').click(function() {
+$('#bwProcessingModalStopButtonStopsave').click(function() {
   ipcRenderer.send('app:debug', "Closing Stop modal & exporting");
   ipcRenderer.send('bw:lookup.stop');
-  $('#bwpStopModal').removeClass('is-active');
+  $('#bwProcessingModalStop').removeClass('is-active');
   $('#bwProcessing').addClass('is-hidden');
   setPauseButton();
   $('#bwExport').removeClass('is-hidden');
 });
 
 // Bulk processing, proceed to export options
-$('#bwpButtonNext').click(function() {
+$('#bwProcessingButtonNext').click(function() {
   $('#bwProcessing').addClass('is-hidden');
   $('#bwExport').removeClass('is-hidden');
 });

@@ -2,30 +2,31 @@ var {
   resetObject
 } = require('../../common/resetobj.js');
 
-// Reset table
+// Reset processing table
 function tableReset(dLength = 0, tLength = 0) {
-  $('#bwTableProcessingProcessed').text(0);
-  $('#bwTableProcessingWaiting').text(0);
-  $('#bwTableProcessingTotal').text(dLength * tLength);
+  $('#bwProcessingSpanProcessed').text(0);
+  $('#bwProcessingSpanWaiting').text(0);
+  $('#bwProcessingSpanTotal').text(dLength * tLength);
 
-  $('#bwTableProcessingDomAvail').text(0);
-  $('#bwTableProcessingDomUnavail').text(0);
-  $('#bwTableProcessingDomError').text(0);
+  $('#bwProcessingSpanStatusavailable').text(0);
+  $('#bwProcessingSpanStatusunavailable').text(0);
+  $('#bwProcessingSpanStatuserror').text(0);
 }
 
 // Get export options from the form
 function getExportOptions() {
   var options = {};
   options = {
-    'filetype': $('#bweSelectFiletype').val(),
-    'domains': $('#bweSelectDomains').val(),
-    'errors': $('#bweSelectErrors').val(),
-    'information': $('#bweSelectInformation').val(),
-    'whoisreply': $('#bweSelectWhoisreply').val()
+    'filetype': $('#bwExportSelectFiletype').val(),
+    'domains': $('#bwExportSelectDomains').val(),
+    'errors': $('#bwExportSelectErrors').val(),
+    'information': $('#bwExportSelectInformation').val(),
+    'whoisreply': $('#bwExportSelectReply').val()
   }
   return options;
 }
 
+// Set bulk whois export option fields to a preset
 function setExportOptions(preset) {
   switch (preset) {
     case ('none'):
@@ -34,31 +35,32 @@ function setExportOptions(preset) {
     case ('availableonly'):
       unlockFields();
       //$('#bweSelectFiletype').val('csv');
-      $('#bweSelectDomains').val('available');
-      $('#bweSelectErrors').val('no');
-      $('#bweSelectInformation').val('domain');
-      $('#bweSelectWhoisreply').val('no');
+      $('#bwExportSelectDomains').val('available');
+      $('#bwExportSelectErrors').val('no');
+      $('#bwExportSelectInformation').val('domain');
+      $('#bwExportSelectReply').val('no');
       break;
     case ('allbutnoreply'):
       unlockFields();
       //$('#bweSelectFiletype').val('csv');
-      $('#bweSelectDomains').val('both');
-      $('#bweSelectErrors').val('yes');
-      $('#bweSelectInformation').val('domain+basic');
-      $('#bweSelectWhoisreply').val('no');
+      $('#bwExportSelectDomains').val('both');
+      $('#bwExportSelectErrors').val('yes');
+      $('#bwExportSelectInformation').val('domain+basic');
+      $('#bwExportSelectReply').val('no');
       break;
     case ('import'):
       lockFields();
-      $('#bweSelectFiletype').val('csv');
-      $('#bweSelectDomains').val('both');
-      $('#bweSelectErrors').val('yes');
-      $('#bweSelectInformation').val('domain+basic+debug');
-      $('#bweSelectWhoisreply').val('yes+block');
+      $('#bwExportSelectFiletype').val('csv');
+      $('#bwExportSelectDomains').val('both');
+      $('#bwExportSelectErrors').val('yes');
+      $('#bwExportSelectInformation').val('domain+basic+debug');
+      $('#bwExportSelectReply').val('yes+block');
       break;
   }
 
 }
 
+// Set bulk whois export option, filetype
 function setExportOptionsEx(filetype) {
   switch (filetype) {
     case 'txt':
@@ -70,28 +72,30 @@ function setExportOptionsEx(filetype) {
   }
 }
 
+// Lock bulk whois export fields
 function lockFields(isTxt = false) {
   if (isTxt === false) {
-    $('#bweSelectFiletype').prop("disabled", true);
-    $('#bweSelectDomains').prop("disabled", true);
-    $('#bweSelectErrors').prop("disabled", true);
+    $('#bwExportSelectFiletype').prop("disabled", true);
+    $('#bwExportSelectDomains').prop("disabled", true);
+    $('#bwExportSelectErrors').prop("disabled", true);
   }
-  if ($('#bweSelectWhoisreply').prop("disabled") === false) {
-    $('#bweSelectInformation').prop("disabled", true);
-    $('#bweSelectWhoisreply').prop("disabled", true);
+  if ($('#bwExportSelectReply').prop("disabled") === false) {
+    $('#bwExportSelectInformation').prop("disabled", true);
+    $('#bwExportSelectReply').prop("disabled", true);
   }
 }
 
+// Unlock bulk whois export fields
 function unlockFields(isTxt = false) {
   if (isTxt === true) {
-    $('#bweSelectFiletype').prop("disabled", false);
+    $('#bwExportSelectFiletype').prop("disabled", false);
   }
-  if ($('#bweSelectWhoisreply').prop("disabled") === true && $('#bweSelectFiletype').val() == 'csv') {
-    $('#bweSelectFiletype').prop("disabled", false);
-    $('#bweSelectDomains').prop("disabled", false);
-    $('#bweSelectErrors').prop("disabled", false);
-    $('#bweSelectInformation').prop("disabled", false);
-    $('#bweSelectWhoisreply').prop("disabled", false);
+  if ($('#bwExportSelectReply').prop("disabled") === true && $('#bwExportSelectFiletype').val() == 'csv') {
+    $('#bwExportSelectFiletype').prop("disabled", false);
+    $('#bwExportSelectDomains').prop("disabled", false);
+    $('#bwExportSelectErrors').prop("disabled", false);
+    $('#bwExportSelectInformation').prop("disabled", false);
+    $('#bwExportSelectReply').prop("disabled", false);
   }
 }
 

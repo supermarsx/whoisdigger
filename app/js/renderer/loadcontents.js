@@ -13,29 +13,32 @@ function loadhtml() {
   path.op = htmlpath + path.tab + "op/";
 
   // Navbar loading
-  $('#navbar-top').load(path.nav + "navbar-top.html");
-  $('#navbar-bottom').load(path.nav + "navbar-bottom.html");
+  $('#navTop').load(path.nav + "navtop.html");
+  $('#navBottom').load(path.nav + "navBottom.html");
 
   // Single whois
   $('#swMainContainer').load(path.tab + "sw.html");
 
   // Bulk whois lookup tab/steps
   $('#bwEntry').load(path.bw + "bwEntry.html");
+
   // File Input containers
-  $('#bwFileInputLoading').load(path.bw + "bwFileInputLoading.html");
-  $('#bwFileInputConfirm').load(path.bw + "bwFileInputConfirm.html");
+  $('#bwFileinputloading').load(path.bw + "bwFileinputloading.html");
+  $('#bwFileinputconfirm').load(path.bw + "bwFileinputconfirm.html");
+
   // Wordlist Input containers
-  $('#bwWordlistInput').load(path.bw + "bwWordlistInput.html");
-  $('#bwWordlistLoading').load(path.bw + "bwWordlistLoading.html");
-  $('#bwWordlistConfirm').load(path.bw + "bwWordlistConfirm.html");
+  $('#bwWordlistinput').load(path.bw + "bwWordlistinput.html");
+  $('#bwWordlistloading').load(path.bw + "bwWordlistloading.html");
+  $('#bwWordlistconfirm').load(path.bw + "bwWordlistconfirm.html");
+
   // Bulk Processing
   $('#bwProcessing').load(path.bw + "bwProcessing.html");
   $('#bwExport').load(path.bw + "bwExport.html");
-  $('#bwExportLoading').load(path.bw + "bwExportLoading.html");
+  $('#bwExportloading').load(path.bw + "bwExportloading.html");
 
   // Bulk whois analyser containers
   $('#bwaEntry').load(path.bwa + "bwaEntry.html");
-  $('#bwaFileInputLoading').load(path.bwa + "bwaFileInputLoading.html");
+  $('#bwaFileinputloading').load(path.bwa + "bwaFileinputloading.html");
 
   // bulk domain monitor
   $('#bwmEntry').load(path.bwm + "bwmEntry.html");

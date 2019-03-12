@@ -24,9 +24,9 @@ $(document).ready(function() { // When document is ready
   startup();
 
   // Button/Toggle special menu items
-  $('#navButtonExpandedMenu').click(function() {
-    ipcRenderer.send('app:debug', "#navButtonExpandedMenu was clicked");
-    $('#navButtonExpandedMenu').toggleClass('is-active');
+  $('#navButtonExtendedmenu').click(function() {
+    ipcRenderer.send('app:debug', "#navButtonExtendedmenu was clicked");
+    $('#navButtonExtendedmenu').toggleClass('is-active');
     $('.is-specialmenu').toggleClass('is-hidden');
   });
 
@@ -71,9 +71,9 @@ $(document).ready(function() { // When document is ready
   });
 
   // Toggle devtools
-  $('#navTabDevTools').click(function() {
+  $('#navTabDevtools').click(function() {
     remote.getCurrentWindow().toggleDevTools();
-    ipcRenderer.send('app:debug', "#navTabDevTools was clicked");
+    ipcRenderer.send('app:debug', "#navTabDevtools was clicked");
   });
 
   // Toggle between tabs
@@ -107,21 +107,23 @@ function startup() {
   } = appSettings;
   ipcRenderer.send('app:debug', "'navigation.devtools': {0}".format(navigation.devtools));
   if (navigation.devtools === true) {
-    $('#navTabDevTools').removeClass('is-force-hidden');
+    $('#navTabDevtools').removeClass('is-force-hidden');
   }
   ipcRenderer.send('app:debug', "'navigation.extendedcollapsed': {0}".format(navigation.extendedcollapsed));
   if (navigation.extendedcollapsed === true) {
-    $('#navButtonExpandedMenu').toggleClass('is-active');
+    $('#navButtonExpandedmenu').toggleClass('is-active');
     $('.is-specialmenu').toggleClass('is-hidden');
   }
   ipcRenderer.send('app:debug', "'navigation.extendedmenu': {0}".format(navigation.extendedmenu));
   if (navigation.extendedmenu === false) {
-    $('#navButtonExpandedMenu').addClass('is-force-hidden');
+    $('#navButtonExpandedmenu').addClass('is-force-hidden');
   }
 }
 
+/*
 // Load different panel parts //////////////////
 function loadContents() {
   $('#include.navbar').load(path.join(__dirname, '../html/navigation/navbar.html'));
   $('#include.navbar.tabs').load(path.join(__dirname, '../html/navigation/navbar.tabs.html'));
 }
+*/

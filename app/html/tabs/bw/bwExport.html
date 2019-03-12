@@ -25,7 +25,7 @@
   <div class="column has-text-left">
     <div class="field">
       <div class="select">
-        <select id="bweSelectPreset">
+        <select id="bwExportSelectPreset">
           <option value="none">None</option>
           <option value="availableonly">Only Available</option>
           <option value="allbutnoreply">All but no Whois reply</option>
@@ -35,7 +35,7 @@
     </div>
     <div class="field">
       <div class="select">
-        <select id="bweSelectFiletype">
+        <select id="bwExportSelectFiletype">
           <option value="csv">.csv (Comma-separated values)</option>
           <option value="txt">.txt (Text file, individualized)</option>
         </select>
@@ -43,7 +43,7 @@
     </div>
     <div class="field">
       <div class="select">
-        <select id="bweSelectDomains">
+        <select id="bwExportSelectDomains">
           <option value="available">Available</option>
           <option value="unavailable">Unavailable</option>
           <option value="both">Available + Unavailable</option>
@@ -52,7 +52,7 @@
     </div>
     <div class="field">
       <div class="select">
-        <select id="bweSelectErrors">
+        <select id="bwExportSelectErrors">
           <option value="no">No</option>
           <option value="yes">Yes</option>
         </select>
@@ -60,7 +60,7 @@
     </div>
     <div class="field">
       <div class="select">
-        <select id="bweSelectInformation">
+        <select id="bwExportSelectInformation">
           <option value="domain">Domain</option>
           <option value="domain+basic">Domain + Basic Information</option>
           <option value="domain+basic+debug">Domain + Basic Info. + Debug</option>
@@ -69,7 +69,7 @@
     </div>
     <div class="field">
       <div class="select">
-        <select id="bweSelectWhoisreply">
+        <select id="bwExportSelectReply">
           <option value="no">No</option>
           <option value="yes+inline">Yes, inline as field (.csv)</option>
           <option value="yes+inlineseparate">Yes, inline as field in separate file (.csv)</option>
@@ -79,13 +79,13 @@
     </div>
   </div>
 </div>
-<a id="bweButtonExport" class="button is-medium is-success">
+<a id="bwExportButtonExport" class="button is-medium is-success">
   <span class="icon is-small">
     <i class="fas fa-check"></i>
   </span>
   <span>Export</span>
 </a>
-<a id="bweButtonCancel" class="button is-medium is-danger">
+<a id="bwExportButtonCancel" class="button is-medium is-danger">
   <span class="icon is-small">
     <i class="fas fa-undo"></i>
   </span>

@@ -50,15 +50,15 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
       $('#swMessageUnavailable').removeClass('is-hidden');
       $('#swMessageWhoisResults').text(domainResults);
 
-      $('#swTableDomain').attr('href', "http://" + domainResultsJSON['domainName'] || domainResultsJSON['domain']);
-      $('#swTableDomain').text(domainResultsJSON['domainName'] || domainResultsJSON['domain']);
+      $('#swTdDomain').attr('href', "http://" + domainResultsJSON['domainName'] || domainResultsJSON['domain']);
+      $('#swTdDomain').text(domainResultsJSON['domainName'] || domainResultsJSON['domain']);
 
-      $('#swTableUpdate').text(domainResultsJSON['updatedDate']);
-      $('#swTableRegistrar').text(domainResultsJSON['registrar']);
-      $('#swTableCreation').text(domainResultsJSON['creationDate'] || domainResultsJSON['createdDate'] || domainResultsJSON['created']);
-      $('#swTableCompany').text(domainResultsJSON['registrantOrganization'] || domainResultsJSON['registrant']);
-      $('#swTableExpiry').text(domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires'] || domainResultsJSON['Registry Expiry Date']);
-      $('#swTableWhoisInfo.is-hidden').removeClass('is-hidden');
+      $('#swTdUpdate').text(domainResultsJSON['updatedDate']);
+      $('#swTdRegistrar').text(domainResultsJSON['registrar']);
+      $('#swTdCreation').text(domainResultsJSON['creationDate'] || domainResultsJSON['createdDate'] || domainResultsJSON['created']);
+      $('#swTdCompany').text(domainResultsJSON['registrantOrganization'] || domainResultsJSON['registrant']);
+      $('#swTdExpiry').text(domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires'] || domainResultsJSON['Registry Expiry Date']);
+      $('#swTableWhoisinfo.is-hidden').removeClass('is-hidden');
       break;
     case 'available':
       $('#swMessageWhoisResults').text(domainResults);
@@ -70,37 +70,37 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
       break;
   }
 
-  $('#swButtonSearch').removeClass('is-loading');
-  $('#swInputDomain').removeAttr('readonly');
+  $('#swSearchButtonSearch').removeClass('is-loading');
+  $('#swSearchInputDomain').removeAttr('readonly');
 
 });
 
 // Simple Whois, trigger search by using [ENTER] key
-$('#swInputDomain').keyup(function(event) {
+$('#swSearchInputDomain').keyup(function(event) {
   // Cancel the default action, if needed
   event.preventDefault();
   // Number 13 is the "Enter" key on the keyboard
   if (event.keyCode === 13) {
     // Trigger the button element with a click
-    $('#swButtonSearch').click();
+    $('#swSearchButtonSearch').click();
   }
 });
 
 // Trigger Whois lookup
-$('#swButtonSearch').click(function() {
+$('#swSearchButtonSearch').click(function() {
   if ($(this).hasClass('is-loading')) {
     return true;
   }
-  ipcRenderer.send('app:debug', "#swButtonSearch was clicked");
+  ipcRenderer.send('app:debug', "#swSearchButtonSearch was clicked");
 
-  singleWhois.input.domain = $('#swInputDomain').val();
+  singleWhois.input.domain = $('#swSearchInputDomain').val();
 
   ipcRenderer.send('app:debug', "Looking up for {0}".format(singleWhois.input.domain));
 
-  $('#swButtonSearch').addClass('is-loading');
-  $('#swInputDomain').attr('readonly', '');
+  $('#swSearchButtonSearch').addClass('is-loading');
+  $('#swSearchInputDomain').attr('readonly', '');
   $('.notification:not(.is-hidden)').addClass('is-hidden');
-  $('#swTable:not(.is-hidden)').addClass('is-hidden');
+  $('#swTableWhoisinfo:not(.is-hidden)').addClass('is-hidden');
   tableReset();
   ipcRenderer.send("sw:lookup", singleWhois.input.domain);
   return undefined;
@@ -121,12 +121,12 @@ $('#swMessageWhoisClose').click(function() {
 // Reset registry table contents
 function tableReset() {
   ipcRenderer.send('app:debug', "Resetting whois result table");
-  $('#swTableDomain').attr('href', "#");
-  $('#swTableDomain').text('n/a');
+  $('#swTdDomain').attr('href', "#");
+  $('#swTdDomain').text('n/a');
 
-  $('#swTableUpdate').text('n/a');
-  $('#swTableRegistrar').text('n/a');
-  $('#swTableCreation').text('n/a');
-  $('#swTableCompany').text('n/a');
-  $('#swTableExpiry').text('n/a');
+  $('#swTdUpdate').text('n/a');
+  $('#swTdRegistrar').text('n/a');
+  $('#swTdCreation').text('n/a');
+  $('#swTdCompany').text('n/a');
+  $('#swTdExpiry').text('n/a');
 }

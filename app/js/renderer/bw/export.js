@@ -27,31 +27,31 @@ ipcRenderer.on('bw:result.receive', function(event, rcvResults) {
 });
 
 ipcRenderer.on('bw:export.cancel', function() {
-  $('#bwExportLoading').addClass('is-hidden');
+  $('#bwExportloading').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 });
 
 // Export options, confirm export
-$('#bweButtonExport').click(function() {
+$('#bwExportButtonExport').click(function() {
   $('#bwExport').addClass('is-hidden');
   options = getExportOptions();
-  $.when($('#bwExportLoading').removeClass('is-hidden').delay(10)).done(function() {
+  $.when($('#bwExportloading').removeClass('is-hidden').delay(10)).done(function() {
     ipcRenderer.send("bw:export", results, options);
   });
 });
 
 // Export options, cancel export
-$('#bweButtonCancel').click(function() {
+$('#bwExportButtonCancel').click(function() {
   $('#bwExport').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 });
 
-$('#bweSelectPreset').change(function() {
-  var preset = $('#bweSelectPreset').val();
+$('#bwExportSelectPreset').change(function() {
+  var preset = $('#bwExportSelectPreset').val();
   setExportOptions(preset);
 });
 
-$('#bweSelectFiletype').change(function() {
-  var filetype = $('#bweSelectFiletype').val();
+$('#bwExportSelectFiletype').change(function() {
+  var filetype = $('#bwExportSelectFiletype').val();
   setExportOptionsEx(filetype);
 });

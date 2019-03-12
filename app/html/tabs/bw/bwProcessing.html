@@ -1,5 +1,5 @@
 <!-- Cancel Bulk whois modal -->
-<div id="bwpStopModal" class="modal">
+<div id="bwProcessingModalStop" class="modal">
   <div class="modal-background"></div>
   <div class="modal-card">
     <header class="modal-card-head">
@@ -12,16 +12,18 @@
       Make sure you want to save all the current results, discard them or continue processing.
     </section>
     <footer class="modal-card-foot uk-text-center">
-      <button id="bwpStopModalButtonStop" class="button is-danger">Stop without saving</button>
-      <button id="bwpStopModalButtonStopSave" class="button is-warning">Stop and save</button>
-      <button id="bwpStopModalButtonContinue" class="button">Continue</button>
+      <button id="bwProcessingModalStopButtonStop" class="button is-danger">Stop without saving</button>
+      <button id="bwProcessingModalStopButtonStopsave" class="button is-warning">Stop and save</button>
+      <button id="bwProcessingModalStopButtonContinue" class="button">Continue</button>
     </footer>
   </div>
 </div>
 <!-- Processing bulk whois -->
+
 <h4 class="title is-4 has-text-centered">Processing Bulk Whois</h4>
 <hr>
-<table id="bwTableProcessing" class="table is-striped is-hoverable is-fullwidth">
+
+<table id="bwProcessingTableProcessing" class="table is-striped is-hoverable is-fullwidth">
   <tr>
     <th>Domains:</th>
     <td>
@@ -29,25 +31,25 @@
         <div class="control">
           <div class="tags has-addons">
             <span class="tag is-primary">Processed</span>
-            <span id="bwTableProcessingProcessed" class="tag">-</span>
+            <span id="bwProcessingSpanProcessed" class="tag">-</span>
           </div>
         </div>
         <div class="control">
           <div class="tags has-addons">
             <span class="tag is-primary">Sent</span>
-            <span id="bwTableProcessingSent" class="tag">-</span>
+            <span id="bwProcessingSpanSent" class="tag">-</span>
           </div>
         </div>
         <div class="control">
           <div class="tags has-addons">
             <span class="tag is-info">Waiting</span>
-            <span id="bwTableProcessingWaiting" class="tag">-</span>
+            <span id="bwProcessingSpanWaiting" class="tag">-</span>
           </div>
         </div>
         <div class="control">
           <div class="tags has-addons">
             <span class="tag is-link">Total</span>
-            <span id="bwTableProcessingTotal" class="tag">-</span>
+            <span id="bwProcessingSpanTotal" class="tag">-</span>
           </div>
         </div>
       </div>
@@ -60,13 +62,13 @@
         <div class="control">
           <div class="tags has-addons">
             <span class="tag is-primary">Current</span>
-            <span id="bwTableProcessingCurrentTime" class="tag">n/a</span>
+            <span id="bwProcessingSpanTimecurrent" class="tag">n/a</span>
           </div>
         </div>
         <div class="control">
           <div class="tags has-addons">
             <span class="tag is-info">Remaining</span>
-            <span id="bwTableProcessingRemainingTime" class="tag">n/a</span>
+            <span id="bwProcessingSpanTimeremaining" class="tag">n/a</span>
           </div>
         </div>
       </div>
@@ -79,25 +81,25 @@
         <div class="control">
           <div class="tags has-addons">
             <span class="tag is-success">Minimum</span>
-            <span id="bwTableProcessingReqMin" class="tag">-</span>
+            <span id="bwProcessingSpanReqtimemin" class="tag">-</span>
           </div>
         </div>
         <div class="control">
           <div class="tags has-addons">
             <span class="tag is-warning">Average</span>
-            <span id="bwTableProcessingReqAvg" class="tag">-</span>
+            <span id="bwProcessingSpanReqtimeavg" class="tag">-</span>
           </div>
         </div>
         <div class="control">
           <div class="tags has-addons">
             <span class="tag is-danger">Maximum</span>
-            <span id="bwTableProcessingReqMax" class="tag">-</span>
+            <span id="bwProcessingSpanReqtimemax" class="tag">-</span>
           </div>
         </div>
         <div class="control">
           <div class="tags has-addons">
             <span class="tag is-info">Last</span>
-            <span id="bwTableProcessingReqLast" class="tag">-</span>
+            <span id="bwProcessingSpanReqtimelast" class="tag">-</span>
           </div>
         </div>
       </div>
@@ -110,19 +112,19 @@
         <div class="control">
           <div class="tags has-addons">
             <span class="tag is-success">Available</span>
-            <span id="bwTableProcessingDomAvail" class="tag">-</span>
+            <span id="bwProcessingSpanStatusavailable" class="tag">-</span>
           </div>
         </div>
         <div class="control">
           <div class="tags has-addons">
             <span class="tag is-warning">Unavailable</span>
-            <span id="bwTableProcessingDomUnavail" class="tag">-</span>
+            <span id="bwProcessingSpanStatusunavailable" class="tag">-</span>
           </div>
         </div>
         <div class="control">
           <div class="tags has-addons">
             <span class="tag is-danger">Error</span>
-            <span id="bwTableProcessingDomError" class="tag">-</span>
+            <span id="bwProcessingSpanStatuserror" class="tag">-</span>
           </div>
         </div>
       </div>
@@ -135,38 +137,38 @@
         <div class="control">
           <div class="tags has-addons">
             <span class="tag is-success">Available</span>
-            <span id="bwTableProcessingLastDomAvail" class="tag">-</span>
+            <span id="bwProcessingSpanLaststatusavailable" class="tag">-</span>
           </div>
         </div>
         <div class="control">
           <div class="tags has-addons">
             <span class="tag is-warning">Unavailable</span>
-            <span id="bwTableProcessingLastDomUnavail" class="tag">-</span>
+            <span id="bwProcessingSpanLaststatusunavailable" class="tag">-</span>
           </div>
         </div>
         <div class="control">
           <div class="tags has-addons">
             <span class="tag is-danger">Error</span>
-            <span id="bwTableProcessingLastDomError" class="tag">-</span>
+            <span id="bwProcessingSpanLaststatuserror" class="tag">-</span>
           </div>
         </div>
       </div>
     </td>
   </tr>
 </table>
-<a id="bwpButtonPause" class="button is-medium is-warning">
+<a id="bwProcessingButtonPause" class="button is-medium is-warning">
   <span class="icon is-small">
-    <i id="bwpButtonPauseIcon" class="fas fa-pause"></i>
+    <i id="bwProcessingButtonPauseicon" class="fas fa-pause"></i>
   </span>
-  <span id="bwpButtonPauseText">Pause</span>
+  <span id="bwProcessingButtonPauseSpanText">Pause</span>
 </a>
-<a id="bwpButtonStop" class="button is-medium is-danger">
+<a id="bwProcessingButtonStop" class="button is-medium is-danger">
   <span class="icon is-small">
     <i class="fas fa-stop"></i>
   </span>
   <span>Stop</span>
 </a>
-<a id="bwpButtonNext" class="button is-medium is-primary is-hidden">
+<a id="bwProcessingButtonNext" class="button is-medium is-primary is-hidden">
   <span class="icon is-small">
     <i class="fas fa-play"></i>
   </span>

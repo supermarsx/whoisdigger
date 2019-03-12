@@ -20,26 +20,26 @@ ipcRenderer.on('bw:wordlistinput.confirmation', function() {
     lookup
   } = appSettings;
 
-  bwWordlistContents = $('#bwwWordlistText').val().toString();
+  bwWordlistContents = $('#bwWordlistTextareaDomains').val().toString();
   if (bwWordlistContents == '' && bwWordlistContents === null) {
-    $('#bwWordlistConfirm').addClass('is-hidden');
+    $('#bwWordlistconfirm').addClass('is-hidden');
     $('#bwEntry').removeClass('is-hidden');
   } else {
-    $('#bwwLoadingInfo').text('Loading wordlist stats...');
-    $('#bwwLoadingInfo').text('Getting line count...');
+    $('#bwWordlistSpanInfo').text('Loading wordlist stats...');
+    $('#bwWordlistSpanInfo').text('Getting line count...');
     bwFileStats['linecount'] = bwWordlistContents.toString().split('\n').length;
 
     if (lookup.randomize.timebetween === true) {
       bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.randomize.timebetweenmin);
       bwFileStats['maxestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.randomize.timebetweenmax);
-      $('#bwwtimebetweenmin').text('{0}ms '.format(lookup.randomize.timebetweenmin));
-      $('#bwwtimebetweenmax').text('/ {0}ms'.format(lookup.randomize.timebetweenmax));
-      $('#bwwTableMinMaxEstimate').text('{0} to {1}'.format(bwFileStats['minestimate'], bwFileStats['maxestimate']));
+      $('#bwWordlistSpanTimebetweenmin').text('{0}ms '.format(lookup.randomize.timebetweenmin));
+      $('#bwWordlistSpanTimebetweenmax').text('/ {0}ms'.format(lookup.randomize.timebetweenmax));
+      $('#bwWordlistTdEstimate').text('{0} to {1}'.format(bwFileStats['minestimate'], bwFileStats['maxestimate']));
     } else {
       bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.timebetween);
-      $('#bwwtimebetweenmaxtext').addClass('is-hidden');
-      $('#bwwtimebetweenmin').text(lookup.timebetween + 'ms');
-      $('#bwwTableMinMaxEstimate').text('> {0}'.format(bwFileStats['minestimate']));
+      $('#bwWordlistSpanTimebetweenminmax').addClass('is-hidden');
+      $('#bwWordlistSpanTimebetweenmin').text(lookup.timebetween + 'ms');
+      $('#bwWordlistTdEstimate').text('> {0}'.format(bwFileStats['minestimate']));
     }
 
     bwFileStats['filepreview'] = bwWordlistContents.toString().substring(0, 50);
@@ -47,57 +47,57 @@ ipcRenderer.on('bw:wordlistinput.confirmation', function() {
     //console.log(bwFileStats['filepreview']);
 
     //console.log(lineCount(bwFileContents));
-    $('#bwWordlistLoading').addClass('is-hidden');
-    $('#bwWordlistConfirm').removeClass('is-hidden');
+    $('#bwWordlistloading').addClass('is-hidden');
+    $('#bwWordlistconfirm').removeClass('is-hidden');
 
     // stats
-    $('#bwwTableFileSize').text('{0} line(s)'.format(bwFileStats['linecount']));
-    $('#bwwTableFilePreview').text(bwFileStats['filepreview'] + '...');
+    $('#bwWordlistTdDomains').text('{0} line(s)'.format(bwFileStats['linecount']));
+    $('#bwWordlistTdFilepreview').text(bwFileStats['filepreview'] + '...');
   }
 });
 
 // Wordlist Input, Entry container button
-$('#bweButtonListInput').click(function() {
+$('#bwEntryButtonWordlist').click(function() {
   $('#bwEntry').addClass('is-hidden');
-  $('#bwWordlistInput').removeClass('is-hidden');
+  $('#bwWordlistinput').removeClass('is-hidden');
 });
 
-// Wordlist Input, Cancel file confirmation
-$('#bwiButtonCancel').click(function() {
-  $('#bwWordlistInput').addClass('is-hidden');
+// Wordlist Input, cancel input
+$('#bwWordlistinputButtonCancel').click(function() {
+  $('#bwWordlistinput').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 });
 
-// Wordlist Input, Proceed to confirmation
-$('#bwiButtonConfirm').click(function() {
-  $('#bwWordlistInput').addClass('is-hidden');
+// Wordlist Input, go to confirm
+$('#bwWordlistinputButtonStart').click(function() {
+  $('#bwWordlistinput').addClass('is-hidden');
   ipcRenderer.send("bw:input.wordlist");
 });
 
 // Wordlist input, cancel confirmation
-$('#bwwButtonCancel').click(function() {
-  $('#bwWordlistConfirm').addClass('is-hidden');
+$('#bwWordlistconfirmButtonCancel').click(function() {
+  $('#bwWordlistconfirm').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 });
 
 // Wordlist input, proceed to bulk whois
-$('#bwwButtonConfirm').click(function() {
+$('#bwWordlistconfirmButtonStart').click(function() {
   var bwDomainArray = bwWordlistContents.toString().split('\n').map(Function.prototype.call, String.prototype.trim),
-    bwTldsArray = $('#bwwSearchTlds').val().toString().split(',');
+    bwTldsArray = $('#bwWordlistTextareaDomains').val().toString().split(',');
 
   tableReset(bwDomainArray.length, bwTldsArray.length);
-  $('#bwWordlistConfirm').addClass('is-hidden');
+  $('#bwWordlistconfirm').addClass('is-hidden');
   $('#bwProcessing').removeClass('is-hidden');
 
   ipcRenderer.send("bw:lookup", bwDomainArray, bwTldsArray);
 });
 
-$('#bwwSearchTlds').keyup(function() {
+$('#bwWordlistInputTlds').keyup(function() {
   // Cancel the default action, if needed
   event.preventDefault();
   // Number 13 is the "Enter" key on the keyboard
   if (event.keyCode === 13) {
     // Trigger the button element with a click
-    $('#bwwButtonConfirm').click();
+    $('#bwWordlistconfirmButtonStart').click();
   }
 });
