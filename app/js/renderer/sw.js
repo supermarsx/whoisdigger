@@ -1,6 +1,7 @@
 var whois = require('../common/whoiswrapper.js'),
   parseRawData = require('../common/parse-raw-data.js');
 
+var { getDate } = require('../common/conversions.js');
 window.$ = window.jQuery = require('jquery');
 
 const {
@@ -46,18 +47,19 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
       $('#swMessageError').removeClass('is-hidden');
       break;
     case 'unavailable':
-    //console.log(domainResultsJSON);
+      console.log(domainResultsJSON);
       $('#swMessageUnavailable').removeClass('is-hidden');
       $('#swMessageWhoisResults').text(domainResults);
 
-      $('#swTdDomain').attr('href', "http://" + domainResultsJSON['domainName'] || domainResultsJSON['domain']);
+      $('#swTdDomain').attr('url', "http://" + domainResultsJSON['domainName'] || domainResultsJSON['domain']);
       $('#swTdDomain').text(domainResultsJSON['domainName'] || domainResultsJSON['domain']);
 
-      $('#swTdUpdate').text(domainResultsJSON['updatedDate']);
+      console.log(domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires'] || domainResultsJSON['registryExpiryDate']);
+      $('#swTdUpdate').text(getDate(domainResultsJSON['updatedDate'] || domainResultsJSON['lastUpdated']));
       $('#swTdRegistrar').text(domainResultsJSON['registrar']);
-      $('#swTdCreation').text(domainResultsJSON['creationDate'] || domainResultsJSON['createdDate'] || domainResultsJSON['created']);
+      $('#swTdCreation').text(getDate(domainResultsJSON['creationDate'] || domainResultsJSON['createdDate'] || domainResultsJSON['created']));
       $('#swTdCompany').text(domainResultsJSON['registrantOrganization'] || domainResultsJSON['registrant']);
-      $('#swTdExpiry').text(domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires'] || domainResultsJSON['Registry Expiry Date']);
+      $('#swTdExpiry').text(getDate(domainResultsJSON['expires'] || domainResultsJSON['registryExpiryDate'] || domainResultsJSON['expiryDate'] || domainResultsJSON['registrarRegistrationExpirationDate']));
       $('#swTableWhoisinfo.is-hidden').removeClass('is-hidden');
       break;
     case 'available':
@@ -84,6 +86,12 @@ $('#swSearchInputDomain').keyup(function(event) {
     // Trigger the button element with a click
     $('#swSearchButtonSearch').click();
   }
+});
+
+// Open URL in new Window
+$('#swTdDomain').click(function() {
+  var domain = $('#swTdDomain').attr('url');
+  ipcRenderer.send('sw:openlink', domain);
 });
 
 // Trigger Whois lookup
@@ -117,6 +125,8 @@ $('#swMessageWhoisClose').click(function() {
   ipcRenderer.send('app:debug', "Closing whois reply");
   $('#swMessageWhois').removeClass('is-active');
 });
+
+
 
 // Reset registry table contents
 function tableReset() {

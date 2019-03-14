@@ -31,3 +31,19 @@ ipcMain.on('sw:lookup', function(event, domain) {
       event.sender.send('sw:results', err);
     });
 });
+
+ipcMain.on('sw:openlink', function(event, domain) {
+  var win = new BrowserWindow({
+    frame: true,
+    height: appSettings.window.height,
+    width: appSettings.window.width,
+    icon: null
+  });
+
+  win.setMenu(null);
+  win.loadURL(domain);
+
+  win.on('closed', function() {
+    win = null
+  });
+});

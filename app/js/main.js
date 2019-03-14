@@ -5,6 +5,8 @@ const electron = require('electron'),
 
 require('./main/sw.js');
 require('./main/bw.js');
+require('./main/bwa.js');
+require('./main/bwm.js');
 
 var {
   appSettings

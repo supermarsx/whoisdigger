@@ -69,7 +69,7 @@ $('#bwWordlistinputButtonCancel').click(function() {
 });
 
 // Wordlist Input, go to confirm
-$('#bwWordlistinputButtonStart').click(function() {
+$('#bwWordlistinputButtonConfirm').click(function() {
   $('#bwWordlistinput').addClass('is-hidden');
   ipcRenderer.send("bw:input.wordlist");
 });
@@ -84,6 +84,8 @@ $('#bwWordlistconfirmButtonCancel').click(function() {
 $('#bwWordlistconfirmButtonStart').click(function() {
   var bwDomainArray = bwWordlistContents.toString().split('\n').map(Function.prototype.call, String.prototype.trim),
     bwTldsArray = $('#bwWordlistTextareaDomains').val().toString().split(',');
+
+  console.log(bwDomainArray);
 
   tableReset(bwDomainArray.length, bwTldsArray.length);
   $('#bwWordlistconfirm').addClass('is-hidden');

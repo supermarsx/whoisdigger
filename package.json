@@ -23,7 +23,7 @@
     "csv": "^5.1.1",
     "debug": "^4.1.1",
     "dedent-js": "^1.0.1",
-    "electron": "^4.0.8",
+    "electron": "^4.1.0",
     "electron-packager": "^13.1.1",
     "html-entities": "^1.2.1",
     "jquery": "^3.3.1",

@@ -5,6 +5,8 @@ const electron = require('electron'),
 require('../js/renderer/sw.js');
 require('../js/renderer/bw.js');
 require('../js/renderer/bwa.js');
+require('../js/renderer/bwm.js');
+
 
 window.$ = window.jQuery = require('jquery');
 
@@ -71,9 +73,9 @@ $(document).ready(function() { // When document is ready
   });
 
   // Toggle devtools
-  $('#navTabDevtools').click(function() {
+  $('#navButtonDevtools').click(function() {
     remote.getCurrentWindow().toggleDevTools();
-    ipcRenderer.send('app:debug', "#navTabDevtools was clicked");
+    ipcRenderer.send('app:debug', "#navButtonDevtools was clicked");
   });
 
   // Toggle between tabs

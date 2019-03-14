@@ -21,6 +21,7 @@ ipcMain.on('bwa:input.file', function(event) {
   event.sender.send('bwa:fileinput.confirmation', filePath);
 });
 
+/*
 // On drag and drop file
 ipcMain.on('ondragstart', function(event, filePath) {
   event.sender.startDrag({
@@ -30,3 +31,4 @@ ipcMain.on('ondragstart', function(event, filePath) {
   debug('File drag filepath: {0}'.format(filePath));
   event.sender.send('bwa:fileinput.confirmation', filePath, true);
 });
+*/

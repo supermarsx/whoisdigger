@@ -72,8 +72,15 @@ function msToHumanTimeLegacy(milliseconds) {
   return 'less than a second'; //'just now' //or other string you like;
 }
 
+// Get refined date from source
+function getDate(date) {
+  if (date == null || date == '' || date == false ) return;
+  return new Date(Date.parse(date)).toUTCString();
+}
+
 module.exports = {
   byteToHumanFileSize: byteToHumanFileSize,
   msToHumanTime: msToHumanTime,
-  msToHumanTimeLegacy: msToHumanTimeLegacy
+  msToHumanTimeLegacy: msToHumanTimeLegacy,
+  getDate: getDate
 };

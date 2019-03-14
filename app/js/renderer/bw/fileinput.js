@@ -4,7 +4,6 @@ var whois = require('../../common/whoiswrapper.js'),
   fs = require('fs'),
   bwFileContents;
 
-
 require('../../common/stringformat.js');
 
 const {
@@ -74,9 +73,9 @@ ipcRenderer.on('bw:fileinput.confirmation', function(event, filePath = null, isD
 
     // stats
     $('#bwFileTdName').text(bwFileStats['filename']);
-    $('#bwFileTdLastmodified').text(bwFileStats['mtime']);
-    $('#bwFileTdLastaccess').text(bwFileStats['atime']);
-    $('#bwFileTdFileSize').text(bwFileStats['humansize'] + ' ({0} line(s))'.format(bwFileStats['linecount']));
+    $('#bwFileTdLastmodified').text(conversions.getDate(bwFileStats['mtime']));
+    $('#bwFileTdLastaccess').text(conversions.getDate(bwFileStats['atime']));
+    $('#bwFileTdFilesize').text(bwFileStats['humansize'] + ' ({0} line(s))'.format(bwFileStats['linecount']));
     $('#bwFileTdFilepreview').text(bwFileStats['filepreview'] + '...');
     //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']);
     //console.log('cont:'+ bwFileContents);
@@ -88,7 +87,7 @@ ipcRenderer.on('bw:fileinput.confirmation', function(event, filePath = null, isD
 // File Input, Entry container button
 $('#bwEntryButtonFile').click(function() {
   $('#bwEntry').addClass('is-hidden');
-  $.when($('#bwFileinputloading').removeClass('is-hidden').delay(10)).done(() => {
+  $.when($('#bwFileinputloading').removeClass('is-hidden').delay(10)).done(function() {
     ipcRenderer.send("bw:input.file");
   });
 });
