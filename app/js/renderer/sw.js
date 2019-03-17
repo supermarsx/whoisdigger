@@ -47,14 +47,14 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
       $('#swMessageError').removeClass('is-hidden');
       break;
     case 'unavailable':
-      console.log(domainResultsJSON);
+      //console.log(domainResultsJSON);
       $('#swMessageUnavailable').removeClass('is-hidden');
       $('#swMessageWhoisResults').text(domainResults);
 
       $('#swTdDomain').attr('url', "http://" + domainResultsJSON['domainName'] || domainResultsJSON['domain']);
       $('#swTdDomain').text(domainResultsJSON['domainName'] || domainResultsJSON['domain']);
 
-      console.log(domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires'] || domainResultsJSON['registryExpiryDate']);
+      //console.log(domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires'] || domainResultsJSON['registryExpiryDate']);
       $('#swTdUpdate').text(getDate(domainResultsJSON['updatedDate'] || domainResultsJSON['lastUpdated']));
       $('#swTdRegistrar').text(domainResultsJSON['registrar']);
       $('#swTdCreation').text(getDate(domainResultsJSON['creationDate'] || domainResultsJSON['createdDate'] || domainResultsJSON['created']));

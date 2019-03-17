@@ -107,6 +107,11 @@ $('#bwFileButtonConfirm').click(function() {
   $('#bwFileinputconfirm').addClass('is-hidden');
   $('#bwProcessing').removeClass('is-hidden');
 
+  /*
+  console.log(bwDomainArray);
+  console.log(bwTldsArray);
+  */
+
   ipcRenderer.send("bw:lookup", bwDomainArray, bwTldsArray);
 });
 

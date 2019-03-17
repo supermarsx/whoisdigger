@@ -37,13 +37,14 @@ ipcMain.on('sw:openlink', function(event, domain) {
     frame: true,
     height: appSettings.window.height,
     width: appSettings.window.width,
-    icon: null
+    icon: appSettings.window.icon
   });
 
+  win.setSkipTaskbar(true);
   win.setMenu(null);
   win.loadURL(domain);
 
   win.on('closed', function() {
-    win = null
+    win = null;
   });
 });

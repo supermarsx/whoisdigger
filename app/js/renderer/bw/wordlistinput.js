@@ -83,9 +83,12 @@ $('#bwWordlistconfirmButtonCancel').click(function() {
 // Wordlist input, proceed to bulk whois
 $('#bwWordlistconfirmButtonStart').click(function() {
   var bwDomainArray = bwWordlistContents.toString().split('\n').map(Function.prototype.call, String.prototype.trim),
-    bwTldsArray = $('#bwWordlistTextareaDomains').val().toString().split(',');
+    bwTldsArray = $('#bwWordlistInputTlds').val().toString().split(',');
 
+  /*
   console.log(bwDomainArray);
+  console.log(bwTldsArray);
+  */
 
   tableReset(bwDomainArray.length, bwTldsArray.length);
   $('#bwWordlistconfirm').addClass('is-hidden');
