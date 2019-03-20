@@ -2,7 +2,9 @@
 var whois = require('../../common/whoiswrapper.js'),
   conversions = require('../../common/conversions.js'),
   fs = require('fs'),
+  Papa = require('papaparse'),
   bwaFileContents;
+
 
 
 require('../../common/stringformat.js');
@@ -25,7 +27,6 @@ ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath = null, is
     $('#bwaFileinputloading').addClass('is-hidden');
     $('#bwaEntry').removeClass('is-hidden');
   } else {
-
     $('#bwaFileSpanInfo').text('Loading file stats...');
     if (isDragDrop === true) {
       $('#bwaEntry').addClass('is-hidden');
@@ -34,17 +35,19 @@ ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath = null, is
       bwaFileStats['filename'] = filePath.replace(/^.*[\\\/]/, '');
       bwaFileStats['humansize'] = conversions.byteToHumanFileSize(bwaFileStats['size'], misc.usestandardsize);
       $('#bwaFileSpanInfo').text('Loading file contents...');
-      bwaFileContents = fs.readFileSync(filePath);
+      bwaFileContents = Papa.parse(fs.readFileSync(filePath).toString(), { header: true });
     } else {
       bwaFileStats = fs.statSync(filePath[0]);
       bwaFileStats['filename'] = filePath[0].replace(/^.*[\\\/]/, '');
       bwaFileStats['humansize'] = conversions.byteToHumanFileSize(bwaFileStats['size'], misc.usestandardsize);
       $('#bwaFileSpanInfo').text('Loading file contents...');
-      bwaFileContents = fs.readFileSync(filePath[0]);
+      bwaFileContents = Papa.parse(fs.readFileSync(filePath[0]).toString(), { header: true });
     }
+    //console.log(bwaFileContents.data[0]);
     $('#bwaFileSpanInfo').text('Getting line count...');
-    bwaFileStats['linecount'] = bwaFileContents.toString().split('\n').length;
-    bwaFileStats['filepreview'] = bwaFileContents.toString().substring(0, 50);
+    bwaFileStats['linecount'] = bwaFileContents.toString().split('\n').length - 1;
+    bwaFileStats['filepreview'] = JSON.stringify(bwaFileContents.data[0]).substring(0, 50);
+    bwaFileStats['errors'] = JSON.stringify(bwaFileContents.errors);
 
     //console.log(readLines(filePath[0]));
     //console.log(bwFileStats['filepreview']);
@@ -57,8 +60,9 @@ ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath = null, is
     $('#bwaFileTdFilename').text(bwaFileStats['filename']);
     $('#bwaFileTdLastmodified').text(conversions.getDate(bwaFileStats['mtime']));
     $('#bwaFileTdLastaccessed').text(conversions.getDate(bwaFileStats['atime']));
-    $('#bwaFileTdFilesize').text(bwaFileStats['humansize'] + ' ({0} line(s))'.format(bwaFileStats['linecount']));
+    $('#bwaFileTdFilesize').text(bwaFileStats['humansize'] + ' ({0} record(s))'.format(bwaFileStats['linecount']));
     $('#bwaFileTdFilepreview').text(bwaFileStats['filepreview'] + '...');
+    $('#bwaFileTextareaErrors').text(bwaFileStats['errors'] || "No errors");
     //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']);
     //console.log('cont:'+ bwFileContents);
 

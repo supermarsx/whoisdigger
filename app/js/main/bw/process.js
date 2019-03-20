@@ -361,9 +361,9 @@ function processDomain(domain, index, timebetween, follow, timeout, event) {
         results.status[index] = lastStatus;
         results.registrar[index] = domainResultsJSON['registrar'];
         results.company[index] = domainResultsJSON['registrantOrganization'] || domainResultsJSON['registrant'];
-        results.updatedate[index] = domainResultsJSON['creationDate'] || domainResultsJSON['createdDate'] || domainResultsJSON['created'];
-        results.creationdate[index] = domainResultsJSON['updatedDate'];
-        results.expirydate[index] = domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires'];
+        results.updatedate[index] = conversions.getDate(domainResultsJSON['creationDate'] || domainResultsJSON['createdDate'] || domainResultsJSON['created']);
+        results.creationdate[index] = conversions.getDate(domainResultsJSON['updatedDate']);
+        results.expirydate[index] = conversions.getDate(domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires']);
         results.whoisreply[index] = data;
         results.whoisjson[index] = domainResultsJSON;
         results.requesttime[index] = reqtime[index];

@@ -41,9 +41,6 @@ function loadhtml() {
   $('#bwaFileinputloading').load(path.bwa + "bwaFileinputloading.html");
   $('#bwaFileinputconfirm').load(path.bwa + "bwaFileinputconfirm.html");
 
-  // bulk domain monitor
-  $('#bwmEntry').load(path.bwm + "bwmEntry.html");
-
   // Wordlist tools containers
   $('#toEntry').load(path.to + "toEntry.html");
 
