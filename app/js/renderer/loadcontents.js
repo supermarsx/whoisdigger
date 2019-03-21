@@ -40,6 +40,8 @@ function loadhtml() {
   $('#bwaEntry').load(path.bwa + "bwaEntry.html");
   $('#bwaFileinputloading').load(path.bwa + "bwaFileinputloading.html");
   $('#bwaFileinputconfirm').load(path.bwa + "bwaFileinputconfirm.html");
+  $('#bwaProcess').load(path.bwa + "bwaProcess.html");
+  $('#bwaAnalyser').load(path.bwa + "bwaAnalyser.html");
 
   // Wordlist tools containers
   $('#toEntry').load(path.to + "toEntry.html");

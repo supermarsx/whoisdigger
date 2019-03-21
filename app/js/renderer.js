@@ -5,8 +5,6 @@ const electron = require('electron'),
 require('../js/renderer/sw.js');
 require('../js/renderer/bw.js');
 require('../js/renderer/bwa.js');
-require('../js/renderer/bwm.js');
-
 
 window.$ = window.jQuery = require('jquery');
 

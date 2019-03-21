@@ -1,0 +1,13 @@
+#bwaAnalyserTable_length {
+  display: inline;
+  padding: 0 5px;
+}
+
+#bwaAnalyserTable_filter {
+  display: inline;
+  padding: 0 5px;
+}
+
+#bwaAnalyserTable_filter input {
+  display: inline;
+}

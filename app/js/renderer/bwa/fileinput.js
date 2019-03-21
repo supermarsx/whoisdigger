@@ -3,6 +3,7 @@ var whois = require('../../common/whoiswrapper.js'),
   conversions = require('../../common/conversions.js'),
   fs = require('fs'),
   Papa = require('papaparse'),
+  dt = require('datatables')(),
   bwaFileContents;
 
 
@@ -45,9 +46,10 @@ ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath = null, is
     }
     //console.log(bwaFileContents.data[0]);
     $('#bwaFileSpanInfo').text('Getting line count...');
-    bwaFileStats['linecount'] = bwaFileContents.toString().split('\n').length - 1;
-    bwaFileStats['filepreview'] = JSON.stringify(bwaFileContents.data[0]).substring(0, 50);
-    bwaFileStats['errors'] = JSON.stringify(bwaFileContents.errors);
+    bwaFileStats['linecount'] = bwaFileContents.data.length;
+    bwaFileStats['filepreview'] = JSON.stringify(bwaFileContents.data[0], null, "\t").substring(0, 50);
+    bwaFileStats['errors'] = JSON.stringify(bwaFileContents.errors).slice(1,-1);
+    //console.log(bwaFileContents.data);
 
     //console.log(readLines(filePath[0]));
     //console.log(bwFileStats['filepreview']);
@@ -79,11 +81,22 @@ $('#bwaEntryButtonOpen').click(function() {
 });
 
 
-// File Input, cancel file confirmation
+// File Input, cancel button, file confirmation
 $('#bwaFileinputconfirmButtonCancel').click(function() {
   $('#bwaFileinputconfirm').addClass('is-hidden');
   $('#bwaEntry').removeClass('is-hidden');
 });
+
+// File input, start button, file confirmation
+$('#bwaFileinputconfirmButtonStart').click(function() {
+  ipcRenderer.send("bwa:analyser.start", bwaFileContents);
+  /*
+  $('#bwaFileinputconfirm').addClass('is-hidden');
+  $.when($('#bwaProcess').removeClass('is-hidden').delay(10)).done(function() {
+    showTable();
+  });*/
+});
+
 /*
 // File Input, proceed to bulk whois
 $('#bwafButtonConfirm').click(function() {
