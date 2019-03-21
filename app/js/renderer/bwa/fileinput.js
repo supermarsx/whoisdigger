@@ -6,8 +6,6 @@ var whois = require('../../common/whoiswrapper.js'),
   dt = require('datatables')(),
   bwaFileContents;
 
-
-
 require('../../common/stringformat.js');
 
 const {

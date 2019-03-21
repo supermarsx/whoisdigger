@@ -33,12 +33,12 @@ function showTable() {
   var header = {},
     body = {};
   header.columns = Object.keys(bwaFileContents.data[0]);
-  console.log(header.columns);
+  //console.log(header.columns);
   body.records = bwaFileContents.data;
 
   // Generate header column content
   header.content = '<tr>\n';
-  for (column in header.columns) {
+  for (var column in header.columns) {
     header.content += '\t<th><abbr title="{0}">{1}</abbr></th>\n'.format(header.columns[column], getInitials(header.columns[column]));
   }
   header.content += '</tr>';
@@ -48,19 +48,19 @@ function showTable() {
 
   // Generate record fields
   body.content = '';
-  for (record in body.records) {
+  for (var record in body.records) {
     body.content += '<tr>\n';
     //console.log(body.content);
     //console.log(body.records[record]);
 
-    for (field in body.records[record]) {
+    for (var field in body.records[record]) {
       body.content += '\t<td>{0}</td>\n'.format(body.records[record][field]);
     }
     body.content += '</tr>\n';
   }
   //console.log(body.content);
   $('#bwaAnalyserTableTbody').html(body.content);
-  basetable = $('#bwaAnalyserTable').dataTable();
+  body.table = $('#bwaAnalyserTable').dataTable();
   //$('#bwaAnalyserTable_paginate > a').addClass('button is-small')
 
   $('#bwaFileinputconfirm').addClass('is-hidden');
@@ -68,7 +68,7 @@ function showTable() {
 }
 
 function getInitials(string, threshold = 1) {
-  initials = string.match(/\b\w/g);
+  var initials = string.match(/\b\w/g);
 
   (initials.length > threshold) ?
     initials = initials.join("").toString() :
