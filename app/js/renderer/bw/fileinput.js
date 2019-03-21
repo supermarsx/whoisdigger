@@ -16,11 +16,11 @@ const {
 
 // File input, path and information confirmation container
 ipcRenderer.on('bw:fileinput.confirmation', function(event, filePath = null, isDragDrop = false) {
+  var bwFileStats; // File stats, size, last changed, etc
   const {
     misc,
     lookup
   } = appSettings;
-  var bwFileStats; // File stats, size, last changed, etc
 
   //console.log(filePath);
   if (filePath === undefined || filePath == '' || filePath === null) {
