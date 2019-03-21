@@ -74,7 +74,7 @@ function msToHumanTimeLegacy(milliseconds) {
 
 // Get refined date from source
 function getDate(date) {
-  if (date == null || date == '' || date == false ) return;
+  if (date === null || date === '' || date === false ) return undefined;
   return new Date(Date.parse(date)).toUTCString();
 }
 

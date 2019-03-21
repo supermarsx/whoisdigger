@@ -15,15 +15,13 @@ function tableReset(dLength = 0, tLength = 0) {
 
 // Get export options from the form
 function getExportOptions() {
-  var options = {};
-  options = {
+  return {
     'filetype': $('#bwExportSelectFiletype').val(),
     'domains': $('#bwExportSelectDomains').val(),
     'errors': $('#bwExportSelectErrors').val(),
     'information': $('#bwExportSelectInformation').val(),
     'whoisreply': $('#bwExportSelectReply').val()
   }
-  return options;
 }
 
 // Set bulk whois export option fields to a preset

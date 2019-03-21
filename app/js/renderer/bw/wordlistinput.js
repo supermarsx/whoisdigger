@@ -97,7 +97,7 @@ $('#bwWordlistconfirmButtonStart').click(function() {
   ipcRenderer.send("bw:lookup", bwDomainArray, bwTldsArray);
 });
 
-$('#bwWordlistInputTlds').keyup(function() {
+$('#bwWordlistInputTlds').keyup(function(event) {
   // Cancel the default action, if needed
   event.preventDefault();
   // Number 13 is the "Enter" key on the keyboard

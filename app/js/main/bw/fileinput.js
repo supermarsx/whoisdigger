@@ -1,3 +1,4 @@
+/** global appSettings */
 const electron = require('electron'),
   debug = require('debug')('main.bw.fileinput');
 
