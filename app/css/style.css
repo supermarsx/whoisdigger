@@ -83,20 +83,28 @@ html {
   .navbar-burger {
     display: block;
   }
+
   .navbar-item, .navbar-brand {
     align-items: center;
     display: flex;
   }
 }
 
-input:not(:checked) + div {
+input:not(:checked)+div {
   background-color: hsla(348, 100%, 96%, 8);
 }
 
-input:checked + div {
+input:checked+div {
   background-color: hsla(141, 75%, 96%, 8);
 }
 
 input {
   display: none;
+}
+
+@media screen and (min-width: 1088px) {
+  .navbar, .navbar-end, .navbar-menu, .navbar-start {
+    align-items: normal;
+    display: block;
+  }
 }

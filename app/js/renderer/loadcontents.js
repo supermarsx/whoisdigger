@@ -13,7 +13,7 @@ function loadhtml() {
   path.op = htmlpath + path.tab + "op/";
 
   // Navbar loading
-  $('#navTop').load(path.nav + "navtop.html");
+  $('#navTop').load(path.nav + "navTop.html");
   $('#navBottom').load(path.nav + "navBottom.html");
 
   // Single whois

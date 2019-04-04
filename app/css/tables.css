@@ -1,6 +1,6 @@
 #bwaAnalyserTable_length {
-  display: inline;
-  padding: 0 5px;
+  display: inline-block;
+  padding: 15px 15px;
 }
 
 #bwaAnalyserTable_filter {
@@ -10,4 +10,31 @@
 
 #bwaAnalyserTable_filter input {
   display: inline;
+  margin: 0 5px;
+}
+
+#bwaAnalyserTable_paginate {
+  padding: 5px 5px;
+}
+
+#bwaAnalyserTable_previous {
+  padding: 0 5px;
+}
+
+#bwaAnalyserTable_next {
+  padding: 0 5px;
+}
+
+.paginate_button {
+  font-size: 1.5rem;
+}
+
+.paginate_button.current {
+  font-size: 1.25rem;
+  color: #000000;
+  font-weight: bold;
+}
+
+.paginate_button.disabled {
+  color: #000000;
 }

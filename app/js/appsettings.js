@@ -38,7 +38,7 @@ module.exports = {
       'extendedmenu': true // Enable extended navigation toggle (default: true)
     },
     'startup': { // At app startup
-      'devtools': false, // Enable/Show developer tools at startup (default: false)
+      'devtools': true, // Enable/Show developer tools at startup (default: false)
       'loadconfig': false // Load custom/override app settings through user file (default: true)
     },
     'customconfig': {
