@@ -18,6 +18,7 @@ async function lookup(domain, options = defaultoptions) {
   return domainResults;
 }
 
+// Transform string to JSON
 function toJSON(resultsText) {
   if (resultsText.includes("lookup: timeout")) {
     return "timeout";
@@ -29,7 +30,7 @@ function toJSON(resultsText) {
       return data;
     });
   } else {
-    resultsJSON = parseRawData(resultsText);
+    resultsJSON = parseRawData(preStringStrip(resultsText));
   }
 
   return resultsJSON;
@@ -61,6 +62,7 @@ function isDomainAvailable(resultsText, resultsJSON) {
     case (resultsText.includes('Your request is being rate limited')):
     case (resultsText.includes('Could not retrieve Whois data')):
     case (resultsText.includes('Whois lookup error')):
+    case (resultsText.includes('si is forbidden')): // .si is forbidden
       return 'error';
       break;
     case (resultsJSON.hasOwnProperty('domainName')):
@@ -75,8 +77,21 @@ function isDomainAvailable(resultsText, resultsJSON) {
   }
 }
 
+// Strip and pre format string
+function preStringStrip(str) {
+  /*
+  str = str.replace(/^.*%.*$/gm, ""); // Strip lines containing '%'
+  str = str.replace(/^\s*\n/gm, "");  // Strip empty lines
+  str = str.replace(/\t/g, "");       // Strip "tab" chars
+  */
+  str = str.replace(/\:/g, ": ");     // Space key value pairs
+
+  return str;
+}
+
 module.exports = {
   lookup: lookup,
   toJSON: toJSON,
-  isDomainAvailable: isDomainAvailable
+  isDomainAvailable: isDomainAvailable,
+  preStringStrip: preStringStrip
 };

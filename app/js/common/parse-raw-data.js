@@ -19,7 +19,6 @@ var parseRawData = function(rawData) {
 	var lines = rawData.split('\n');
 
 	lines.forEach(function(line){
-
 		line = line.trim();
 		// colon space because that's the standard delimiter - not ':' as that's used in eg, http links
 		if ( line && line.includes(DELIMITER+' ') ) {
@@ -39,7 +38,6 @@ var parseRawData = function(rawData) {
 			}
 		}
 	});
-
 	return result;
 }
 

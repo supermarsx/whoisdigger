@@ -23,6 +23,7 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
   var domainStatus, domainResultsJSON;
   //ipcRenderer.send('app:debug', "Whois domain reply:\n {0}".format(domainResults));
 
+  domainResults = whois.preStringStrip(domainResults);
   domainResultsJSON = (function() {
     var result;
     if (typeof domainResults === 'object') {
@@ -36,6 +37,7 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
     }
     return result;
   })();
+  console.log(domainResultsJSON);
 
   // Check domain status
   domainStatus = isDomainAvailable(domainResults);
@@ -59,7 +61,7 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
       $('#swTdRegistrar').text(domainResultsJSON['registrar']);
       $('#swTdCreation').text(getDate(domainResultsJSON['creationDate'] || domainResultsJSON['createdDate'] || domainResultsJSON['created']));
       $('#swTdCompany').text(domainResultsJSON['registrantOrganization'] || domainResultsJSON['registrant']);
-      $('#swTdExpiry').text(getDate(domainResultsJSON['expires'] || domainResultsJSON['registryExpiryDate'] || domainResultsJSON['expiryDate'] || domainResultsJSON['registrarRegistrationExpirationDate']));
+      $('#swTdExpiry').text(getDate(domainResultsJSON['expires'] || domainResultsJSON['registryExpiryDate'] || domainResultsJSON['expiryDate'] || domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expire']));
       $('#swTableWhoisinfo.is-hidden').removeClass('is-hidden');
       break;
     case 'available':
