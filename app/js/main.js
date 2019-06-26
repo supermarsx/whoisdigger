@@ -35,7 +35,10 @@ app.on('ready', function() {
     show: appSettings.window.show,
     height: appSettings.window.height,
     width: appSettings.window.width,
-    icon: appSettings.window.icon
+    icon: appSettings.window.icon,
+    webPreferences: {
+      nodeIntegration: true
+    }
   });
 
   // mainWindow HTML init

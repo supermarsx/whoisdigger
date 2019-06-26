@@ -84,7 +84,7 @@ function preStringStrip(str) {
   str = str.replace(/^\s*\n/gm, "");  // Strip empty lines
   str = str.replace(/\t/g, "");       // Strip "tab" chars
   */
-  str = str.replace(/\:/g, ": ");     // Space key value pairs
+  str = str.replace(/[a-zA-Z]\:[0-9]/g, ": ");     // Space key value pairs
 
   return str;
 }
