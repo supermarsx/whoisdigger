@@ -37,7 +37,6 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
     }
     return result;
   })();
-  console.log(domainResultsJSON);
 
   // Check domain status
   domainStatus = isDomainAvailable(domainResults);
