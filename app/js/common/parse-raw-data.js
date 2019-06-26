@@ -17,7 +17,6 @@ var parseRawData = function(rawData) {
 	rawData = stripHTMLEntitites(rawData)
 	rawData = rawData.replace(/:\s*\n(?=((?!:).)*$)/gm, ': ');
 	var lines = rawData.split('\n');
-	console.log(rawData);
 
 
 	for (var i = 0; i < lines.length; ++i) {
