@@ -359,18 +359,15 @@ function processDomain(domain, index, timebetween, follow, timeout, event) {
         results.id[index] = Number(index + 1);
         results.domain[index] = domain;
         results.status[index] = lastStatus;
-        results.registrar[index] = domainResultsJSON['registrar'];
-        results.company[index] = domainResultsJSON['registrantOrganization'] || domainResultsJSON['registrant'];
+        results.registrar[index] = domainResultsJSON['registrar'] || domainResultsJSON['Registrar'];
+        results.company[index] = domainResultsJSON['registrantOrganization'] || domainResultsJSON['registrant'] || domainResultsJSON['RegistrantOrganization'];
         results.creationdate[index] = conversions.getDate(domainResultsJSON['creationDate'] || domainResultsJSON['createdDate'] || domainResultsJSON['created']);
-        results.updatedate[index] = conversions.getDate(domainResultsJSON['updatedDate']);
+        results.updatedate[index] = conversions.getDate(domainResultsJSON['updatedDate'] || domainResultsJSON['UpdatedDate'] || domainResultsJSON['changed']);
         results.expirydate[index] = conversions.getDate(domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires'] || domainResultsJSON['expire']);
         results.whoisreply[index] = data;
         results.whoisjson[index] = domainResultsJSON;
         results.requesttime[index] = reqtime[index];
-        /*domainsPending = domainsPending.filter(function(domainp) {
-          return domainp !== domain
-        });
-        console.log(domainsPending);*/
+
       } // End processData
     }, timebetween * (Number(index - stats.domains.sent) + 1)); // End processing domains
     debug("Timebetween: {0}".format((timebetween * (Number(index - stats.domains.sent) + 1))));

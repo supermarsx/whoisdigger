@@ -15,12 +15,14 @@ var parseRawData = function(rawData) {
 	var result = {};
 
 	rawData = stripHTMLEntitites(rawData)
-	rawData = rawData.replace(/:\s*\r\n/g, ': ');
+	rawData = rawData.replace(/:\s*\n(?=((?!:).)*$)/gm, ': ');
 	var lines = rawData.split('\n');
+	console.log(rawData);
 
-	lines.forEach(function(line){
-		line = line.trim();
-		// colon space because that's the standard delimiter - not ':' as that's used in eg, http links
+
+	for (var i = 0; i < lines.length; ++i) {
+		line = lines[i].trim();
+
 		if ( line && line.includes(DELIMITER+' ') ) {
 			var lineParts = line.split(DELIMITER);
 
@@ -32,12 +34,12 @@ var parseRawData = function(rawData) {
 				// If multiple lines use the same key, combine the values
 				if ( key in result ) {
 					result[key] = `${result[key]} ${value}`;
-					return
 				}
 				result[key] = value;
 			}
 		}
-	});
+	}
+
 	return result;
 }
 

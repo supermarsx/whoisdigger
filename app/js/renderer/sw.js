@@ -37,6 +37,7 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
     }
     return result;
   })();
+  console.log(domainResultsJSON);
 
   // Check domain status
   domainStatus = isDomainAvailable(domainResults);
@@ -56,10 +57,10 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
       $('#swTdDomain').text(domainResultsJSON['domainName'] || domainResultsJSON['domain']);
 
       //console.log(domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires'] || domainResultsJSON['registryExpiryDate']);
-      $('#swTdUpdate').text(getDate(domainResultsJSON['updatedDate'] || domainResultsJSON['lastUpdated']));
-      $('#swTdRegistrar').text(domainResultsJSON['registrar']);
+      $('#swTdUpdate').text(getDate(domainResultsJSON['updatedDate'] || domainResultsJSON['lastUpdated'] || domainResultsJSON['UpdatedDate'] || domainResultsJSON['changed']));
+      $('#swTdRegistrar').text(domainResultsJSON['registrar'] || domainResultsJSON['Registrar']);
       $('#swTdCreation').text(getDate(domainResultsJSON['creationDate'] || domainResultsJSON['createdDate'] || domainResultsJSON['created']));
-      $('#swTdCompany').text(domainResultsJSON['registrantOrganization'] || domainResultsJSON['registrant']);
+      $('#swTdCompany').text(domainResultsJSON['registrantOrganization'] || domainResultsJSON['registrant'] || domainResultsJSON['RegistrantOrganization']);
       $('#swTdExpiry').text(getDate(domainResultsJSON['expires'] || domainResultsJSON['registryExpiryDate'] || domainResultsJSON['expiryDate'] || domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expire']));
       $('#swTableWhoisinfo.is-hidden').removeClass('is-hidden');
       break;

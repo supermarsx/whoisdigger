@@ -63,6 +63,7 @@ function isDomainAvailable(resultsText, resultsJSON) {
     case (resultsText.includes('Could not retrieve Whois data')):
     case (resultsText.includes('Whois lookup error')):
     case (resultsText.includes('si is forbidden')): // .si is forbidden
+    case (resultsText.includes('reserved by aeDA Regulator')): // Reserved for aeDA regulator
       return 'error';
       break;
     case (resultsJSON.hasOwnProperty('domainName')):
