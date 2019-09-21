@@ -18,7 +18,8 @@ var singleWhois = {
 // Single Whois, whois reply processing
 ipcRenderer.on('sw:results', function(event, domainResults) {
   const {
-    isDomainAvailable
+    isDomainAvailable,
+    getDomainParameters
   } = whois;
   var domainStatus, domainResultsJSON;
   //ipcRenderer.send('app:debug', "Whois domain reply:\n {0}".format(domainResults));
@@ -39,37 +40,41 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
   })();
 
   // Check domain status
+  domainName = domainResultsJSON['domainName'] || domainResultsJSON['domain']
   domainStatus = isDomainAvailable(domainResults);
+  resultFilter = getDomainParameters(domainName, domainStatus, domainResults, domainResultsJSON);
 
   switch (domainStatus) {
-    case 'querylimituniregistry':
-    case 'error':
-      $('#swMessageWhoisResults').text("Whois error: {0}\n{1}".format(domainStatus, domainResults));
-      $('#swMessageError').removeClass('is-hidden');
-      break;
     case 'unavailable':
-      //console.log(domainResultsJSON);
       $('#swMessageUnavailable').removeClass('is-hidden');
       $('#swMessageWhoisResults').text(domainResults);
 
-      $('#swTdDomain').attr('url', "http://" + domainResultsJSON['domainName'] || domainResultsJSON['domain']);
-      $('#swTdDomain').text(domainResultsJSON['domainName'] || domainResultsJSON['domain']);
+      $('#swTdDomain').attr('url', "http://" + resultFilter.domain);
+      $('#swTdDomain').text(resultFilter.domain);
 
       //console.log(domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires'] || domainResultsJSON['registryExpiryDate']);
-      $('#swTdUpdate').text(getDate(domainResultsJSON['updatedDate'] || domainResultsJSON['lastUpdated'] || domainResultsJSON['UpdatedDate'] || domainResultsJSON['changed']));
-      $('#swTdRegistrar').text(domainResultsJSON['registrar'] || domainResultsJSON['Registrar']);
-      $('#swTdCreation').text(getDate(domainResultsJSON['creationDate'] || domainResultsJSON['createdDate'] || domainResultsJSON['created']));
-      $('#swTdCompany').text(domainResultsJSON['registrantOrganization'] || domainResultsJSON['registrant'] || domainResultsJSON['RegistrantOrganization']);
-      $('#swTdExpiry').text(getDate(domainResultsJSON['expires'] || domainResultsJSON['registryExpiryDate'] || domainResultsJSON['expiryDate'] || domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expire']));
+      $('#swTdUpdate').text(resultFilter.updatedate);
+      $('#swTdRegistrar').text(resultFilter.registrar);
+      $('#swTdCreation').text(resultFilter.creationdate);
+      $('#swTdCompany').text(resultFilter.company);
+      $('#swTdExpiry').text(resultFilter.expirydate);
       $('#swTableWhoisinfo.is-hidden').removeClass('is-hidden');
       break;
+
     case 'available':
       $('#swMessageWhoisResults').text(domainResults);
       $('#swMessageAvailable').removeClass('is-hidden');
       break;
+
     default:
-      $('#swMessageWhoisResults').text("Whois default error\n{0}".format(domainResults));
-      $('#swMessageError').removeClass('is-hidden');
+      if (domainStatus.includes('error')) {
+        reason = domainStatus.split(':')[1]; // Get Error reason
+        $('#swMessageWhoisResults').text("Whois error due to {0}:\n{1}".format(reason, domainResults));
+        $('#swMessageError').removeClass('is-hidden');
+      } else {
+        $('#swMessageWhoisResults').text("Whois default error\n{0}".format(domainResults));
+        $('#swMessageError').removeClass('is-hidden');
+      }
       break;
   }
 

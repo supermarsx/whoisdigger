@@ -1,3 +1,5 @@
+// Load Renderer contents
+
 loadhtml();
 
 function loadhtml() {

@@ -1,8 +1,11 @@
 const electron = require('electron'),
   whois = require('../../common/whoiswrapper.js'),
-  conversions = require('../../common/conversions.js'),
   debug = require('debug')('main.bw.process'),
   defaultBulkWhois = require('./process.defaults.js');
+
+var {
+  msToHumanTime
+} = require('../../common/conversions.js');
 
 var {
   resetObject
@@ -336,8 +339,7 @@ function processDomain(domain, index, timebetween, follow, timeout, event) {
               sender.send('bw:status.update', 'laststatus.unavailable', stats.laststatus.unavailable);
               lastStatus = 'unavailable';
               break;
-            case 'querylimituniregistry':
-            case 'error':
+            case domainAvailable.includes('error'):
               status.error++;
               sender.send('bw:status.update', 'status.error', status.error);
               stats.laststatus.error = domain;
@@ -356,16 +358,18 @@ function processDomain(domain, index, timebetween, follow, timeout, event) {
 
         domainResultsJSON = whois.toJSON(data);
 
+        resultFilter = whois.getDomainParameters(domain, lastStatus, resultsText, resultsJSON);
+
         results.id[index] = Number(index + 1);
-        results.domain[index] = domain;
-        results.status[index] = lastStatus;
-        results.registrar[index] = domainResultsJSON['registrar'] || domainResultsJSON['Registrar'];
-        results.company[index] = domainResultsJSON['registrantOrganization'] || domainResultsJSON['registrant'] || domainResultsJSON['RegistrantOrganization'];
-        results.creationdate[index] = conversions.getDate(domainResultsJSON['creationDate'] || domainResultsJSON['createdDate'] || domainResultsJSON['created']);
-        results.updatedate[index] = conversions.getDate(domainResultsJSON['updatedDate'] || domainResultsJSON['UpdatedDate'] || domainResultsJSON['changed']);
-        results.expirydate[index] = conversions.getDate(domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires'] || domainResultsJSON['expire']);
-        results.whoisreply[index] = data;
-        results.whoisjson[index] = domainResultsJSON;
+        results.domain[index] = resultFilter.domain;
+        results.status[index] = resultFilter.status;
+        results.registrar[index] = resultFilter.registrar;
+        results.company[index] = resultFilter.company;
+        results.creationdate[index] = resultFilter.creationdate;
+        results.updatedate[index] = resultFilter.updatedate;
+        results.expirydate[index] = resultFilter.expirydate;
+        results.whoisreply[index] = resultFilter.whoisreply;
+        results.whoisjson[index] = resultFilter.whoisjson;
         results.requesttime[index] = reqtime[index];
 
       } // End processData
@@ -394,8 +398,8 @@ function counter(event, start = true) {
           stats.time.remainingcounter = 0;
           bulkWhois.stats.time.remaining = '-';
         })() :
-        stats.time.remaining = conversions.msToHumanTime(stats.time.remainingcounter);
-      stats.time.current = conversions.msToHumanTime(stats.time.currentcounter);
+        stats.time.remaining = msToHumanTime(stats.time.remainingcounter);
+      stats.time.current = msToHumanTime(stats.time.currentcounter);
       sender.send('bw:status.update', 'time.current', stats.time.current);
       sender.send('bw:status.update', 'time.remaining', stats.time.remaining);
       (stats.domains.total == stats.domains.sent && stats.domains.waiting === 0) ? (function() {

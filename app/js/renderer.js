@@ -46,12 +46,13 @@ $(document).ready(function() { // When document is ready
   $(document).keyup(function(event) {
     if (event.keyCode === 27) {
       ipcRenderer.send('app:debug', "Used [ESC] key, {0}".format(event.keyCode));
-      if ($('#swMessageWhois').hasClass('is-active')) {
+      if ($('#swMessageWhois').hasClass('is-active')) { // If whois dialog is open
         $('#swMessageWhoisClose').click();
-      } else if ($('.notification')) {
-        $('.notification:not(.is-hidden)').addClass('is-hidden');
-        if ($('#swTableWhoisInfo:not(.is-hidden)')) {
-          $('#swTableWhoisInfo').addClass('is-hidden');
+      } else {
+        if (!$('#swTableWhoisinfo').hasClass('is-hidden')) {  // Whois table not hidden, 1st to go
+          $('#swTableWhoisinfo').addClass('is-hidden');
+        } else if ($('.notification:not(.is-hidden)')) { // Notification not hidden, 2nd to go
+          $('.notification:not(.is-hidden)').addClass('is-hidden');
         }
       }
     }
