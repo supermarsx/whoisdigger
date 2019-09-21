@@ -20,16 +20,16 @@
     "bulma": "^0.7.5",
     "change-case": "^3.1.0",
     "cp": "^0.2.0",
-    "csv": "^5.1.1",
+    "csv": "^5.1.2",
     "datatables": "^1.10.18",
     "debug": "^4.1.1",
     "dedent-js": "^1.0.1",
-    "electron": "^5.0.5",
-    "electron-packager": "^13.1.1",
+    "electron": "^5.0.10",
+    "electron-packager": "^14.0.6",
     "html-entities": "^1.2.1",
     "jquery": "^3.3.1",
-    "jszip": "^3.2.1",
-    "papaparse": "^4.6.3",
-    "whois": "^2.10.1"
+    "jszip": "^3.2.2",
+    "papaparse": "^5.1.0",
+    "whois": "^2.11.0"
   }
 }

@@ -10,25 +10,30 @@ const {
   ipcRenderer
 } = require('electron');
 
+// Generate table with full contents
 ipcRenderer.on('bwa:analyser.tablegen', function(event, contents) {
   bwaFileContents = contents;
   showTable();
 });
 
+// bwa, close button
 $('#bwaAnalyserButtonClose').click(function() {
   $('#bwaAnalyserModalClose').addClass('is-active');
 });
 
+// bwa, close dialog confirm/yes
 $('#bwaAnalyserModalCloseButtonYes').click(function() {
   $('#bwaAnalyser').addClass('is-hidden');
   $('#bwaAnalyserModalClose').removeClass('is-active');
   $('#bwaEntry').removeClass('is-hidden');
 });
 
+// bwa, close dialog cancel/no
 $('#bwaAnalyserModalCloseButtonNo').click(function() {
   $('#bwaAnalyserModalClose').removeClass('is-active');
 });
 
+// Show table
 function showTable() {
   header = {}, body = {};
   header.columns = Object.keys(bwaFileContents.data[0]);

@@ -161,7 +161,7 @@ $("html").on("drop", function(event) {
 
 $('#bwMainContainer').on('drop', function(event) {
   event.preventDefault();
-  for (let f of event.dataTransfer.files) {
+  for (let f of event.originalEvent.dataTransfer.files) {
     ipcRenderer.send('File(s) you dragged here: {0}'.format(f.path));
     ipcRenderer.send('ondragstart', f.path);
   }

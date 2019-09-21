@@ -32,7 +32,7 @@ function toJSON(resultsText) {
   } else {
     resultsJSON = parseRawData(preStringStrip(resultsText));
   }
-
+  
   return resultsJSON;
 }
 

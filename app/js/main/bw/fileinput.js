@@ -1,4 +1,3 @@
-/** global appSettings */
 const electron = require('electron'),
   debug = require('debug')('main.bw.fileinput');
 
@@ -9,6 +8,10 @@ const {
   ipcMain,
   dialog
 } = electron;
+
+var {
+  appSettings
+} = require('../../appsettings.js');
 
 // File input, select file dialog
 ipcMain.on('bw:input.file', function(event) {
