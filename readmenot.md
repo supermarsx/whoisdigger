@@ -24,6 +24,10 @@ Folders or single files correspond to different tabs across the app:
 
 `sample_lists`: sample lists to test bulk whois
 
+## Inner workings
+
+`common\whoiswrapper.js`: contains a common domain avalability checker and domain data parser
+
 ## Tech in use
 
 Jquery is used for functionality across the app from click events to real-time UI manipulation.
