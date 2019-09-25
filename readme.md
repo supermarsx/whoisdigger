@@ -7,7 +7,7 @@
 
 ![Whoisdigger app](https://github.com/whois-team/website/raw/master/images/projects/whoisdigger.gif)  
 
-This application is in **alpha stage**, latest commit broke bulk whois lookup..
+This application is in **alpha stage**
 
 Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on Electron. Made with builders and creators in mind, rapidly lookup up your favorite domain mashups without risk of third-party logging, domain squatting and other domain lookup issues.
 
