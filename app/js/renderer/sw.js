@@ -21,7 +21,11 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
     isDomainAvailable,
     getDomainParameters
   } = whois;
-  var domainStatus, domainResultsJSON;
+  var domainName,
+    domainStatus,
+    domainResultsJSON,
+    resultFilter,
+    errorReason;
   //ipcRenderer.send('app:debug', "Whois domain reply:\n {0}".format(domainResults));
 
   domainResults = whois.preStringStrip(domainResults);
@@ -68,8 +72,8 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
 
     default:
       if (domainStatus.includes('error')) {
-        reason = domainStatus.split(':')[1]; // Get Error reason
-        $('#swMessageWhoisResults').text("Whois error due to {0}:\n{1}".format(reason, domainResults));
+        errorReason = domainStatus.split(':')[1]; // Get Error reason
+        $('#swMessageWhoisResults').text("Whois error due to {0}:\n{1}".format(errorReason, domainResults));
         $('#swMessageError').removeClass('is-hidden');
       } else {
         $('#swMessageWhoisResults').text("Whois default error\n{0}".format(domainResults));

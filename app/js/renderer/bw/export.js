@@ -23,7 +23,7 @@ ipcRenderer.on('bw:result.receive', function(event, rcvResults) {
   ipcRenderer.send('app:debug', "Results are ready for export {0}".format(rcvResults));
 
   results = rcvResults;
-  console.log("%o", results);
+  //console.log("%o", results);
 });
 
 ipcRenderer.on('bw:export.cancel', function() {

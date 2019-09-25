@@ -35,7 +35,8 @@ $('#bwaAnalyserModalCloseButtonNo').click(function() {
 
 // Show table
 function showTable() {
-  header = {}, body = {};
+  var header = {},
+    body = {};
   header.columns = Object.keys(bwaFileContents.data[0]);
   body.records = bwaFileContents.data;
 
