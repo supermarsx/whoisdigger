@@ -12,7 +12,7 @@ const {
 // File input, select file dialog
 ipcMain.on('bwa:input.file', function(event) {
   debug("Waiting for file selection");
-  var filePath = dialog.showOpenDialog({
+  var filePath = dialog.showOpenDialogSync({
     title: "Select wordlist file",
     buttonLabel: "Open",
     properties: ['openFile', 'showHiddenFiles']

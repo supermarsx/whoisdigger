@@ -10,7 +10,12 @@ const {
   remote
 } = electron;
 
-// Bulk domain, wordlist input
+/*
+  bw:input.wordlist
+    On event: Bulk domain, wordlist input
+  parameters
+    event (object) - renderer object
+ */
 ipcMain.on('bw:input.wordlist', function(event) {
   debug("Using wordlist input");
   event.sender.send('bw:wordlistinput.confirmation');

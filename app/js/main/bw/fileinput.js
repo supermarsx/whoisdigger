@@ -13,10 +13,15 @@ var {
   appSettings
 } = require('../../appsettings.js');
 
-// File input, select file dialog
+/*
+  bw:input.file
+    On event: Bulk whois input file, select file dialog
+  parameters
+    event (object) - renderer object
+ */
 ipcMain.on('bw:input.file', function(event) {
   debug("Waiting for file selection");
-  var filePath = dialog.showOpenDialog({
+  var filePath = dialog.showOpenDialogSync({
     title: "Select wordlist file",
     buttonLabel: "Open",
     properties: ['openFile', 'showHiddenFiles']
@@ -25,7 +30,13 @@ ipcMain.on('bw:input.file', function(event) {
   event.sender.send('bw:fileinput.confirmation', filePath);
 });
 
-// On drag and drop file
+/*
+  ondragstart
+    On event: drag and dropping file
+  parameters
+    event (object) - renderer object
+    filePath (string) - dropped file path
+ */
 ipcMain.on('ondragstart', function(event, filePath) {
   event.sender.startDrag({
     file: filePath,

@@ -36,7 +36,14 @@ var defaultValue = null; // Changing this implies changing all dependant compari
 var bulkWhois; // BulkWhois object
 var reqtime = [];
 
-// Bulk Domain whois lookup
+/*
+  bw:lookup
+    On event: bulk whois lookup startup
+  parameters
+    event (object) - renderer event
+    domains (array) - domains to request whois for
+    tlds (array) - tlds to look for
+ */
 ipcMain.on('bw:lookup', function(event, domains, tlds) {
   resetUiCounters(event); // Reset UI counters, pass window param
   bulkWhois = resetObject(defaultBulkWhois); // Reset var
@@ -121,7 +128,12 @@ ipcMain.on('bw:lookup', function(event, domains, tlds) {
 
 });
 
-// Pause bulk whois process
+/*
+  bw:lookup.pause
+    On event: bulk whois lookup pause
+  parameters
+    event (object) - renderer event
+ */
 ipcMain.on('bw:lookup.pause', function(event) {
 
   // bulkWhois section
@@ -138,17 +150,21 @@ ipcMain.on('bw:lookup.pause', function(event) {
   } = input; // Bulk whois input
 
   debug('Stopping unsent bulk whois requests');
-  counter(event, false);
+  counter(event, false); // Stop counter/timer
 
   // Go through all queued domain lookups and delete setTimeouts for remaining domains
-
   for (var j = stats.domains.sent; j < stats.domains.processed; j++) {
     debug('Stopping whois request {0} with id {1}'.format(j, processingIDs[j]));
     clearTimeout(processingIDs[j]);
   }
 });
 
-// Bulk domain, continue bulk whois process
+/*
+  bw:lookup.continue
+    On event: bulk whois lookup continue
+  parameters
+    event (object) - renderer object
+ */
 ipcMain.on('bw:lookup.continue', function(event) {
   debug('Continuing bulk whois requests');
 
@@ -213,11 +229,16 @@ ipcMain.on('bw:lookup.continue', function(event) {
     (stats.time.remainingcounter += randomize.timeoutmax) :
     (stats.time.remainingcounter += lookup.timeout);
 
-  counter(event);
+  counter(event); // Start counter/timer
 
 });
 
-// Bulk domain, stop process
+/*
+  bw:lookup.stop
+    On event: stop bulk whois lookup process
+  parameters
+    event (object) - Current renderer object
+ */
 ipcMain.on('bw:lookup.stop', function(event) {
   var {
     results,
@@ -231,11 +252,21 @@ ipcMain.on('bw:lookup.stop', function(event) {
   clearTimeout(stats.time.counter);
   sender.send('bw:result.receive', results);
   sender.send('bw:status.update', 'finished');
-})
+});
 
-// Process domain
+/*
+  processDomain
+    Process domain whois request
+  parameters
+    domain (string) - domain to request whois
+    index (integer) - index on whois results
+    timebetween (integer) - time between requests in milliseconds
+    follow (integer) - whois request follow depth
+    timeout (integer) - time in milliseconds for request to timeout
+    event (object) - renderer object
+ */
 function processDomain(domain, index, timebetween, follow, timeout, event) {
-  debug("Domain: {0}, id: {1}, timebetween: {2}".format(domain, index, timebetween));
+  debug("Domain: {0}, id/index: {1}, timebetween: {2}".format(domain, index, timebetween));
   var {
     lookup,
     misc
@@ -267,7 +298,13 @@ function processDomain(domain, index, timebetween, follow, timeout, event) {
     sender // expose shorthand sender
   } = event;
 
+  // Self executing function hack to do whois lookup PROBLEM HERE
   (function(domain, index, timebetween, follow, timeout) {
+
+    /*
+      setTimeout function
+        Processing ID specific function
+     */
     processingIDs[index] = setTimeout(function() {
 
       stats.domains.sent++; // Add to requests sent
@@ -287,10 +324,26 @@ function processDomain(domain, index, timebetween, follow, timeout, event) {
         .then(function(data) {
           processData(event, data, false, domain, index);
         })
+        .catch(function() {
+          //console.trace();
+        });
+        /*
         .catch(function(data) {
+          console.trace();
           processData(event, data, true, domain, index);
         });
+        */
 
+      /*
+        processData
+          Process gathered whois data
+        parameters
+          event (object) - renderer object
+          data (string) - whois text reply
+          isError (boolean) - is whois reply an error
+          domain (string) - domain name
+          index (integer) - domain index within results
+       */
       function processData(event, data = null, isError = false, domain, index) {
         var lastweight;
 
@@ -339,13 +392,17 @@ function processDomain(domain, index, timebetween, follow, timeout, event) {
               sender.send('bw:status.update', 'laststatus.unavailable', stats.laststatus.unavailable);
               lastStatus = 'unavailable';
               break;
-            case domainAvailable.includes('error'):
-              status.error++;
-              sender.send('bw:status.update', 'status.error', status.error);
-              stats.laststatus.error = domain;
-              sender.send('bw:status.update', 'laststatus.error', stats.laststatus.error);
-              lastStatus = 'error';
+
+            default:
+              if (domainAvailable.includes('error')) {
+                status.error++;
+                sender.send('bw:status.update', 'status.error', status.error);
+                stats.laststatus.error = domain;
+                sender.send('bw:status.update', 'laststatus.error', stats.laststatus.error);
+                lastStatus = 'error';
+              }
               break;
+
           }
         })();
 
@@ -356,9 +413,10 @@ function processDomain(domain, index, timebetween, follow, timeout, event) {
         stats.domains.waiting--; // Waiting in queue
         sender.send('bw:status.update', 'domains.waiting', stats.domains.waiting); // Waiting in queue, update stats
 
-        domainResultsJSON = whois.toJSON(data);
+        resultsJSON = whois.toJSON(data);
 
-        resultFilter = whois.getDomainParameters(domain, lastStatus, resultsText, resultsJSON);
+        var resultFilter = whois.getDomainParameters(domain, lastStatus, data, resultsJSON);
+
 
         results.id[index] = Number(index + 1);
         results.domain[index] = resultFilter.domain;
@@ -372,13 +430,22 @@ function processDomain(domain, index, timebetween, follow, timeout, event) {
         results.whoisjson[index] = resultFilter.whoisjson;
         results.requesttime[index] = reqtime[index];
 
+        //debug(results);
       } // End processData
+
     }, timebetween * (Number(index - stats.domains.sent) + 1)); // End processing domains
+
     debug("Timebetween: {0}".format((timebetween * (Number(index - stats.domains.sent) + 1))));
   })(domain, index, timebetween, follow, timeout);
 }
 
-// Counter/timer control
+/*
+  counter
+    Counter/timer control, controls the timer but starting or stopping
+  parameters
+    event (object) - renderer object
+    start (boolean) start or stop counter
+ */
 function counter(event, start = true) {
   var {
     results,
@@ -414,7 +481,12 @@ function counter(event, start = true) {
   })();
 }
 
-// Get time between requests
+/*
+  getTimeBetween
+    Get time between requests
+  parameters
+    isRandom (boolean) - is time between requests randomized
+ */
 function getTimeBetween(isRandom = false) {
   var {
     lookup
@@ -428,11 +500,17 @@ function getTimeBetween(isRandom = false) {
     timebetweenmin
   } = randomize;
 
-  debug("'timebetweenmax': {0}, 'timebetweenmin': {1}, 'timebetween': {2}".format(timebetweenmax, timebetweenmin, timebetween));
+  debug("Time between requests, 'israndom': {0}, 'timebetweenmax': {1}, 'timebetweenmin': {2}, 'timebetween': {3}".format(isRandom, timebetweenmax, timebetweenmin, timebetween));
   return (isRandom ? (Math.floor((Math.random() * timebetweenmax) + timebetweenmin)) : timebetween);
 }
 
-// Get whois request follow level/depth
+
+/*
+  getFollowDepth
+    Get request follow level/depth
+  parameters
+    isRandom (boolean) - is follow depth randomized
+ */
 function getFollowDepth(isRandom = false) {
   var {
     lookup
@@ -446,11 +524,16 @@ function getFollowDepth(isRandom = false) {
     followmin
   } = randomize;
 
-  debug("'followmax': {0}, 'followmin': {1}, 'follow': {2}".format(followmax, followmin, follow));
+  debug("Follow depth, 'israndom': {0}, 'followmax': {1}, 'followmin': {2}, 'follow': {3}".format(isRandom, followmax, followmin, follow));
   return (isRandom ? (Math.floor((Math.random() * followmax) + followmin)) : follow);
 }
 
-// Get timeout requests
+/*
+  getTimeout
+    Get request timeout
+  parameters
+    isRandom (boolean) - is timeout randomized
+ */
 function getTimeout(isRandom = false) {
   var {
     lookup,
@@ -464,6 +547,6 @@ function getTimeout(isRandom = false) {
     timeoutmin
   } = randomize;
 
-  debug("'timeoutmax': {0}, 'timeoutmin': {1}, 'timeout': {2}".format(timeoutmax, timeoutmin, timeout));
+  debug("Request timeout, 'israndom': {0}, 'timeoutmax': {1}, 'timeoutmin': {2}, 'timeout': {3}".format(isRandom, timeoutmax, timeoutmin, timeout));
   return (isRandom ? (Math.floor((Math.random() * timeoutmax) + timeoutmin)) : timeout);
 }

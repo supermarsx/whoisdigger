@@ -18,12 +18,20 @@ const {
   remote
 } = electron;
 
+/*
+  bw:export
+    On event: bulk whois export event
+  parameters
+    event (object) - renderer object
+    results (object) - bulk whois results object
+    options (object) - bulk whois export options object
+ */
 ipcMain.on('bw:export', function(event, results, options) {
   debug('options: \n {0}'.format(JSON.stringify(options)));
-  //debug('results: \n {0}'.format(JSON.stringify(results)));
+  debug('results: \n {0}'.format(JSON.stringify(results)));
 
-  var s = appSettings.export.separator, // Field separator char
-    e = appSettings.export.enclosure, // Field enclosure char
+  var s = appSettings.export.separator, // Field separation char
+    e = appSettings.export.enclosure, // Field enclosing char
     l = appSettings.export.linebreak, // Line break char
     txt = appSettings.export.textfile, // Text file
     csv = appSettings.export.csvfile, // CSV file
@@ -54,12 +62,14 @@ ipcMain.on('bw:export', function(event, results, options) {
       ];
       break;
   }
-  var filePath = dialog.showSaveDialog({
+
+  var filePath = dialog.showSaveDialogSync({
     title: "Save export file",
     buttonLabel: "Save",
     properties: ['openFile', 'showHiddenFiles'],
     filters: filters
   });
+
   if (filePath === undefined || filePath == '' || filePath === null) {
     debug("Using selected file at {0}".format(filePath));
     event.sender.send('bw:export.cancel');
@@ -92,13 +102,11 @@ ipcMain.on('bw:export', function(event, results, options) {
 
     // Add errors to queue
     for (var i = 0; i < results.id.length; i++) {
-      if (options.errors == 'yes' && results.status[i] == 'error') {
+      if (options.errors == 'yes' && results.status[i].includes('error')) {
         toProcess.push(i);
       }
     }
     debug('Available + Unavailable + Errors, {0}'.format(toProcess));
-
-
 
     var contentZip = new JSZip();
 

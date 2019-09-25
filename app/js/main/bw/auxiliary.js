@@ -1,11 +1,14 @@
 var debug = require('debug')('main.bw.auxiliary');
 
-// Reset ui counters at process stage
+/*
+  resetUiCounters
+    Reset bulk whois UI counters to their initial values
+  parameters
+    event (object) - renderer object
+ */
 function resetUiCounters(event) {
-  //var send = event.sender.send;
 
   debug("Resetting bulk whois UI counters");
-
 
   var startingValue = 0;
   var defaultValue = '-';

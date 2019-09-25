@@ -42,18 +42,45 @@ $(document).ready(function() { // When document is ready
     remote.getCurrentWindow().close();
   });
 
-  // Assign [ESC] to close message/modal
+  /*
+    Document event on key up, assign [ESC] key to close messages or modals
+   */
   $(document).keyup(function(event) {
     if (event.keyCode === 27) {
-      ipcRenderer.send('app:debug', "Used [ESC] key, {0}".format(event.keyCode));
-      if ($('#swMessageWhois').hasClass('is-active')) { // If whois dialog is open
-        $('#swMessageWhoisClose').click();
-      } else {
-        if (!$('#swTableWhoisinfo').hasClass('is-hidden')) {  // Whois table not hidden, 1st to go
-          $('#swTableWhoisinfo').addClass('is-hidden');
-        } else if ($('.notification:not(.is-hidden)')) { // Notification not hidden, 2nd to go
-          $('.notification:not(.is-hidden)').addClass('is-hidden');
-        }
+      ipcRenderer.send('app:debug', "Hotkey, Used [ESC] key, {0}".format(event.keyCode));
+      switch (true) {
+
+        // Single whois tab is active
+        case ($('#navButtonSw').hasClass('is-active')):
+          ipcRenderer.send('app:debug', "Hotkey, Single whois tab is active");
+          switch (true) {
+            // Single whois, Dialog is open
+            case ($('#swMessageWhois').hasClass('is-active')):
+              $('#swMessageWhoisClose').click();
+              break;
+
+              // Single whois, Information table not hidden
+            case (!$('#swTableWhoisinfo').hasClass('is-hidden')):
+              $('#swTableWhoisinfo').addClass('is-hidden');
+              break;
+
+              // Single whois, Notification not hidden
+            case (!$('.notification').hasClass('is-hidden')):
+              $('.notification:not(.is-hidden)').addClass('is-hidden');
+              break;
+          }
+          break;
+
+          // Bulk whois tab is active
+        case ($('#navButtonBw').hasClass('is-active')):
+          ipcRenderer.send('app:debug', "Hotkey, Bulk whois tab is active");
+          switch (true) {
+            // Bulk whois, is Stop dialog open
+            case ($('#bwProcessingModalStop').hasClass('is-active')):
+              $('#bwProcessingModalStopButtonContinue').click();
+              break;
+          }
+          break;
       }
     }
   });
@@ -71,7 +98,9 @@ $(document).ready(function() { // When document is ready
     return false;
   });
 
-  // Toggle devtools
+  /*
+    On click event, developer tools button toggle
+   */
   $('#navButtonDevtools').click(function() {
     remote.getCurrentWindow().toggleDevTools();
     ipcRenderer.send('app:debug', "#navButtonDevtools was clicked");
@@ -106,25 +135,20 @@ function startup() {
   var {
     navigation
   } = appSettings;
+
   ipcRenderer.send('app:debug', "'navigation.devtools': {0}".format(navigation.devtools));
   if (navigation.devtools === true) {
     $('#navTabDevtools').removeClass('is-force-hidden');
   }
+
   ipcRenderer.send('app:debug', "'navigation.extendedcollapsed': {0}".format(navigation.extendedcollapsed));
   if (navigation.extendedcollapsed === true) {
     $('#navButtonExpandedmenu').toggleClass('is-active');
     $('.is-specialmenu').toggleClass('is-hidden');
   }
+
   ipcRenderer.send('app:debug', "'navigation.extendedmenu': {0}".format(navigation.extendedmenu));
   if (navigation.extendedmenu === false) {
     $('#navButtonExpandedmenu').addClass('is-force-hidden');
   }
 }
-
-/*
-// Load different panel parts //////////////////
-function loadContents() {
-  $('#include.navbar').load(path.join(__dirname, '../html/navigation/navbar.html'));
-  $('#include.navbar.tabs').load(path.join(__dirname, '../html/navigation/navbar.tabs.html'));
-}
-*/

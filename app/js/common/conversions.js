@@ -1,4 +1,10 @@
-// Human readable file size
+/*
+  byteToHumanFileSize
+    Convert bytes size to human readable format
+  parameters
+    bytes (integer) - bytes to convert
+    si (boolean) - use standard international units
+ */
 function byteToHumanFileSize(bytes, si = true) {
   var thresh = si ? 1000 : 1024;
   if (Math.abs(bytes) < thresh) {
@@ -13,7 +19,12 @@ function byteToHumanFileSize(bytes, si = true) {
   return bytes.toFixed(1) + ' ' + units[u];
 }
 
-// Convert milliseconds to String, human readable
+/*
+  msToHumanTime
+    Convert a given milliseconds to string in human readable format
+  parameters
+    duration (integer) - milliseconds to convert
+ */
 function msToHumanTime(duration) {
   var milliseconds = parseInt((duration % 1000) / 100),
     seconds = parseInt((duration / 1000).toFixed(6) % 60),
@@ -39,6 +50,24 @@ function msToHumanTime(duration) {
 
   return time;
 }
+
+/*
+  getDate
+    Parse a date from a source string
+  parameters
+    date (string/date) - Date or String to be date parsed
+ */
+function getDate(date) {
+  if (date === null || date === '' || date === false ) return undefined;
+  var parsed = new Date(Date.parse(date)).toUTCString();
+  if (parsed == 'Invalid Date') {
+    return date;
+  } else {
+    return parsed;
+  }
+}
+
+// Deprecated functions
 
 // Convert milliseconds to String, hum readable
 function msToHumanTimeLegacy(milliseconds) {
@@ -70,12 +99,6 @@ function msToHumanTimeLegacy(milliseconds) {
     return seconds + ' second' + numberEnding(seconds);
   }
   return 'less than a second'; //'just now' //or other string you like;
-}
-
-// Get refined date from source
-function getDate(date) {
-  if (date === null || date === '' || date === false ) return undefined;
-  return new Date(Date.parse(date)).toUTCString();
 }
 
 module.exports = {
