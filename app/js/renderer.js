@@ -65,7 +65,7 @@ $(document).ready(function() { // When document is ready
               break;
 
               // Single whois, Notification not hidden
-            case (!$('.notification').hasClass('is-hidden')):
+            case (!$('.notification:not(.is-hidden)').hasClass('is-hidden')):
               $('.notification:not(.is-hidden)').addClass('is-hidden');
               break;
           }
