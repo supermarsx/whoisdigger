@@ -107,6 +107,7 @@ function isDomainAvailable(resultsText, resultsJSON) {
     case (resultsText.includes('IP Address Has Reached Rate Limit')):
     case (resultsText.includes('Too many connection attempts')):
     case (resultsText.includes('Your request is being rate limited')):
+    case (resultsText.includes('Your query is too often. Please try again one hours later.')):
       return 'error:ratelimiting';
 
       // Error, unretrivable
