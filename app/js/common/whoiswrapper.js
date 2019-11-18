@@ -97,7 +97,7 @@ function isDomainAvailable(resultsText, resultsJSON) {
     case (resultsText.includes('No Data Found')):
     case (resultsText.includes('nothing found')):
     case (resultsText.includes('Nothing found for')):
-    case (resultsText.includes('No entries found')):
+    case (resultsText.includes('No entries found') && !resultsText.includes('ERROR:101:')):
     case (resultsText.includes('Domain Status: No Object Found')):
     case (resultsText.includes('DOMAIN NOT FOUND')):
     case (resultsText.includes('Domain Not Found')):
