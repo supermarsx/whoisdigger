@@ -16,7 +16,7 @@ module.exports = {
       'slashes': true // Path slashes (default: true)
     },
     'lookup': { // Whois lookup default values
-      'server': "", // Default whois server
+      'server': "whois.iana.org", // Default whois server
       'follow': 3, // Maximum follow request depth (default: 3)
       'timeout': 2500, // Supposed timeout for whois requests in milliseconds (default: 2500)
       'timebetween': 1500, // Time between each whois request in queue in milliseconds (default: 1500)
@@ -38,7 +38,7 @@ module.exports = {
       'extendedmenu': true // Enable extended navigation toggle (default: true)
     },
     'startup': { // At app startup
-      'devtools': true, // Enable/Show developer tools at startup (default: false)
+      'devtools': false, // Enable/Show developer tools at startup (default: false)
       'loadconfig': false // Load custom/override app settings through user file (default: true)
     },
     'customconfig': {

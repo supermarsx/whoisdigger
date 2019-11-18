@@ -1,4 +1,6 @@
 const util = require('util'),
+//parsing domains from subdomains
+  psl = require('psl'),
   whois = require('whois'),
   lookupProm = util.promisify(whois.lookup),
   parseRawData = require('./parse-raw-data.js'),
@@ -14,6 +16,9 @@ var {
 
 var defaultoptions = appSettings.lookup.server;
 
+//Pulling current time
+var controlDate=getDate(Date.now());
+
 /*
   lookup
     Do a domain whois lookup
@@ -22,6 +27,8 @@ var defaultoptions = appSettings.lookup.server;
     options (object) - Lookup options object, refer to 'defaultoptions' var or 'appSettings.lookup.server'
  */
 async function lookup(domain, options = defaultoptions) {
+  //parsing domains from subdomains
+  var domain= psl.get(domain); 
   var domainResults = await lookupProm(domain, options).catch(function(err) {
     debug("lookup error, 'err:' {0}".format(err));
     return "Whois lookup error, {0}".format(err);
@@ -79,7 +86,7 @@ function isDomainAvailable(resultsText, resultsJSON) {
       } else {
         return 'error:uniregistryquerylimit';
       }
-
+var expirydate = getDate(resultsJSON.expires || resultsJSON.registryExpiryDate || resultsJSON.expiryDate || resultsJSON.registrarRegistrationExpirationDate || resultsJSON.expire || resultsJSON.expirationDate || resultsJSON.expiresOn || resultsJSON.paidTill);
       /*
         Error checks
        */
@@ -137,11 +144,20 @@ function isDomainAvailable(resultsText, resultsJSON) {
       return 'unavailable';
 
       /*
-        Available throw
-          If every check fails throw available
+        Available checks
        */
+    
+    case(expirydate-controlDate<0):
+    case(resultsText.includes('No match for domain')):
+      return 'available'; 
+
+     /*
+        Error throw
+          If every check fails throw Error
+       */
+    
     default:
-      return 'available';
+      return 'error';
   }
 }
 
