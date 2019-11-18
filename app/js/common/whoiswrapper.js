@@ -1,5 +1,4 @@
 const util = require('util'),
-//parsing domains from subdomains
   psl = require('psl'),
   whois = require('whois'),
   lookupProm = util.promisify(whois.lookup),
@@ -16,9 +15,6 @@ var {
 
 var defaultoptions = appSettings.lookup.server;
 
-//Pulling current time
-var controlDate=getDate(Date.now());
-
 /*
   lookup
     Do a domain whois lookup
@@ -27,8 +23,7 @@ var controlDate=getDate(Date.now());
     options (object) - Lookup options object, refer to 'defaultoptions' var or 'appSettings.lookup.server'
  */
 async function lookup(domain, options = defaultoptions) {
-  //parsing domains from subdomains
-  var domain= psl.get(domain); 
+  domain = psl.get(domain); // Get domain from Public Suffix List, parse main domain
   var domainResults = await lookupProm(domain, options).catch(function(err) {
     debug("lookup error, 'err:' {0}".format(err));
     return "Whois lookup error, {0}".format(err);
@@ -75,6 +70,8 @@ function isDomainAvailable(resultsText, resultsJSON) {
     resultsJSON = toJSON(resultsText);
   }
 
+  var domainParams = getDomainParameters(null, null, null, resultsJSON, true);
+  var controlDate = getDate(Date.now());
 
   switch (true) {
     /*
@@ -86,7 +83,80 @@ function isDomainAvailable(resultsText, resultsJSON) {
       } else {
         return 'error:uniregistryquerylimit';
       }
-var expirydate = getDate(resultsJSON.expires || resultsJSON.registryExpiryDate || resultsJSON.expiryDate || resultsJSON.registrarRegistrationExpirationDate || resultsJSON.expire || resultsJSON.expirationDate || resultsJSON.expiresOn || resultsJSON.paidTill);
+
+      /*
+        Available checks
+       */
+
+    // Not found cases & variants
+    //case (resultsText.includes('ERROR:101: no entries found')):
+    case (resultsText.includes('NOT FOUND')):
+    case (resultsText.includes('Not found: ')):
+    case (resultsText.includes(' not found')):
+    case (resultsText.includes('Not found')):
+    case (resultsText.includes('No Data Found')):
+    case (resultsText.includes('nothing found')):
+    case (resultsText.includes('Nothing found for')):
+    case (resultsText.includes('No entries found')):
+    case (resultsText.includes('Domain Status: No Object Found')):
+    case (resultsText.includes('DOMAIN NOT FOUND')):
+    case (resultsText.includes('Domain Not Found')):
+    case (resultsText.includes('Domain not found')):
+    case (resultsText.includes('NO OBJECT FOUND!')):
+
+    // No match cases & variants
+    case (resultsText.includes('No match for domain')):
+    case (resultsText.includes('- No Match')):
+    case (resultsText.includes('NO MATCH:')):
+    case (resultsText.includes('No match for')):
+    case (resultsText.includes('No match')):
+    case (resultsText.includes('No matching record.')):
+    case (resultsText.includes('Nincs talalat')):
+
+    // Status cases & variants
+    case (resultsText.includes('Status: AVAILABLE')):
+    case (resultsText.includes('Status:             AVAILABLE')):
+    case (resultsText.includes('Status: 	available')):
+    case (resultsText.includes('Status: free')):
+    case (resultsText.includes('Status: Not Registered')):
+    case (resultsText.includes('query_status: 220 Available')):
+
+    // Unique cases
+    case (domainParams.expiryDate - controlDate < 0):
+    case (resultsText.includes('This domain name has not been registered')):
+    case (resultsText.includes('The domain has not been registered')):
+    case (resultsText.includes('This query returned 0 objects')):
+    case (resultsText.includes(' is free') && domainParams.whoisreply.length < 50):
+    case (resultsText.includes('domain name not known in')):
+    case (resultsText.includes('registration status: available')):
+    case (resultsText.includes('whois.nic.bo') && domainParams.whoisreply.length < 55):
+    case (resultsText.includes('Object does not exist')):
+    case (resultsText.includes('The queried object does not exist')):
+    case (resultsText.includes('Not Registered -')):
+    case (resultsText.includes('is available for registration')):
+    case (resultsText.includes('is available for purchase')):
+    case (resultsText.includes('DOMAIN IS NOT A REGISTERD')):
+    case (resultsText.includes('No such domain')):
+    case (resultsText.includes('No_Se_Encontro_El_Objeto')):
+    case (resultsText.includes('Domain unknown')):
+    case (resultsText.includes('No information available about domain name')):
+    case (resultsText.includes('Error.') && resultsText.includes('SaudiNIC')):
+    case (resultsText.includes('is not valid!')): // ???
+      return 'available';
+
+      /*
+        Unavailable checks
+       */
+    case (resultsJSON.hasOwnProperty('domainName')): // Has domain name
+    case (resultsText.includes('Domain Status:ok')): // Domain name is ok
+    case (resultsText.includes('Expiration Date:')): // Has expiration date (1)
+    case (resultsText.includes('Expiry Date:')): // Has Expiration date (2)
+    case (resultsText.includes('Status: connect')): // Has connect status
+    case (resultsText.includes('Changed:')): // Has a changed date
+    case (Object.keys(resultsJSON).length > 5): // JSON has more than 5 keys (probably taken?)
+    case (resultsText.includes('organisation: Internet Assigned Numbers Authority')): // Is controlled by IANA
+      return 'unavailable';
+
       /*
         Error checks
        */
@@ -104,6 +174,8 @@ var expirydate = getDate(resultsJSON.expires || resultsJSON.registryExpiryDate |
     case (resultsText.includes('Error')): // includes plain error, may cause false negatives? i.e. error.com lookup
     case (resultsText.includes('ERROR:101:')):
     case (resultsText.includes('Whois lookup error')):
+    case (resultsText.includes('can temporarily not be answered')):
+    case (resultsText.includes('Invalid input')):
       return 'error:replyerror';
 
       // Error, unauthorized
@@ -115,6 +187,7 @@ var expirydate = getDate(resultsJSON.expires || resultsJSON.registryExpiryDate |
     case (resultsText.includes('Too many connection attempts')):
     case (resultsText.includes('Your request is being rate limited')):
     case (resultsText.includes('Your query is too often.')):
+    case (resultsText.includes('Your connection limit exceeded.')):
       return 'error:ratelimiting';
 
       // Error, unretrivable
@@ -131,33 +204,12 @@ var expirydate = getDate(resultsJSON.expires || resultsJSON.registryExpiryDate |
       return 'error:reservedbyregulator';
 
       /*
-        Unavailable checks
-       */
-    case (resultsJSON.hasOwnProperty('domainName')): // Has domain name
-    case (resultsText.includes('Domain Status:ok')): // Domain name is ok
-    case (resultsText.includes('Expiration Date:')): // Has expiration date (1)
-    case (resultsText.includes('Expiry Date:')): // Has Expiration date (2)
-    case (resultsText.includes('Status: connect')): // Has connect status
-    case (resultsText.includes('Changed:')): // Has a changed date
-    case (Object.keys(resultsJSON).length > 5): // JSON has more than 5 keys (probably taken?)
-    case (resultsText.includes('organisation: Internet Assigned Numbers Authority')): // Is controlled by IANA
-      return 'unavailable';
+         Error throw
+           If every check fails throw Error, unparsable
+        */
 
-      /*
-        Available checks
-       */
-    
-    case(expirydate-controlDate<0):
-    case(resultsText.includes('No match for domain')):
-      return 'available'; 
-
-     /*
-        Error throw
-          If every check fails throw Error
-       */
-    
     default:
-      return 'error';
+      return 'error:unparsable';
   }
 }
 
@@ -169,17 +221,45 @@ var expirydate = getDate(resultsJSON.expires || resultsJSON.registryExpiryDate |
     status (string) - isDomainAvailable result, is domain Available
     resultsText (string) - Pure text whois reply
     resultsJSON (JSON Object) - JSON transformed whois reply
+    isAuxiliary (boolean) - Is auxiliary function to domain availability check, if used in "isDomainAvailable" fn
  */
-function getDomainParameters(domain, status, resultsText, resultsJSON) {
+function getDomainParameters(domain, status, resultsText, resultsJSON, isAuxiliary = false) {
   results = {};
 
   results.domain = domain;
   results.status = status;
   results.registrar = resultsJSON.registrar;
-  results.company = resultsJSON.registrantOrganization || resultsJSON.registrant || resultsJSON.registrantOrganization || resultsJSON.adminName || resultsJSON.ownerName || resultsJSON.contact || resultsJSON.name;
-  results.creationdate = getDate(resultsJSON.creationDate || resultsJSON.createdDate || resultsJSON.created || resultsJSON.creationDate || resultsJSON.registered || resultsJSON.registeredOn);
-  results.updatedate = getDate(resultsJSON.updatedDate || resultsJSON.lastUpdated || resultsJSON.updatedDate || resultsJSON.changed || resultsJSON.lastModified || resultsJSON.lastUpdate);
-  results.expirydate = getDate(resultsJSON.expires || resultsJSON.registryExpiryDate || resultsJSON.expiryDate || resultsJSON.registrarRegistrationExpirationDate || resultsJSON.expire || resultsJSON.expirationDate || resultsJSON.expiresOn || resultsJSON.paidTill);
+  results.company =
+    resultsJSON.registrantOrganization ||
+    resultsJSON.registrant ||
+    resultsJSON.registrantOrganization ||
+    resultsJSON.adminName ||
+    resultsJSON.ownerName ||
+    resultsJSON.contact ||
+    resultsJSON.name;
+  results.creationdate = getDate(
+    resultsJSON.creationDate ||
+    resultsJSON.createdDate ||
+    resultsJSON.created ||
+    resultsJSON.creationDate ||
+    resultsJSON.registered ||
+    resultsJSON.registeredOn);
+  results.updatedate = getDate(
+    resultsJSON.updatedDate ||
+    resultsJSON.lastUpdated ||
+    resultsJSON.updatedDate ||
+    resultsJSON.changed ||
+    resultsJSON.lastModified ||
+    resultsJSON.lastUpdate);
+  results.expirydate = getDate(
+    resultsJSON.expires ||
+    resultsJSON.registryExpiryDate ||
+    resultsJSON.expiryDate ||
+    resultsJSON.registrarRegistrationExpirationDate ||
+    resultsJSON.expire ||
+    resultsJSON.expirationDate ||
+    resultsJSON.expiresOn ||
+    resultsJSON.paidTill);
   results.whoisreply = resultsText;
   results.whoisjson = resultsJSON;
 
@@ -195,58 +275,7 @@ function getDomainParameters(domain, status, resultsText, resultsJSON) {
     str (string) - String to be stripped
  */
 function preStringStrip(str) {
-  /*
-  str = str.replace(/^.*%.*$/gm, ""); // Strip lines containing '%'
-  str = str.replace(/^\s*\n/gm, "");  // Strip empty lines
-  str = str.replace(/\t/g, "");       // Strip "tab" chars
-  */
-  str = str.replace(/\:\t{1,2}/g, ": "); // Space key value pairs
-
-  return str;
-}
-
-// Deprecated functions
-
-// Is domain available (Results in plain text, Results in JSON format), deprecated superseded by new fn
-function isDomainAvailableDeprecated(resultsText, resultsJSON) {
-  resultsJSON = resultsJSON || 0;
-  if (resultsJSON === 0) {
-    resultsJSON = toJSON(resultsText);
-  }
-
-  switch (true) {
-    case (resultsText.includes('Uniregistry') && resultsText.includes('Query limit exceeded')):
-      if (appSettings.misc.assumeuniregistryasunavailable === true) {
-        return 'unavailable';
-      } else {
-        return 'querylimituniregistry';
-      }
-      break;
-    case (resultsText == null):
-    case (resultsText == ''):
-    case (resultsJSON.hasOwnProperty('error')):
-    case (resultsJSON.hasOwnProperty('errno')):
-    case (resultsText.includes('You  are  not  authorized  to  access or query our Whois')):
-    case (resultsText.includes('ERROR:101:')):
-    case (resultsText.includes('IP Address Has Reached Rate Limit')):
-    case (resultsText.includes('Too many connection attempts')):
-    case (resultsText.includes('Your request is being rate limited')):
-    case (resultsText.includes('Could not retrieve Whois data')):
-    case (resultsText.includes('Whois lookup error')):
-    case (resultsText.includes('si is forbidden')): // .si is forbidden
-    case (resultsText.includes('reserved by aeDA Regulator')): // Reserved for aeDA regulator
-      return 'error';
-      break;
-    case (resultsJSON.hasOwnProperty('domainName')):
-    case (resultsText.includes('Domain Status:ok')):
-    case (Object.keys(resultsJSON).length > 5):
-    case (resultsText.includes('organisation: Internet Assigned Numbers Authority')):
-      return 'unavailable';
-      break;
-    default:
-      return 'available';
-      break;
-  }
+  return str.replace(/\:\t{1,2}/g, ": "); // Space key value pairs
 }
 
 module.exports = {
