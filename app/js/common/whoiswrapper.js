@@ -1,5 +1,7 @@
 const util = require('util'),
   psl = require('psl'),
+  puny = require('punycode'),
+  uts46 = require('idna-uts46'),
   whois = require('whois'),
   lookupProm = util.promisify(whois.lookup),
   parseRawData = require('./parse-raw-data.js'),
@@ -13,8 +15,6 @@ var {
   appSettings
 } = require('../appsettings.js');
 
-var defaultoptions = appSettings.lookup.server;
-
 /*
   lookup
     Do a domain whois lookup
@@ -22,8 +22,13 @@ var defaultoptions = appSettings.lookup.server;
     domain (string) - Domain name
     options (object) - Lookup options object, refer to 'defaultoptions' var or 'appSettings.lookup.server'
  */
-async function lookup(domain, options = defaultoptions) {
-  domain = psl.get(domain); // Get domain from Public Suffix List, parse main domain
+async function lookup(domain, options = getWhoisOptions()) {
+
+  domain = appSettings.lookup.conversion.enabled ? convertDomain(domain) : domain;
+  domain = appSettings.lookup.psl ? psl.get(domain).replace(/((\*\.)*)/g, '') : domain;
+
+  debug("Looking up for {0}".format(domain));
+
   var domainResults = await lookupProm(domain, options).catch(function(err) {
     debug("lookup error, 'err:' {0}".format(err));
     return "Whois lookup error, {0}".format(err);
@@ -38,8 +43,6 @@ async function lookup(domain, options = defaultoptions) {
     resultsText (string) - whois domain reply string
  */
 function toJSON(resultsText) {
-  //console.trace();
-  //debug("toJSON, 'resultsText': {0}".format(resultsText));
   if (typeof resultsText === 'string') {
     if (resultsText.includes("lookup: timeout")) {
       return "timeout";
@@ -69,6 +72,12 @@ function isDomainAvailable(resultsText, resultsJSON) {
   if (resultsJSON === 0) {
     resultsJSON = toJSON(resultsText);
   }
+  var {
+    lookup
+  } = appSettings;
+  var {
+    assumptions
+  } = lookup;
 
   var domainParams = getDomainParameters(null, null, null, resultsJSON, true);
   var controlDate = getDate(Date.now());
@@ -78,18 +87,14 @@ function isDomainAvailable(resultsText, resultsJSON) {
       Special cases
      */
     case (resultsText.includes('Uniregistry') && resultsText.includes('Query limit exceeded')):
-      if (appSettings.misc.assumeuniregistryasunavailable === true) {
-        return 'unavailable';
-      } else {
-        return 'error:uniregistryquerylimit';
-      }
+      return (assumptions.uniregistry ? 'unavailable' : 'error:ratelimiting');
 
       /*
         Available checks
        */
 
-    // Not found cases & variants
-    //case (resultsText.includes('ERROR:101: no entries found')):
+      // Not found cases & variants
+      //case (resultsText.includes('ERROR:101: no entries found')):
     case (resultsText.includes('NOT FOUND')):
     case (resultsText.includes('Not found: ')):
     case (resultsText.includes(' not found')):
@@ -104,7 +109,7 @@ function isDomainAvailable(resultsText, resultsJSON) {
     case (resultsText.includes('Domain not found')):
     case (resultsText.includes('NO OBJECT FOUND!')):
 
-    // No match cases & variants
+      // No match cases & variants
     case (resultsText.includes('No match for domain')):
     case (resultsText.includes('- No Match')):
     case (resultsText.includes('NO MATCH:')):
@@ -113,7 +118,7 @@ function isDomainAvailable(resultsText, resultsJSON) {
     case (resultsText.includes('No matching record.')):
     case (resultsText.includes('Nincs talalat')):
 
-    // Status cases & variants
+      // Status cases & variants
     case (resultsText.includes('Status: AVAILABLE')):
     case (resultsText.includes('Status:             AVAILABLE')):
     case (resultsText.includes('Status: 	available')):
@@ -121,7 +126,7 @@ function isDomainAvailable(resultsText, resultsJSON) {
     case (resultsText.includes('Status: Not Registered')):
     case (resultsText.includes('query_status: 220 Available')):
 
-    // Unique cases
+      // Unique cases
     case (domainParams.expiryDate - controlDate < 0):
     case (resultsText.includes('This domain name has not been registered')):
     case (resultsText.includes('The domain has not been registered')):
@@ -166,18 +171,6 @@ function isDomainAvailable(resultsText, resultsJSON) {
     case (resultsText == ''):
       return 'error:nocontent';
 
-      // Error, reply error
-    case (resultsJSON.hasOwnProperty('error')):
-    case (resultsJSON.hasOwnProperty('errno')):
-    case (resultsText.includes('error ')):
-    case (resultsText.includes('error')): // includes plain error, may cause false negatives? i.e. error.com lookup
-    case (resultsText.includes('Error')): // includes plain error, may cause false negatives? i.e. error.com lookup
-    case (resultsText.includes('ERROR:101:')):
-    case (resultsText.includes('Whois lookup error')):
-    case (resultsText.includes('can temporarily not be answered')):
-    case (resultsText.includes('Invalid input')):
-      return 'error:replyerror';
-
       // Error, unauthorized
     case (resultsText.includes('You  are  not  authorized  to  access or query our Whois')):
       return 'error:unauthorized';
@@ -188,7 +181,7 @@ function isDomainAvailable(resultsText, resultsJSON) {
     case (resultsText.includes('Your request is being rate limited')):
     case (resultsText.includes('Your query is too often.')):
     case (resultsText.includes('Your connection limit exceeded.')):
-      return 'error:ratelimiting';
+      return (assumptions.ratelimit ? 'unavailable' : 'error:ratelimiting');
 
       // Error, unretrivable
     case (resultsText.includes('Could not retrieve Whois data')):
@@ -203,13 +196,29 @@ function isDomainAvailable(resultsText, resultsJSON) {
     case (resultsText.includes('reserved by aeDA Regulator')): // Reserved for aeDA regulator
       return 'error:reservedbyregulator';
 
+      // Error, unregistrable.
+    case (resultsText.includes('third-level domains may not start with')):
+      return 'error:unregistrable';
+
+      // Error, reply error
+    case (resultsJSON.hasOwnProperty('error')):
+    case (resultsJSON.hasOwnProperty('errno')):
+    case (resultsText.includes('error ')):
+    case (resultsText.includes('error')): // includes plain error, may cause false negatives? i.e. error.com lookup
+    case (resultsText.includes('Error')): // includes plain error, may cause false negatives? i.e. error.com lookup
+    case (resultsText.includes('ERROR:101:')):
+    case (resultsText.includes('Whois lookup error')):
+    case (resultsText.includes('can temporarily not be answered')):
+    case (resultsText.includes('Invalid input')):
+      return 'error:replyerror';
+
       /*
          Error throw
            If every check fails throw Error, unparsable
         */
 
     default:
-      return 'error:unparsable';
+      return (assumptions.unparsable ? 'available' : 'error:unparsable');
   }
 }
 
@@ -269,13 +278,118 @@ function getDomainParameters(domain, status, resultsText, resultsJSON, isAuxilia
 }
 
 /*
+  convertDomain
+    Convert a given domain using a defined algorithm in appSettings
+  parameters
+    domain (string) - Domain to be converted
+  modes
+    punycode - Punycode
+    uts46 - IDNA2008
+    uts46-transitional - IDNA2003
+    filter - Filter out non-ASCII characters
+ */
+function convertDomain(domain, mode) {
+  mode = mode || appSettings.lookup.conversion.algorithm;
+  switch (mode) {
+    case 'punycode':
+      return puny.encode(domain);
+    case 'uts46':
+      return uts46.toAscii(domain);
+    case 'uts46-transitional':
+      return uts46.toAscii(domain, {
+        transitional: true
+      });
+    case 'filter':
+      return domain.replace(/[^\x00-\x7F]/g, "");
+    default:
+      return domain;
+
+  }
+}
+
+/*
+  getWhoisOptions
+    Create whois options based on appSettings
+ */
+function getWhoisOptions() {
+  var options = {};
+
+  options.server = appSettings.lookup.server;
+  options.follow = getWhoisParameters('follow');
+  options.timeout = getWhoisParameters('timeout');
+  options.verbose = appSettings.lookup.verbose;
+
+  return options;
+
+}
+
+/*
+  getWhoisParameters
+    Get request follow level/depth
+  parameters
+    parameter (string) - Whois options parameter
+      'follow' - Follow depth
+      'timeout' - Timeout
+      'timebetween' - Time between requests
+ */
+function getWhoisParameters(parameter) {
+  var {
+    lookup
+  } = appSettings;
+  var {
+    randomize,
+    follow,
+    timeout,
+    timebetween
+  } = lookup;
+  var {
+    followmax,
+    followmin,
+    timeoutmax,
+    timeoutmin,
+    timebetweenmax,
+    timebetweenmin
+  } = randomize;
+
+  switch (parameter) {
+    case 'follow':
+      debug("Follow depth, 'random': {0}, 'followmax': {1}, 'followmin': {2}, 'follow': {3}".format(randomize.follow, followmax, followmin, follow));
+      return (randomize.follow ? getRandomInt(followmin, followmax) : follow);
+
+    case 'timeout':
+      debug("Timeout, 'random': {0}, 'timeoutmax': {1}, 'timeoutmin': {2}, 'timeout': {3}".format(randomize.timeout, timeoutmax, timeoutmin, timeout));
+      return (randomize.timeout ? getRandomInt(timeoutmin, timeoutmax) : timeout);
+
+    case 'timebetween':
+      debug("Timebetween, 'random': {0}, 'timebetweenmax': {1}, 'timebetweenmin': {2}, 'timebetween': {3}".format(randomize.timebetween, timebetweenmax, timebetweenmin, timebetween));
+      return (randomize.timebetween ? getRandomInt(timebetweenmin, timebetweenmax) : timebetween);
+
+    default:
+      return undefined;
+
+  }
+
+}
+
+/*
+  getRandomInt
+    Get a random integer between two values
+  parameters
+    min (integer) - Minimum value
+    max (integer) - Maximum value
+ */
+function getRandomInt(min, max) {
+  return Math.floor((Math.random() * max) + min);
+}
+
+/*
   preStringStrip
     Pre strip a given string, space key value pairs
   parameters
     str (string) - String to be stripped
  */
 function preStringStrip(str) {
-  return str.replace(/\:\t{1,2}/g, ": "); // Space key value pairs
+  return str.toString().replace(/\:\t{1,2}/g, ": "); // Space key value pairs
 }
 
 module.exports = {

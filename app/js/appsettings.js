@@ -16,7 +16,8 @@ module.exports = {
       'slashes': true // Path slashes (default: true)
     },
     'lookup': { // Whois lookup default values
-      'server': "whois.iana.org", // Default whois server
+      'server': "", // Default whois server
+      'verbose': false, // When true returns array of whois replies
       'follow': 3, // Maximum follow request depth (default: 3)
       'timeout': 2500, // Supposed timeout for whois requests in milliseconds (default: 2500)
       'timebetween': 1500, // Time between each whois request in queue in milliseconds (default: 1500)
@@ -31,6 +32,43 @@ module.exports = {
         'timebetweenmin': 1000, // Lower bound time between each whois request (default: 1000)
         'timebetweenmax': 1500 // Upper bound time between each whois request (default: 1500)
       },
+      'proxy': { // Proxy default values || Non functional
+        'enable': false, // Enable proxy requests (default: false)
+        'mode': 'single', // Proxy request mode, 'single' - fixed single proxy, 'multi' - multiple proxies (default: 'single')
+        /*
+        multimode
+          Multi proxy mode
+        default: 'sequential'
+        values
+          'sequential' - Use proxies sequentially as they appear
+          'random' - Use in a random order
+          'ascending' - Ascending order
+          'descending' - Descending order
+         */
+        'multimode': 'sequential', // Multi proxy mode
+        'check': true, // Test proxy health before request (default: true)
+        'checktype': 'ping' // Type of proxy health check, 'ping' - Ping proxy, 'request' - Do test request, 'ping+request' - Ping and do request
+      },
+      'psl': true, // Enable Public Suffix List conversion, removes subdomains includes wildcards (default: true)
+      'conversion': {
+        'enabled': true, // Enable domain character conversion (default:)
+        /*
+        algorithm
+          Domain character conversion algorithm
+        default: 'uts46'
+        values
+          'uts46' - IDNA2008
+          'uts46-transitional' - IDNA2003
+          'punycode' - Punycode
+          'ascii' - Filter out non-ASCII characters
+         */
+        'algorithm': 'uts46' // Domain character conversion algorithm
+      },
+      'assumptions': {
+        'uniregistry': true, // Assume a domain is unavailable when uniregistry query limit is reached (default: true)
+        'ratelimit': false, // Assume a domain is unavailable when getting rate limiting (default: false)
+        'unparsable': false // Assume a domain as available if reply is unparsable (default: false)
+      }
     },
     'navigation': { // Navigation default options
       'devtools': true, // Enable devtools button on extended navigation bar (default: false)
@@ -39,12 +77,12 @@ module.exports = {
     },
     'startup': { // At app startup
       'devtools': false, // Enable/Show developer tools at startup (default: false)
-      'loadconfig': false // Load custom/override app settings through user file (default: true)
+      'loadconfig': false // Load custom/override app settings through user file (default: true) || Non functional
     },
     'customconfig': {
-      'filepath': 'appconfig.js' // Custom configuration filename on apps directory (default: appconfig.js)
+      'filepath': 'appconfig.js' // Custom configuration filename on app directory (default: appconfig.js) || Non functional
     },
-    'performance': {
+    'performance': { //|| Non functional
       'single': {
         'request': {
           'timers': true, // enable performance timer for requests
@@ -52,7 +90,7 @@ module.exports = {
           'stopwatch': true // enable elapsed time to complete
         }
       },
-      'bulk': {
+      'bulk': { //|| Non functional
         'request': {
           'timers': true, // enable performance timer for requests
           'averages': true, // enable average calcs
@@ -61,19 +99,17 @@ module.exports = {
       }
     },
     'misc': { // Miscellaneous configurations
-      'usestandardsize': true, // Use SI size measures for filesizes (ex: kB instead of KiB) (default: true)
-      'asfoverride': false, // Use true average instead of alternative smoothed average based on the amount of processed whois requests (default: true)
-      'avgsmoothingfactor1': 0.1, // Smoothing factor to calculate average whois request time, last 10 requests average (default: 0.1 (0.1 = last 10 requests; 0.05 = last 20 requests))
-      'assumeuniregistryasunavailable': true, // Assume domain as unavailable when Uniregistry query limit is reached (default: true)
-	  'assumewhoiserrorasunavailable': false // Assume domain is unavailable if lookup throws error (default: false)
+      'usestandardsize': true, // Use metric size measures for filesizes instead of IEC (ex: kB kilobyte (1000) instead of KiB kibibyte (1024)) (default: true)
+      'asfoverride': false, // Use true average instead of weighted smoothed average, based on number of requests (default: true)
+      'avgsmoothingfactor1': 0.1, // Smoothing factor/weight to calculate average whois request time (default: 0.1 (0.1 = last 10 requests; 0.05 = last 20 requests)) (default: 0.1 - 10 last requests)
     },
     'export': { // Export configurations
-      'enclosure': '"', // Field enclosing char
-      'separator': ',', // Field separator char
-      'linebreak': '\n', // Line breaker char
-      'textfile': '.txt', // Text file extension
-      'csvfile': '.csv', // Comma separated values file extension
-      'zipfile': '.zip' // Compressed file extension
+      'enclosure': '"', // Field enclosing char (default: '"')
+      'separator': ',', // Field separator char (default: ',')
+      'linebreak': '\n', // Line breaker char (default: '\n')
+      'textfile': '.txt', // Text file extension (default: '.txt')
+      'csvfile': '.csv', // Comma separated values file extension (default: '.csv')
+      'zipfile': '.zip' // Compressed file extension (default: '.zip')
     }
   }
 };

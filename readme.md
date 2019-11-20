@@ -1,8 +1,9 @@
 <p align="center"><img width=30% src="https://github.com/whois-team/brand/blob/master/png/whoisteam_black.png"></p>
 <p align="center"><img width=60% src="https://github.com/whois-team/brand/blob/master/png/whoisdigger_black.png"></p>
-<p align="center"><a href="https://github.com/whois-team/whoisdigger/blob/master/package.json"><img src="https://img.shields.io/badge/electron-%5E7.1.1-blue.svg"></a>  <a href="https://scrutinizer-ci.com/g/whois-team/whoisdigger/build-status/master"><img src="https://scrutinizer-ci.com/g/whois-team/whoisdigger/badges/build.png?b=master"></a>  <a href="https://david-dm.org/whois-team/whoisdigger"><img src="https://david-dm.org/whois-team/whoisdigger/status.svg"></a>  <a href="https://scrutinizer-ci.com/g/whois-team/whoisdigger/?branch=master"><img src="https://scrutinizer-ci.com/g/whois-team/whoisdigger/badges/quality-score.png?b=master"></a></p>
+<p align="center"><a href="https://github.com/whois-team/whoisdigger/blob/master/package.json"><img src="https://img.shields.io/badge/electron-%5E7.1.2-blue.svg"></a>  <a href="https://scrutinizer-ci.com/g/whois-team/whoisdigger/build-status/master"><img src="https://scrutinizer-ci.com/g/whois-team/whoisdigger/badges/build.png?b=master"></a>  <a href="https://david-dm.org/whois-team/whoisdigger"><img src="https://david-dm.org/whois-team/whoisdigger/status.svg"></a>  <a href="https://scrutinizer-ci.com/g/whois-team/whoisdigger/?branch=master"><img src="https://scrutinizer-ci.com/g/whois-team/whoisdigger/badges/quality-score.png?b=master"></a></p>
 <p align="center"><a href="https://www.codacy.com/app/eduardomota/whoisdigger"><img src="https://api.codacy.com/project/badge/Grade/2611b6567d054839a88faa504839e63d"></a>  <a href="https://snyk.io/test/github/whois-team/whoisdigger"><img src="https://snyk.io/test/github/whois-team/whoisdigger/badge.svg"></a>  <a href="https://app.fossa.io/projects/git%2Bgithub.com%2Fwhois-team%2Fwhoisdigger"><img src="https://app.fossa.io/api/projects/git%2Bgithub.com%2Fwhois-team%2Fwhoisdigger.svg?type=shield"></a>  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/github/license/whois-team/whoisdigger.svg?style=flat"></a></p>
 <hr>
+
 
 
 
@@ -10,7 +11,7 @@
 
 This application is in **alpha stage**, you may easily encounter false positives and negatives.
 
-Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on Electron. Made with builders and creators in mind, rapidly lookup up your favorite domain mashups without risk of third-party logging, domain squatting and other domain lookup issues.
+Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on Electron. Made with builders and creators in mind, rapidly lookup up your favorite domain mashups without risk of third-party logging, domain squatting and other common domain lookup issues.
 
 ## Features
 
@@ -19,6 +20,7 @@ Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on
 - Drag and drop wordlist file
 - Bulk raw whois replies (txt) and/or field formatted replies (.csv)
 - Bulk stop/pause/continue mechanism
+- Support for IDNA 2003/2008 and Punycode
 
 ### Planned features
 
@@ -28,6 +30,7 @@ Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on
 - Options
 - Help page
 - Proxy integration
+- Bulk DNS sweep
 
 ## Be aware that
 
@@ -99,7 +102,7 @@ At export stage the user is given several options, you can decide what domain st
 
 ### Notes on errors
 
-Errors when doing bulk lookups are common due to the nature of bulk requests, this means that requests will get blocked, throttled or delayed resulting in errors. Errors commonly refer to already registered domains so most times you can assume that they're already taken. Uniregistry has a very low threshold on whois requests resulting in temporary block as soon as 3 rapid requests hit their server, in this case you can also assume its taken.
+Errors when doing bulk lookups are common due to the nature of bulk requests, this means that requests will get blocked, throttled or delayed resulting in errors. Errors may refer to already registered domains so sometimes you can assume that they're already taken, see assumptions. Uniregistry has a very low threshold on whois requests resulting in temporary block as soon as 3 rapid requests hit their server, whoisdigger assumes rate limiting for Uniregistry as unavailable.
 
 ## Building
 

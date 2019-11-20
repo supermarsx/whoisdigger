@@ -109,6 +109,7 @@ ipcMain.on('bw:lookup', function(event, domains, tlds) {
     timeout = getTimeout(randomize.timeout);
 
     debug("Using timebetween, {0}, follow, {1}, timeout, {2}".format(timebetween, follow, timeout));
+
     processDomain(domainsPending[domain], domain, timebetween, follow, timeout, event);
 
   } // End processing for loop
@@ -221,13 +222,13 @@ ipcMain.on('bw:lookup.continue', function(event) {
   stats.domains.processed = Number(domain);
   sender.send('bw:status.update', 'domains.processed', stats.domains.processed);
 
-  randomize.timebetween ? // Counter total time
-    (stats.time.remainingcounter = stats.domains.total * randomize.timebetweenmax) :
-    (stats.time.remainingcounter = stats.domains.total * lookup.timebetween);
+  stats.time.remainingcounter = randomize.timebetween ? // Counter total time
+    (stats.domains.total * randomize.timebetweenmax) :
+    (stats.domains.total * lookup.timebetween);
 
-  randomize.timeout ? // Counter add timeout
-    (stats.time.remainingcounter += randomize.timeoutmax) :
-    (stats.time.remainingcounter += lookup.timeout);
+  stats.time.remainingcounter += randomize.timeout ? // Counter add timeout
+    randomize.timeoutmax :
+    lookup.timeout;
 
   counter(event); // Start counter/timer
 
