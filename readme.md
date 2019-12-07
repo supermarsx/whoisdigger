@@ -9,18 +9,26 @@
 
 ![Whoisdigger app](https://github.com/whois-team/website/raw/master/images/projects/whoisdigger.gif)  
 
-This application is in **alpha stage**, you may easily encounter false positives and negatives.
+This application is in **alpha stage**, you may encounter false positives and/or negatives.
 
-Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on Electron. Made with builders and creators in mind, rapidly lookup up your favorite domain mashups without risk of third-party logging, domain squatting and other common domain lookup issues.
+Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on Electron. Made with builders and creators in mind, rapidly lookup up your favorite domain mashups without risking third-party logging, domain squatting and a few other common issues that come with using these platforms.
+
+## Index
+
+- Features
+- Important notice
+- Quick Start
+- Building
+- Built With
+- License
 
 ## Features
 
-- Fast single domain lookup and raw reply
-- File or manual wordlist bulk whois
-- Drag and drop wordlist file
-- Bulk raw whois replies (txt) and/or field formatted replies (.csv)
-- Bulk stop/pause/continue mechanism
-- Support for IDNA 2003/2008 and Punycode
+- Fast whois lookup
+- Whois raw replies (text or csv)
+- Wordlist capabilities (drag n' drop, file or manual)
+- IDNA 2003/2008 and Punycode support
+- Public Suffix List and wildcard filtering
 
 ### Planned features
 
@@ -31,20 +39,28 @@ Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on
 - Help page
 - Proxy integration
 - Bulk DNS sweep
+- Persistent settings
 
-## Be aware that
+## Important notice
 
-Its your sole responsibility what you do with this tool, its intended to let anyone have a chance at finding a good domain in a crowded space. Is also known that repeated whois requests to a server will eventually result in IP blacklisting, you should have a conservative value for time between requests and bit of common sense to minimize the risk of blocks, don't do huge bulk lookups at once or with the same ip, preferably use different proxies between requests.
+Its your sole responsibility of what you do with this tool, check the licence section for more information. This tool intended use is to let anyone have a chance at finding a good domain in a crowded space, such as a good `.com`. A non conforming practice and use of the tool according to your local laws may land you criminal or civil liabilities. Other than that keep in mind that repeated whois requests to a server will eventually result in IP blacklisting for example, you should have a conservative values for time between requests and bit of common sense to minimize your risks, don't do huge bulk lookups at once and/or with the same IP, preferably use different proxies between requests.
 
 ## Quick Start
 
-To stay on the bleeding edge of whoisdigger updates do `git clone` or for more stability download the latest release.
+Stay on the bleeding edge of whoisdigger commits using `git clone` or for slightly tested version download the latest built release.
 
-### Latest development changes
+### Latest built binary
 
-For this you'll need to have `node`, `npm` and `git`.
+Check out and download the latest release for your architecture/OS.
 
-Clone whoisdigger code and install dependencies to your local machine
+![Latest tag](https://img.shields.io/github/tag/whois-team/whoisdigger.svg?label=Latest%20tag&style=flat)
+[![Check out releases](https://img.shields.io/badge/Checkout%20releases-%20-orange.svg)](https://github.com/whois-team/whoisdigger/releases)
+
+### Latest changes
+
+Basic whoisdigger requirements are `node`, `npm` and `git`.
+
+Clone whoisdigger code and install dependencies
 
 ```
 git clone https://github.com/whois-team/whoisdigger
@@ -57,31 +73,35 @@ After clone, run using
 npm start
 ```
 
-Or debug using
+### Debug
 
 Windows Powershell
 
 ```
 npm run debug-powershell
 ```
+
 Windows Command Line
 
 ```
 npm run debug-cmd
 ```
 
-### Latest built binary
-
-Check out releases and download the latest release for your architecture/OS.
-
-![Latest tag](https://img.shields.io/github/tag/whois-team/whoisdigger.svg?label=Latest%20tag&style=flat)
-[![Check out releases](https://img.shields.io/badge/Checkout%20releases-%20-orange.svg)](https://github.com/whois-team/whoisdigger/releases)
-
 ### Using wordlists
 
-Wordlist files should have one word per line without TLDs suffixes, spaces or special characters if intended, they should also be in UTF-8 encoded and follow the example below:
+You can use wordlists by either using a file wordlist in text format or manually input using the text area option. Wordlists should follow the sanitization requirements below for the best results although they're not mandatory. Not following the requirements will result in adverse or unwanted results.
+
+- Deduplicated
+- No spaces (if intended)
+- No subdomains
+- One domain per line
+- No TLDs
+- UTF-8 encoded
+
+Example wordlist
 
 wordlist.txt (Text file)
+
 ```
 pow
 mow
@@ -98,11 +118,29 @@ Whoisdigger provides sample wordlists as example for testing purposes inside `sa
 
 ### Exporting bulk processing results
 
-At export stage the user is given several options, you can decide what domain status to export, if you want domains that threw errors included, their basic information if not available such as creation, expiry and update dates. Exporting as text file will only export invidualized whois replies for each domain in a zip file, as a csv you're able export both basic information and whois replies in text, inline csv or separate csv files in a zip for organization.
+When choosing export options, you can decide what domain status to export, if you want errors included, only basic domain information such as creation, expiration and update dates. 
+
+Exporting as text will only export raw replies for each domain in a zip file, as a csv you're able to see both both basic information and whois replies (in text, inline csv or separate csv inside a zip file).
 
 ### Notes on errors
 
-Errors when doing bulk lookups are common due to the nature of bulk requests, this means that requests will get blocked, throttled or delayed resulting in errors. Errors may refer to already registered domains so sometimes you can assume that they're already taken, see assumptions. Uniregistry has a very low threshold on whois requests resulting in temporary block as soon as 3 rapid requests hit their server, whoisdigger assumes rate limiting for Uniregistry as unavailable.
+Errors during bulk lookups are common due to the cadence of requests, this means that you'll have requests getting blocked, rejected, throttled or delayed. Errors may signal that a domain is already registered, at times you can assume that but take into account the domain name, tld and probability of it being registered. Whoisdigger includes assumptions for specific scenarios, see assumptions for more.
+
+## Settings
+
+Whoisdigger uses a settings file that rules how the application behaves in the overall, currently you can only change this if you use the git version.
+
+### Assumptions
+
+You can use assumptions with whoisdigger making it more reliable in case you're getting inconsistencies across different tests.
+
+`uniregistry`, Assume a domain is unavailable when uniregistry query limit is reached, default is true. 
+
+​	Note: Uniregistry whois has a very low threshold on whois requests, a few requests with relative small timings in between will result in a temporary block, by assuming a rate limiting reply from uniregistry as a taken domain, you ensure that you're not getting a false positive error.
+
+`ratelimit`, Assume a domain is unavailable when getting rate limited, default is false
+
+`unparsable`, Assume a domain as available if reply is unparsable, default is false
 
 ## Building
 

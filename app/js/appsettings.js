@@ -51,7 +51,7 @@ module.exports = {
       },
       'psl': true, // Enable Public Suffix List conversion, removes subdomains includes wildcards (default: true)
       'conversion': {
-        'enabled': true, // Enable domain character conversion (default:)
+        'enabled': true, // Enable domain character conversion (default: true)
         /*
         algorithm
           Domain character conversion algorithm
@@ -66,7 +66,7 @@ module.exports = {
       },
       'assumptions': {
         'uniregistry': true, // Assume a domain is unavailable when uniregistry query limit is reached (default: true)
-        'ratelimit': false, // Assume a domain is unavailable when getting rate limiting (default: false)
+        'ratelimit': false, // Assume a domain is unavailable when getting rate limited (default: false)
         'unparsable': false // Assume a domain as available if reply is unparsable (default: false)
       }
     },
