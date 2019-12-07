@@ -15,12 +15,12 @@ Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on
 
 ## Index
 
-- Features
-- Important notice
-- Quick Start
-- Building
-- Built With
-- License
+- [Features](#features)
+- [Important notice](#important-notice)
+- [Quick Start](#quick-start)
+- [Building](#building)
+- [Built With](#built-with)
+- [License](#license)
 
 ## Features
 
