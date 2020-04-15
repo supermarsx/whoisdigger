@@ -24,7 +24,7 @@
     "datatables": "^1.10.18",
     "debug": "^4.1.1",
     "dedent-js": "^1.0.1",
-    "electron": "^7.1.2",
+    "electron": "^8.2.2",
     "electron-packager": "^14.1.0",
     "html-entities": "^1.2.1",
     "idna-uts46": "^1.1.0",
