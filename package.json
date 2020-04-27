@@ -28,7 +28,7 @@
     "electron-packager": "^14.1.0",
     "html-entities": "^1.2.1",
     "idna-uts46": "^1.1.0",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "jszip": "^3.2.2",
     "papaparse": "^5.2.0",
     "psl": "^1.4.0",
