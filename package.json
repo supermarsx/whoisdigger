@@ -12,7 +12,9 @@
     "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=app/icons/app.icns --prune=true --out=release_builds",
     "package-win": "electron-packager . whoisdigger --overwrite --asar=true --platform=win32 --arch=ia32 --icon=app/icons/app.ico --prune=true --out=release_builds --version-string.CompanyName=\"WhoisTeam\" --version-string.FileDescription=\"WhoisTeam Whoisdigger\" --version-string.ProductName=\"whoisdigger\"",
     "package-linux": "electron-packager . whoisdigger --overwrite --asar=true --platform=linux --arch=x64 --icon=app/icons/app.png --prune=true --out=release_builds",
-    "package-all": "electron-packager . --all --overwrite --asar=true --icon=app/icons/app.png --prune=true --out=release_builds"
+    "package-all": "electron-packager . --all --overwrite --asar=true --icon=app/icons/app.png --prune=true --out=release_builds",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "author": "Eduardo Mota",
   "license": "MIT",
@@ -33,6 +35,8 @@
     "papaparse": "^5.2.0",
     "psl": "^1.4.0",
     "punycode": "^2.1.1",
-    "whois": "^2.11.0"
-  }
+    "whois": "^2.11.0",
+    "snyk": "^1.316.1"
+  },
+  "snyk": true
 }
