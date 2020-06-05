@@ -108,3 +108,7 @@ input {
     display: block;
   }
 }
+
+.tabs li.is-active a:hover {
+  color: #3273dc;
+}
