@@ -1,41 +1,61 @@
 // jshint esversion: 8, -W030
 
 /** global: appSettings */
-var whois = require('../../common/whoisWrapper'),
+const whois = require('../../common/whoisWrapper'),
   conversions = require('../../common/conversions'),
   fs = require('fs'),
   Papa = require('papaparse'),
-  dt = require('datatables')(),
-  bwaFileContents;
+  dt = require('datatables')();
 
 const {
   ipcRenderer
 } = require('electron');
 
-// Generate table with full contents
+var bwaFileContents;
+
+/*
+  ipcRenderer.on('bwa:analyser.tablegen', function() {...});
+    Generate analyser content table
+  parameters
+    event
+    contents
+ */
 ipcRenderer.on('bwa:analyser.tablegen', function(event, contents) {
   bwaFileContents = contents;
   showTable();
 });
 
-// bwa, close button
+/*
+  $('#bwaAnalyserButtonClose').click(function() {...});
+    Bulk whois analyser close button
+ */
 $('#bwaAnalyserButtonClose').click(function() {
+  ipcRenderer.send('app:debug', '#bwaAnalyserButtonClose clicked');
   $('#bwaAnalyserModalClose').addClass('is-active');
 });
 
-// bwa, close dialog confirm/yes
+/*
+  $('#bwaAnalyserModalCloseButtonYes').click(function() {...});
+    bwa, close dialog confirm/yes
+ */
 $('#bwaAnalyserModalCloseButtonYes').click(function() {
   $('#bwaAnalyser').addClass('is-hidden');
   $('#bwaAnalyserModalClose').removeClass('is-active');
   $('#bwaEntry').removeClass('is-hidden');
 });
 
-// bwa, close dialog cancel/no
+/*
+  $('#bwaAnalyserModalCloseButtonNo').click(function() {...});
+    Bulk whois analyser close dialog cancel/no button
+ */
 $('#bwaAnalyserModalCloseButtonNo').click(function() {
   $('#bwaAnalyserModalClose').removeClass('is-active');
 });
 
-// Show table
+/*
+  showTable
+    ipsum
+ */
 function showTable() {
   var header = {},
     body = {};
@@ -63,7 +83,9 @@ function showTable() {
   }
   $('#bwaAnalyserTableTbody').html(body.content);
 
-  body.table = $('#bwaAnalyserTable').dataTable( {'destroy': true});
+  body.table = $('#bwaAnalyserTable').dataTable({
+    'destroy': true
+  });
 
 
   $('#bwaFileinputconfirm').addClass('is-hidden');
@@ -71,6 +93,13 @@ function showTable() {
   //body.content.destroy();
 }
 
+/*
+  getInitials
+    ipsum
+  parameters
+    string
+    threshold
+ */
 function getInitials(string, threshold = 1) {
   var initials = string.match(/\b\w/g);
 

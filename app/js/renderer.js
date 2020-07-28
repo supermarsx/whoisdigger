@@ -6,22 +6,20 @@ const electron = require('electron'),
   app = electron.remote.app,
   fs = require('fs');
 
+const {
+    ipcRenderer,
+    remote,
+    dialog
+  } = electron;
+
 window.$ = window.jQuery = require('jquery');
 
-require('../js/renderer/sw');
-require('../js/renderer/bw');
-require('../js/renderer/bwa');
+require('../js/renderer/index');
 
 var settings = require('../js/common/settings').load();
 
-const {
-  ipcRenderer,
-  remote,
-  dialog
-} = electron;
-
 /*
-  $(document).ready(function() {...}
+  $(document).ready(function() {...});
     When document is ready
  */
 $(document).ready(function() {
@@ -32,7 +30,7 @@ $(document).ready(function() {
   ipcRenderer.send('app:debug', "Document is ready");
 
   // Load custom configuration at startup
-  if (fs.existsSync(app.getPath('userData') + configuration.filepath) && configuration.load) {
+  if (fs.existsSync(app.getPath('userData') + configuration.filepath)) {
     ipcRenderer.send('app:debug', "Reading persistent configurations");
     settings = fs.readFile(app.getPath('userData') + configuration.filepath);
   } else {
@@ -41,7 +39,6 @@ $(document).ready(function() {
 
   startup();
   require('../js/renderer/navigation');
-
 });
 
 /*
@@ -49,24 +46,19 @@ $(document).ready(function() {
     Application startup checks
  */
 function startup() {
-  var {
+  const {
     'app.window.navigation': navigation
   } = settings;
 
-
-  ipcRenderer.send('app:debug', "'navigation['developer.tools']': {0}".format(navigation.developerTools));
-  if (navigation.developerTools === true) {
-    $('#navTabDevtools').removeClass('is-force-hidden');
-  }
+  ipcRenderer.send('app:debug', "'navigation.developerTools': {0}".format(navigation.developerTools));
+  if (navigation.developerTools) $('#navTabDevtools').removeClass('is-force-hidden');
 
   ipcRenderer.send('app:debug', "'navigation.extendedcollapsed': {0}".format(navigation.extendedCollapsed));
-  if (navigation.extendedCollapsed === true) {
+  if (navigation.extendedCollapsed) {
     $('#navButtonExpandedmenu').toggleClass('is-active');
     $('.is-specialmenu').toggleClass('is-hidden');
   }
 
   ipcRenderer.send('app:debug', "'navigation.extendedmenu': {0}".format(navigation.enableExtendedMenu));
-  if (navigation.enableExtendedMenu === false) {
-    $('#navButtonExpandedmenu').addClass('is-force-hidden');
-  }
+  if (navigation.enableExtendedMenu) $('#navButtonExpandedmenu').addClass('is-force-hidden');
 }

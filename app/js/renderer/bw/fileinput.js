@@ -1,28 +1,34 @@
 // jshint esversion: 8, -W069
-
 /** global: appSettings */
-var whois = require('../../common/whoisWrapper'),
-  conversions = require('../../common/conversions'),
-  fs = require('fs'),
-  bwFileContents;
 
-require('../../common/stringFormat');
+const whois = require('../../common/whoisWrapper'),
+  conversions = require('../../common/conversions'),
+  fs = require('fs');
 
 const {
   ipcRenderer
-} = require('electron');
-
-const {
+} = require('electron'), {
   tableReset
 } = require('./auxiliary');
 
-// File input, path and information confirmation container
+require('../../common/stringFormat');
+
+var bwFileContents;
+
+/*
+  ipcRenderer.on('bw:fileinput.confirmation', function(...) {...});
+    // File input, path and information confirmation container
+  parameters
+    event
+    filePath
+    isDragDrop
+ */
 ipcRenderer.on('bw:fileinput.confirmation', function(event, filePath = null, isDragDrop = false) {
   var bwFileStats; // File stats, size, last changed, etc
   const {
     misc,
     lookup
-  } = appSettings;
+  } = settings;
 
   //console.log(filePath);
   if (filePath === undefined || filePath == '' || filePath === null) {
@@ -86,7 +92,10 @@ ipcRenderer.on('bw:fileinput.confirmation', function(event, filePath = null, isD
   }
 });
 
-// File Input, Entry container button
+/*
+  $('#bwEntryButtonFile').click(function() {...});
+    File Input, Entry container button
+ */
 $('#bwEntryButtonFile').click(function() {
   $('#bwEntry').addClass('is-hidden');
   $.when($('#bwFileinputloading').removeClass('is-hidden').delay(10)).done(function() {
@@ -94,13 +103,19 @@ $('#bwEntryButtonFile').click(function() {
   });
 });
 
-// File Input, cancel file confirmation
+/*
+  $('#bwFileButtonCancel').click(function() {...});
+    File Input, cancel file confirmation
+ */
 $('#bwFileButtonCancel').click(function() {
   $('#bwFileinputconfirm').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 });
 
-// File Input, proceed to bulk whois
+/*
+  $('#bwFileButtonConfirm').click(function() {...});
+    File Input, proceed to bulk whois
+ */
 $('#bwFileButtonConfirm').click(function() {
   var bwDomainArray = bwFileContents.toString().split('\n').map(Function.prototype.call, String.prototype.trim);
   var bwTldsArray = $('#bwFileInputTlds').val().toString().split(',');
@@ -117,8 +132,11 @@ $('#bwFileButtonConfirm').click(function() {
   ipcRenderer.send("bw:lookup", bwDomainArray, bwTldsArray);
 });
 
-// Bulk whois file input by drag and drop
-(function() {
+/*
+  dragDropInitialization (self-executing)
+    Bulk whois file input by drag and drop
+ */
+(function dragDropInitialization() {
   var holder = $('#bwMainContainer');
   holder.ondragover = function() {
     return false;
@@ -161,6 +179,10 @@ $("html").on("drop", function(event) {
     alert("Dropped!");
 });*/
 
+/*
+  $('#bwMainContainer').on('drop', function(...) {...});
+    On Drop ipsum
+ */
 $('#bwMainContainer').on('drop', function(event) {
   event.preventDefault();
   for (let f of event.originalEvent.dataTransfer.files) {
@@ -170,6 +192,10 @@ $('#bwMainContainer').on('drop', function(event) {
   return false;
 });
 
+/*
+  $('#bwFileInputTlds').keyup(function(...) {...});
+    ipsum
+ */
 $('#bwFileInputTlds').keyup(function(event) {
   // Cancel the default action, if needed
   event.preventDefault();

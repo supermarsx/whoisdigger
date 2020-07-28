@@ -129,6 +129,7 @@ module.exports = {
       'useStandardSize': true, // Use metric size measures for filesizes instead of IEC (ex: kB kilobyte (1000) instead of KiB kibibyte (1024)) (default: true)
       'asfOverride': false, // Use true average instead of weighted smoothed average, based on number of requests (default: true)
       'averageSmoothingFactor': 0.1, // Smoothing factor/weight to calculate average whois request time (default: 0.1 (0.1 = last 10 requests; 0.05 = last 20 requests)) (default: 0.1 - 10 last requests)
+      'onlyCopy': true // Only copy domain to clipboard instead of opening in a new window, security risk (default: true)
     },
     'lookup.export': { // Lookup results export
       'enclosure': '"', // Field enclosing char (default: '"')

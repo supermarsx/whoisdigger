@@ -5,19 +5,13 @@ const electron = require('electron'),
   debug = require('debug')('main.bw.process'),
   defaultBulkWhois = require('./process.defaults');
 
-var {
-  msToHumanTime
-} = require('../../common/conversions');
-
-var {
-  resetObject
-} = require('../../common/resetObject');
-
-var {
-  resetUiCounters
-} = require('./auxiliary.js');
-
 const {
+  msToHumanTime
+} = require('../../common/conversions'), {
+  resetObject
+} = require('../../common/resetObject'), {
+  resetUiCounters
+} = require('./auxiliary.js'), {
   performance
 } = require('perf_hooks');
 
@@ -30,12 +24,12 @@ const {
   remote
 } = electron;
 
-var defaultValue = null; // Changing this implies changing all dependant comparisons
-var bulkWhois; // BulkWhois object
-var reqtime = [];
+var defaultValue = null, // Changing this implies changing all dependant comparisons
+  bulkWhois, // BulkWhois object
+  reqtime = [];
 
 /*
-  bw:lookup
+  ipcMain.on('bw:lookup', function(...) {...});
     On event: bulk whois lookup startup
   parameters
     event (object) - renderer event
@@ -128,7 +122,7 @@ ipcMain.on('bw:lookup', function(event, domains, tlds) {
 });
 
 /*
-  bw:lookup.pause
+  ipcMain.on('bw:lookup.pause', function(...) {...});
     On event: bulk whois lookup pause
   parameters
     event (object) - renderer event
@@ -159,7 +153,7 @@ ipcMain.on('bw:lookup.pause', function(event) {
 });
 
 /*
-  bw:lookup.continue
+  ipcMain.on('bw:lookup.continue', function(...) {...});
     On event: bulk whois lookup continue
   parameters
     event (object) - renderer object
@@ -233,7 +227,7 @@ ipcMain.on('bw:lookup.continue', function(event) {
 });
 
 /*
-  bw:lookup.stop
+  ipcMain.on('bw:lookup.stop', function(...) {...});
     On event: stop bulk whois lookup process
   parameters
     event (object) - Current renderer object
@@ -326,12 +320,12 @@ function processDomain(domain, index, timebetween, follow, timeout, event) {
         .catch(function() {
           //console.trace();
         });
-        /*
-        .catch(function(data) {
-          console.trace();
-          processData(event, data, true, domain, index);
-        });
-        */
+      /*
+      .catch(function(data) {
+        console.trace();
+        processData(event, data, true, domain, index);
+      });
+      */
 
       /*
         processData

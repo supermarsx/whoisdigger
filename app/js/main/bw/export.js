@@ -7,10 +7,6 @@ const electron = require('electron'),
   debug = require('debug')('main.bw.export'),
   JSZip = require('jszip');
 
-var {
-  appSettings
-} = require('../../appSettings');
-
 const {
   app,
   BrowserWindow,
@@ -20,8 +16,10 @@ const {
   remote
 } = electron;
 
+var settings = require('../../common/settings').load();
+
 /*
-  bw:export
+  ipcMain.on('bw:export', function(...) {...});
     On event: bulk whois export event
   parameters
     event (object) - renderer object

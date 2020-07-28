@@ -1,8 +1,6 @@
-/*
-  jshint esversion: 8
- */
+// jshint esversion: 8
 
-var {
+const {
   resetObject
 } = require('../../common/resetObject');
 

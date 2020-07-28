@@ -1,6 +1,6 @@
 <p align="center"><img width=30% src="https://github.com/whois-team/brand/blob/master/png/whoisteam_black.png"></p>
 <p align="center"><img width=60% src="https://github.com/whois-team/brand/blob/master/png/whoisdigger_black.png"></p>
-<p align="center"><a href="https://github.com/whois-team/whoisdigger/blob/master/package.json"><img src="https://img.shields.io/badge/electron-%5E7.1.2-blue.svg"></a>  <a href="https://scrutinizer-ci.com/g/whois-team/whoisdigger/build-status/master"><img src="https://scrutinizer-ci.com/g/whois-team/whoisdigger/badges/build.png?b=master"></a>  <a href="https://david-dm.org/whois-team/whoisdigger"><img src="https://david-dm.org/whois-team/whoisdigger/status.svg"></a>  <a href="https://scrutinizer-ci.com/g/whois-team/whoisdigger/?branch=master"><img src="https://scrutinizer-ci.com/g/whois-team/whoisdigger/badges/quality-score.png?b=master"></a></p>
+<p align="center"><a href="https://github.com/whois-team/whoisdigger/blob/master/package.json"><img src="https://img.shields.io/badge/electron-%5E9.1.1-blue.svg"></a>  <a href="https://scrutinizer-ci.com/g/whois-team/whoisdigger/build-status/master"><img src="https://scrutinizer-ci.com/g/whois-team/whoisdigger/badges/build.png?b=master"></a>  <a href="https://david-dm.org/whois-team/whoisdigger"><img src="https://david-dm.org/whois-team/whoisdigger/status.svg"></a>  <a href="https://scrutinizer-ci.com/g/whois-team/whoisdigger/?branch=master"><img src="https://scrutinizer-ci.com/g/whois-team/whoisdigger/badges/quality-score.png?b=master"></a></p>
 <p align="center"><a href="https://www.codacy.com/app/eduardomota/whoisdigger"><img src="https://api.codacy.com/project/badge/Grade/2611b6567d054839a88faa504839e63d"></a>  <a href="https://snyk.io/test/github/whois-team/whoisdigger"><img src="https://snyk.io/test/github/whois-team/whoisdigger/badge.svg"></a>  <a href="https://app.fossa.io/projects/git%2Bgithub.com%2Fwhois-team%2Fwhoisdigger"><img src="https://app.fossa.io/api/projects/git%2Bgithub.com%2Fwhois-team%2Fwhoisdigger.svg?type=shield"></a>  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/github/license/whois-team/whoisdigger.svg?style=flat"></a></p>
 <hr>
 
@@ -118,7 +118,7 @@ Whoisdigger provides sample wordlists as example for testing purposes inside `sa
 
 ### Exporting bulk processing results
 
-When choosing export options, you can decide what domain status to export, if you want errors included, only basic domain information such as creation, expiration and update dates. 
+When choosing export options, you can decide what domain status to export, if you want errors included, only basic domain information such as creation, expiration and update dates.
 
 Exporting as text will only export raw replies for each domain in a zip file, as a csv you're able to see both both basic information and whois replies (in text, inline csv or separate csv inside a zip file).
 
@@ -134,7 +134,7 @@ Whoisdigger uses a settings file that rules how the application behaves in the o
 
 You can use assumptions with whoisdigger making it more reliable in case you're getting inconsistencies across different tests.
 
-`uniregistry`, Assume a domain is unavailable when uniregistry query limit is reached, default is true. 
+`uniregistry`, Assume a domain is unavailable when uniregistry query limit is reached, default is true.
 
 ​	Note: Uniregistry whois has a very low threshold on whois requests, a few requests with relative small timings in between will result in a temporary block, by assuming a rate limiting reply from uniregistry as a taken domain, you ensure that you're not getting a false positive error.
 

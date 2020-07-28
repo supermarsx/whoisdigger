@@ -1,21 +1,22 @@
 // jshint esversion: 8, -W069
 
 /** global: appSettings */
-const conversions = require('../../common/conversions'); // Conversions helper
-
-var bwWordlistContents; // Global wordlist input contents
-
-require('../../common/stringFormat'); // String format override
+const conversions = require('../../common/conversions');
 
 const {
   ipcRenderer
-} = require('electron');
-
-const {
+} = require('electron'), {
   tableReset
 } = require('./auxiliary');
 
-// Wordlist input, contents confirmation container
+require('../../common/stringFormat');
+
+var bwWordlistContents; // Global wordlist input contents
+
+/*
+  ipcRenderer.on('bw:wordlistinput.confirmation', function() {...});
+    Wordlist input, contents confirmation container
+ */
 ipcRenderer.on('bw:wordlistinput.confirmation', function() {
   var bwFileStats = [];
   const {
@@ -58,31 +59,46 @@ ipcRenderer.on('bw:wordlistinput.confirmation', function() {
   }
 });
 
-// Wordlist Input, Entry container button
+/*
+  $('#bwEntryButtonWordlist').click(function() {...});
+    Wordlist Input, Entry container button
+ */
 $('#bwEntryButtonWordlist').click(function() {
   $('#bwEntry').addClass('is-hidden');
   $('#bwWordlistinput').removeClass('is-hidden');
 });
 
-// Wordlist Input, cancel input
+/*
+  $('#bwWordlistinputButtonCancel').click(function() {...});
+    Wordlist Input, cancel input
+ */
 $('#bwWordlistinputButtonCancel').click(function() {
   $('#bwWordlistinput').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 });
 
-// Wordlist Input, go to confirm
+/*
+  $('#bwWordlistinputButtonConfirm').click(function() {...});
+    Wordlist Input, go to confirm
+ */
 $('#bwWordlistinputButtonConfirm').click(function() {
   $('#bwWordlistinput').addClass('is-hidden');
   ipcRenderer.send("bw:input.wordlist");
 });
 
-// Wordlist input, cancel confirmation
+/*
+  $('#bwWordlistconfirmButtonCancel').click(function() {...});
+     Wordlist input, cancel confirmation
+ */
 $('#bwWordlistconfirmButtonCancel').click(function() {
   $('#bwWordlistconfirm').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 });
 
-// Wordlist input, proceed to bulk whois
+/*
+  $('#bwWordlistconfirmButtonStart').click(function() {...});
+    Wordlist input, proceed to bulk whois
+ */
 $('#bwWordlistconfirmButtonStart').click(function() {
   var bwDomainArray = bwWordlistContents.toString().split('\n').map(Function.prototype.call, String.prototype.trim),
     bwTldsArray = $('#bwWordlistInputTlds').val().toString().split(',');
@@ -99,6 +115,10 @@ $('#bwWordlistconfirmButtonStart').click(function() {
   ipcRenderer.send("bw:lookup", bwDomainArray, bwTldsArray);
 });
 
+/*
+  $('#bwWordlistInputTlds').keyup(function(...) {...});
+    ipsum
+ */
 $('#bwWordlistInputTlds').keyup(function(event) {
   // Cancel the default action, if needed
   event.preventDefault();

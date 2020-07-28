@@ -13,7 +13,7 @@ const {
 } = electron;
 
 /*
-  bw:input.wordlist
+  ipcMain.on('bw:input.wordlist', function(...) {...});
     On event: Bulk domain, wordlist input
   parameters
     event (object) - renderer object

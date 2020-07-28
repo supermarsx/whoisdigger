@@ -12,13 +12,16 @@ const {
   Menu,
   ipcMain,
   dialog,
-  remote
+  remote,
+  clipboard
 } = electron;
 
-var {
-  appSettings
-} = require('../appSettings');
+var settings = require('../common/settings').load();
 
+/*
+  ipcMain.on('sw:lookup', function(...) {...});
+    Single whois lookup
+ */
 ipcMain.on('sw:lookup', function(event, domain) {
   debug('Starting whois lookup');
   whois.lookup(domain)
@@ -32,19 +35,34 @@ ipcMain.on('sw:lookup', function(event, domain) {
     });
 });
 
+/*
+  ipcMain.on('sw:openlink', function(...) {...});
+    Open link or copy to clipboard
+ */
 ipcMain.on('sw:openlink', function(event, domain) {
-  var win = new BrowserWindow({
-    frame: true,
-    height: appSettings.window.height,
-    width: appSettings.window.width,
-    icon: appSettings.window.icon
-  });
+  var {
+    'app.window': appWindow,
+    'lookup.misc': misc
+  } = settings;
+  if (misc.onlyCopy) {
+    debug('Copied {0} to clipboard'.format(domain));
+    clipboard.writeText(domain);
+    event.sender.send('sw:copied');
+  } else {
+    debug('Opening {0} on a new window'.format(domain));
+    var hwnd = new BrowserWindow({
+      frame: true,
+      height: appWindow.height,
+      width: appWindow.width,
+      icon: appWindow.icon
+    });
 
-  win.setSkipTaskbar(true);
-  win.setMenu(null);
-  win.loadURL(domain);
+    hwnd.setSkipTaskbar(true);
+    hwnd.setMenu(null);
+    hwnd.loadURL(domain);
 
-  win.on('closed', function() {
-    win = null;
-  });
+    hwnd.on('closed', function() {
+      win = null;
+    });
+  }
 });

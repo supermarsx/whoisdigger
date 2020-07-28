@@ -1,3 +1,5 @@
+// jshint esversion: 8
+
 const electron = require('electron'),
   debug = require('debug')('main.bwa.fileinput');
 
@@ -9,7 +11,12 @@ const {
   dialog
 } = electron;
 
-// File input, select file dialog
+/*
+  ipcMain.on('bwa:input.file', function(...) {...});
+    File input, select file dialog
+  parameters
+    event
+ */
 ipcMain.on('bwa:input.file', function(event) {
   debug("Waiting for file selection");
   var filePath = dialog.showOpenDialogSync({

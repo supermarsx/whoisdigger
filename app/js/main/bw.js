@@ -3,12 +3,6 @@
 const electron = require('electron'),
   debug = require('debug')('main.bw');
 
-require('./bw/fileinput'); // File input
-require('./bw/wordlistinput'); // Wordlist input
-require('./bw/process'); // Process stage
-require('./bw/export'); // Export stage
-require('../common/stringFormat'); // String format
-
 const {
   app,
   BrowserWindow,
@@ -17,3 +11,10 @@ const {
   dialog,
   remote
 } = electron;
+
+
+require('./bw/fileinput'); // File input
+require('./bw/wordlistinput'); // Wordlist input
+require('./bw/process'); // Process stage
+require('./bw/export'); // Export stage
+require('../common/stringFormat'); // String format

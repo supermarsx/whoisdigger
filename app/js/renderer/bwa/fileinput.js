@@ -1,20 +1,24 @@
 // jshint esversion: 8, -W069
 
 /** global: appSettings */
-var whois = require('../../common/whoisWrapper'),
+const whois = require('../../common/whoisWrapper'),
   conversions = require('../../common/conversions'),
   fs = require('fs'),
   Papa = require('papaparse'),
-  dt = require('datatables')(),
-  bwaFileContents;
-
-require('../../common/stringFormat');
+  dt = require('datatables')();
 
 const {
   ipcRenderer
 } = require('electron');
 
-// File input, path and information confirmation container
+require('../../common/stringFormat');
+
+var bwaFileContents;
+
+/*
+  ipcRenderer.on('bwa:fileinput.confirmation', function(...) {...});
+    File input, path and information confirmation container
+ */
 ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath = null, isDragDrop = false) {
   const {
     misc,
@@ -82,7 +86,10 @@ ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath = null, is
   }
 });
 
-// File Input, Entry container button
+/*
+  $('#bwaEntryButtonOpen').click(function() {...});
+    Bulk whois, file input, entry container button
+ */
 $('#bwaEntryButtonOpen').click(function() {
   $('#bwaEntry').addClass('is-hidden');
   $.when($('#bwaFileinputloading').removeClass('is-hidden').delay(10)).done(function() {
@@ -91,13 +98,19 @@ $('#bwaEntryButtonOpen').click(function() {
 });
 
 
-// File Input, cancel button, file confirmation
+/*
+  $('#bwaFileinputconfirmButtonCancel').click(function() {...});
+    Bulk whois, file input, cancel button, file confirmation
+ */
 $('#bwaFileinputconfirmButtonCancel').click(function() {
   $('#bwaFileinputconfirm').addClass('is-hidden');
   $('#bwaEntry').removeClass('is-hidden');
 });
 
-// File input, start button, file confirmation
+/*
+  $('#bwaFileinputconfirmButtonStart').click(function() {...});
+    Bulk whois, file input, start button, file confirmation
+ */
 $('#bwaFileinputconfirmButtonStart').click(function() {
   ipcRenderer.send("bwa:analyser.start", bwaFileContents);
   /*

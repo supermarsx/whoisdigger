@@ -1,3 +1,5 @@
+// jshint esversion: 8
+
 const electron = require('electron'),
   debug = require('debug')('main.bwa.analyser');
 
@@ -10,7 +12,7 @@ const {
 } = electron;
 
 /*
-  bwa:analyser.start
+  ipcMain.on('bwa:analyser.start', function(...) {...});
     On event: bulk whois analyser starting up
   parameters
     event (object) - renderer object
@@ -18,4 +20,4 @@ const {
  */
 ipcMain.on('bwa:analyser.start', function(event, contents) {
   event.sender.send('bwa:analyser.tablegen', contents);
-})
+});

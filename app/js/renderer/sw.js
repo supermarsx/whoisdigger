@@ -1,19 +1,22 @@
 // jshint esversion: 8, -W069
 
-var {
-  getDate
-} = require('../common/conversions');
-
-window.$ = window.jQuery = require('jquery');
-
-const {
-  ipcRenderer
-} = require('electron');
-
 const whois = require('../common/whoisWrapper'),
   parseRawData = require('../common/parseRawData');
 
-console.log(parseRawData);
+const {
+  getDate
+} = require('../common/conversions'), {
+  ipcRenderer
+} = require('electron');
+
+const {
+  isDomainAvailable,
+  getDomainParameters,
+  preStringStrip,
+  toJSON
+} = whois;
+
+window.$ = window.jQuery = require('jquery');
 
 var singleWhois = {
   'input': {
@@ -23,20 +26,13 @@ var singleWhois = {
 };
 
 /*
-  sw:results
+  ipcRenderer.on('sw:results', function(...) {...});
     On event: Single whois results, whois reply processing
   parameters
     event (object) - Event object
     domainResults (object) - Domain results object
  */
 ipcRenderer.on('sw:results', function(event, domainResults) {
-  const {
-    isDomainAvailable,
-    getDomainParameters,
-    preStringStrip,
-    toJSON
-  } = whois;
-
   var domainName,
     domainStatus,
     domainResultsJSON,
@@ -102,7 +98,15 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
 });
 
 /*
-  $('#swSearchInputDomain').keyup(function(event) {...}
+  ipcRenderer.on('sw:copied', function() {...});
+    On event: Domain copied
+ */
+ipcRenderer.on('sw:copied', function() {
+  $('#swDomainCopied').addClass('is-active');
+});
+
+/*
+  $('#swSearchInputDomain').keyup(function(...) {...});
     On keyup: Trigger search event with [ENTER] key
  */
 $('#swSearchInputDomain').keyup(function(event) {
@@ -113,7 +117,7 @@ $('#swSearchInputDomain').keyup(function(event) {
 });
 
 /*
-  $('#swTdDomain').click(function() {...}
+  $('#swTdDomain').click(function() {...});
     On click: Open website for domain lookup URL in a new window
  */
 $('#swTdDomain').click(function() {
@@ -122,7 +126,7 @@ $('#swTdDomain').click(function() {
 });
 
 /*
-  $('#swSearchButtonSearch').click(function() {...}
+  $('#swSearchButtonSearch').click(function() {...});
     On click: Single whois lookup/search button
  */
 $('#swSearchButtonSearch').click(function() {
@@ -150,7 +154,7 @@ $('#swSearchButtonSearch').click(function() {
 });
 
 /*
-  $('.swMessageWhoisOpen').click(function() {...}
+  $('.swMessageWhoisOpen').click(function() {...});
     On click: Single whois lookup modal open click
  */
 $('.swMessageWhoisOpen').click(function() {
@@ -159,12 +163,21 @@ $('.swMessageWhoisOpen').click(function() {
 });
 
 /*
-  $('#swMessageWhoisClose').click(function() {...}
+  $('#swMessageWhoisClose').click(function() {...});
     On click: Single whois lookup modal close click
  */
 $('#swMessageWhoisClose').click(function() {
   ipcRenderer.send('app:debug', "Closing whois reply");
   $('#swMessageWhois').removeClass('is-active');
+});
+
+/*
+  $('#swDomainCopiedClose').click(function() {...});
+    On click: Domain copied close click
+ */
+$('#swDomainCopiedClose').click(function() {
+  ipcRenderer.send('app:debug', "Closing domain copied");
+  $('#swDomainCopied').removeClass('is-active');
 });
 
 /*
@@ -175,7 +188,6 @@ function tableReset() {
   ipcRenderer.send('app:debug', "Resetting whois result table");
   $('#swTdDomain').attr('href', "#");
   $('#swTdDomain').text('n/a');
-
   $('#swTdUpdate').text('n/a');
   $('#swTdRegistrar').text('n/a');
   $('#swTdCreation').text('n/a');

@@ -1,5 +1,7 @@
+// jshint esversion: 8
+
 /*
-  $(document).on('drop', function(event) {...}
+  $(document).on('drop', function(...) {...});
     Prevent drop redirect
   parameters
     event (object)
@@ -11,7 +13,7 @@ $(document).on('drop', function(event) {
 });
 
 /*
-  $(document).on('dragover', function(event) {...}
+  $(document).on('dragover', function(...) {...});
     Prevent drag over redirect
   parameters
     event (object)
@@ -22,7 +24,7 @@ $(document).on('dragover', function(event) {
 });
 
 /*
-  $('#navButtonDevtools').click(function() {...}
+  $('#navButtonDevtools').click(function() {...});
     On click: Button toggle developer tools
  */
 $('#navButtonDevtools').click(function() {
@@ -31,7 +33,7 @@ $('#navButtonDevtools').click(function() {
 });
 
 /*
-  $('section.tabs ul li').click(function() {...}
+  $('section.tabs ul li').click(function() {...});
     On click: Toggle between tabs
  */
 $('section.tabs ul li').click(function() {
@@ -48,7 +50,7 @@ $('section.tabs ul li').click(function() {
 });
 
 /*
-  $('.delete').click(function() {...}
+  $('.delete').click(function() {...});
     On click: Delete open notifications
  */
 $('.delete').click(function() {
@@ -59,7 +61,7 @@ $('.delete').click(function() {
 });
 
 /*
-  $(document).keyup(function(event) {...}
+  $(document).keyup(function(...) {...});
     On keyup: Assign [ESC] key to close messages or modals
  */
 $(document).keyup(function(event) {
@@ -71,6 +73,10 @@ $(document).keyup(function(event) {
       case ($('#navButtonSw').hasClass('is-active')):
         ipcRenderer.send('app:debug', "Hotkey, Single whois tab is active");
         switch (true) {
+          case ($('#swDomainCopied').hasClass('is-active')):
+            $('#swDomainCopiedClose').click();
+            break;
+
           // Single whois, Dialog is open
           case ($('#swMessageWhois').hasClass('is-active')):
             $('#swMessageWhoisClose').click();
@@ -103,7 +109,7 @@ $(document).keyup(function(event) {
 });
 
 /*
-  $('#navButtonExtendedmenu').click(function() {...}
+  $('#navButtonExtendedmenu').click(function() {...});
     Button/Toggle special menu items
  */
 $('#navButtonExtendedmenu').click(function() {
@@ -113,7 +119,7 @@ $('#navButtonExtendedmenu').click(function() {
 });
 
 /*
-  $('#navButtonMinimize').click(function() {...}
+  $('#navButtonMinimize').click(function() {...});
     On click: Minimize window button
  */
 $('#navButtonMinimize').click(function() {
@@ -122,7 +128,7 @@ $('#navButtonMinimize').click(function() {
 });
 
 /*
-  $('#navButtonExit').click(function() {...}
+  $('#navButtonExit').click(function() {...});
     On click: Close main window button
  */
 $('#navButtonExit').click(function() {

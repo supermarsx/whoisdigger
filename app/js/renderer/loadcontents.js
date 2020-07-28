@@ -1,10 +1,10 @@
 // jshint esversion: 8
 
 /*
-  loadHtml
+  loadHtml (self-executing)
     Loads HTML files inside the renderer
  */
-async function loadHtml() {
+(async function loadHtml() {
   var htmlpath = "./";
   var path = {
     nav: htmlpath + "navigation/",
@@ -69,6 +69,6 @@ async function loadHtml() {
 
   // Help container
   $('#heMainContainer').load(tab + "he.html");
-}
+})();
 
-loadHtml();
+//loadHtml();

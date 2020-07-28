@@ -77,7 +77,6 @@ function isDomainAvailable(resultsText, resultsJSON) {
     'lookup.assumptions': assumptions
   } = settings;
 
-  console.log(getDate);
   var domainParams = getDomainParameters(null, null, null, resultsJSON, true);
   var controlDate = getDate(Date.now());
 
@@ -221,8 +220,6 @@ function isDomainAvailable(resultsText, resultsJSON) {
  */
 function getDomainParameters(domain, status, resultsText, resultsJSON, isAuxiliary = false) {
   results = {};
-
-  console.log(resultsJSON);
 
   results.domain = domain;
   results.status = status;

@@ -6,12 +6,6 @@ const electron = require('electron'),
   debugb = require('debug')('renderer'),
   fs = require('fs');
 
-var settings = require('./common/settings').load();
-
-require('./main/sw');
-require('./main/bw');
-require('./main/bwa');
-
 const {
   app,
   BrowserWindow,
@@ -21,6 +15,9 @@ const {
   remote
 } = electron;
 
+require('./main/index');
+
+var settings = require('./common/settings').load();
 let mainWindow;
 
 /*
@@ -94,7 +91,7 @@ app.on('ready', function() {
   debug("'mainWindow' object: %o", mainWindow);
 
   /*
-    mainWindow.once('ready-to-show', function() {...}
+    mainWindow.once('ready-to-show', function() {...});
       Show main window when everything is ready
    */
   mainWindow.once('ready-to-show', function() {
@@ -104,7 +101,7 @@ app.on('ready', function() {
   });
 
   /*
-    mainWindow.on('closed', function() {...}
+    mainWindow.on('closed', function() {...});
       Quit application when main window is closed
    */
   mainWindow.on('closed', function() {
@@ -134,7 +131,7 @@ function startup() {
 }
 
 /*
-  app:minimize
+  ipcMain.on('app:minimize', function() {...});
     Application minimize event
  */
 ipcMain.on('app:minimize', function() {
@@ -148,7 +145,7 @@ ipcMain.on('app:minimize', function() {
 });
 
 /*
-  app:debug
+  ipcMain.on('app:debug', function(...) {...});
     Application debug event
  */
 ipcMain.on('app:debug', function(event, message) {

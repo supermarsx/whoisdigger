@@ -1,14 +1,14 @@
 // jshint esversion: 8, -W030
-var whois = require('../../common/whoisWrapper'),
-  conversions = require('../../common/conversions');
 
-require('../../common/stringFormat');
+const whois = require('../../common/whoisWrapper'),
+  conversions = require('../../common/conversions'),
+  base = 10;
 
 const {
   ipcRenderer
 } = require('electron');
 
-const base = 10;
+require('../../common/stringFormat');
 
 /*
 // Receive whois lookup reply
@@ -41,7 +41,14 @@ ipcRenderer.on('bulkwhois:resultreceive', function(event, results) {
 });
 */
 
-// Bulk whois processing, ui status update
+/*
+  ipcRenderer.on('bw:status.update', function(...) {...});
+    Bulk whois processing, ui status update
+  parameters
+    event
+    stat
+    value
+ */
 ipcRenderer.on('bw:status.update', function(event, stat, value) {
   ipcRenderer.send('app:debug', "{0}, value update to {1}".format(stat, value)); // status update
   var percent;
@@ -117,7 +124,10 @@ ipcRenderer.on('bw:status.update', function(event, stat, value) {
   }
 });
 
-// Bulk processing, pause/continue process
+/*
+  $('#bwProcessingButtonPause').click(function() {...});
+    Bulk processing, pause/continue process
+ */
 $('#bwProcessingButtonPause').click(function() {
   var searchStatus = $('#bwProcessingButtonPauseSpanText').text();
   switch (searchStatus) {
@@ -136,26 +146,39 @@ $('#bwProcessingButtonPause').click(function() {
   }
 });
 
+/*
+  setPauseButton
+    Set bulk whois pause button
+ */
 function setPauseButton() {
   $('#bwProcessingButtonPause').removeClass('is-success').addClass('is-warning');
   $('#bwProcessingButtonPauseicon').removeClass('fa-play').addClass('fa-pause');
   $('#bwProcessingButtonPauseSpanText').text('Pause');
 }
 
-// Trigger Bulk whois Stop modal
+/*
+  $('#bwProcessingButtonStop').click(function() {...});
+    Trigger Bulk whois Stop modal
+ */
 $('#bwProcessingButtonStop').click(function() {
   ipcRenderer.send('app:debug', "Pausing whois & opening stop modal");
   $('#bwProcessingButtonPause').text().includes('Pause') ? $('#bwProcessingButtonPause').click() : false;
   $('#bwProcessingModalStop').addClass('is-active');
 });
 
-// Close modal and allow continue
+/*
+  $('#bwProcessingModalStopButtonContinue').click(function() {...});
+    Close modal and allow continue
+ */
 $('#bwProcessingModalStopButtonContinue').click(function() {
   ipcRenderer.send('app:debug', "Closing Stop modal & continue");
   $('#bwProcessingModalStop').removeClass('is-active');
 });
 
-// Stop bulk whois entirely and scrape everything
+/*
+  $('#bwProcessingModalStopButtonStop').click(function() {...});
+    Stop bulk whois entirely and scrape everything
+ */
 $('#bwProcessingModalStopButtonStop').click(function() {
   ipcRenderer.send('app:debug', "Closing Stop modal & going back to start");
   $('#bwpStopModal').removeClass('is-active');
@@ -164,7 +187,10 @@ $('#bwProcessingModalStopButtonStop').click(function() {
   $('#bwEntry').removeClass('is-hidden');
 });
 
-// Stop bulk whois entirely and save/export
+/*
+  $('#bwProcessingModalStopButtonStopsave').click(function() {...});
+    Stop bulk whois entirely and save/export
+ */
 $('#bwProcessingModalStopButtonStopsave').click(function() {
   ipcRenderer.send('app:debug', "Closing Stop modal & exporting");
   ipcRenderer.send('bw:lookup.stop');
@@ -174,7 +200,10 @@ $('#bwProcessingModalStopButtonStopsave').click(function() {
   $('#bwExport').removeClass('is-hidden');
 });
 
-// Bulk processing, proceed to export options
+/*
+  $('#bwProcessingButtonNext').click(function() {...});
+    Bulk processing, proceed to export options
+ */
 $('#bwProcessingButtonNext').click(function() {
   $('#bwProcessing').addClass('is-hidden');
   $('#bwExport').removeClass('is-hidden');

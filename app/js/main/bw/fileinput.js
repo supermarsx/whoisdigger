@@ -1,3 +1,5 @@
+// jshint esversion: 8
+
 const electron = require('electron'),
   debug = require('debug')('main.bw.fileinput');
 
@@ -9,12 +11,10 @@ const {
   dialog
 } = electron;
 
-var {
-  appSettings
-} = require('../../appSettings');
+var settings = require('../../common/settings').load();
 
 /*
-  bw:input.file
+  ipcMain.on('bw:input.file', function(...) {...});
     On event: Bulk whois input file, select file dialog
   parameters
     event (object) - renderer object
@@ -31,7 +31,7 @@ ipcMain.on('bw:input.file', function(event) {
 });
 
 /*
-  ondragstart
+  ipcMain.on('ondragstart', function(...) {...});
     On event: drag and dropping file
   parameters
     event (object) - renderer object
