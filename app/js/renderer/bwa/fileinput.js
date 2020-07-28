@@ -1,12 +1,14 @@
+// jshint esversion: 8, -W069
+
 /** global: appSettings */
-var whois = require('../../common/whoiswrapper.js'),
-  conversions = require('../../common/conversions.js'),
+var whois = require('../../common/whoisWrapper'),
+  conversions = require('../../common/conversions'),
   fs = require('fs'),
   Papa = require('papaparse'),
   dt = require('datatables')(),
   bwaFileContents;
 
-require('../../common/stringformat.js');
+require('../../common/stringFormat');
 
 const {
   ipcRenderer
@@ -19,6 +21,8 @@ ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath = null, is
     lookup
   } = appSettings;
   var bwaFileStats; // File stats, size, last changed, etc
+
+  $('#bwaFileSpanInfo').text('Waiting for file...');
 
   //console.log(filePath);
   if (filePath === undefined || filePath == '' || filePath === null) {
@@ -34,19 +38,27 @@ ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath = null, is
       bwaFileStats['filename'] = filePath.replace(/^.*[\\\/]/, '');
       bwaFileStats['humansize'] = conversions.byteToHumanFileSize(bwaFileStats['size'], misc.usestandardsize);
       $('#bwaFileSpanInfo').text('Loading file contents...');
-      bwaFileContents = Papa.parse(fs.readFileSync(filePath).toString(), { header: true });
+      bwaFileContents = Papa.parse(fs.readFileSync(filePath).toString(), {
+        header: true
+      });
     } else {
       bwaFileStats = fs.statSync(filePath[0]);
       bwaFileStats['filename'] = filePath[0].replace(/^.*[\\\/]/, '');
       bwaFileStats['humansize'] = conversions.byteToHumanFileSize(bwaFileStats['size'], misc.usestandardsize);
       $('#bwaFileSpanInfo').text('Loading file contents...');
-      bwaFileContents = Papa.parse(fs.readFileSync(filePath[0]).toString(), { header: true });
+      bwaFileContents = Papa.parse(fs.readFileSync(filePath[0]).toString(), {
+        header: true
+      });
     }
     //console.log(bwaFileContents.data[0]);
     $('#bwaFileSpanInfo').text('Getting line count...');
     bwaFileStats['linecount'] = bwaFileContents.data.length;
-    bwaFileStats['filepreview'] = JSON.stringify(bwaFileContents.data[0], null, "\t").substring(0, 50);
-    bwaFileStats['errors'] = JSON.stringify(bwaFileContents.errors).slice(1,-1);
+    try {
+      bwaFileStats['filepreview'] = JSON.stringify(bwaFileContents.data[0], null, "\t").substring(0, 50);
+    } catch (e) {
+      bwaFileStats['filepreview'] = '';
+    }
+    bwaFileStats['errors'] = JSON.stringify(bwaFileContents.errors).slice(1, -1);
     //console.log(bwaFileContents.data);
 
     //console.log(readLines(filePath[0]));

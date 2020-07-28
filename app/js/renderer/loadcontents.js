@@ -1,56 +1,74 @@
-// Load Renderer contents
+// jshint esversion: 8
 
-loadhtml();
-
-function loadhtml() {
+/*
+  loadHtml
+    Loads HTML files inside the renderer
+ */
+async function loadHtml() {
   var htmlpath = "./";
   var path = {
     nav: htmlpath + "navigation/",
     tab: htmlpath + "tabs/",
-  }
-  path.bw = htmlpath + path.tab + "bw/";
-  path.bwa = htmlpath + path.tab + "bwa/";
-  path.bwm = htmlpath + path.tab + "bwm/";
-  path.to = htmlpath + path.tab + "to/";
-  path.op = htmlpath + path.tab + "op/";
+  };
+  var additionalPaths = {
+    bw: htmlpath + path.tab + "bw/",
+    bwa: htmlpath + path.tab + "bwa/",
+    bwm: htmlpath + path.tab + "bwm/",
+    to: htmlpath + path.tab + "to/",
+    op: htmlpath + path.tab + "op/"
+  };
 
-  // Navbar loading
-  $('#navTop').load(path.nav + "navTop.html");
-  $('#navBottom').load(path.nav + "navBottom.html");
+  Object.assign(path, additionalPaths);
+
+  var {
+    bw,
+    bwa,
+    bwm,
+    to,
+    op,
+    nav,
+    tab
+  } = path;
+
+  // Navigation bar
+  $('#navTop').load(nav + "navTop.html");
+  $('#navBottom').load(nav + "navBottom.html");
 
   // Single whois
-  $('#swMainContainer').load(path.tab + "sw.html");
+  $('#swMainContainer').load(tab + "sw.html");
 
   // Bulk whois lookup tab/steps
-  $('#bwEntry').load(path.bw + "bwEntry.html");
+  $('#bwEntry').load(bw + "bwEntry.html");
 
-  // File Input containers
-  $('#bwFileinputloading').load(path.bw + "bwFileinputloading.html");
-  $('#bwFileinputconfirm').load(path.bw + "bwFileinputconfirm.html");
+  // Bulk whois file input
+  $('#bwFileinputloading').load(bw + "bwFileinputloading.html");
+  $('#bwFileinputconfirm').load(bw + "bwFileinputconfirm.html");
 
-  // Wordlist Input containers
-  $('#bwWordlistinput').load(path.bw + "bwWordlistinput.html");
-  $('#bwWordlistloading').load(path.bw + "bwWordlistloading.html");
-  $('#bwWordlistconfirm').load(path.bw + "bwWordlistconfirm.html");
+  // Bulk whois wordlist input
+  $('#bwWordlistinput').load(bw + "bwWordlistinput.html");
+  $('#bwWordlistloading').load(bw + "bwWordlistloading.html");
+  $('#bwWordlistconfirm').load(bw + "bwWordlistconfirm.html");
 
-  // Bulk Processing
-  $('#bwProcessing').load(path.bw + "bwProcessing.html");
-  $('#bwExport').load(path.bw + "bwExport.html");
-  $('#bwExportloading').load(path.bw + "bwExportloading.html");
+  // Bulk whois processing
+  $('#bwProcessing').load(bw + "bwProcessing.html");
+  $('#bwExport').load(bw + "bwExport.html");
+  $('#bwExportloading').load(bw + "bwExportloading.html");
 
   // Bulk whois analyser containers
-  $('#bwaEntry').load(path.bwa + "bwaEntry.html");
-  $('#bwaFileinputloading').load(path.bwa + "bwaFileinputloading.html");
-  $('#bwaFileinputconfirm').load(path.bwa + "bwaFileinputconfirm.html");
-  $('#bwaProcess').load(path.bwa + "bwaProcess.html");
-  $('#bwaAnalyser').load(path.bwa + "bwaAnalyser.html");
+  $('#bwaEntry').load(bwa + "bwaEntry.html");
+  $('#bwaFileinputloading').load(bwa + "bwaFileinputloading.html");
+  $('#bwaFileinputconfirm').load(bwa + "bwaFileinputconfirm.html");
+  $('#bwaProcess').load(bwa + "bwaProcess.html");
+  $('#bwaAnalyser').load(bwa + "bwaAnalyser.html");
 
   // Wordlist tools containers
-  $('#toEntry').load(path.to + "toEntry.html");
+  $('#toEntry').load(to + "toEntry.html");
 
   // Options container
-  $('#opEntry').load(path.op + "opEntry.html");
+  $('#opEntry').load(op + "opEntry.html");
 
   // Help container
-  $('#heMainContainer').load(path.tab + "he.html");
+  $('#heMainContainer').load(tab + "he.html");
 }
+
+loadHtml();

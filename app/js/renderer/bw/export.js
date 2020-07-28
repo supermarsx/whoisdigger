@@ -1,9 +1,11 @@
-var whois = require('../../common/whoiswrapper.js'),
-  conversions = require('../../common/conversions.js'),
-  defaultExportOptions = require('./export.defaults.js'),
+// jshint esversion: 8
+
+var whois = require('../../common/whoisWrapper'),
+  conversions = require('../../common/conversions'),
+  defaultExportOptions = require('./export.defaults'),
   results, options;
 
-require('../../common/stringformat.js');
+require('../../common/stringFormat');
 
 const {
   ipcRenderer
@@ -11,13 +13,13 @@ const {
 
 var {
   resetObject
-} = require('../../common/resetobj.js');
+} = require('../../common/resetObject');
 
 var {
   getExportOptions,
   setExportOptions,
   setExportOptionsEx
-} = require('./auxiliary.js');
+} = require('./auxiliary');
 
 ipcRenderer.on('bw:result.receive', function(event, rcvResults) {
   ipcRenderer.send('app:debug', "Results are ready for export {0}".format(rcvResults));

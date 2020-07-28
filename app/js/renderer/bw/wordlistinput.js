@@ -1,9 +1,11 @@
+// jshint esversion: 8, -W069
+
 /** global: appSettings */
-const conversions = require('../../common/conversions.js'); // Conversions helper
+const conversions = require('../../common/conversions'); // Conversions helper
 
 var bwWordlistContents; // Global wordlist input contents
 
-require('../../common/stringformat.js'); // String format override
+require('../../common/stringFormat'); // String format override
 
 const {
   ipcRenderer
@@ -11,7 +13,7 @@ const {
 
 const {
   tableReset
-} = require('./auxiliary.js');
+} = require('./auxiliary');
 
 // Wordlist input, contents confirmation container
 ipcRenderer.on('bw:wordlistinput.confirmation', function() {

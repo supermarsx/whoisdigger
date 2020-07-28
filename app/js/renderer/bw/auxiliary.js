@@ -1,8 +1,18 @@
+/*
+  jshint esversion: 8
+ */
+
 var {
   resetObject
-} = require('../../common/resetobj.js');
+} = require('../../common/resetObject');
 
-// Reset processing table
+/*
+  tableReset
+    Reset bulk whois processing table contents
+  parameters
+    dLength (integer) -
+    tLength (integer) -
+ */
 function tableReset(dLength = 0, tLength = 0) {
   $('#bwProcessingSpanProcessed').text(0);
   $('#bwProcessingSpanWaiting').text(0);
@@ -13,7 +23,10 @@ function tableReset(dLength = 0, tLength = 0) {
   $('#bwProcessingSpanStatuserror').text(0);
 }
 
-// Get export options from the form
+/*
+  getExportOptions
+    Get export options after bulk whois processing is finished
+ */
 function getExportOptions() {
   return {
     'filetype': $('#bwExportSelectFiletype').val(),
@@ -21,15 +34,21 @@ function getExportOptions() {
     'errors': $('#bwExportSelectErrors').val(),
     'information': $('#bwExportSelectInformation').val(),
     'whoisreply': $('#bwExportSelectReply').val()
-  }
+  };
 }
 
-// Set bulk whois export option fields to a preset
+/*
+  setExportOptions
+    Sets export options to a default preset
+  parameters
+    preset (string) - Use a determined string formatted preset for export
+ */
 function setExportOptions(preset) {
   switch (preset) {
     case ('none'):
       unlockFields();
       break;
+    // Export available only
     case ('availableonly'):
       unlockFields();
       //$('#bweSelectFiletype').val('csv');
@@ -38,6 +57,7 @@ function setExportOptions(preset) {
       $('#bwExportSelectInformation').val('domain');
       $('#bwExportSelectReply').val('no');
       break;
+    // All results but no reply nor debug
     case ('allbutnoreply'):
       unlockFields();
       //$('#bweSelectFiletype').val('csv');
@@ -46,6 +66,7 @@ function setExportOptions(preset) {
       $('#bwExportSelectInformation').val('domain+basic');
       $('#bwExportSelectReply').val('no');
       break;
+    // Bulk whois analyser import optimized
     case ('import'):
       lockFields();
       $('#bwExportSelectFiletype').val('csv');
@@ -58,7 +79,12 @@ function setExportOptions(preset) {
 
 }
 
-// Set bulk whois export option, filetype
+/*
+  setExportOptionsEx
+    Set bulk whois filetype export option
+  parameters
+    filetype (string) - Filetype, set field locks if is txt file
+ */
 function setExportOptionsEx(filetype) {
   switch (filetype) {
     case 'txt':
@@ -70,7 +96,12 @@ function setExportOptionsEx(filetype) {
   }
 }
 
-// Lock bulk whois export fields
+/*
+  lockFields
+    Locks export fields depending on filetype
+  parameters
+    isTxt (boolean) - Is text (.txt) filetype
+ */
 function lockFields(isTxt = false) {
   if (isTxt === false) {
     $('#bwExportSelectFiletype').prop("disabled", true);
@@ -83,7 +114,12 @@ function lockFields(isTxt = false) {
   }
 }
 
-// Unlock bulk whois export fields
+/*
+  unlockFields
+    Unlocks export fields depending on filetype
+  parameters
+    isTxt (boolean) - Is text (.txt) filetype
+ */
 function unlockFields(isTxt = false) {
   if (isTxt === true) {
     $('#bwExportSelectFiletype').prop("disabled", false);
@@ -105,4 +141,4 @@ module.exports = {
   setExportOptions: setExportOptions,
   setExprtOptns: setExportOptions,
   setExportOptionsEx: setExportOptionsEx
-}
+};

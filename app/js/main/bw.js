@@ -1,11 +1,13 @@
+// jshint esversion: 8
+
 const electron = require('electron'),
   debug = require('debug')('main.bw');
 
-require('./bw/fileinput.js'); // File input
-require('./bw/wordlistinput.js'); // Wordlist input
-require('./bw/process.js'); // Process stage
-require('./bw/export.js'); // Export stage
-require('../common/stringformat.js'); // String format
+require('./bw/fileinput'); // File input
+require('./bw/wordlistinput'); // Wordlist input
+require('./bw/process'); // Process stage
+require('./bw/export'); // Export stage
+require('../common/stringFormat'); // String format
 
 const {
   app,
@@ -15,7 +17,3 @@ const {
   dialog,
   remote
 } = electron;
-
-var {
-  appSettings
-} = require('../appsettings.js');

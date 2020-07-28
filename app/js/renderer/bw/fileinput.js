@@ -1,10 +1,12 @@
+// jshint esversion: 8, -W069
+
 /** global: appSettings */
-var whois = require('../../common/whoiswrapper.js'),
-  conversions = require('../../common/conversions.js'),
+var whois = require('../../common/whoisWrapper'),
+  conversions = require('../../common/conversions'),
   fs = require('fs'),
   bwFileContents;
 
-require('../../common/stringformat.js');
+require('../../common/stringFormat');
 
 const {
   ipcRenderer
@@ -12,7 +14,7 @@ const {
 
 const {
   tableReset
-} = require('./auxiliary.js');
+} = require('./auxiliary');
 
 // File input, path and information confirmation container
 ipcRenderer.on('bw:fileinput.confirmation', function(event, filePath = null, isDragDrop = false) {

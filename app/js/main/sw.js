@@ -1,10 +1,10 @@
+// jshint esversion: 8
+
 const electron = require('electron'),
   path = require('path'),
   url = require('url'),
-  whois = require('../common/whoiswrapper.js'),
+  whois = require('../common/whoiswrapper'),
   debug = require('debug')('main.sw');
-
-require('../main.js');
 
 const {
   app,
@@ -17,7 +17,7 @@ const {
 
 var {
   appSettings
-} = require('../appsettings.js');
+} = require('../appSettings');
 
 ipcMain.on('sw:lookup', function(event, domain) {
   debug('Starting whois lookup');

@@ -1,35 +1,37 @@
+// jshint esversion: 8, -W069
+
 const util = require('util'),
   psl = require('psl'),
   puny = require('punycode'),
   uts46 = require('idna-uts46'),
   whois = require('whois'),
-  lookupProm = util.promisify(whois.lookup),
-  parseRawData = require('./parse-raw-data.js'),
-  debug = require('debug')('common.whoiswrapper');
-
-var {
-  getDate
-} = require('./conversions.js');
-
-var {
-  appSettings
-} = require('../appsettings.js');
+  lookupPromise = util.promisify(whois.lookup),
+  parseRawData = require('./parseRawData'),
+  debug = require('debug')('common.whoisWrapper'),
+  {
+    getDate
+  } = require('./conversions'),
+  settings = require('./settings').load();
 
 /*
   lookup
     Do a domain whois lookup
   parameters
     domain (string) - Domain name
-    options (object) - Lookup options object, refer to 'defaultoptions' var or 'appSettings.lookup.server'
+    options (object) - Lookup options object, refer to 'defaultoptions' var or 'settings.lookup.general/server'
  */
 async function lookup(domain, options = getWhoisOptions()) {
+  var {
+    'lookup.conversion': conversion,
+    'lookup.general': general
+  } = settings;
 
-  domain = appSettings.lookup.conversion.enabled ? convertDomain(domain) : domain;
-  domain = appSettings.lookup.psl ? psl.get(domain).replace(/((\*\.)*)/g, '') : domain;
+  domain = conversion.enabled ? convertDomain(domain) : domain;
+  domain = general.psl ? psl.get(domain).replace(/((\*\.)*)/g, '') : domain;
 
   debug("Looking up for {0}".format(domain));
 
-  var domainResults = await lookupProm(domain, options).catch(function(err) {
+  var domainResults = await lookupPromise(domain, options).catch(function(err) {
     debug("lookup error, 'err:' {0}".format(err));
     return "Whois lookup error, {0}".format(err);
   });
@@ -69,16 +71,13 @@ function toJSON(resultsText) {
  */
 function isDomainAvailable(resultsText, resultsJSON) {
   resultsJSON = resultsJSON || 0;
-  if (resultsJSON === 0) {
-    resultsJSON = toJSON(resultsText);
-  }
-  var {
-    lookup
-  } = appSettings;
-  var {
-    assumptions
-  } = lookup;
+  if (resultsJSON === 0) resultsJSON = toJSON(resultsText);
 
+  var {
+    'lookup.assumptions': assumptions
+  } = settings;
+
+  console.log(getDate);
   var domainParams = getDomainParameters(null, null, null, resultsJSON, true);
   var controlDate = getDate(Date.now());
 
@@ -95,19 +94,7 @@ function isDomainAvailable(resultsText, resultsJSON) {
 
       // Not found cases & variants
       //case (resultsText.includes('ERROR:101: no entries found')):
-    case (resultsText.includes('NOT FOUND')):
-    case (resultsText.includes('Not found: ')):
-    case (resultsText.includes(' not found')):
-    case (resultsText.includes('Not found')):
-    case (resultsText.includes('No Data Found')):
-    case (resultsText.includes('nothing found')):
-    case (resultsText.includes('Nothing found for')):
-    case (resultsText.includes('No entries found') && !resultsText.includes('ERROR:101:')):
-    case (resultsText.includes('Domain Status: No Object Found')):
-    case (resultsText.includes('DOMAIN NOT FOUND')):
-    case (resultsText.includes('Domain Not Found')):
-    case (resultsText.includes('Domain not found')):
-    case (resultsText.includes('NO OBJECT FOUND!')):
+
 
       // No match cases & variants
     case (resultsText.includes('No match for domain')):
@@ -235,6 +222,8 @@ function isDomainAvailable(resultsText, resultsJSON) {
 function getDomainParameters(domain, status, resultsText, resultsJSON, isAuxiliary = false) {
   results = {};
 
+  console.log(resultsJSON);
+
   results.domain = domain;
   results.status = status;
   results.registrar = resultsJSON.registrar;
@@ -246,21 +235,21 @@ function getDomainParameters(domain, status, resultsText, resultsJSON, isAuxilia
     resultsJSON.ownerName ||
     resultsJSON.contact ||
     resultsJSON.name;
-  results.creationdate = getDate(
+  results.creationDate = getDate(
     resultsJSON.creationDate ||
     resultsJSON.createdDate ||
     resultsJSON.created ||
     resultsJSON.creationDate ||
     resultsJSON.registered ||
     resultsJSON.registeredOn);
-  results.updatedate = getDate(
+  results.updateDate = getDate(
     resultsJSON.updatedDate ||
     resultsJSON.lastUpdated ||
-    resultsJSON.updatedDate ||
+    resultsJSON.UpdatedDate ||
     resultsJSON.changed ||
     resultsJSON.lastModified ||
     resultsJSON.lastUpdate);
-  results.expirydate = getDate(
+  results.expiryDate = getDate(
     resultsJSON.expires ||
     resultsJSON.registryExpiryDate ||
     resultsJSON.expiryDate ||
@@ -269,8 +258,8 @@ function getDomainParameters(domain, status, resultsText, resultsJSON, isAuxilia
     resultsJSON.expirationDate ||
     resultsJSON.expiresOn ||
     resultsJSON.paidTill);
-  results.whoisreply = resultsText;
-  results.whoisjson = resultsJSON;
+  results.whoisReply = resultsText;
+  results.whoisJson = resultsJSON;
 
   //debug(results);
 
@@ -286,10 +275,15 @@ function getDomainParameters(domain, status, resultsText, resultsJSON, isAuxilia
     punycode - Punycode
     uts46 - IDNA2008
     uts46-transitional - IDNA2003
-    filter - Filter out non-ASCII characters
+    ascii - Filter out non-ASCII characters
+    anything else - No conversion
  */
 function convertDomain(domain, mode) {
-  mode = mode || appSettings.lookup.conversion.algorithm;
+  var {
+    'lookup.conversion': conversion
+  } = settings;
+  mode = mode || conversion.algorithm;
+
   switch (mode) {
     case 'punycode':
       return puny.encode(domain);
@@ -299,11 +293,10 @@ function convertDomain(domain, mode) {
       return uts46.toAscii(domain, {
         transitional: true
       });
-    case 'filter':
+    case 'ascii':
       return domain.replace(/[^\x00-\x7F]/g, "");
     default:
       return domain;
-
   }
 }
 
@@ -312,12 +305,20 @@ function convertDomain(domain, mode) {
     Create whois options based on appSettings
  */
 function getWhoisOptions() {
-  var options = {};
+  var options = {},
+    follow = 'follow',
+    timeout = 'timeout';
 
-  options.server = appSettings.lookup.server;
-  options.follow = getWhoisParameters('follow');
-  options.timeout = getWhoisParameters('timeout');
-  options.verbose = appSettings.lookup.verbose;
+  const {
+    'lookup.general': general
+  } = settings;
+
+  console.log(settings);
+
+  options.server = general.server;
+  options.follow = getWhoisParameters(follow);
+  options.timeout = getWhoisParameters(timeout);
+  options.verbose = general.verbose;
 
   return options;
 
@@ -333,36 +334,27 @@ function getWhoisOptions() {
       'timebetween' - Time between requests
  */
 function getWhoisParameters(parameter) {
-  var {
-    lookup
-  } = appSettings;
-  var {
-    randomize,
-    follow,
-    timeout,
-    timebetween
-  } = lookup;
-  var {
-    followmax,
-    followmin,
-    timeoutmax,
-    timeoutmin,
-    timebetweenmax,
-    timebetweenmin
-  } = randomize;
+  const {
+    'lookup.randomize.follow': follow,
+    'lookup.randomize.timeout': timeout,
+    'lookup.randomize.timeBetween': timeBetween,
+    'lookup.general': general
+  } = settings;
+
+  console.log(timeout);
 
   switch (parameter) {
     case 'follow':
-      debug("Follow depth, 'random': {0}, 'followmax': {1}, 'followmin': {2}, 'follow': {3}".format(randomize.follow, followmax, followmin, follow));
-      return (randomize.follow ? getRandomInt(followmin, followmax) : follow);
+      debug("Follow depth, 'random': {0}, 'maximum': {1}, 'minimum': {2}, 'default': {3}".format(follow.randomize, follow.maximumDepth, follow.minimumDepth, general.follow));
+      return (follow.randomize ? getRandomInt(follow.minimumDepth, follow.maximumDepth) : general.follow);
 
     case 'timeout':
-      debug("Timeout, 'random': {0}, 'timeoutmax': {1}, 'timeoutmin': {2}, 'timeout': {3}".format(randomize.timeout, timeoutmax, timeoutmin, timeout));
-      return (randomize.timeout ? getRandomInt(timeoutmin, timeoutmax) : timeout);
+      debug("Timeout, 'random': {0}, 'maximum': {1}, 'minimum': {2}, 'default': {3}".format(timeout.randomize, timeout.maximum, timeout.minimum, general.timeout));
+      return (timeout.randomize ? getRandomInt(timeout.minimum, timeout.maximum) : general.timeout);
 
     case 'timebetween':
-      debug("Timebetween, 'random': {0}, 'timebetweenmax': {1}, 'timebetweenmin': {2}, 'timebetween': {3}".format(randomize.timebetween, timebetweenmax, timebetweenmin, timebetween));
-      return (randomize.timebetween ? getRandomInt(timebetweenmin, timebetweenmax) : timebetween);
+      debug("Timebetween, 'random': {0}, 'maximum': {1}, 'minimum': {2}, 'default': {3}".format(randomize.timeBetween, timeBetween.maximum, timeBetween.minimum, general.timeBetween));
+      return (timeBetween.randomize ? getRandomInt(timeBetween.minimum, timeBetween.maximum) : general.timeBetween);
 
     default:
       return undefined;
@@ -379,7 +371,7 @@ function getWhoisParameters(parameter) {
     max (integer) - Maximum value
  */
 function getRandomInt(min, max) {
-  return Math.floor((Math.random() * max) + min);
+  return Math.floor((Math.random() * parseInt(max)) + parseInt(min));
 }
 
 /*

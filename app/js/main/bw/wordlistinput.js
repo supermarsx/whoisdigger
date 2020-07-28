@@ -1,3 +1,5 @@
+// jshint esversion: 8
+
 const electron = require('electron'),
   debug = require('debug')('main.bw.wordlistinput');
 

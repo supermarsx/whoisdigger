@@ -1,26 +1,42 @@
-var whois = require('../common/whoiswrapper.js'),
-  parseRawData = require('../common/parse-raw-data.js');
+// jshint esversion: 8, -W069
 
-var { getDate } = require('../common/conversions.js');
+var {
+  getDate
+} = require('../common/conversions');
+
 window.$ = window.jQuery = require('jquery');
 
 const {
   ipcRenderer
 } = require('electron');
 
+const whois = require('../common/whoisWrapper'),
+  parseRawData = require('../common/parseRawData');
+
+console.log(parseRawData);
+
 var singleWhois = {
   'input': {
     'domain': null
   },
   'results': null
-}
+};
 
-// Single Whois, whois reply processing
+/*
+  sw:results
+    On event: Single whois results, whois reply processing
+  parameters
+    event (object) - Event object
+    domainResults (object) - Domain results object
+ */
 ipcRenderer.on('sw:results', function(event, domainResults) {
   const {
     isDomainAvailable,
-    getDomainParameters
+    getDomainParameters,
+    preStringStrip,
+    toJSON
   } = whois;
+
   var domainName,
     domainStatus,
     domainResultsJSON,
@@ -28,40 +44,38 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
     errorReason;
   //ipcRenderer.send('app:debug', "Whois domain reply:\n {0}".format(domainResults));
 
-  domainResults = whois.preStringStrip(domainResults);
-  domainResultsJSON = (function() {
-    var result;
-    if (typeof domainResults === 'object') {
-      JSON.stringify(domainResults, null, 2);
-      result = domainResults.map(function(data) {
-        data.data = parseRawData(data.data);
-        return data;
-      });
-    } else {
-      result = parseRawData(domainResults);
-    }
-    return result;
-  })();
+  domainResults = preStringStrip(domainResults);
+  domainResultsJSON = toJSON(domainResults);
 
   // Check domain status
-  domainName = domainResultsJSON['domainName'] || domainResultsJSON['domain']
+  domainName = domainResultsJSON.domainName || domainResultsJSON.domain;
+
   domainStatus = isDomainAvailable(domainResults);
   resultFilter = getDomainParameters(domainName, domainStatus, domainResults, domainResultsJSON);
+
+  var {
+    domain,
+    updateDate,
+    registrar,
+    creationDate,
+    company,
+    expiryDate
+  } = resultFilter;
 
   switch (domainStatus) {
     case 'unavailable':
       $('#swMessageUnavailable').removeClass('is-hidden');
       $('#swMessageWhoisResults').text(domainResults);
 
-      $('#swTdDomain').attr('url', "http://" + resultFilter.domain);
-      $('#swTdDomain').text(resultFilter.domain);
+      $('#swTdDomain').attr('url', "http://" + domain);
+      $('#swTdDomain').text(domain);
 
       //console.log(domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires'] || domainResultsJSON['registryExpiryDate']);
-      $('#swTdUpdate').text(resultFilter.updatedate);
-      $('#swTdRegistrar').text(resultFilter.registrar);
-      $('#swTdCreation').text(resultFilter.creationdate);
-      $('#swTdCompany').text(resultFilter.company);
-      $('#swTdExpiry').text(resultFilter.expirydate);
+      $('#swTdUpdate').text(updateDate);
+      $('#swTdRegistrar').text(registrar);
+      $('#swTdCreation').text(creationDate);
+      $('#swTdCompany').text(company);
+      $('#swTdExpiry').text(expiryDate);
       $('#swTableWhoisinfo.is-hidden').removeClass('is-hidden');
       break;
 
@@ -87,58 +101,76 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
 
 });
 
-// Simple Whois, trigger search by using [ENTER] key
+/*
+  $('#swSearchInputDomain').keyup(function(event) {...}
+    On keyup: Trigger search event with [ENTER] key
+ */
 $('#swSearchInputDomain').keyup(function(event) {
   // Cancel the default action, if needed
   event.preventDefault();
   // Number 13 is the "Enter" key on the keyboard
-  if (event.keyCode === 13) {
-    // Trigger the button element with a click
-    $('#swSearchButtonSearch').click();
-  }
+  if (event.keyCode === 13) $('#swSearchButtonSearch').click();
 });
 
-// Open URL in new Window
+/*
+  $('#swTdDomain').click(function() {...}
+    On click: Open website for domain lookup URL in a new window
+ */
 $('#swTdDomain').click(function() {
   var domain = $('#swTdDomain').attr('url');
   ipcRenderer.send('sw:openlink', domain);
 });
 
-// Trigger Whois lookup
+/*
+  $('#swSearchButtonSearch').click(function() {...}
+    On click: Single whois lookup/search button
+ */
 $('#swSearchButtonSearch').click(function() {
-  if ($(this).hasClass('is-loading')) {
-    return true;
-  }
+  var {
+    input
+  } = singleWhois;
+  var {
+    domain
+  } = input;
+
+  if ($(this).hasClass('is-loading')) return true;
   ipcRenderer.send('app:debug', "#swSearchButtonSearch was clicked");
 
-  singleWhois.input.domain = $('#swSearchInputDomain').val();
+  domain = $('#swSearchInputDomain').val();
 
-  ipcRenderer.send('app:debug', "Looking up for {0}".format(singleWhois.input.domain));
+  ipcRenderer.send('app:debug', "Looking up for {0}".format(domain));
 
   $('#swSearchButtonSearch').addClass('is-loading');
   $('#swSearchInputDomain').attr('readonly', '');
   $('.notification:not(.is-hidden)').addClass('is-hidden');
   $('#swTableWhoisinfo:not(.is-hidden)').addClass('is-hidden');
   tableReset();
-  ipcRenderer.send("sw:lookup", singleWhois.input.domain);
+  ipcRenderer.send("sw:lookup", domain);
   return undefined;
 });
 
-// Open simple whois model
+/*
+  $('.swMessageWhoisOpen').click(function() {...}
+    On click: Single whois lookup modal open click
+ */
 $('.swMessageWhoisOpen').click(function() {
   ipcRenderer.send('app:debug', "Opening whois reply");
   $('#swMessageWhois').addClass('is-active');
 });
 
-// Close simple whois modal
+/*
+  $('#swMessageWhoisClose').click(function() {...}
+    On click: Single whois lookup modal close click
+ */
 $('#swMessageWhoisClose').click(function() {
   ipcRenderer.send('app:debug', "Closing whois reply");
   $('#swMessageWhois').removeClass('is-active');
 });
 
-
-
-// Reset registry table contents
+/*
+  tableReset
+    Resets registry table contents
+ */
 function tableReset() {
   ipcRenderer.send('app:debug', "Resetting whois result table");
   $('#swTdDomain').attr('href', "#");

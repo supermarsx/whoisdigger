@@ -11,7 +11,7 @@ const {
 
 var {
   appSettings
-} = require('../../appsettings.js');
+} = require('../../appSettings');
 
 /*
   bw:input.file

@@ -1,7 +1,8 @@
-var whois = require('../../common/whoiswrapper.js'),
-  conversions = require('../../common/conversions.js');
+// jshint esversion: 8, -W030
+var whois = require('../../common/whoisWrapper'),
+  conversions = require('../../common/conversions');
 
-require('../../common/stringformat.js');
+require('../../common/stringFormat');
 
 const {
   ipcRenderer

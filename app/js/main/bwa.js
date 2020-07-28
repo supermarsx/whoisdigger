@@ -1,2 +1,2 @@
-require('./bwa/fileinput.js'); // File input
-require('./bwa/analyser.js');
+require('./bwa/fileinput'); // File input
+require('./bwa/analyser');

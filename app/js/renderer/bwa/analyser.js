@@ -1,6 +1,8 @@
+// jshint esversion: 8, -W030
+
 /** global: appSettings */
-var whois = require('../../common/whoiswrapper.js'),
-  conversions = require('../../common/conversions.js'),
+var whois = require('../../common/whoisWrapper'),
+  conversions = require('../../common/conversions'),
   fs = require('fs'),
   Papa = require('papaparse'),
   dt = require('datatables')(),

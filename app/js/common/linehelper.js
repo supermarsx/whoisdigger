@@ -1,58 +1,49 @@
+// jshint esversion: 8
 
-// Read lines from file
-export function fileReadLines(filePath, lines = 2) {
-  var lineReader = require('readline').createInterface({
-    input: require('fs').createReadStream(filePath),
-  });
-  var lineCounter = 0;
-  var wantedLines = [];
+/*
+  lineCount
+    Count lines within a string
+  parameters
+    text (string) - string to count lines from
+    newLineChar (string) - new line character
+ */
+function lineCount(text, newLineChar = '\n') { // '\n' unix; '\r' macos; '\r\n' windows
+  var lines = 0;
+  for (var char in text) {
+    lines += (lines[char] == newLineChar) ? 1 : 0;
+  }
+  return lines;
+}
+
+/*
+  fileReadLines
+    Read a determined quantity of lines from a specific file
+  parameters
+    filePath (string) - file path to read lines from
+    lines (integer) - line quantity to read from file
+    startLine (integer) - line to start reading from
+ */
+function fileReadLines(filePath, lines = 2, startLine = 0) {
+  var lineCounter = startLine,
+    endLine = startLine + lines,
+    linesRead = [],
+    lineReader = require('readline').createInterface({
+      input: require('fs').createReadStream(filePath),
+    });
+
   lineReader.on('line', function(line) {
     lineCounter++;
-    wantedLines.push(line);
+    linesRead.push(line);
     if (lineCounter == lines) {
       lineReader.close();
     }
   });
   lineReader.on('close', function() {
-    wantedLines;
-    return wantedLines;
-    //process.exit(0);
+    return linesRead;
   });
 }
 
-// Read range of lines from file
-export function fileReadLinesRange(filePath, startline = 0, lines = 2) {
-  var endline = startline + lines;
-  var lineReader = require('readline').createInterface({
-    input: require('fs').createReadStream(filePath),
-  });
-  var lineCounter = startline;
-  var wantedLines = [];
-  lineReader.on('line', function(line, endline) {
-    lineCounter++;
-    wantedLines.push(line);
-    if (lineCounter == endline) {
-      lineReader.close();
-    }
-  });
-  lineReader.on('close', function() {
-    wantedLines;
-    return wantedLines;
-    //process.exit(0);
-  });
-}
-
-// Count lines from string
-function lineCount(text, newlinechar = '\n') { // '\n' unix; '\r' macos; '\r\n' windows
-  var nLines = 0;
-  for (var i = 0, n = text.length; i < n; ++i) {
-    if (text[i] === newlinechar) {
-      ++nLines;
-    }
-  }
-  return nLines;
-}
-
-export default function() {
-  return null;
-}
+module.exports = {
+  lineCount: lineCount,
+  fileReadLines: fileReadLines
+};

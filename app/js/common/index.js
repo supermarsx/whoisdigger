@@ -1,8 +1,10 @@
-import Conversions from './conversions.js';
-import LineHelper from './linehelper.js';
-import StringFormat from './stringformat.js';
-import parseRawData as ParseRawData from './parse-raw-data.js';
-import whoisLookup as WhoisLookup from './whoiswrapper.js';
+// jshint esversion: 8
+
+import Conversions from './conversions';
+import LineHelper from './lineHelper';
+import StringFormat from './stringFormat';
+import { parseRawData as ParseRawData } from './parseRawSata';
+import { whoisLookup as WhoisLookup } from './whoisWrapper';
 
 export {
   Conversions,
@@ -10,4 +12,4 @@ export {
   StringFormat,
   ParseRawData,
   WhoisLookup
-}
+};

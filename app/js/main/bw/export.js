@@ -1,13 +1,15 @@
+// jshint esversion: 8
+
 const electron = require('electron'),
   fs = require('fs'),
   path = require('path'),
-  conversions = require('../../common/conversions.js'),
+  conversions = require('../../common/conversions'),
   debug = require('debug')('main.bw.export'),
   JSZip = require('jszip');
 
 var {
   appSettings
-} = require('../../appsettings.js');
+} = require('../../appSettings');
 
 const {
   app,

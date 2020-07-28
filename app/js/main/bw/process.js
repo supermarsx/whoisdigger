@@ -1,23 +1,21 @@
+//jshint esversion: 8
+
 const electron = require('electron'),
-  whois = require('../../common/whoiswrapper.js'),
+  whois = require('../../common/whoisWrapper'),
   debug = require('debug')('main.bw.process'),
-  defaultBulkWhois = require('./process.defaults.js');
+  defaultBulkWhois = require('./process.defaults');
 
 var {
   msToHumanTime
-} = require('../../common/conversions.js');
+} = require('../../common/conversions');
 
 var {
   resetObject
-} = require('../../common/resetobj.js');
+} = require('../../common/resetObject');
 
 var {
   resetUiCounters
 } = require('./auxiliary.js');
-
-var {
-  appSettings
-} = require('../../appsettings.js');
 
 const {
   performance
@@ -176,7 +174,7 @@ ipcMain.on('bw:lookup.continue', function(event) {
   var {
     lookup,
     misc
-  } = appSettings;
+  } = settings;
 
   var {
     randomize
