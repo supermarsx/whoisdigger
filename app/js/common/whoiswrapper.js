@@ -35,6 +35,7 @@ async function lookup(domain, options = getWhoisOptions()) {
     debug("lookup error, 'err:' {0}".format(err));
     return "Whois lookup error, {0}".format(err);
   });
+
   return domainResults;
 }
 
@@ -45,14 +46,10 @@ async function lookup(domain, options = getWhoisOptions()) {
     resultsText (string) - whois domain reply string
  */
 function toJSON(resultsText) {
-  if (typeof resultsText === 'string') {
-    if (resultsText.includes("lookup: timeout")) {
-      return "timeout";
-    }
-  }
+  if (typeof resultsText === 'string' && resultsText.includes("lookup: timeout")) return "timeout";
 
   if (typeof resultsText === 'object') {
-    JSON.stringify(resultsText, null, 2);
+    //JSON.stringify(resultsText, null, 2);
     resultsText.map(function(data) {
       data.data = parseRawData(data.data);
       return data;
@@ -70,12 +67,13 @@ function toJSON(resultsText) {
     resultsJSON (JSON Object) - JSON transformed whois reply
  */
 function isDomainAvailable(resultsText, resultsJSON) {
-  resultsJSON = resultsJSON || 0;
-  if (resultsJSON === 0) resultsJSON = toJSON(resultsText);
-
-  var {
+  const {
     'lookup.assumptions': assumptions
   } = settings;
+
+  resultsJSON = resultsJSON || 0;
+
+  if (resultsJSON === 0) resultsJSON = toJSON(resultsText);
 
   var domainParams = getDomainParameters(null, null, null, resultsJSON, true);
   var controlDate = getDate(Date.now());
@@ -279,6 +277,7 @@ function convertDomain(domain, mode) {
   var {
     'lookup.conversion': conversion
   } = settings;
+
   mode = mode || conversion.algorithm;
 
   switch (mode) {
@@ -292,6 +291,7 @@ function convertDomain(domain, mode) {
       });
     case 'ascii':
       return domain.replace(/[^\x00-\x7F]/g, "");
+
     default:
       return domain;
   }
@@ -302,15 +302,13 @@ function convertDomain(domain, mode) {
     Create whois options based on appSettings
  */
 function getWhoisOptions() {
-  var options = {},
-    follow = 'follow',
-    timeout = 'timeout';
-
   const {
     'lookup.general': general
   } = settings;
 
-  console.log(settings);
+  var options = {},
+    follow = 'follow',
+    timeout = 'timeout';
 
   options.server = general.server;
   options.follow = getWhoisParameters(follow);
@@ -318,7 +316,6 @@ function getWhoisOptions() {
   options.verbose = general.verbose;
 
   return options;
-
 }
 
 /*

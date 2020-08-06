@@ -18,6 +18,10 @@ const {
     event
  */
 ipcMain.on('bwa:input.file', function(event) {
+  var {
+    sender
+  } = event;
+
   debug("Waiting for file selection");
   var filePath = dialog.showOpenDialogSync({
     title: "Select wordlist file",
@@ -25,7 +29,7 @@ ipcMain.on('bwa:input.file', function(event) {
     properties: ['openFile', 'showHiddenFiles']
   });
   debug("Using selected file at {0}".format(filePath));
-  event.sender.send('bwa:fileinput.confirmation', filePath);
+  sender.send('bwa:fileinput.confirmation', filePath);
 });
 
 /*

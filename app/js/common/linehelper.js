@@ -9,9 +9,8 @@
  */
 function lineCount(text, newLineChar = '\n') { // '\n' unix; '\r' macos; '\r\n' windows
   var lines = 0;
-  for (var char in text) {
-    lines += (lines[char] == newLineChar) ? 1 : 0;
-  }
+  for (var char in text) lines += (lines[char] == newLineChar) ? 1 : 0;
+
   return lines;
 }
 
@@ -34,13 +33,14 @@ function fileReadLines(filePath, lines = 2, startLine = 0) {
   lineReader.on('line', function(line) {
     lineCounter++;
     linesRead.push(line);
-    if (lineCounter == lines) {
-      lineReader.close();
-    }
+    if (lineCounter == lines) lineReader.close();
   });
+
   lineReader.on('close', function() {
     return linesRead;
   });
+
+  return 0;
 }
 
 module.exports = {

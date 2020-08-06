@@ -30,6 +30,8 @@ ipcRenderer.on('bw:result.receive', function(event, rcvResults) {
 
   results = rcvResults;
   //console.log("%o", results);
+
+  return;
 });
 
 /*
@@ -39,6 +41,8 @@ ipcRenderer.on('bw:result.receive', function(event, rcvResults) {
 ipcRenderer.on('bw:export.cancel', function() {
   $('#bwExportloading').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
+
+  return;
 });
 
 /*
@@ -51,6 +55,8 @@ $('#bwExportButtonExport').click(function() {
   $.when($('#bwExportloading').removeClass('is-hidden').delay(10)).done(function() {
     ipcRenderer.send("bw:export", results, options);
   });
+
+  return;
 });
 
 /*
@@ -60,6 +66,8 @@ $('#bwExportButtonExport').click(function() {
 $('#bwExportButtonCancel').click(function() {
   $('#bwExport').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
+
+  return;
 });
 
 /*
@@ -69,6 +77,8 @@ $('#bwExportButtonCancel').click(function() {
 $('#bwExportSelectPreset').change(function() {
   var preset = $('#bwExportSelectPreset').val();
   setExportOptions(preset);
+
+  return;
 });
 
 /*
@@ -78,4 +88,6 @@ $('#bwExportSelectPreset').change(function() {
 $('#bwExportSelectFiletype').change(function() {
   var filetype = $('#bwExportSelectFiletype').val();
   setExportOptionsEx(filetype);
+
+  return;
 });

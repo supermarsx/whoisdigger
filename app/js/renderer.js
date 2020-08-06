@@ -39,6 +39,8 @@ $(document).ready(function() {
 
   startup();
   require('../js/renderer/navigation');
+  
+  return;
 });
 
 /*
@@ -61,4 +63,6 @@ function startup() {
 
   ipcRenderer.send('app:debug', "'navigation.extendedmenu': {0}".format(navigation.enableExtendedMenu));
   if (navigation.enableExtendedMenu) $('#navButtonExpandedmenu').addClass('is-force-hidden');
+
+  return;
 }

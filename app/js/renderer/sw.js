@@ -95,6 +95,7 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
   $('#swSearchButtonSearch').removeClass('is-loading');
   $('#swSearchInputDomain').removeAttr('readonly');
 
+  return;
 });
 
 /*
@@ -103,6 +104,8 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
  */
 ipcRenderer.on('sw:copied', function() {
   $('#swDomainCopied').addClass('is-active');
+
+  return;
 });
 
 /*
@@ -114,6 +117,8 @@ $('#swSearchInputDomain').keyup(function(event) {
   event.preventDefault();
   // Number 13 is the "Enter" key on the keyboard
   if (event.keyCode === 13) $('#swSearchButtonSearch').click();
+
+  return;
 });
 
 /*
@@ -123,6 +128,8 @@ $('#swSearchInputDomain').keyup(function(event) {
 $('#swTdDomain').click(function() {
   var domain = $('#swTdDomain').attr('url');
   ipcRenderer.send('sw:openlink', domain);
+
+  return;
 });
 
 /*
@@ -160,6 +167,8 @@ $('#swSearchButtonSearch').click(function() {
 $('.swMessageWhoisOpen').click(function() {
   ipcRenderer.send('app:debug', "Opening whois reply");
   $('#swMessageWhois').addClass('is-active');
+
+  return;
 });
 
 /*
@@ -169,6 +178,8 @@ $('.swMessageWhoisOpen').click(function() {
 $('#swMessageWhoisClose').click(function() {
   ipcRenderer.send('app:debug', "Closing whois reply");
   $('#swMessageWhois').removeClass('is-active');
+
+  return;
 });
 
 /*
@@ -178,6 +189,8 @@ $('#swMessageWhoisClose').click(function() {
 $('#swDomainCopiedClose').click(function() {
   ipcRenderer.send('app:debug', "Closing domain copied");
   $('#swDomainCopied').removeClass('is-active');
+
+  return;
 });
 
 /*
@@ -193,4 +206,6 @@ function tableReset() {
   $('#swTdCreation').text('n/a');
   $('#swTdCompany').text('n/a');
   $('#swTdExpiry').text('n/a');
+
+  return;
 }

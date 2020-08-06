@@ -9,6 +9,7 @@
 $(document).on('drop', function(event) {
   ipcRenderer.send('app:debug', "Preventing drag and drop redirect");
   event.preventDefault();
+
   return false;
 });
 
@@ -20,6 +21,7 @@ $(document).on('drop', function(event) {
  */
 $(document).on('dragover', function(event) {
   event.preventDefault();
+
   return false;
 });
 
@@ -30,6 +32,8 @@ $(document).on('dragover', function(event) {
 $('#navButtonDevtools').click(function() {
   remote.getCurrentWindow().toggleDevTools();
   ipcRenderer.send('app:debug', "#navButtonDevtools was clicked");
+
+  return;
 });
 
 /*
@@ -47,6 +51,8 @@ $('section.tabs ul li').click(function() {
     $("#" + tabName).addClass('current');
   }
   ipcRenderer.send('app:debug', "#section.tabs switched to data tab, {0}".format(tabName));
+
+  return;
 });
 
 /*
@@ -58,6 +64,8 @@ $('.delete').click(function() {
   var notificationId = $(this).attr('data-notif');
 
   $('#' + notificationId).addClass('is-hidden');
+
+  return;
 });
 
 /*
@@ -106,6 +114,8 @@ $(document).keyup(function(event) {
         break;
     }
   }
+
+  return;
 });
 
 /*
@@ -116,6 +126,8 @@ $('#navButtonExtendedmenu').click(function() {
   ipcRenderer.send('app:debug', "#navButtonExtendedmenu was clicked");
   $('#navButtonExtendedmenu').toggleClass('is-active');
   $('.is-specialmenu').toggleClass('is-hidden');
+
+  return;
 });
 
 /*
@@ -125,6 +137,8 @@ $('#navButtonExtendedmenu').click(function() {
 $('#navButtonMinimize').click(function() {
   ipcRenderer.send('app:debug', "#navButtonMinimize was clicked");
   remote.getCurrentWindow().minimize();
+
+  return;
 });
 
 /*
@@ -134,4 +148,6 @@ $('#navButtonMinimize').click(function() {
 $('#navButtonExit').click(function() {
   ipcRenderer.send('app:debug', "#navButtonExit was clicked");
   remote.getCurrentWindow().close();
+
+  return;
 });

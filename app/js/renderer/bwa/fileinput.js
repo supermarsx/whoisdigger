@@ -84,6 +84,8 @@ ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath = null, is
 
     //console.log(bwFileStats['linecount']);
   }
+
+  return;
 });
 
 /*
@@ -95,6 +97,8 @@ $('#bwaEntryButtonOpen').click(function() {
   $.when($('#bwaFileinputloading').removeClass('is-hidden').delay(10)).done(function() {
     ipcRenderer.send("bwa:input.file");
   });
+
+  return;
 });
 
 
@@ -105,6 +109,8 @@ $('#bwaEntryButtonOpen').click(function() {
 $('#bwaFileinputconfirmButtonCancel').click(function() {
   $('#bwaFileinputconfirm').addClass('is-hidden');
   $('#bwaEntry').removeClass('is-hidden');
+
+  return;
 });
 
 /*
@@ -118,6 +124,8 @@ $('#bwaFileinputconfirmButtonStart').click(function() {
   $.when($('#bwaProcess').removeClass('is-hidden').delay(10)).done(function() {
     showTable();
   });*/
+
+  return;
 });
 
 /*

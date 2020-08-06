@@ -122,6 +122,8 @@ ipcRenderer.on('bw:status.update', function(event, stat, value) {
     default:
       break;
   }
+
+  return;
 });
 
 /*
@@ -144,6 +146,8 @@ $('#bwProcessingButtonPause').click(function() {
     default:
       break;
   }
+
+  return;
 });
 
 /*
@@ -154,6 +158,8 @@ function setPauseButton() {
   $('#bwProcessingButtonPause').removeClass('is-success').addClass('is-warning');
   $('#bwProcessingButtonPauseicon').removeClass('fa-play').addClass('fa-pause');
   $('#bwProcessingButtonPauseSpanText').text('Pause');
+
+  return;
 }
 
 /*
@@ -164,6 +170,8 @@ $('#bwProcessingButtonStop').click(function() {
   ipcRenderer.send('app:debug', "Pausing whois & opening stop modal");
   $('#bwProcessingButtonPause').text().includes('Pause') ? $('#bwProcessingButtonPause').click() : false;
   $('#bwProcessingModalStop').addClass('is-active');
+
+  return;
 });
 
 /*
@@ -173,6 +181,8 @@ $('#bwProcessingButtonStop').click(function() {
 $('#bwProcessingModalStopButtonContinue').click(function() {
   ipcRenderer.send('app:debug', "Closing Stop modal & continue");
   $('#bwProcessingModalStop').removeClass('is-active');
+
+  return;
 });
 
 /*
@@ -185,6 +195,8 @@ $('#bwProcessingModalStopButtonStop').click(function() {
   $('#bwProcessing').addClass('is-hidden');
   setPauseButton();
   $('#bwEntry').removeClass('is-hidden');
+
+  return;
 });
 
 /*
@@ -198,6 +210,8 @@ $('#bwProcessingModalStopButtonStopsave').click(function() {
   $('#bwProcessing').addClass('is-hidden');
   setPauseButton();
   $('#bwExport').removeClass('is-hidden');
+
+  return;
 });
 
 /*
@@ -207,4 +221,6 @@ $('#bwProcessingModalStopButtonStopsave').click(function() {
 $('#bwProcessingButtonNext').click(function() {
   $('#bwProcessing').addClass('is-hidden');
   $('#bwExport').removeClass('is-hidden');
+
+  return;
 });

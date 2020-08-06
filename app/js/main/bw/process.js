@@ -70,7 +70,7 @@ ipcMain.on('bw:lookup', function(event, domains, tlds) {
   } = stats;
 
   var {
-    sender // expose shorthand sender
+    sender
   } = event;
 
   /*

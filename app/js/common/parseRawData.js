@@ -3,8 +3,6 @@
 const	changeCase = require('change-case'),
 	htmlEntities = require('html-entities').XmlEntities;
 
-const DELIMITER = ':';
-
 /*
 	stripHTMLEntitites
 		Strips HTML entities from a given string
@@ -33,6 +31,7 @@ function filterColonChar(rawData) {
 		rawData (string) - string to parse raw data from
  */
 function parseRawData(rawData) {
+	const DELIMITER = ':';
 	var result = {};
 
 	rawData = stripHTMLEntitites(rawData);
@@ -42,7 +41,7 @@ function parseRawData(rawData) {
 	for (var i = 0; i < lines.length; ++i) {
 		line = lines[i].trim();
 
-		if ( line && line.includes(DELIMITER+' ') ) {
+		if ( line && line.includes(DELIMITER + ' ') ) {
 			var lineParts = line.split(DELIMITER);
 
 			// 'Greater than' since lines often have more than one colon, eg values with URLs
@@ -51,9 +50,7 @@ function parseRawData(rawData) {
 					value = lineParts.splice(1).join(DELIMITER).trim();
 
 				// If multiple lines use the same key, combine the values
-				if ( key in result ) {
-					result[key] = `${result[key]} ${value}`;
-				}
+				if ( key in result ) result[key] = `${result[key]} ${value}`;
 				result[key] = value;
 			}
 		}

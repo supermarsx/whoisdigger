@@ -19,6 +19,8 @@ function tableReset(dLength = 0, tLength = 0) {
   $('#bwProcessingSpanStatusavailable').text(0);
   $('#bwProcessingSpanStatusunavailable').text(0);
   $('#bwProcessingSpanStatuserror').text(0);
+
+  return;
 }
 
 /*
@@ -75,6 +77,7 @@ function setExportOptions(preset) {
       break;
   }
 
+  return;
 }
 
 /*
@@ -92,6 +95,8 @@ function setExportOptionsEx(filetype) {
       unlockFields(true);
       break;
   }
+
+  return;
 }
 
 /*
@@ -110,6 +115,8 @@ function lockFields(isTxt = false) {
     $('#bwExportSelectInformation').prop("disabled", true);
     $('#bwExportSelectReply').prop("disabled", true);
   }
+
+  return;
 }
 
 /*
@@ -129,6 +136,8 @@ function unlockFields(isTxt = false) {
     $('#bwExportSelectInformation').prop("disabled", false);
     $('#bwExportSelectReply').prop("disabled", false);
   }
+
+  return;
 }
 
 module.exports = {

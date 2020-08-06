@@ -57,6 +57,8 @@ ipcRenderer.on('bw:wordlistinput.confirmation', function() {
     $('#bwWordlistTdDomains').text('{0} line(s)'.format(bwFileStats['linecount']));
     $('#bwWordlistTdFilepreview').text(bwFileStats['filepreview'] + '...');
   }
+
+  return;
 });
 
 /*
@@ -66,6 +68,8 @@ ipcRenderer.on('bw:wordlistinput.confirmation', function() {
 $('#bwEntryButtonWordlist').click(function() {
   $('#bwEntry').addClass('is-hidden');
   $('#bwWordlistinput').removeClass('is-hidden');
+
+  return;
 });
 
 /*
@@ -75,6 +79,8 @@ $('#bwEntryButtonWordlist').click(function() {
 $('#bwWordlistinputButtonCancel').click(function() {
   $('#bwWordlistinput').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
+
+  return;
 });
 
 /*
@@ -84,6 +90,8 @@ $('#bwWordlistinputButtonCancel').click(function() {
 $('#bwWordlistinputButtonConfirm').click(function() {
   $('#bwWordlistinput').addClass('is-hidden');
   ipcRenderer.send("bw:input.wordlist");
+
+  return;
 });
 
 /*
@@ -93,6 +101,8 @@ $('#bwWordlistinputButtonConfirm').click(function() {
 $('#bwWordlistconfirmButtonCancel').click(function() {
   $('#bwWordlistconfirm').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
+
+  return;
 });
 
 /*
@@ -113,6 +123,8 @@ $('#bwWordlistconfirmButtonStart').click(function() {
   $('#bwProcessing').removeClass('is-hidden');
 
   ipcRenderer.send("bw:lookup", bwDomainArray, bwTldsArray);
+
+  return;
 });
 
 /*
@@ -127,4 +139,6 @@ $('#bwWordlistInputTlds').keyup(function(event) {
     // Trigger the button element with a click
     $('#bwWordlistconfirmButtonStart').click();
   }
+
+  return;
 });

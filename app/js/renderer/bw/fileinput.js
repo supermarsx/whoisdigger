@@ -90,6 +90,8 @@ ipcRenderer.on('bw:fileinput.confirmation', function(event, filePath = null, isD
 
     //console.log(bwFileStats['linecount']);
   }
+
+  return;
 });
 
 /*
@@ -101,6 +103,8 @@ $('#bwEntryButtonFile').click(function() {
   $.when($('#bwFileinputloading').removeClass('is-hidden').delay(10)).done(function() {
     ipcRenderer.send("bw:input.file");
   });
+
+  return;
 });
 
 /*
@@ -110,6 +114,8 @@ $('#bwEntryButtonFile').click(function() {
 $('#bwFileButtonCancel').click(function() {
   $('#bwFileinputconfirm').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
+
+  return;
 });
 
 /*
@@ -189,6 +195,7 @@ $('#bwMainContainer').on('drop', function(event) {
     ipcRenderer.send('File(s) you dragged here: {0}'.format(f.path));
     ipcRenderer.send('ondragstart', f.path);
   }
+
   return false;
 });
 
@@ -204,4 +211,6 @@ $('#bwFileInputTlds').keyup(function(event) {
     // Trigger the button element with a click
     $('#bwFileButtonConfirm').click();
   }
+
+  return;
 });

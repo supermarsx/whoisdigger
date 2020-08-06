@@ -98,6 +98,8 @@ app.on('ready', function() {
     startup();
     debug('Showing main window');
     mainWindow.show();
+
+    return;
   });
 
   /*
@@ -113,7 +115,11 @@ app.on('ready', function() {
       debug('Exiting application');
       app.quit();
     }
+
+    return;
   });
+
+  return;
 });
 
 /*
@@ -128,6 +134,8 @@ function startup() {
   debug('Doing startup checks');
   debug("'settings.startup.developerTools': {0}".format(startup.developerTools));
   if (startup.developerTools) mainWindow.toggleDevTools();
+
+  return;
 }
 
 /*
@@ -142,6 +150,8 @@ ipcMain.on('app:minimize', function() {
     debug("App minimized");
     mainWindow.minimize();
   }
+
+  return;
 });
 
 /*
@@ -150,4 +160,6 @@ ipcMain.on('app:minimize', function() {
  */
 ipcMain.on('app:debug', function(event, message) {
   debugb(message);
+
+  return;
 });

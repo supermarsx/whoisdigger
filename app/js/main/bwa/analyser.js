@@ -19,5 +19,9 @@ const {
     contents (object) - bulk whois lookup results object
  */
 ipcMain.on('bwa:analyser.start', function(event, contents) {
-  event.sender.send('bwa:analyser.tablegen', contents);
+  var {
+    sender
+  } = event;
+
+  sender.send('bwa:analyser.tablegen', contents);
 });

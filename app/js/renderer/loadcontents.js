@@ -69,6 +69,8 @@
 
   // Help container
   $('#heMainContainer').load(tab + "he.html");
+
+  return;
 })();
 
 //loadHtml();

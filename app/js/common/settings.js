@@ -29,7 +29,8 @@ var isRenderer = (function() {
   }
 })();
 
-var filePath = isRenderer ? app.getPath('userData') + settings['custom.configuration']['filepath'] :
+var filePath = isRenderer ?
+  app.getPath('userData') + settings['custom.configuration']['filepath'] :
   remote.app.getPath('userData') + settings['custom.configuration']['filepath'];
 
 /*

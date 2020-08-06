@@ -19,6 +19,10 @@ const {
     event (object) - renderer object
  */
 ipcMain.on('bw:input.wordlist', function(event) {
+  var {
+    sender
+  } = event;
+
   debug("Using wordlist input");
-  event.sender.send('bw:wordlistinput.confirmation');
+  sender.send('bw:wordlistinput.confirmation');
 });

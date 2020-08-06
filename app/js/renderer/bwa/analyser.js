@@ -23,6 +23,8 @@ var bwaFileContents;
 ipcRenderer.on('bwa:analyser.tablegen', function(event, contents) {
   bwaFileContents = contents;
   showTable();
+
+  return;
 });
 
 /*
@@ -32,6 +34,8 @@ ipcRenderer.on('bwa:analyser.tablegen', function(event, contents) {
 $('#bwaAnalyserButtonClose').click(function() {
   ipcRenderer.send('app:debug', '#bwaAnalyserButtonClose clicked');
   $('#bwaAnalyserModalClose').addClass('is-active');
+
+  return;
 });
 
 /*
@@ -42,6 +46,8 @@ $('#bwaAnalyserModalCloseButtonYes').click(function() {
   $('#bwaAnalyser').addClass('is-hidden');
   $('#bwaAnalyserModalClose').removeClass('is-active');
   $('#bwaEntry').removeClass('is-hidden');
+
+  return;
 });
 
 /*
@@ -50,6 +56,8 @@ $('#bwaAnalyserModalCloseButtonYes').click(function() {
  */
 $('#bwaAnalyserModalCloseButtonNo').click(function() {
   $('#bwaAnalyserModalClose').removeClass('is-active');
+
+  return;
 });
 
 /*
@@ -91,6 +99,8 @@ function showTable() {
   $('#bwaFileinputconfirm').addClass('is-hidden');
   $('#bwaAnalyser').removeClass('is-hidden');
   //body.content.destroy();
+
+  return;
 }
 
 /*
@@ -103,9 +113,9 @@ function showTable() {
 function getInitials(string, threshold = 1) {
   var initials = string.match(/\b\w/g);
 
-  (initials.length > threshold) ?
-  initials = initials.join("").toString():
-    initials = string.substring(0, threshold + 1);
+  initials = (initials.length > threshold) ?
+    initials.join("").toString() :
+    string.substring(0, threshold + 1);
 
   return initials;
 }

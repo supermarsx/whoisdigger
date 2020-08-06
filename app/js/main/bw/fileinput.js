@@ -26,8 +26,13 @@ ipcMain.on('bw:input.file', function(event) {
     buttonLabel: "Open",
     properties: ['openFile', 'showHiddenFiles']
   });
+
+  var {
+    sender
+  } = event;
+
   debug("Using selected file at {0}".format(filePath));
-  event.sender.send('bw:fileinput.confirmation', filePath);
+  sender.send('bw:fileinput.confirmation', filePath);
 });
 
 /*
@@ -38,10 +43,19 @@ ipcMain.on('bw:input.file', function(event) {
     filePath (string) - dropped file path
  */
 ipcMain.on('ondragstart', function(event, filePath) {
-  event.sender.startDrag({
+  const {
+    'app.window': appWindow
+  } = settings;
+
+  var {
+    sender
+  } = event;
+
+  sender.startDrag({
     file: filePath,
-    icon: appSettings.window.icon
+    icon: appWindow.icon
   });
+  
   debug('File drag filepath: {0}'.format(filePath));
-  event.sender.send('bw:fileinput.confirmation', filePath, true);
+  sender.send('bw:fileinput.confirmation', filePath, true);
 });
