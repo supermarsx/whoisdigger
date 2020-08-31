@@ -19,9 +19,9 @@ Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on
 
 - [Features](#features)
 - [Important notice](#important-notice)
-- [Quick Start](#quick-start)
+- [Quick start](#quick-start)
 - [Building](#building)
-- [Built With](#built-with)
+- [Built with](#built-with)
 - [License](#license)
 
 ## Features
@@ -47,7 +47,7 @@ Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on
 
 Its your sole responsibility of what you do with this tool, check the licence section for more information. This tool intended use is to let anyone have a chance at finding a good domain in a crowded space, such as a good `.com`. A non conforming practice and use of the tool according to your local laws may land you criminal or civil liabilities. Other than that keep in mind that repeated whois requests to a server will eventually result in IP blacklisting for example, you should have a conservative values for time between requests and bit of common sense to minimize your risks, don't do huge bulk lookups at once and/or with the same IP, preferably use different proxies between requests.
 
-## Quick Start
+## Quick start
 
 Stay on the bleeding edge of whoisdigger commits using `git clone` or for slightly tested version download the latest built release.
 
@@ -166,7 +166,7 @@ Linux
 npm run package-linux
 ```
 
-## Built With
+## Built with
 
 <a href="https://electronjs.org/"><img height=40px src="https://electronjs.org/images/electron-logo.svg"></a>
 
