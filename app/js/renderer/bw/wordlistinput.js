@@ -1,6 +1,6 @@
 // jshint esversion: 8, -W069
 
-/** global: appSettings */
+/** global: settings */
 const conversions = require('../../common/conversions');
 
 const {
@@ -19,9 +19,6 @@ var bwWordlistContents; // Global wordlist input contents
  */
 ipcRenderer.on('bw:wordlistinput.confirmation', function() {
   var bwFileStats = [];
-  const {
-    lookup
-  } = appSettings;
 
   bwWordlistContents = $('#bwWordlistTextareaDomains').val().toString();
   if (bwWordlistContents == '' && bwWordlistContents === null) {
@@ -32,16 +29,16 @@ ipcRenderer.on('bw:wordlistinput.confirmation', function() {
     $('#bwWordlistSpanInfo').text('Getting line count...');
     bwFileStats['linecount'] = bwWordlistContents.toString().split('\n').length;
 
-    if (lookup.randomize.timebetween === true) {
-      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.randomize.timebetweenmin);
-      bwFileStats['maxestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.randomize.timebetweenmax);
-      $('#bwWordlistSpanTimebetweenmin').text('{0}ms '.format(lookup.randomize.timebetweenmin));
-      $('#bwWordlistSpanTimebetweenmax').text('/ {0}ms'.format(lookup.randomize.timebetweenmax));
+    if (settings['lookup.randomize.timeBetween'].randomize === true) {
+      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * settings['lookup.randomize.timeBetween'].minimum);
+      bwFileStats['maxestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * settings['lookup.randomize.timeBetween'].maximum);
+      $('#bwWordlistSpanTimebetweenmin').text('{0}ms '.format(settings['lookup.randomize.timeBetween'].minimum));
+      $('#bwWordlistSpanTimebetweenmax').text('/ {0}ms'.format(settings['lookup.randomize.timeBetween'].maximum));
       $('#bwWordlistTdEstimate').text('{0} to {1}'.format(bwFileStats['minestimate'], bwFileStats['maxestimate']));
     } else {
-      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.timebetween);
+      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * settings['lookup.general'].timeBetween);
       $('#bwWordlistSpanTimebetweenminmax').addClass('is-hidden');
-      $('#bwWordlistSpanTimebetweenmin').text(lookup.timebetween + 'ms');
+      $('#bwWordlistSpanTimebetweenmin').text(settings['lookup.general'].timeBetween + 'ms');
       $('#bwWordlistTdEstimate').text('> {0}'.format(bwFileStats['minestimate']));
     }
 

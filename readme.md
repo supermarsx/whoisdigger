@@ -27,21 +27,23 @@ Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on
 ## Features
 
 - Fast whois lookup
-- Whois raw replies (text or csv)
-- Wordlist capabilities (drag n' drop, file or manual)
+- Better privacy
+- Raw text whois replies
+- Bulk whois lookup
+- Bulk DNS sweep lookup
+- Wordlist capabilities with drag n' drop
 - IDNA 2003/2008 and Punycode support
-- Public Suffix List and wildcard filtering
+- Public Suffix List (PSL) and wildcard filtering
+- Basic bulk whois result analyser (csv import)
+- Persistent settings through json file preload
 
 ### Planned features
 
-- Bulk analyser
 - Domain monitor
 - Misc tools
 - Options
 - Help page
 - Proxy integration
-- Bulk DNS sweep
-- Persistent settings
 
 ## Important notice
 
@@ -91,14 +93,16 @@ npm run debug-cmd
 
 ### Using wordlists
 
-You can use wordlists by either using a file wordlist in text format or manually input using the text area option. Wordlists should follow the sanitization requirements below for the best results although they're not mandatory. Not following the requirements will result in adverse or unwanted results.
+You can use wordlists by either using a file wordlist in text format or manually input using the text area option. Wordlists should follow sanitization requirements below for the best results although they're not mandatory. Not following the requirements will result in adverse or unwanted results.
 
+Wordlist requirements:
 - Deduplicated
-- No spaces (if intended)
+- No spaces
 - No subdomains
 - One domain per line
 - No TLDs
 - UTF-8 encoded
+- No reserved characters such as dots
 
 Example wordlist
 
@@ -126,23 +130,23 @@ Exporting as text will only export raw replies for each domain in a zip file, as
 
 ### Notes on errors
 
-Errors during bulk lookups are common due to the cadence of requests, this means that you'll have requests getting blocked, rejected, throttled or delayed. Errors may signal that a domain is already registered, at times you can assume that but take into account the domain name, tld and probability of it being registered. Whoisdigger includes assumptions for specific scenarios, see assumptions for more.
+Errors during bulk lookups are pretty common due to sheer request volume, this means that you'll have requests periodically getting blocked, rejected, throttled or delayed (might result in false negatives, false positives in rare cases or errors). Errors may and usually signal that a domain is already registered, at times you can assume that but take into account the domain name, tld and probability of it being registered. Whoisdigger includes assumptions settings that you can tweak for specific scenarios, see assumptions below for more.
 
 ## Settings
 
-Whoisdigger uses a settings file that rules how the application behaves in the overall, currently you can only change this if you use the git version.
+Whoisdigger uses a settings file that rules how the application behaves overall, this can be achieved by either using the preload settings file or change the `appSettings.js` inside `js`.
 
 ### Assumptions
 
-You can use assumptions with whoisdigger making it more reliable in case you're getting inconsistencies across different tests.
+You can use assumptions (`lookup.assumptions` settings section) to make more reliable searches in cases where you're getting inconsistencies across different tests.
 
-`uniregistry`, Assume a domain is unavailable when uniregistry query limit is reached, default is true.
+`uniregistry`, Assume a domain is unavailable when uniregistry query limit is reached, default: true.
 
-​	Note: Uniregistry whois has a very low threshold on whois requests, a few requests with relative small timings in between will result in a temporary block, by assuming a rate limiting reply from uniregistry as a taken domain, you ensure that you're not getting a false positive error.
+​	Note: Uniregistry whois has a very low threshold on whois requests, a few requests with relative small timings in between will result in a sure temporary block, by assuming a rate limiting reply from uniregistry as a taken domain, you ensure that you're not getting a false/undetermined reply error.
 
-`ratelimit`, Assume a domain is unavailable when getting rate limited, default is false
+`ratelimit`, Assume a domain is unavailable when getting rate limit reply, default: false
 
-`unparsable`, Assume a domain as available if reply is unparsable, default is false
+`unparsable`, Assume a domain as available if reply is unparsable, it may help correcting malformed, unusual or unhandled whois replies, default: false
 
 ## Building
 

@@ -1,6 +1,6 @@
 // jshint esversion: 8, -W069
 
-/** global: appSettings */
+/** global: settings */
 const whois = require('../../common/whoisWrapper'),
   conversions = require('../../common/conversions'),
   fs = require('fs'),
@@ -20,10 +20,6 @@ var bwaFileContents;
     File input, path and information confirmation container
  */
 ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath = null, isDragDrop = false) {
-  const {
-    misc,
-    lookup
-  } = appSettings;
   var bwaFileStats; // File stats, size, last changed, etc
 
   $('#bwaFileSpanInfo').text('Waiting for file...');
@@ -40,7 +36,7 @@ ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath = null, is
       $('#bwaFileinputloading').removeClass('is-hidden');
       bwaFileStats = fs.statSync(filePath);
       bwaFileStats['filename'] = filePath.replace(/^.*[\\\/]/, '');
-      bwaFileStats['humansize'] = conversions.byteToHumanFileSize(bwaFileStats['size'], misc.usestandardsize);
+      bwaFileStats['humansize'] = conversions.byteToHumanFileSize(bwaFileStats['size'], settings['lookup.misc'].useStandardSize);
       $('#bwaFileSpanInfo').text('Loading file contents...');
       bwaFileContents = Papa.parse(fs.readFileSync(filePath).toString(), {
         header: true
@@ -48,7 +44,7 @@ ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath = null, is
     } else {
       bwaFileStats = fs.statSync(filePath[0]);
       bwaFileStats['filename'] = filePath[0].replace(/^.*[\\\/]/, '');
-      bwaFileStats['humansize'] = conversions.byteToHumanFileSize(bwaFileStats['size'], misc.usestandardsize);
+      bwaFileStats['humansize'] = conversions.byteToHumanFileSize(bwaFileStats['size'], settings['lookup.misc'].useStandardSize);
       $('#bwaFileSpanInfo').text('Loading file contents...');
       bwaFileContents = Papa.parse(fs.readFileSync(filePath[0]).toString(), {
         header: true

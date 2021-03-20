@@ -49,13 +49,15 @@ module.exports = {
       'enableExtendedMenu': true // Enable extended navigation toggle (default: true)
     },
     'lookup.general': { // Whois lookup default values
-      'type': 'whois', // Lookup type: 'whois' - regular whois request, 'dns' - dns record request (default: whois)
+      'type': 'dns', // Lookup type: 'whois' - regular whois request, 'dns' - dns record request (default: whois)
       'psl': true, // Enable Public Suffix List conversion, removes subdomains includes wildcards (default: true)
       'server': "", // Default whois server
       'verbose': false, // When true returns array of whois replies
       'follow': 3, // Maximum follow request depth (default: 3)
       'timeout': 2500, // Supposed timeout for whois requests in milliseconds (default: 2500)
-      'timeBetween': 1500 // Time between each whois request in queue in milliseconds (default: 1500)
+      'timeBetween': 1500, // Time between each whois request in queue in milliseconds (default: 1500)
+      'useDnsTimeBetweenOverride': true, // Override time between request (default: true)
+      'dnsTimeBetween': 50 // Time between request specifically for dns requests
     },
     'lookup.randomize.follow': { // Lookup follow randomization
       'randomize': false, // Randomize maximum follow request depth (default: false)

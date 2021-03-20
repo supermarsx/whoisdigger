@@ -5,11 +5,13 @@ import LineHelper from './lineHelper';
 import StringFormat from './stringFormat';
 import { parseRawData as ParseRawData } from './parseRawSata';
 import { whoisLookup as WhoisLookup } from './whoisWrapper';
+import DnsLookup from './dnsLookup';
 
 export {
   Conversions,
   LineHelper,
   StringFormat,
   ParseRawData,
-  WhoisLookup
+  WhoisLookup,
+  DnsLookup
 };

@@ -5,13 +5,26 @@ const util = require('util'),
   puny = require('punycode'),
   uts46 = require('idna-uts46'),
   whois = require('whois'),
-  lookupPromise = util.promisify(whois.lookup),
   parseRawData = require('./parseRawData'),
   debug = require('debug')('common.whoisWrapper'),
   {
     getDate
   } = require('./conversions'),
   settings = require('./settings').load();
+
+
+/*
+  lookupPromise
+    Promisified whois lookup
+ */
+const lookupPromise = (...args) => {
+  return new Promise((resolve, reject) => {
+    whois.lookup(...args, (err, data) => {
+      if (err) return reject(err);
+      resolve(data);
+    });
+  });
+};
 
 /*
   lookup
@@ -24,17 +37,18 @@ async function lookup(domain, options = getWhoisOptions()) {
   var {
     'lookup.conversion': conversion,
     'lookup.general': general
-  } = settings;
+  } = settings,
+  domainResults;
 
-  domain = conversion.enabled ? convertDomain(domain) : domain;
-  domain = general.psl ? psl.get(domain).replace(/((\*\.)*)/g, '') : domain;
+  try {
+    domain = conversion.enabled ? convertDomain(domain) : domain;
+    domain = general.psl ? psl.get(domain).replace(/((\*\.)*)/g, '') : domain;
 
-  debug("Looking up for {0}".format(domain));
-
-  var domainResults = await lookupPromise(domain, options).catch(function(err) {
-    debug("lookup error, 'err:' {0}".format(err));
-    return "Whois lookup error, {0}".format(err);
-  });
+    debug("Looking up for {0}".format(domain));
+    domainResults = await lookupPromise(domain, options);
+  } catch (e) {
+    domainResults = "Whois lookup error, {0}".format(e);
+  }
 
   return domainResults;
 }
