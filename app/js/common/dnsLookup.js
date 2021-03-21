@@ -1,6 +1,7 @@
 // jshint esversion: 8
 //const settings = require('./settings').load();
 const dns = require('dns'),
+  psl = require('psl'),
   debug = require('debug')('common.dnsLookup'),
   {
     convertDomain
@@ -69,6 +70,9 @@ async function hasNsServers(host) {
     'lookup.conversion': conversion,
     'lookup.general': general
   } = settings;
+
+  host = conversion.enabled ? convertDomain(host) : host;
+  host = general.psl ? psl.get(host).replace(/((\*\.)*)/g, '') : host;
 
   try {
     result = await dnsResolvePromise(host, 'NS');
