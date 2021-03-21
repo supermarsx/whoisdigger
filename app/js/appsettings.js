@@ -27,6 +27,7 @@ module.exports = {
     },
     'app.window.webPreferences': {  // Web preferences
       'nodeIntegration': true, // Enable node integration
+      'contextIsolation': false, // Enable context isolation
       'zoomFactor': 1.0, // Page zoom factor
       'images': true, // Image support
       'experimentalFeatures': false, // Enable Chromium experimental features
@@ -36,7 +37,7 @@ module.exports = {
       'enableRemoteModule': true // Enable remote module
     },
     'startup': { // Application startup
-      'developerTools': false, // Enable/Show developer tools at startup (default: false)
+      'developerTools': true, // Enable/Show developer tools at startup (default: false)
     },
     'app.window.url': { // Window URL
       'pathname': path.join(__dirname, '../html/mainPanel.html'), // Main html file location

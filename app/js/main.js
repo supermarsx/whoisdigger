@@ -68,6 +68,7 @@ app.on('ready', function() {
     thickFrame: appWindow.thickFrame, // Use WS_THICKFRAME style for frameless windows on Windows, which adds standard window frame. Setting it to false will remove window shadow and window animations.
     webPreferences: {
       nodeIntegration: webPreferences.nodeIntegration, // Enable node integration
+      contextIsolation: webPreferences.contextIsolation, // Context isolation
       zoomFactor: webPreferences.zoomFactor, // Page zoom factor
       image: webPreferences.image, // Image support
       experimentalFeatures: webPreferences.experimentalFeatures, // Enable Chromium experimental features

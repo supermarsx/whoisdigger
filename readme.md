@@ -15,6 +15,10 @@ This application is in **alpha stage**, you may encounter false positives and/or
 
 Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on Electron. Made with builders and creators in mind, rapidly lookup up your favorite domain mashups without risking third-party logging, domain squatting and a few other common issues that come with using third-party platforms. The faster, reliable and most private way of looking for domains.
 
+### Important notice
+
+If you clone this repo please patch `node_modules\whois\index.js` and remove the first line containing `#!/usr/bin/env node`.
+
 ## Index
 
 - [Features](#features)
