@@ -110,7 +110,8 @@ module.exports = {
     'lookup.assumptions': { // Lookup assumptions
       'uniregistry': true, // Assume a domain is unavailable when uniregistry query limit is reached (default: true)
       'ratelimit': false, // Assume a domain is unavailable when getting rate limited (default: false)
-      'unparsable': false // Assume a domain as available if reply is unparsable (default: false)
+      'unparsable': false, // Assume a domain as available if reply is unparsable (default: false)
+      'dnsFailureUnavailable': true // Assume a domain is unavailable if DNS request fails (default: true)
     },
     'custom.configuration': { // Application custom configurations
       'filepath': '\\appconfig.js', // Custom configuration filename on app directory (default: appconfig.js) || Non functional

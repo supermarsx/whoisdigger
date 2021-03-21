@@ -3,6 +3,8 @@
 const dns = require('dns'),
   debug = require('debug')('common.dnsLookup');
 
+var settings = require('./settings').load();
+
 /*
   dnsResolvePromise
     Promisified dns resolution with argument passthrough
@@ -58,7 +60,7 @@ async function hasNsServers(host) {
     result = await dnsResolvePromise(host, 'NS');
     result = Array.isArray(result) ? true : false;
   } catch (e) {
-    result = false;
+    result = settings['lookup.assumptions'].dnsFailureUnavailable ? true : false;
     debug(`Lookup failed with error ${e}`);
   }
 

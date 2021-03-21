@@ -148,6 +148,8 @@ You can use assumptions (`lookup.assumptions` settings section) to make more rel
 
 `unparsable`, Assume a domain as available if reply is unparsable, it may help correcting malformed, unusual or unhandled whois replies, default: false
 
+`dnsFailureUnavailable`, Assume a domain is unavailable in a DNS sweep if request fails, this avoids having false positives on availability, default: true
+
 ## Building
 
 Whoisdigger uses electron-packager for builds.
