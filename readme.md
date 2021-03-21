@@ -13,7 +13,7 @@
 
 This application is in **alpha stage**, you may encounter false positives and/or negatives.
 
-Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on Electron. Made with builders and creators in mind, rapidly lookup up your favorite domain mashups without risking third-party logging, domain squatting and a few other common issues that come with using these platforms.
+Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on Electron. Made with builders and creators in mind, rapidly lookup up your favorite domain mashups without risking third-party logging, domain squatting and a few other common issues that come with using third-party platforms. The faster, reliable and most private way of looking for domains.
 
 ## Index
 
@@ -32,7 +32,7 @@ Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on
 - Bulk whois lookup
 - Bulk DNS sweep lookup
 - Wordlist capabilities with drag n' drop
-- IDNA 2003/2008 and Punycode support
+- IDNA 2003/2008 (UTS46), Punycode, non-ASCII character filter support
 - Public Suffix List (PSL) and wildcard filtering
 - Basic bulk whois result analyser (csv import)
 - Persistent settings through json file preload
@@ -44,6 +44,23 @@ Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on
 - Options
 - Help page
 - Proxy integration
+
+### Features QA
+
+Q: Can i search for emojis?
+A: Yes, whoisdigger has IDNA and Punycode support
+
+Q: Can i do a million word list lookup?
+A: Yes, but be aware that big wordlists come with a humongous time penalty using purely whois (that to avoid unintentional DDOSing or blocking), use DNS sweep with care for large lookups if you only need availability.
+
+Q: How long will it take doing a million word list DNS sweep?
+A: Close to 14 hours on a 50ms delay, i wouldn't ever recommend doing such a thing. Be responsible.
+
+Q: How does DNS sweep work?
+A: DNS sweep as it says, sweeps through NS records of every domain on the wordlist, availability is based off of NS record presence for that domain.
+
+Q: How much faster is DNS sweep?
+A: It will largely depend on the set time between requests but on average is between 10x to 100x faster.
 
 ## Important notice
 
