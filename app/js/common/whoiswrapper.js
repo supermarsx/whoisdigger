@@ -1,7 +1,7 @@
 // jshint esversion: 8, -W069
+/** global: conversion, general, assumptions, timeout, follow, timeBetween */
 
-const util = require('util'),
-  psl = require('psl'),
+const psl = require('psl'),
   puny = require('punycode'),
   uts46 = require('idna-uts46'),
   whois = require('whois'),
@@ -22,6 +22,7 @@ const lookupPromise = (...args) => {
     whois.lookup(...args, (err, data) => {
       if (err) return reject(err);
       resolve(data);
+      return undefined;
     });
   });
 };
@@ -71,6 +72,8 @@ function toJSON(resultsText) {
   } else {
     return parseRawData(preStringStrip(resultsText));
   }
+
+  return undefined;
 }
 
 /*
@@ -165,8 +168,8 @@ function isDomainAvailable(resultsText, resultsJSON) {
        */
 
       // Error, null or no contents
-    case (resultsText == null):
-    case (resultsText == ''):
+    case (resultsText === null):
+    case (resultsText === ''):
       return 'error:nocontent';
 
       // Error, unauthorized
@@ -231,7 +234,7 @@ function isDomainAvailable(resultsText, resultsJSON) {
     isAuxiliary (boolean) - Is auxiliary function to domain availability check, if used in "isDomainAvailable" fn
  */
 function getDomainParameters(domain, status, resultsText, resultsJSON, isAuxiliary = false) {
-  results = {};
+  var results = {};
 
   results.domain = domain;
   results.status = status;
@@ -349,8 +352,6 @@ function getWhoisParameters(parameter) {
     'lookup.general': general
   } = settings;
 
-  console.log(timeout);
-
   switch (parameter) {
     case 'follow':
       debug("Follow depth, 'random': {0}, 'maximum': {1}, 'minimum': {2}, 'default': {3}".format(follow.randomize, follow.maximumDepth, follow.minimumDepth, general.follow));
@@ -361,7 +362,7 @@ function getWhoisParameters(parameter) {
       return (timeout.randomize ? getRandomInt(timeout.minimum, timeout.maximum) : general.timeout);
 
     case 'timebetween':
-      debug("Timebetween, 'random': {0}, 'maximum': {1}, 'minimum': {2}, 'default': {3}".format(randomize.timeBetween, timeBetween.maximum, timeBetween.minimum, general.timeBetween));
+      debug("Timebetween, 'random': {0}, 'maximum': {1}, 'minimum': {2}, 'default': {3}".format(timeBetween.randomize, timeBetween.maximum, timeBetween.minimum, general.timeBetween));
       return (timeBetween.randomize ? getRandomInt(timeBetween.minimum, timeBetween.maximum) : general.timeBetween);
 
     default:
