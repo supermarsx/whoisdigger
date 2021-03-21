@@ -24,7 +24,7 @@ function lineCount(text, newLineChar = '\n') { // '\n' unix; '\r' macos; '\r\n' 
  */
 function fileReadLines(filePath, lines = 2, startLine = 0) {
   var lineCounter = startLine,
-    endLine = startLine + lines,
+    //endLine = startLine + lines,
     linesRead = [],
     lineReader = require('readline').createInterface({
       input: require('fs').createReadStream(filePath),
