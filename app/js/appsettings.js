@@ -44,7 +44,7 @@ module.exports = {
       'slashes': true // Path slashes (default: true)
     },
     'app.window.navigation': { // Navigation
-      'developerTools': true, // Enable devtools button on extended navigation bar (default: false)
+      'developerTools': false, // Enable devtools button on extended navigation bar (default: false)
       'extendedCollapsed': false, // Show extended navigation collapsed (default: false)
       'enableExtendedMenu': true // Enable extended navigation toggle (default: true)
     },
