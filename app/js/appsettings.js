@@ -36,7 +36,7 @@ module.exports = {
       'enableRemoteModule': true // Enable remote module
     },
     'startup': { // Application startup
-      'developerTools': true, // Enable/Show developer tools at startup (default: false)
+      'developerTools': false, // Enable/Show developer tools at startup (default: false)
     },
     'app.window.url': { // Window URL
       'pathname': path.join(__dirname, '../html/mainPanel.html'), // Main html file location
@@ -44,7 +44,7 @@ module.exports = {
       'slashes': true // Path slashes (default: true)
     },
     'app.window.navigation': { // Navigation
-      'developerTools': false, // Enable devtools button on extended navigation bar (default: false)
+      'developerTools': true, // Enable devtools button on extended navigation bar (default: false)
       'extendedCollapsed': false, // Show extended navigation collapsed (default: false)
       'enableExtendedMenu': true // Enable extended navigation toggle (default: true)
     },
