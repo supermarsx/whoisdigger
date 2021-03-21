@@ -1,7 +1,10 @@
 // jshint esversion: 8
 //const settings = require('./settings').load();
 const dns = require('dns'),
-  debug = require('debug')('common.dnsLookup');
+  debug = require('debug')('common.dnsLookup'),
+  {
+    convertDomain
+  } = require('./whoisWrapper');
 
 var settings = require('./settings').load();
 
@@ -32,6 +35,13 @@ const dnsResolvePromise = (...args) => {
  */
 async function nsLookup(host) {
   var result;
+  var {
+    'lookup.conversion': conversion,
+    'lookup.general': general
+  } = settings;
+
+  host = conversion.enabled ? convertDomain(host) : host;
+  host = general.psl ? psl.get(host).replace(/((\*\.)*)/g, '') : host;
 
   try {
     result = await dnsResolvePromise(host, 'NS');
@@ -55,6 +65,10 @@ async function nsLookup(host) {
 async function hasNsServers(host) {
   var result,
     isArray;
+  var {
+    'lookup.conversion': conversion,
+    'lookup.general': general
+  } = settings;
 
   try {
     result = await dnsResolvePromise(host, 'NS');
