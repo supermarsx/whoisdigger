@@ -397,5 +397,6 @@ module.exports = {
   toJSON: toJSON,
   isDomainAvailable: isDomainAvailable,
   preStringStrip: preStringStrip,
-  getDomainParameters: getDomainParameters
+  getDomainParameters: getDomainParameters,
+  convertDomain: convertDomain
 };
