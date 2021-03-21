@@ -61,6 +61,10 @@ async function hasNsServers(host) {
     result = Array.isArray(result) ? true : false;
   } catch (e) {
     result = settings['lookup.assumptions'].dnsFailureUnavailable ? true : false;
+    if (e.toString().includes('ENOTFOUND')) {
+      result = false;
+    }
+
     debug(`Lookup failed with error ${e}`);
   }
 
