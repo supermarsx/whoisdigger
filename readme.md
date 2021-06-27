@@ -197,7 +197,7 @@ npm run package-linux
 
 <a href="https://electronjs.org/"><img height=40px src="https://electronjs.org/images/electron-logo.svg"></a>
 
-<a href="https://jquery.org/"><img height=40px src="https://upload.wikimedia.org/wikipedia/sco/9/9e/JQuery_logo.svg"></a>
+<a href="https://jquery.org/"><img height=40px src="https://upload.wikimedia.org/wikipedia/en/9/9e/JQuery_logo.svg"></a>
 
 <a href="https://bulma.io/"><img height=40px src="https://bulma.io/images/made-with-bulma.png"></a>
 
