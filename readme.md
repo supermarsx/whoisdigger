@@ -52,18 +52,23 @@ If you clone this repo please patch `node_modules\whois\index.js` and remove the
 ### Features QA
 
 Q: Can i search for emojis?
+
 A: Yes, whoisdigger has IDNA and Punycode support
 
 Q: Can i do a million word list lookup?
+
 A: Yes, but be aware that big wordlists come with a humongous time penalty using purely whois (that to avoid unintentional DDOSing or blocking), use DNS sweep with care for large lookups if you only need availability.
 
 Q: How long will it take doing a million word list DNS sweep?
+
 A: Close to 14 hours on a 50ms delay, i wouldn't ever recommend doing such a thing. Be responsible.
 
 Q: How does DNS sweep work?
+
 A: DNS sweep as it says, sweeps through NS records of every domain on the wordlist, availability is based off of NS record presence for that domain.
 
 Q: How much faster is DNS sweep?
+
 A: It will largely depend on the set time between requests but on average is between 10x to 100x faster.
 
 ## Important notice
