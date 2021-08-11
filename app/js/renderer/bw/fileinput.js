@@ -25,10 +25,12 @@ var bwFileContents;
  */
 ipcRenderer.on('bw:fileinput.confirmation', function(event, filePath = null, isDragDrop = false) {
   var bwFileStats; // File stats, size, last changed, etc
-  const {
-    misc,
-    lookup
-  } = settings;
+  const misc = settings['lookup.misc'];
+  const lookup = {
+    randomize: {
+      timeBetween: settings['lookup.randomize.timeBetween']
+    }
+  };
 
   //console.log(filePath);
   if (filePath === undefined || filePath == '' || filePath === null) {
@@ -55,17 +57,17 @@ ipcRenderer.on('bw:fileinput.confirmation', function(event, filePath = null, isD
     $('#bwFileSpanInfo').text('Getting line count...');
     bwFileStats['linecount'] = bwFileContents.toString().split('\n').length;
 
-    if (lookup.randomize.timebetween === true) {
-      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.randomize.timebetweenmin);
-      bwFileStats['maxestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.randomize.timebetweenmax);
+    if (lookup.randomize.timeBetween.randomize === true) {
+      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.randomize.timeBetween.minimum);
+      bwFileStats['maxestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.randomize.timeBetween.maximum);
 
-      $('#bwFileSpanTimebetweenmin').text('{0}ms '.format(lookup.randomize.timebetweenmin));
-      $('#bwFileSpanTimebetweenmax').text('/ {0}ms'.format(lookup.randomize.timebetweenmax));
+      $('#bwFileSpanTimebetweenmin').text('{0}ms '.format(lookup.randomize.timeBetween.minimum));
+      $('#bwFileSpanTimebetweenmax').text('/ {0}ms'.format(lookup.randomize.timeBetween.maximum));
       $('#bwFileTdEstimate').text('{0} to {1}'.format(bwFileStats['minestimate'], bwFileStats['maxestimate']));
     } else {
-      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.timebetween);
+      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.randomize.timeBetween.minimum);
       $('#bwFileSpanTimebetweenminmax').addClass('is-hidden');
-      $('#bwFileSpanTimebetweenmin').text(lookup.timebetween + 'ms');
+      $('#bwFileSpanTimebetweenmin').text(lookup.randomize.timeBetween.minimum + 'ms');
       $('#bwFileTdEstimate').text('> {0}'.format(bwFileStats['minestimate']));
     }
 
