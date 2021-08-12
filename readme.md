@@ -94,6 +94,7 @@ Clone whoisdigger code and install dependencies
 
 ```
 git clone https://github.com/whois-team/whoisdigger
+cd whoisdigger
 npm install
 ```
 
