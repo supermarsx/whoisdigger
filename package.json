@@ -40,6 +40,6 @@
   },
   "snyk": true,
   "devDependencies": {
-    "electron": "^12.0.1"
+    "electron": "^13.6.6"
   }
 }
