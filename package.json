@@ -36,7 +36,7 @@
     "psl": "^1.8.0",
     "punycode": "^2.1.1",
     "snyk": "^1.667.0",
-    "whois": "^2.13.0"
+    "whois": "^2.13.6"
   },
   "snyk": true,
   "devDependencies": {
