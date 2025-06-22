@@ -65,9 +65,13 @@ ipcRenderer.on('bw:fileinput.confirmation', function(event, filePath = null, isD
       $('#bwFileSpanTimebetweenmax').text('/ {0}ms'.format(lookup.randomize.timeBetween.maximum));
       $('#bwFileTdEstimate').text('{0} to {1}'.format(bwFileStats['minestimate'], bwFileStats['maxestimate']));
     } else {
-      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.randomize.timeBetween.minimum);
+      bwFileStats['minestimate'] = conversions.msToHumanTime(
+        bwFileStats['linecount'] * settings['lookup.general'].timeBetween
+      );
       $('#bwFileSpanTimebetweenminmax').addClass('is-hidden');
-      $('#bwFileSpanTimebetweenmin').text(lookup.randomize.timeBetween.minimum + 'ms');
+      $('#bwFileSpanTimebetweenmin').text(
+        settings['lookup.general'].timeBetween + 'ms'
+      );
       $('#bwFileTdEstimate').text('> {0}'.format(bwFileStats['minestimate']));
     }
 
