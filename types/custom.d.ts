@@ -1,0 +1,31 @@
+declare const require: any;
+declare module 'fs' {
+  export function existsSync(path: string): boolean;
+  export function readFileSync(path: string, options?: any): string;
+  export function writeFileSync(path: string, data: string): void;
+}
+declare module 'electron' {
+  export const app: any;
+  export const remote: any;
+}
+declare module 'debug' {
+  export default function debug(namespace: string): (...args: any[]) => void;
+}
+declare module 'psl' {
+  export function get(domain: string): string;
+}
+declare module 'punycode' {
+  export function encode(input: string): string;
+}
+declare module 'idna-uts46' {
+  const uts46: { toAscii(domain: string, options?: any): string };
+  export default uts46;
+}
+declare module 'whois' {
+  export function lookup(domain: string, options: any, callback: (err: any, data: any) => void): void;
+  export function lookup(domain: string, callback: (err: any, data: any) => void): void;
+}
+declare module 'app/js/common/parseRawData' {
+  const parseRawData: any;
+  export default parseRawData;
+}
