@@ -17,7 +17,8 @@
     "postbuild": "node postbuild.js",
     "watch": "tsc -w",
     "lint": "eslint \"app/**/*.ts\" \"test/**/*.ts\"",
-    "test": "jest"
+    "test": "jest",
+    "prebuild": "node prebuild.js"
   },
   "author": "supermarsx",
   "license": "MIT",
