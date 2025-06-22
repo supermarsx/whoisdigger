@@ -1,24 +1,79 @@
 // jshint esversion: 8, -W104, -W069
 
-const electron = require('electron'),
-  url = require('url'),
-  debug = require('debug')('main'),
-  debugb = require('debug')('renderer'),
-  fs = require('fs');
-
-const {
+import {
   app,
   BrowserWindow,
   Menu,
   ipcMain,
   dialog,
   remote
-} = electron;
+} from 'electron';
+import * as url from 'url';
+import debugModule from 'debug';
+import * as fs from 'fs';
+import { loadSettings } from './common/settings';
+import type { Settings as BaseSettings } from './common/settings';
+import type { IpcMainEvent } from 'electron';
+
+const debug = debugModule('main');
+const debugb = debugModule('renderer');
+
+interface AppWindowSettings {
+  frame: boolean;
+  show: boolean;
+  height: number;
+  width: number;
+  icon: string;
+  center: boolean;
+  minimizable: boolean;
+  maximizable: boolean;
+  movable: boolean;
+  resizable: boolean;
+  closable: boolean;
+  focusable: boolean;
+  alwaysOnTop: boolean;
+  fullscreen: boolean;
+  fullscreenable: boolean;
+  kiosk: boolean;
+  darkTheme: boolean;
+  thickFrame: boolean;
+}
+
+interface WebPreferencesSettings {
+  nodeIntegration: boolean;
+  contextIsolation: boolean;
+  zoomFactor: number;
+  image: boolean;
+  experimentalFeatures: boolean;
+  backgroundThrottling: boolean;
+  offscreen: boolean;
+  spellcheck: boolean;
+  enableRemoteModule: boolean;
+}
+
+interface AppUrlSettings {
+  pathname: string;
+  protocol: string;
+  slashes: boolean;
+}
+
+interface StartupSettings {
+  developerTools: boolean;
+}
+
+interface MainSettings extends BaseSettings {
+  'custom.configuration': { filepath: string; load: boolean; save: boolean };
+  'app.window': AppWindowSettings;
+  'app.window.webPreferences': WebPreferencesSettings;
+  'app.window.url': AppUrlSettings;
+  startup: StartupSettings;
+  [key: string]: any;
+}
 
 require('./main/index');
 
-var settings = require('./common/settings').load();
-let mainWindow;
+let settings: MainSettings = loadSettings() as MainSettings;
+let mainWindow: BrowserWindow;
 
 /*
   app.on('ready', function() {...}
@@ -35,7 +90,9 @@ app.on('ready', function() {
   // Custom application settings startup
   if (fs.existsSync(app.getPath('userData') + configuration.filepath)) {
     debug("Reading persistent configurations");
-    settings = fs.readFile(app.getPath('userData') + configuration.filepath);
+    settings = JSON.parse(
+      fs.readFileSync(app.getPath('userData') + configuration.filepath, 'utf8')
+    ) as MainSettings;
   } else {
     debug("Using default configurations");
   }
@@ -108,7 +165,7 @@ app.on('ready', function() {
       Quit application when main window is closed
    */
   mainWindow.on('closed', function() {
-    var {
+    const {
       'app.window': appWindow
     } = settings;
 
@@ -144,7 +201,7 @@ function startup() {
     Application minimize event
  */
 ipcMain.on('app:minimize', function() {
-  var {
+  const {
     'app.window': appWindow
   } = settings;
   if (appWindow.minimizable) {
@@ -159,7 +216,7 @@ ipcMain.on('app:minimize', function() {
   ipcMain.on('app:debug', function(...) {...});
     Application debug event
  */
-ipcMain.on('app:debug', function(event, message) {
+ipcMain.on('app:debug', function(event: IpcMainEvent, message: any) {
   debugb(message);
 
   return;
