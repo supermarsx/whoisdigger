@@ -6,6 +6,8 @@
     "moduleResolution": "node",
     "allowJs": true,
     "noEmit": false,
+    "rootDir": "app/js",
+    "outDir": "dist/app/js",
     "esModuleInterop": true,
     "strict": true,
     "skipLibCheck": true,

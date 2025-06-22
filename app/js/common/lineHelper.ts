@@ -9,7 +9,9 @@
  */
 export function lineCount(text: string, newLineChar = '\n'): number { // '\n' unix; '\r' macos; '\r\n' windows
   let lines = 0;
-  for (const ch of text) if (ch === newLineChar) lines++;
+  for (let char = 0; char < text.length; char++) {
+    if (text[char] === newLineChar) lines++;
+  }
 
   return lines;
 }
