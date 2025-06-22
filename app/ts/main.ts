@@ -43,12 +43,11 @@ interface WebPreferencesSettings {
   nodeIntegration: boolean;
   contextIsolation: boolean;
   zoomFactor: number;
-  image: boolean;
+  images: boolean;
   experimentalFeatures: boolean;
   backgroundThrottling: boolean;
   offscreen: boolean;
   spellcheck: boolean;
-  enableRemoteModule: boolean;
 }
 
 interface AppUrlSettings {
@@ -127,12 +126,11 @@ app.on('ready', function() {
       nodeIntegration: webPreferences.nodeIntegration, // Enable node integration
       contextIsolation: webPreferences.contextIsolation, // Context isolation
       zoomFactor: webPreferences.zoomFactor, // Page zoom factor
-      image: webPreferences.image, // Image support
+      images: webPreferences.images, // Image support
       experimentalFeatures: webPreferences.experimentalFeatures, // Enable Chromium experimental features
       backgroundThrottling: webPreferences.backgroundThrottling, // Whether to throttle animations and timers when the page becomes background
       offscreen: webPreferences.offscreen, // enable offscreen rendering for the browser window
-      spellcheck: webPreferences.spellcheck, // Enable builtin spellchecker
-      enableRemoteModule: webPreferences.enableRemoteModule // Enable remote module
+      spellcheck: webPreferences.spellcheck // Enable builtin spellchecker
     }
   });
 
@@ -191,7 +189,7 @@ function startup() {
 
   debug('Doing startup checks');
   debug("'settings.startup.developerTools': {0}".format(startup.developerTools));
-  if (startup.developerTools) mainWindow.toggleDevTools();
+  if (startup.developerTools) mainWindow.webContents.toggleDevTools();
 
   return;
 }

@@ -300,6 +300,7 @@ function processDomain(domainSetup, event) {
    */
   processingIDs[domainSetup.index] = setTimeout(async () => {
 
+    let data: any;
     await stats.domains.sent++; // Add to requests sent
     await sender.send('bw:status.update', 'domains.sent', stats.domains.sent); // Requests sent, update stats
 
@@ -364,6 +365,9 @@ function processData(event, domain, index, data = null, isError = false) {
     reqtimes, // request times
     status // request
   } = stats;
+  let domainAvailable: string;
+  let lastStatus: string;
+  let resultsJSON: any;
 
   reqtime[index] = Number(performance.now() - reqtime[index]).toFixed(2);
 
@@ -560,7 +564,7 @@ function getDomainSetup(isRandom) {
 function getTimeBetween(isRandom = false) {
   var {
     lookup
-  } = appSettings;
+  } = settings;
   var {
     randomize,
     timebetween
@@ -584,7 +588,7 @@ function getTimeBetween(isRandom = false) {
 function getFollowDepth(isRandom = false) {
   var {
     lookup
-  } = appSettings;
+  } = settings;
   var {
     randomize,
     follow
@@ -607,7 +611,7 @@ function getFollowDepth(isRandom = false) {
 function getTimeout(isRandom = false) {
   var {
     lookup,
-  } = appSettings;
+  } = settings;
   var {
     randomize,
     timeout

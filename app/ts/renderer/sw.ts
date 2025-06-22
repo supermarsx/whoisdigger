@@ -16,7 +16,7 @@ const {
   toJSON
 } = whois;
 
-window.$ = window.jQuery = require('jquery');
+(window as any).$ = (window as any).jQuery = require('jquery');
 
 var singleWhois = {
   'input': {

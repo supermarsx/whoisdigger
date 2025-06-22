@@ -65,8 +65,8 @@ $('#bwaAnalyserModalCloseButtonNo').click(function() {
     ipsum
  */
 function showTable() {
-  var header = {},
-    body = {};
+  const header: Record<string, any> = {},
+    body: Record<string, any> = {};
   header.columns = Object.keys(bwaFileContents.data[0]);
   body.records = bwaFileContents.data;
 
@@ -91,7 +91,7 @@ function showTable() {
   }
   $('#bwaAnalyserTableTbody').html(body.content);
 
-  body.table = $('#bwaAnalyserTable').dataTable({
+  body.table = ($('#bwaAnalyserTable') as any).dataTable({
     'destroy': true
   });
 

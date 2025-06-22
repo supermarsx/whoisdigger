@@ -17,9 +17,9 @@ let settings: Settings = load();
   .returns
     [rejects or resolves the promise]
  */
-const dnsResolvePromise = (...args: any[]): Promise<any> => {
+const dnsResolvePromise = (host: string, rrtype: string): Promise<any> => {
   return new Promise((resolve, reject) => {
-    dns.resolve(...args, (err, data) => {
+    dns.resolve(host, rrtype, (err, data) => {
       if (err) return reject(err);
       resolve(data);
     });

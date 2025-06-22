@@ -86,7 +86,7 @@ function openUrl(event, domain) {
 
   debug('Opening {0} on a new window'.format(domain));
 
-  var hwnd = new BrowserWindow({
+  let hwnd: any = new BrowserWindow({
     frame: true,
     height: appWindow.height,
     width: appWindow.width,
@@ -98,7 +98,7 @@ function openUrl(event, domain) {
   hwnd.loadURL(domain);
 
   hwnd.on('closed', function() {
-    win = null;
+    hwnd = null;
   });
   
   return;

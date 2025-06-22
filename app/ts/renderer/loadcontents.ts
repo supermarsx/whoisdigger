@@ -5,12 +5,12 @@
     Loads HTML files inside the renderer
  */
 (async function loadHtml() {
-  var htmlpath = "./";
-  var path = {
+  const htmlpath = "./";
+  const path: Record<string, string> = {
     nav: htmlpath + "navigation/",
     tab: htmlpath + "tabs/",
   };
-  var additionalPaths = {
+  const additionalPaths: Record<string, string> = {
     bw: htmlpath + path.tab + "bw/",
     bwa: htmlpath + path.tab + "bwa/",
     bwm: htmlpath + path.tab + "bwm/",
@@ -20,7 +20,7 @@
 
   Object.assign(path, additionalPaths);
 
-  var {
+  const {
     bw,
     bwa,
     bwm,
