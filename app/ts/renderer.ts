@@ -41,6 +41,7 @@ $(document).ready(function() {
   sendDebug('Document is ready');
 
   // Load custom configuration at startup
+
   const configPath = path.join(
     remote.app.getPath('userData'),
     configuration.filepath
