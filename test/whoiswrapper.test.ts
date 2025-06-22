@@ -4,7 +4,7 @@ jest.mock('electron', () => ({
 }));
 
 import whois from 'whois';
-import { lookup } from '../app/ts/common/whoiswrapper';
+import { lookup, toJSON } from '../app/ts/common/whoiswrapper';
 
 describe('whoiswrapper', () => {
   let lookupMock: jest.SpyInstance;
@@ -24,5 +24,16 @@ describe('whoiswrapper', () => {
 
   test('lookup handles invalid domain', async () => {
     await expect(lookup('invalid_domain')).resolves.toContain('Whois lookup error');
+  });
+
+  test('toJSON parses object arrays', () => {
+    const input = [{ data: 'Domain Name: example.com\nRegistrar: Example' }];
+    const result = toJSON(input);
+    expect(result).toEqual([{ data: { domainName: 'example.com', registrar: 'Example' } }]);
+  });
+
+  test('toJSON returns "timeout" for timeout strings', () => {
+    const result = toJSON('lookup: timeout');
+    expect(result).toBe('timeout');
   });
 });

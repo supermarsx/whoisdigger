@@ -85,11 +85,10 @@ export function toJSON(resultsText: any): any {
       data.data = parseRawData(data.data);
       return data;
     });
+    return resultsText;
   } else {
     return parseRawData(preStringStrip(resultsText));
   }
-
-  return undefined;
 }
 
 /*
