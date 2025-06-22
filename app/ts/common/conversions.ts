@@ -88,7 +88,7 @@ function compileString(parsedTime: ParsedTime): string {
     if (parsedTime[parcel] > 0)
       compiledString += `${parsedTime[parcel]} ${suffixes[parcel]} `;
 
-  return compiledString;
+  return compiledString.trim();
 }
 
 /*
