@@ -16,10 +16,7 @@ export interface BulkWhoisDefaults {
 
 
 // Default BulkWhois values
-const defaultBulkWhois = {
-
-// Default BulkWhois values
-module.exports = {
+const defaultBulkWhois: BulkWhoisDefaults = {
   'input': {
     'domains': [],
     'domainsPending': [],
@@ -81,5 +78,5 @@ module.exports = {
   }
 };
 
-export default defaultBulkWhois;
+export = defaultBulkWhois;
 

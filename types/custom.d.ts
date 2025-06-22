@@ -72,6 +72,8 @@ declare module 'app/js/main/bw/process.defaults' {
 declare module 'app/js/common/resetObject' {
   export function resetObj<T>(defaultObject?: T): T;
   export { resetObj as resetObject };
+}
+
 declare module 'change-case' {
   export function camelCase(input: string): string;
 }
@@ -85,3 +87,5 @@ declare module 'html-entities' {
 interface String {
   format(...args: any[]): string;
 }
+
+declare const $: any;
