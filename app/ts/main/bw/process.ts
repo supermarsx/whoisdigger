@@ -93,11 +93,11 @@ ipcMain.on('bw:lookup', function(event, domains, tlds) {
   for (var domain in domainsPending) {
 
     domainSetup = getDomainSetup({
-      timeBetween: settings['lookup.general'].timebetween,
+      timeBetween: settings['lookup.general'].timeBetween,
       followDepth: settings['lookup.general'].follow,
       timeout: settings['lookup.general'].timeout
     });
-    domainSetup.timebetween = settings['lookup.general'].useDnsTimeBetweenOverride ? settings['lookup.general'].dnsTimeBetween : domainSetup.timeBetween;
+    domainSetup.timebetween = settings['lookup.general'].useDnsTimeBetweenOverride ? settings['lookup.general'].dnsTimeBetween : domainSetup.timebetween;
     domainSetup.domain = domainsPending[domain];
     domainSetup.index = domain;
 
@@ -199,11 +199,11 @@ ipcMain.on('bw:lookup.continue', function(event) {
   for (var domain = stats.domains.sent; domain < domainsPending.length; domain++) {
 
     domainSetup = getDomainSetup({
-      timeBetween: settings['lookup.general'].timebetween,
+      timeBetween: settings['lookup.general'].timeBetween,
       followDepth: settings['lookup.general'].follow,
       timeout: settings['lookup.general'].timeout
     });
-    domainSetup.timebetween = settings['lookup.general'].useDnsTimeBetweenOverride ? settings['lookup.general'].dnsTimeBetween : domainSetup.timeBetween;
+    domainSetup.timebetween = settings['lookup.general'].useDnsTimeBetweenOverride ? settings['lookup.general'].dnsTimeBetween : domainSetup.timebetween;
     domainSetup.domain = domainsPending[domain];
     domainSetup.index = domain;
 
