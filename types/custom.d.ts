@@ -25,6 +25,7 @@ declare module 'electron' {
   export const ipcMain: any;
   export const dialog: any;
   export const remote: any;
+  export const clipboard: any;
 }
 declare module 'debug' {
   export default function debug(namespace: string): (...args: any[]) => void;
@@ -46,6 +47,22 @@ declare module 'whois' {
 declare module 'app/js/common/parseRawData' {
   export function parseRawData(rawData: string): Record<string, string>;
   export default parseRawData;
+}
+
+declare module 'app/js/main/bw/auxiliary' {
+  import type { IpcMainEvent } from 'electron';
+  export function resetUiCounters(event: IpcMainEvent): void;
+  export { resetUiCounters as rstUiCntrs };
+}
+
+declare module 'app/js/main/bw/process.defaults' {
+  const defaults: any;
+  export = defaults;
+}
+
+declare module 'app/js/common/resetObject' {
+  export function resetObj<T>(defaultObject?: T): T;
+  export { resetObj as resetObject };
 }
 
 interface String {
