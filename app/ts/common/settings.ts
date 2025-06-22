@@ -75,10 +75,6 @@ const filePath = isMainProcess
       settings['custom.configuration'].filepath
     );
 
-function getUserDataPath(): string {
-  return userDataPath;
-}
-
 /*
   load
     Loads custom configurations from file or defaults
