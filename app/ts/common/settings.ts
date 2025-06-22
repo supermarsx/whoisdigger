@@ -2,7 +2,14 @@
 
 import * as fs from 'fs';
 import * as electron from 'electron';
-const { app, remote } = electron;
+let remote: typeof import('@electron/remote') | undefined;
+try {
+  // Dynamically require to avoid issues when Electron bindings are unavailable
+  remote = require('@electron/remote');
+} catch {
+  remote = (electron as any).remote;
+}
+const { app } = electron;
 import debugModule from 'debug';
 const debug = debugModule('common.settings');
 
@@ -52,9 +59,10 @@ const isMainProcess = ((): boolean => {
   }
 })();
 
-const filePath = isMainProcess
-  ? app.getPath('userData') + settings['custom.configuration']['filepath']
-  : remote.app.getPath('userData') + settings['custom.configuration']['filepath'];
+const userDataPath = isMainProcess
+  ? app.getPath('userData')
+  : remote?.app?.getPath('userData') ?? '';
+const filePath = userDataPath + settings['custom.configuration']['filepath'];
 
 /*
   load
