@@ -393,7 +393,10 @@ function getWhoisParameters(parameter: string): number | undefined {
     max (integer) - Maximum value
  */
 function getRandomInt(min: number, max: number): number {
-  return Math.floor(Math.random() * parseInt(String(max)) + parseInt(String(min)));
+  min = Math.floor(min);
+  max = Math.floor(max);
+  if (min > max) [min, max] = [max, min];
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 /*
