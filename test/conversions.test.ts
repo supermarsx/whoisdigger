@@ -6,7 +6,7 @@ describe('conversions', () => {
   });
 
   test('msToHumanTime converts milliseconds', () => {
-    expect(msToHumanTime(62000)).toBe('1 m 2 s ');
+    expect(msToHumanTime(62000)).toBe('1 m 2 s');
   });
 
   test('getDate parses valid dates', () => {
