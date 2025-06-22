@@ -4,7 +4,7 @@ jest.mock('electron', () => ({
 }));
 
 import dns from 'dns';
-import { nsLookup, hasNsServers } from '../app/ts/common/dnsLookup';
+import { nsLookup, hasNsServers, isDomainAvailable } from '../app/ts/common/dnsLookup';
 
 describe('dnsLookup', () => {
   let resolveMock: jest.SpyInstance;
@@ -27,5 +27,21 @@ describe('dnsLookup', () => {
   test('hasNsServers handles invalid domain', async () => {
     const result = await hasNsServers('invalid_domain');
     expect(result).toBe(false);
+  });
+
+  test('isDomainAvailable returns unavailable for true', () => {
+    expect(isDomainAvailable(true)).toBe('unavailable');
+  });
+
+  test('isDomainAvailable returns available for false', () => {
+    expect(isDomainAvailable(false)).toBe('available');
+  });
+
+  test("isDomainAvailable returns 'error' on error string", () => {
+    expect(isDomainAvailable('error')).toBe('error');
+  });
+
+  test('isDomainAvailable treats unknown strings as error', () => {
+    expect(isDomainAvailable('unknown')).toBe('error');
   });
 });

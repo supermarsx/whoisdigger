@@ -101,12 +101,23 @@ export async function hasNsServers(host: string): Promise<boolean> {
   isDomainAvailable
     Check if a domain is available
   .parameters
-    data (string) - Domain lookup response
+    data (boolean | string) - Domain lookup response. 'error' indicates DNS resolution failure
   .returns
-    data (string) - Return 'available' if function returned true, false any other
+    result (string) - Availability status
  */
-export function isDomainAvailable(data: any): string {
-  var result = (data === true) ? 'unavailable' : 'available';
+export function isDomainAvailable(data: boolean | string): string {
+  var result: string;
+
+  if (data === true) {
+    result = 'unavailable';
+  } else if (data === false) {
+    result = 'available';
+  } else if (data === 'error') {
+    result = 'error';
+  } else {
+    result = 'error';
+  }
+
   debug(`Checked for availability from data ${data} with result: ${result}`);
   return result;
 }
