@@ -9,11 +9,10 @@ const defaultValue = {};
   parameters
     defaultObject (object) - default object
  */
-function resetObj(defaultObject = defaultValue) {
+export function resetObj<T>(defaultObject: T = defaultValue as T): T {
   return JSON.parse(JSON.stringify(defaultObject));
 }
 
-module.exports = {
-    resetObj: resetObj,
-    resetObject: resetObj // extended function alias
-};
+export const resetObject = resetObj; // extended function alias
+
+export default resetObj;

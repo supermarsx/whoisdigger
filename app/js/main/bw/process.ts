@@ -12,7 +12,7 @@ const {
   resetObject
 } = require('../../common/resetObject'), {
   resetUiCounters
-} = require('./auxiliary.js'), {
+} = require('./auxiliary'), {
   performance
 } = require('perf_hooks');
 
