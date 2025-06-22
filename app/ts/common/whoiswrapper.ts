@@ -265,7 +265,6 @@ export function getDomainParameters(domain: string | null, status: string | null
     resultsJSON.creationDate ||
     resultsJSON.createdDate ||
     resultsJSON.created ||
-    resultsJSON.creationDate ||
     resultsJSON.registered ||
     resultsJSON.registeredOn);
   results.updateDate = getDate(
