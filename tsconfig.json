@@ -2,13 +2,11 @@
   "compilerOptions": {
     "target": "ES2019",
     "module": "commonjs",
-    "outDir": "dist",
-    "rootDir": "src",
+    
     "moduleResolution": "node",
     "esModuleInterop": true,
     "strict": true,
-    "skipLibCheck": true,
-    "types": ["node", "jquery"]
+    "skipLibCheck": true
   },
-  "include": ["src/**/*.ts"]
+  "include": ["app/js/**/*.ts"]
 }

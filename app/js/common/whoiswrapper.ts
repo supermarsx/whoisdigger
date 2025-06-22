@@ -1,16 +1,29 @@
 // jshint esversion: 8, -W069
 /** global: conversion, general, assumptions, timeout, follow, timeBetween */
 
-const psl = require('psl'),
-  puny = require('punycode'),
-  uts46 = require('idna-uts46'),
-  whois = require('whois'),
-  parseRawData = require('./parseRawData'),
-  debug = require('debug')('common.whoisWrapper'),
-  {
-    getDate
-  } = require('./conversions'),
-  settings = require('./settings').load();
+import psl from 'psl';
+import puny from 'punycode';
+import uts46 from 'idna-uts46';
+import whois from 'whois';
+import parseRawData from './parseRawData';
+import debugModule from 'debug';
+import { getDate } from './conversions';
+import { loadSettings, Settings } from './settings';
+
+const debug = debugModule('common.whoisWrapper');
+let settings: Settings = loadSettings();
+
+export interface WhoisResult {
+  domain?: string;
+  status?: string;
+  registrar?: string;
+  company?: string;
+  creationDate?: string | undefined;
+  updateDate?: string | undefined;
+  expiryDate?: string | undefined;
+  whoisReply?: string;
+  whoisJson?: any;
+}
 
 
 /*
@@ -34,12 +47,12 @@ const lookupPromise = (...args) => {
     domain (string) - Domain name
     options (object) - Lookup options object, refer to 'defaultoptions' var or 'settings.lookup.general/server'
  */
-async function lookup(domain, options = getWhoisOptions()) {
-  var {
+export async function lookup(domain: string, options = getWhoisOptions()): Promise<string> {
+  const {
     'lookup.conversion': conversion,
     'lookup.general': general
-  } = settings,
-  domainResults;
+  } = settings;
+  let domainResults: string;
 
   try {
     domain = conversion.enabled ? convertDomain(domain) : domain;
@@ -60,7 +73,7 @@ async function lookup(domain, options = getWhoisOptions()) {
   parameters
     resultsText (string) - whois domain reply string
  */
-function toJSON(resultsText) {
+export function toJSON(resultsText: any): any {
   if (typeof resultsText === 'string' && resultsText.includes("lookup: timeout")) return "timeout";
 
   if (typeof resultsText === 'object') {
@@ -83,7 +96,7 @@ function toJSON(resultsText) {
     resultsText (string) - Pure text whois reply
     resultsJSON (JSON Object) - JSON transformed whois reply
  */
-function isDomainAvailable(resultsText, resultsJSON) {
+export function isDomainAvailable(resultsText: string, resultsJSON?: any): string {
   const {
     'lookup.assumptions': assumptions
   } = settings;
@@ -92,8 +105,8 @@ function isDomainAvailable(resultsText, resultsJSON) {
 
   if (resultsJSON === 0) resultsJSON = toJSON(resultsText);
 
-  var domainParams = getDomainParameters(null, null, null, resultsJSON, true);
-  var controlDate = getDate(Date.now());
+  const domainParams = getDomainParameters(null, null, null, resultsJSON, true);
+  const controlDate = getDate(Date.now());
 
   switch (true) {
     /*
@@ -233,8 +246,8 @@ function isDomainAvailable(resultsText, resultsJSON) {
     resultsJSON (JSON Object) - JSON transformed whois reply
     isAuxiliary (boolean) - Is auxiliary function to domain availability check, if used in "isDomainAvailable" fn
  */
-function getDomainParameters(domain, status, resultsText, resultsJSON, isAuxiliary = false) {
-  var results = {};
+export function getDomainParameters(domain: string | null, status: string | null, resultsText: string | null, resultsJSON: any, isAuxiliary = false): WhoisResult {
+  const results: WhoisResult = {};
 
   results.domain = domain;
   results.status = status;
@@ -290,8 +303,8 @@ function getDomainParameters(domain, status, resultsText, resultsJSON, isAuxilia
     ascii - Filter out non-ASCII characters
     anything else - No conversion
  */
-function convertDomain(domain, mode) {
-  var {
+export function convertDomain(domain: string, mode?: string): string {
+  const {
     'lookup.conversion': conversion
   } = settings;
 
@@ -318,12 +331,12 @@ function convertDomain(domain, mode) {
   getWhoisOptions
     Create whois options based on appSettings
  */
-function getWhoisOptions() {
+export function getWhoisOptions(): Record<string, any> {
   const {
     'lookup.general': general
   } = settings;
 
-  var options = {},
+  const options: Record<string, any> = {},
     follow = 'follow',
     timeout = 'timeout';
 
@@ -344,7 +357,7 @@ function getWhoisOptions() {
       'timeout' - Timeout
       'timebetween' - Time between requests
  */
-function getWhoisParameters(parameter) {
+function getWhoisParameters(parameter: string): number | undefined {
   const {
     'lookup.randomize.follow': follow,
     'lookup.randomize.timeout': timeout,
@@ -379,8 +392,8 @@ function getWhoisParameters(parameter) {
     min (integer) - Minimum value
     max (integer) - Maximum value
  */
-function getRandomInt(min, max) {
-  return Math.floor((Math.random() * parseInt(max)) + parseInt(min));
+function getRandomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * parseInt(String(max)) + parseInt(String(min)));
 }
 
 /*
@@ -389,15 +402,9 @@ function getRandomInt(min, max) {
   parameters
     str (string) - String to be stripped
  */
-function preStringStrip(str) {
+export function preStringStrip(str: string): string {
   return str.toString().replace(/\:\t{1,2}/g, ": "); // Space key value pairs
 }
 
-module.exports = {
-  lookup: lookup,
-  toJSON: toJSON,
-  isDomainAvailable: isDomainAvailable,
-  preStringStrip: preStringStrip,
-  getDomainParameters: getDomainParameters,
-  convertDomain: convertDomain
-};
+export { lookup, toJSON, isDomainAvailable, preStringStrip, getDomainParameters, convertDomain };
+
