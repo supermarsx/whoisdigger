@@ -34,6 +34,7 @@ declare module 'electron' {
   export const ipcRenderer: any;
   export const dialog: any;
   export const remote: any;
+  export const clipboard: any;
 }
 declare module 'debug' {
   export default function debug(namespace: string): (...args: any[]) => void;
@@ -57,6 +58,20 @@ declare module 'app/js/common/parseRawData' {
   export default parseRawData;
 }
 
+declare module 'app/js/main/bw/auxiliary' {
+  import type { IpcMainEvent } from 'electron';
+  export function resetUiCounters(event: IpcMainEvent): void;
+  export { resetUiCounters as rstUiCntrs };
+}
+
+declare module 'app/js/main/bw/process.defaults' {
+  const defaults: any;
+  export = defaults;
+}
+
+declare module 'app/js/common/resetObject' {
+  export function resetObj<T>(defaultObject?: T): T;
+  export { resetObj as resetObject };
 declare module 'change-case' {
   export function camelCase(input: string): string;
 }
