@@ -26,6 +26,6 @@ declare module 'whois' {
   export function lookup(domain: string, callback: (err: any, data: any) => void): void;
 }
 declare module 'app/js/common/parseRawData' {
-  const parseRawData: any;
+  export function parseRawData(rawData: string): Record<string, string>;
   export default parseRawData;
 }
