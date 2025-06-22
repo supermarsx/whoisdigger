@@ -153,9 +153,9 @@ $('#bwafButtonConfirm').click(function() {
 
   holder.ondrop = function(event) {
     event.preventDefault();
-    for (let f of event.dataTransfer.files) {
-      ipcRenderer.send('File(s) you dragged here: {0}'.format(f.path));
-      ipcRenderer.send('ondragstart', f.path);
+    for (const file of event.dataTransfer.files) {
+      ipcRenderer.send('app:debug', `File(s) you dragged here: ${file.path}`);
+      ipcRenderer.send('ondragstart', file.path);
     }
     return false;
   };

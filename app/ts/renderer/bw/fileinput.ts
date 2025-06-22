@@ -162,7 +162,7 @@ $('#bwFileButtonConfirm').click(function() {
     event.preventDefault();
     for (const f of Array.from(event.dataTransfer!.files)) {
       const file = f as any;
-      ipcRenderer.send('File(s) you dragged here: {0}'.format(file.path));
+      ipcRenderer.send('app:debug', `File(s) you dragged here: ${file.path}`);
       ipcRenderer.send('ondragstart', file.path);
     }
     return false;
@@ -196,7 +196,7 @@ $('#bwMainContainer').on('drop', function(event) {
   event.preventDefault();
   for (const f of Array.from((event as any).originalEvent.dataTransfer.files)) {
     const file = f as any;
-    ipcRenderer.send('File(s) you dragged here: {0}'.format(file.path));
+    ipcRenderer.send('app:debug', `File(s) you dragged here: ${file.path}`);
     ipcRenderer.send('ondragstart', file.path);
   }
 
