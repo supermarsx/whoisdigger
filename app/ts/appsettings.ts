@@ -115,7 +115,7 @@ const appSettings = {
       'dnsFailureUnavailable': true // Assume a domain is unavailable if DNS request fails (default: true)
     },
     'custom.configuration': { // Application custom configurations
-      'filepath': '\\appconfig.js', // Custom configuration filename on app directory (default: appconfig.js) || Non functional
+      'filepath': 'appconfig.js', // Custom configuration filename on app directory (default: appconfig.js) || Non functional
       'load': true,  // Load custom configurations
       'save': true // Save custom configurations
     },
