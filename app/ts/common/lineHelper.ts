@@ -9,8 +9,11 @@
  */
 export function lineCount(text: string, newLineChar = '\n'): number { // '\n' unix; '\r' macos; '\r\n' windows
   let lines = 0;
-  for (let char = 0; char < text.length; char++) {
-    if (text[char] === newLineChar) lines++;
+  for (let char = 0; char <= text.length - newLineChar.length; char++) {
+    if (text.substr(char, newLineChar.length) === newLineChar) {
+      lines++;
+      char += newLineChar.length - 1;
+    }
   }
 
   return lines;
@@ -26,7 +29,7 @@ export function lineCount(text: string, newLineChar = '\n'): number { // '\n' un
  */
 export function fileReadLines(filePath: string, lines = 2, startLine = 0): Promise<string[]> {
   return new Promise((resolve, reject) => {
-    let lineCounter = startLine;
+    let lineCounter = 0;
     const linesRead: string[] = [];
     const readline = require('readline');
     const fs = require('fs');
@@ -35,9 +38,14 @@ export function fileReadLines(filePath: string, lines = 2, startLine = 0): Promi
     });
 
     lineReader.on('line', (line: string) => {
+      if (lineCounter >= startLine && linesRead.length < lines) {
+        linesRead.push(line);
+        if (linesRead.length >= lines) {
+          lineReader.close();
+          return;
+        }
+      }
       lineCounter++;
-      linesRead.push(line);
-      if (lineCounter === lines) lineReader.close();
     });
 
     lineReader.on('close', () => {
