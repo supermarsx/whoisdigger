@@ -14,7 +14,9 @@
     "package-linux": "electron-packager . whoisdigger --overwrite --asar --platform=linux --arch=x64 --icon=app/icons/app.png --prune=true --out=release_builds",
     "package-all": "electron-packager . --all --overwrite --asar --icon=app/icons/app.png --prune=true --out=release_builds",
     "snyk-protect": "snyk protect",
-    "prepare": "npm run snyk-protect"
+    "prepare": "npm run snyk-protect",
+    "build": "tsc",
+    "watch": "tsc -w"
   },
   "author": "Eduardo Mota",
   "license": "MIT",
@@ -40,6 +42,9 @@
   },
   "snyk": true,
   "devDependencies": {
-    "electron": "^12.0.1"
+    "@types/jquery": "^3.5.32",
+    "@types/node": "^24.0.3",
+    "electron": "^12.0.1",
+    "typescript": "^5.8.3"
   }
 }
