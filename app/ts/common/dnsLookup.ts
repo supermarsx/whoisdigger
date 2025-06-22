@@ -51,6 +51,7 @@ export async function nsLookup(host: string): Promise<string[] | 'error'> {
     result = await dnsResolvePromise(host, 'NS');
   } catch (e) {
     result = 'error';
+    debug(`Lookup failed with error ${e}`);
   }
 
   debug(`Looked up for ${host} with ${result}`);
