@@ -42,7 +42,10 @@ export async function nsLookup(host: string): Promise<string[] | 'error'> {
   } = settings;
 
   host = conversion.enabled ? convertDomain(host) : host;
-  host = general.psl ? psl.get(host).replace(/((\*\.)*)/g, '') : host;
+  if (general.psl) {
+    const clean = psl.get(host);
+    host = clean ? clean.replace(/((\*\.)*)/g, '') : host;
+  }
 
   try {
     result = await dnsResolvePromise(host, 'NS');
@@ -72,7 +75,10 @@ export async function hasNsServers(host: string): Promise<boolean> {
   } = settings;
 
   host = conversion.enabled ? convertDomain(host) : host;
-  host = general.psl ? psl.get(host).replace(/((\*\.)*)/g, '') : host;
+  if (general.psl) {
+    const clean = psl.get(host);
+    host = clean ? clean.replace(/((\*\.)*)/g, '') : host;
+  }
 
   try {
     result = await dnsResolvePromise(host, 'NS');
