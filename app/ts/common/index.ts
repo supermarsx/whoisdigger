@@ -2,9 +2,9 @@
 
 import Conversions from './conversions';
 import LineHelper from './lineHelper';
-import StringFormat from './stringFormat';
+import StringFormat from './stringformat';
 import { parseRawData as ParseRawData } from './parseRawData';
-import { lookup as WhoisLookup } from './whoisWrapper';
+import { lookup as WhoisLookup } from './whoiswrapper';
 import DnsLookup from './dnsLookup';
 
 export {

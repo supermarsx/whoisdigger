@@ -17,4 +17,4 @@ require('./bw/fileinput'); // File input
 require('./bw/wordlistinput'); // Wordlist input
 require('./bw/process'); // Process stage
 require('./bw/export'); // Export stage
-require('../common/stringFormat'); // String format
+require('../common/stringformat'); // String format

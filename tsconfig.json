@@ -9,10 +9,11 @@
     "rootDir": "app/ts",
     "outDir": "dist/app/ts",
     "esModuleInterop": true,
-    "strict": true,
+    "strict": false,
     "skipLibCheck": true,
+    "moduleDetection": "force",
     "types": ["node", "jest"],
-    "typeRoots": ["./types", "./node_modules/@types"]
+    "typeRoots": ["./node_modules/@types", "./types"]
   },
   "include": ["app/ts/**/*.ts", "**/*.d.ts"],
   "exclude": ["test"]

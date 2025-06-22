@@ -3,7 +3,7 @@
 import dns from 'dns';
 import psl from 'psl';
 import debugModule from 'debug';
-import { convertDomain } from './whoisWrapper';
+import { convertDomain } from './whoiswrapper';
 import { load, Settings } from './settings';
 
 const debug = debugModule('common.dnsLookup');

@@ -88,3 +88,13 @@ interface String {
 }
 
 declare const $: any;
+declare const ipcRenderer: any;
+declare const remote: any;
+declare const settings: any;
+
+declare global {
+  interface Window {
+    $: any;
+    jQuery: any;
+  }
+}

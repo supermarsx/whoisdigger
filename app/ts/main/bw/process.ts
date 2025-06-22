@@ -1,7 +1,7 @@
 //jshint esversion: 8, -W030, -W083
 
 const electron = require('electron'),
-  whois = require('../../common/whoisWrapper'),
+  whois = require('../../common/whoiswrapper'),
   debug = require('debug')('main.bw.process'),
   defaultBulkWhois = require('./process.defaults'),
   dns = require('../../common/dnsLookup');
