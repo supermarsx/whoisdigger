@@ -40,9 +40,10 @@ $(document).ready(function() {
   sendDebug('Document is ready');
 
   // Load custom configuration at startup
-  if (fs.existsSync(remote.app.getPath('userData') + configuration.filepath)) {
+  const userData = remote?.app?.getPath('userData');
+  if (userData && fs.existsSync(userData + configuration.filepath)) {
     sendDebug('Reading persistent configurations');
-    settings = JSON.parse(fs.readFileSync(remote.app.getPath('userData') + configuration.filepath, 'utf8')) as Settings;
+    settings = JSON.parse(fs.readFileSync(userData + configuration.filepath, 'utf8')) as Settings;
   } else {
     sendDebug('Using default configurations');
   }
