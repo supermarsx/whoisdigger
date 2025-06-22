@@ -1,7 +1,7 @@
 // jshint esversion: 8, -W069
 
 /** global: settings */
-const whois = require('../../common/whoisWrapper'),
+const whois = require('../../common/whoiswrapper'),
   conversions = require('../../common/conversions'),
   fs = require('fs'),
   Papa = require('papaparse'),
@@ -11,7 +11,7 @@ const {
   ipcRenderer
 } = require('electron');
 
-require('../../common/stringFormat');
+require('../../common/stringformat');
 
 var bwaFileContents;
 

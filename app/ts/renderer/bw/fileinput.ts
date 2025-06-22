@@ -1,7 +1,7 @@
 // jshint esversion: 8, -W069
 /** global: appSettings */
 
-const whois = require('../../common/whoisWrapper'),
+const whois = require('../../common/whoiswrapper'),
   conversions = require('../../common/conversions'),
   fs = require('fs');
 
@@ -11,7 +11,7 @@ const {
   tableReset
 } = require('./auxiliary');
 
-require('../../common/stringFormat');
+require('../../common/stringformat');
 
 var bwFileContents;
 

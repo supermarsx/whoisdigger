@@ -1,7 +1,7 @@
 // jshint esversion: 8, -W030
 
 /** global: appSettings */
-const whois = require('../../common/whoisWrapper'),
+const whois = require('../../common/whoiswrapper'),
   conversions = require('../../common/conversions'),
   fs = require('fs'),
   Papa = require('papaparse'),

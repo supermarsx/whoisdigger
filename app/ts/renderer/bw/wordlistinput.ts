@@ -9,7 +9,7 @@ const {
   tableReset
 } = require('./auxiliary');
 
-require('../../common/stringFormat');
+require('../../common/stringformat');
 
 var bwWordlistContents; // Global wordlist input contents
 

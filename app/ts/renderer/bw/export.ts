@@ -1,6 +1,6 @@
 // jshint esversion: 8
 
-const whois = require('../../common/whoisWrapper'),
+const whois = require('../../common/whoiswrapper'),
   conversions = require('../../common/conversions'),
   defaultExportOptions = require('./export.defaults');
 
@@ -14,7 +14,7 @@ const {
   setExportOptionsEx
 } = require('./auxiliary');
 
-require('../../common/stringFormat');
+require('../../common/stringformat');
 
 var results, options;
 
