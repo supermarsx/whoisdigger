@@ -16,7 +16,7 @@ const {
   performance
 } = require('perf_hooks');
 
-var settings = require('../../common/settings').load();
+const settings = require('../../common/settings').load();
 
 const {
   app,
@@ -27,9 +27,9 @@ const {
   remote
 } = electron;
 
-var defaultValue = null, // Changing this implies changing all dependant comparisons
-  bulkWhois, // BulkWhois object
-  reqtime = [];
+const defaultValue = null; // Changing this implies changing all dependant comparisons
+let bulkWhois; // BulkWhois object
+let reqtime: any[] = [];
 
 /*
   ipcMain.on('bw:lookup', function(...) {...});
@@ -45,28 +45,28 @@ ipcMain.on('bw:lookup', function(event, domains, tlds) {
   reqtime = [];
 
   // bulkWhois section
-  var {
+  const {
     results,
     input,
     stats,
     processingIDs
   } = bulkWhois;
 
-  var {
+  const {
     domainsPending, // Domains pending processing/requests
     tldSeparator // TLD separator
   } = input; // Bulk whois input
 
-  var {
+  const {
     reqtimes, // request times
     status // request
   } = stats;
 
-  var {
+  const {
     sender
   } = event;
 
-  var domainSetup;
+  let domainSetup;
 
   /*
   const sleep = function(ms) {
@@ -83,14 +83,14 @@ ipcMain.on('bw:lookup', function(event, domains, tlds) {
   sender.send('bw:status.update', 'domains.total', stats.domains.total); // Display total amount of domains
 
   // Compile domains to process
-  for (var tld in input.tlds) {
+  for (let tld in input.tlds) {
     domainsPending = domainsPending.concat(input.domains.map(function(domain) {
       return domain + tldSeparator + input.tlds[tld];
     }));
   }
 
   // Process compiled domains into future requests
-  for (var domain in domainsPending) {
+  for (let domain in domainsPending) {
 
     domainSetup = getDomainSetup({
       timeBetween: settings['lookup.randomize.timeBetween'].randomize,
@@ -131,14 +131,14 @@ ipcMain.on('bw:lookup', function(event, domains, tlds) {
 ipcMain.on('bw:lookup.pause', function(event) {
 
   // bulkWhois section
-  var {
+  const {
     results,
     input,
     stats,
     processingIDs
   } = bulkWhois;
 
-  var {
+  const {
     domainsPending, // Domains pending processing/requests
     tldSeparator // TLD separator
   } = input; // Bulk whois input
@@ -147,7 +147,7 @@ ipcMain.on('bw:lookup.pause', function(event) {
   counter(event, false); // Stop counter/timer
 
   // Go through all queued domain lookups and delete setTimeouts for remaining domains
-  for (var j = stats.domains.sent; j < stats.domains.processed; j++) {
+  for (let j = stats.domains.sent; j < stats.domains.processed; j++) {
     debug('Stopping whois request {0} with id {1}'.format(j, processingIDs[j]));
     clearTimeout(processingIDs[j]);
   }
@@ -163,40 +163,40 @@ ipcMain.on('bw:lookup.continue', function(event) {
   debug('Continuing bulk whois requests');
 
   // Go through the remaining domains and queue them again using setTimeouts
-  var follow, timeout, timebetween;
-  var domainSetup;
+  let follow, timeout, timebetween;
+  let domainSetup;
 
   // bulkWhois section
-  var {
+  const {
     results,
     input,
     stats,
     processingIDs
   } = bulkWhois;
 
-  var {
+  const {
     domainsPending, // Domains pending processing/requests
     tldSeparator // TLD separator
   } = input; // Bulk whois input
 
-  var {
+  const {
     reqtimes, // function request times
     status // request
   } = stats;
 
-  var {
+  const {
     sender // expose shorthand sender
   } = event;
 
   // Compile domains to process
-  for (var tld in input.tlds) {
+  for (let tld in input.tlds) {
     domainsPending = domainsPending.concat(input.domains.map(function(domain) {
       return domain + tldSeparator + input.tlds[tld];
     }));
   }
 
   // Do domain setup
-  for (var domain = stats.domains.sent; domain < domainsPending.length; domain++) {
+  for (let domain = stats.domains.sent; domain < domainsPending.length; domain++) {
 
     domainSetup = getDomainSetup({
       timeBetween: settings['lookup.randomize.timeBetween'].randomize,
@@ -243,12 +243,12 @@ ipcMain.on('bw:lookup.continue', function(event) {
     event (object) - Current renderer object
  */
 ipcMain.on('bw:lookup.stop', function(event) {
-  var {
+  const {
     results,
     stats
   } = bulkWhois;
 
-  var {
+  const {
     sender
   } = event;
 
@@ -273,24 +273,24 @@ function processDomain(domainSetup, event) {
   debug("Domain: {0}, id/index: {1}, timebetween: {2}".format(domainSetup.domain, domainSetup.index, domainSetup.timebetween));
 
   // bulkWhois section
-  var {
+  const {
     results,
     input,
     stats,
     processingIDs
   } = bulkWhois;
 
-  var {
+  const {
     domainsPending, // Domains pending processing/requests
     tldSeparator // TLD separator
   } = input; // Bulk whois input
 
-  var {
+  const {
     reqtimes, // request times
     status // request
   } = stats;
 
-  var {
+  const {
     sender // expose shorthand sender
   } = event;
 
@@ -348,20 +348,20 @@ function processDomain(domainSetup, event) {
     index (integer) - domain index within results
  */
 function processData(event, domain, index, data = null, isError = false) {
-  var lastweight;
+  let lastweight;
 
-  var {
+  const {
     sender
   } = event;
 
-  var {
+  const {
     results,
     input,
     stats,
     processingIDs
   } = bulkWhois;
 
-  var {
+  const {
     reqtimes, // request times
     status // request
   } = stats;
@@ -440,7 +440,7 @@ function processData(event, domain, index, data = null, isError = false) {
   stats.domains.waiting--; // Waiting in queue
   sender.send('bw:status.update', 'domains.waiting', stats.domains.waiting); // Waiting in queue, update stats
 
-  var resultFilter = {
+  let resultFilter = {
     domain: '',
     status: '',
     registrar: '',
@@ -492,13 +492,13 @@ function processData(event, domain, index, data = null, isError = false) {
     start (boolean) start or stop counter
  */
 function counter(event, start = true) {
-  var {
+  const {
     results,
     input,
     stats,
     processingIDs
   } = bulkWhois;
-  var {
+  const {
     sender
   } = event;
   start ? (function() { // Start counter
@@ -562,14 +562,14 @@ function getDomainSetup(isRandom) {
     isRandom (boolean) - is time between requests randomized
  */
 function getTimeBetween(isRandom = false) {
-  var {
+  const {
     lookup
   } = settings;
-  var {
+  const {
     randomize,
     timebetween
   } = lookup;
-  var {
+  const {
     timebetweenmax,
     timebetweenmin
   } = randomize;
@@ -586,14 +586,14 @@ function getTimeBetween(isRandom = false) {
     isRandom (boolean) - is follow depth randomized
  */
 function getFollowDepth(isRandom = false) {
-  var {
+  const {
     lookup
   } = settings;
-  var {
+  const {
     randomize,
     follow
   } = lookup;
-  var {
+  const {
     followmax,
     followmin
   } = randomize;
@@ -609,14 +609,14 @@ function getFollowDepth(isRandom = false) {
     isRandom (boolean) - is timeout randomized
  */
 function getTimeout(isRandom = false) {
-  var {
+  const {
     lookup,
   } = settings;
-  var {
+  const {
     randomize,
     timeout
   } = lookup;
-  var {
+  const {
     timeoutmax,
     timeoutmin
   } = randomize;
