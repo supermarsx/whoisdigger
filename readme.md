@@ -102,6 +102,7 @@ After clone, run using
 ```
 npm start
 ```
+which will compile the source to `dist` and launch the application.
 
 ### Debug
 
@@ -178,7 +179,9 @@ You can use assumptions (`lookup.assumptions` settings section) to make more rel
 
 ## Building
 
-Whoisdigger uses electron-packager for builds.
+Whoisdigger uses a small build step before packaging. Each packaging command
+compiles the application into the `dist` folder and then invokes
+`electron-packager`.
 
 MacOS
 
