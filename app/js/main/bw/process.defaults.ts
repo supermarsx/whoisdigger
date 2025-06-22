@@ -1,4 +1,5 @@
-const defaultFirstValue = null, // Default that is equivalent or similar to null value: null, undefined, false..
+
+var defaultFirstValue = null, // Default that is equivalent or similar to null value: null, undefined, false..
   defaultSecondValue = 0, // Default numeric starting value
   defaultThirdValue = '-',
   defaultForthValue = '.',
@@ -16,6 +17,9 @@ export interface BulkWhoisDefaults {
 
 // Default BulkWhois values
 const defaultBulkWhois = {
+
+// Default BulkWhois values
+module.exports = {
   'input': {
     'domains': [],
     'domainsPending': [],
@@ -78,3 +82,4 @@ const defaultBulkWhois = {
 };
 
 export default defaultBulkWhois;
+

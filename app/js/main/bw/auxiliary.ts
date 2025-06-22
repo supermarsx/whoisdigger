@@ -1,8 +1,10 @@
 // jshint esversion: 8
 
+
 import debugModule from 'debug';
 
 const debug = debugModule('main.bw.auxiliary');
+
 
 /*
   resetUiCounters
@@ -10,7 +12,8 @@ const debug = debugModule('main.bw.auxiliary');
   parameters
     event (object) - renderer object
  */
-export function resetUiCounters(event: any): void {
+
+function resetUiCounters(event) {
   var {
     sender
   } = event;
@@ -41,9 +44,8 @@ export function resetUiCounters(event: any): void {
 
 }
 
-export const rstUiCntrs = resetUiCounters;
 
-export default {
-  resetUiCounters,
-  rstUiCntrs,
+module.exports = {
+  resetUiCounters: resetUiCounters,
+  rstUiCntrs: resetUiCounters
 };

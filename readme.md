@@ -161,7 +161,7 @@ Errors during bulk lookups are pretty common due to sheer request volume, this m
 
 ## Settings
 
-Whoisdigger uses a settings file that rules how the application behaves overall, this can be achieved by either using the preload settings file or change the `appSettings.js` inside `js`.
+Whoisdigger uses a settings file that rules how the application behaves overall, this can be achieved by either using the preload settings file or change the `appsettings.ts` inside `js`.
 
 ### Assumptions
 
