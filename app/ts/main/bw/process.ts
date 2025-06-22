@@ -301,10 +301,10 @@ function processDomain(domainSetup, event) {
   processingIDs[domainSetup.index] = setTimeout(async () => {
 
     let data: any;
-    await stats.domains.sent++; // Add to requests sent
+    stats.domains.sent++; // Add to requests sent
     await sender.send('bw:status.update', 'domains.sent', stats.domains.sent); // Requests sent, update stats
 
-    await stats.domains.waiting++; // Waiting in queue
+    stats.domains.waiting++; // Waiting in queue
     await sender.send('bw:status.update', 'domains.waiting', stats.domains.waiting); // Waiting in queue, update stats
 
     reqtime[domainSetup.index] = await performance.now();
