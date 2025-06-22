@@ -11,6 +11,7 @@ import {
 import * as url from 'url';
 import debugModule from 'debug';
 import * as fs from 'fs';
+import * as path from 'path';
 import { loadSettings } from './common/settings';
 import type { Settings as BaseSettings } from './common/settings';
 import { initialize as initializeRemote, enable as enableRemote } from '@electron/remote/main';
@@ -89,10 +90,11 @@ app.on('ready', function() {
   } = settings;
 
   // Custom application settings startup
-  if (fs.existsSync(app.getPath('userData') + configuration.filepath)) {
+  const configPath = path.join(app.getPath('userData'), configuration.filepath);
+  if (fs.existsSync(configPath)) {
     debug("Reading persistent configurations");
     settings = JSON.parse(
-      fs.readFileSync(app.getPath('userData') + configuration.filepath, 'utf8')
+      fs.readFileSync(configPath, 'utf8')
     ) as MainSettings;
   } else {
     debug("Using default configurations");

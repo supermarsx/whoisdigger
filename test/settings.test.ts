@@ -17,7 +17,7 @@ describe('settings load', () => {
     mockGetPath.mockReturnValue(tmpDir);
 
     const original = JSON.parse(JSON.stringify(settings));
-    const configName = '/bad.json';
+    const configName = 'bad.json';
     settings['custom.configuration'].filepath = configName;
     fs.writeFileSync(path.join(tmpDir, 'bad.json'), '{ invalid json');
 

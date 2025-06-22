@@ -1,6 +1,7 @@
 // jshint esversion: 8, -W069
 
 import * as fs from 'fs';
+import * as path from 'path';
 import * as electron from 'electron';
 let remote: typeof import('@electron/remote') | undefined;
 try {
@@ -60,11 +61,15 @@ const isMainProcess = ((): boolean => {
 })();
 
 
-function getUserDataPath(): string {
-  return isMainProcess
-    ? app.getPath('userData')
-    : remote?.app?.getPath('userData') ?? '';
-}
+const userDataPath = isMainProcess
+  ? app.getPath('userData')
+  : remote?.app?.getPath('userData') ?? '';
+const filePath = isMainProcess
+  ? path.join(app.getPath('userData'), settings['custom.configuration'].filepath)
+  : path.join(
+      remote?.app?.getPath('userData') ?? '',
+      settings['custom.configuration'].filepath
+    );
 
 /*
   load
