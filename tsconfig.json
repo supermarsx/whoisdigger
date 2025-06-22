@@ -4,9 +4,12 @@
     "module": "commonjs",
     
     "moduleResolution": "node",
+    "allowJs": true,
+    "noEmit": true,
     "esModuleInterop": true,
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "typeRoots": ["./types"]
   },
-  "include": ["app/js/**/*.ts"]
+  "include": ["app/js/**/*.ts", "**/*.d.ts"]
 }

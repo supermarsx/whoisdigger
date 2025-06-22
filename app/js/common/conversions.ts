@@ -43,7 +43,7 @@ export interface ParsedTime {
 export function msToHumanTime(duration = 0): string {
   const BASE = 10;
 
-  if (parseInt(duration, BASE) <= 0 || isNaN(parseInt(duration, BASE))) return '-';
+  if (parseInt(String(duration), BASE) <= 0 || isNaN(parseInt(String(duration), BASE))) return '-';
 
   const parsedTime: ParsedTime = {
       milliseconds: parseInt((duration % 1000).toString(), BASE),
@@ -53,9 +53,9 @@ export function msToHumanTime(duration = 0): string {
       days: parseInt(((duration / (1000 * 60 * 60 * 24)).toFixed(6) as unknown) as string, BASE) % 7,
       weeks: parseInt(((duration / (1000 * 60 * 60 * 24 * 7)).toFixed(6) as unknown) as string, BASE) % 4,
       months: parseInt(((duration / (1000 * 60 * 60 * 24 * 7 * 4)).toFixed(6) as unknown) as string, BASE) % 12,
-      years: parseInt(((duration / (1000 * 60 * 60 * 24 * 7 * 4 * 12)).toFixed(6) as unknown) as string, BASE) % 10
-    },
-    time = '';
+    years: parseInt(((duration / (1000 * 60 * 60 * 24 * 7 * 4 * 12)).toFixed(6) as unknown) as string, BASE) % 10
+    };
+  let time = '';
 
   time = compileString(parsedTime);
 

@@ -6,7 +6,7 @@ const { app, remote } = electron;
 import debugModule from 'debug';
 const debug = debugModule('common.settings');
 
-import './stringFormat';
+import './stringformat';
 
 export interface Settings {
   'lookup.conversion': { enabled: boolean; algorithm: string };
@@ -29,9 +29,12 @@ export interface Settings {
   [key: string]: any;
 }
 
-let { settings }: { settings: Settings } = fs.existsSync('./appSettings') ?
+const settingsModule: { settings: Settings } = fs.existsSync('./appSettings') ?
   require('./appSettings') :
   require('../appSettings');
+let { settings } = settingsModule;
+export { settings };
+export default settings;
 
 /*
   Detect if is Renderer
@@ -61,10 +64,10 @@ export function loadSettings(): Settings {
 
   if (configuration.load) {
     try {
-      settings = fs.readFileSync(filePath) as unknown as Settings;
-      debug("Loaded custom configuration at {0}".format(filePath));
+      settings = JSON.parse(fs.readFileSync(filePath, 'utf8')) as Settings;
+      debug(`Loaded custom configuration at ${filePath}`);
     } catch (e) {
-      debug("Failed to load custom configuration with error: {0}".format(e));
+      debug(`Failed to load custom configuration with error: ${e}`);
     }
   }
 
@@ -84,17 +87,15 @@ export function saveSettings(settings: Settings): string | Error | undefined {
 
   if (configuration.save) {
     try {
-      fs.writeFileSync(filePath, settings as unknown as string);
-      debug("Saved custom configuration at {0}".format(filePath));
+      fs.writeFileSync(filePath, JSON.stringify(settings));
+      debug(`Saved custom configuration at ${filePath}`);
       return 'SAVED';
     } catch (e) {
-      debug("Failed to save custom configuration with error: {0}".format(filePath));
-      return e;
+      debug(`Failed to save custom configuration with error: ${e}`);
+      return e as Error;
     }
   }
 
 }
 
-export { settings, loadSettings, saveSettings };
-export { settings as default, loadSettings as load, saveSettings as save };
 

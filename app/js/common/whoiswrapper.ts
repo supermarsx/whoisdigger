@@ -30,9 +30,9 @@ export interface WhoisResult {
   lookupPromise
     Promisified whois lookup
  */
-const lookupPromise = (...args) => {
+const lookupPromise = (...args: any[]): Promise<any> => {
   return new Promise((resolve, reject) => {
-    whois.lookup(...args, (err, data) => {
+    (whois as any).lookup(...args, (err: any, data: any) => {
       if (err) return reject(err);
       resolve(data);
       return undefined;
@@ -58,10 +58,10 @@ export async function lookup(domain: string, options = getWhoisOptions()): Promi
     domain = conversion.enabled ? convertDomain(domain) : domain;
     domain = general.psl ? psl.get(domain).replace(/((\*\.)*)/g, '') : domain;
 
-    debug("Looking up for {0}".format(domain));
+    debug(`Looking up for ${domain}`);
     domainResults = await lookupPromise(domain, options);
   } catch (e) {
-    domainResults = "Whois lookup error, {0}".format(e);
+    domainResults = `Whois lookup error, ${e}`;
   }
 
   return domainResults;
@@ -78,7 +78,7 @@ export function toJSON(resultsText: any): any {
 
   if (typeof resultsText === 'object') {
     //JSON.stringify(resultsText, null, 2);
-    resultsText.map(function(data) {
+    resultsText.map(function(data: any) {
       data.data = parseRawData(data.data);
       return data;
     });
@@ -106,7 +106,7 @@ export function isDomainAvailable(resultsText: string, resultsJSON?: any): strin
   if (resultsJSON === 0) resultsJSON = toJSON(resultsText);
 
   const domainParams = getDomainParameters(null, null, null, resultsJSON, true);
-  const controlDate = getDate(Date.now());
+  const controlDate = getDate(new Date());
 
   switch (true) {
     /*
@@ -141,14 +141,14 @@ export function isDomainAvailable(resultsText: string, resultsJSON?: any): strin
     case (resultsText.includes('query_status: 220 Available')):
 
       // Unique cases
-    case (domainParams.expiryDate - controlDate < 0):
+    case (domainParams.expiryDate !== undefined && controlDate !== undefined && Date.parse(domainParams.expiryDate) - Date.parse(controlDate) < 0):
     case (resultsText.includes('This domain name has not been registered')):
     case (resultsText.includes('The domain has not been registered')):
     case (resultsText.includes('This query returned 0 objects')):
-    case (resultsText.includes(' is free') && domainParams.whoisreply.length < 50):
+    case (resultsText.includes(' is free') && domainParams.whoisReply !== undefined && domainParams.whoisReply.length < 50):
     case (resultsText.includes('domain name not known in')):
     case (resultsText.includes('registration status: available')):
-    case (resultsText.includes('whois.nic.bo') && domainParams.whoisreply.length < 55):
+    case (resultsText.includes('whois.nic.bo') && domainParams.whoisReply !== undefined && domainParams.whoisReply.length < 55):
     case (resultsText.includes('Object does not exist')):
     case (resultsText.includes('The queried object does not exist')):
     case (resultsText.includes('Not Registered -')):
@@ -249,8 +249,8 @@ export function isDomainAvailable(resultsText: string, resultsJSON?: any): strin
 export function getDomainParameters(domain: string | null, status: string | null, resultsText: string | null, resultsJSON: any, isAuxiliary = false): WhoisResult {
   const results: WhoisResult = {};
 
-  results.domain = domain;
-  results.status = status;
+  results.domain = domain ?? undefined;
+  results.status = status ?? undefined;
   results.registrar = resultsJSON.registrar;
   results.company =
     resultsJSON.registrantOrganization ||
@@ -283,7 +283,7 @@ export function getDomainParameters(domain: string | null, status: string | null
     resultsJSON.expirationDate ||
     resultsJSON.expiresOn ||
     resultsJSON.paidTill);
-  results.whoisReply = resultsText;
+  results.whoisReply = resultsText ?? undefined;
   results.whoisJson = resultsJSON;
 
   //debug(results);
@@ -367,15 +367,15 @@ function getWhoisParameters(parameter: string): number | undefined {
 
   switch (parameter) {
     case 'follow':
-      debug("Follow depth, 'random': {0}, 'maximum': {1}, 'minimum': {2}, 'default': {3}".format(follow.randomize, follow.maximumDepth, follow.minimumDepth, general.follow));
+      debug(`Follow depth, 'random': ${follow.randomize}, 'maximum': ${follow.maximumDepth}, 'minimum': ${follow.minimumDepth}, 'default': ${general.follow}`);
       return (follow.randomize ? getRandomInt(follow.minimumDepth, follow.maximumDepth) : general.follow);
 
     case 'timeout':
-      debug("Timeout, 'random': {0}, 'maximum': {1}, 'minimum': {2}, 'default': {3}".format(timeout.randomize, timeout.maximum, timeout.minimum, general.timeout));
+      debug(`Timeout, 'random': ${timeout.randomize}, 'maximum': ${timeout.maximum}, 'minimum': ${timeout.minimum}, 'default': ${general.timeout}`);
       return (timeout.randomize ? getRandomInt(timeout.minimum, timeout.maximum) : general.timeout);
 
     case 'timebetween':
-      debug("Timebetween, 'random': {0}, 'maximum': {1}, 'minimum': {2}, 'default': {3}".format(timeBetween.randomize, timeBetween.maximum, timeBetween.minimum, general.timeBetween));
+      debug(`Timebetween, 'random': ${timeBetween.randomize}, 'maximum': ${timeBetween.maximum}, 'minimum': ${timeBetween.minimum}, 'default': ${general.timeBetween}`);
       return (timeBetween.randomize ? getRandomInt(timeBetween.minimum, timeBetween.maximum) : general.timeBetween);
 
     default:
@@ -406,5 +406,4 @@ export function preStringStrip(str: string): string {
   return str.toString().replace(/\:\t{1,2}/g, ": "); // Space key value pairs
 }
 
-export { lookup, toJSON, isDomainAvailable, preStringStrip, getDomainParameters, convertDomain };
 
