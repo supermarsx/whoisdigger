@@ -42,7 +42,13 @@ $(document).ready(function() {
   // Load custom configuration at startup
   if (fs.existsSync(remote.app.getPath('userData') + configuration.filepath)) {
     sendDebug('Reading persistent configurations');
-    settings = JSON.parse(fs.readFileSync(remote.app.getPath('userData') + configuration.filepath, 'utf8')) as Settings;
+    try {
+      settings = JSON.parse(
+        fs.readFileSync(remote.app.getPath('userData') + configuration.filepath, 'utf8')
+      ) as Settings;
+    } catch (err: any) {
+      dialog.showErrorBox('Configuration Error', err.message);
+    }
   } else {
     sendDebug('Using default configurations');
   }

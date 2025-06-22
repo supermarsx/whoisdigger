@@ -6,7 +6,8 @@ const whois = require('../../common/whoiswrapper'),
   fs = require('fs');
 
 const {
-  ipcRenderer
+  ipcRenderer,
+  dialog
 } = require('electron'), {
   tableReset
 } = require('./auxiliary');
@@ -42,17 +43,31 @@ ipcRenderer.on('bw:fileinput.confirmation', function(event, filePath = null, isD
     if (isDragDrop === true) {
       $('#bwEntry').addClass('is-hidden');
       $('#bwFileinputloading').removeClass('is-hidden');
-      bwFileStats = fs.statSync(filePath);
-      bwFileStats['filename'] = filePath.replace(/^.*[\\\/]/, '');
-      bwFileStats['humansize'] = conversions.byteToHumanFileSize(bwFileStats['size'], misc.useStandardSize);
-      $('#bwFileSpanInfo').text('Loading file contents...');
-      bwFileContents = fs.readFileSync(filePath);
+      try {
+        bwFileStats = fs.statSync(filePath);
+        bwFileStats['filename'] = filePath.replace(/^.*[\\\/]/, '');
+        bwFileStats['humansize'] = conversions.byteToHumanFileSize(bwFileStats['size'], misc.useStandardSize);
+        $('#bwFileSpanInfo').text('Loading file contents...');
+        bwFileContents = fs.readFileSync(filePath);
+      } catch (err: any) {
+        dialog.showErrorBox('File Error', err.message);
+        $('#bwFileinputloading').addClass('is-hidden');
+        $('#bwEntry').removeClass('is-hidden');
+        return;
+      }
     } else {
-      bwFileStats = fs.statSync(filePath[0]);
-      bwFileStats['filename'] = filePath[0].replace(/^.*[\\\/]/, '');
-      bwFileStats['humansize'] = conversions.byteToHumanFileSize(bwFileStats['size'], misc.useStandardSize);
-      $('#bwFileSpanInfo').text('Loading file contents...');
-      bwFileContents = fs.readFileSync(filePath[0]);
+      try {
+        bwFileStats = fs.statSync(filePath[0]);
+        bwFileStats['filename'] = filePath[0].replace(/^.*[\\\/]/, '');
+        bwFileStats['humansize'] = conversions.byteToHumanFileSize(bwFileStats['size'], misc.useStandardSize);
+        $('#bwFileSpanInfo').text('Loading file contents...');
+        bwFileContents = fs.readFileSync(filePath[0]);
+      } catch (err: any) {
+        dialog.showErrorBox('File Error', err.message);
+        $('#bwFileinputloading').addClass('is-hidden');
+        $('#bwEntry').removeClass('is-hidden');
+        return;
+      }
     }
     $('#bwFileSpanInfo').text('Getting line count...');
     bwFileStats['linecount'] = bwFileContents.toString().split('\n').length;

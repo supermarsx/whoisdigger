@@ -2,7 +2,7 @@
 
 import * as fs from 'fs';
 import * as electron from 'electron';
-const { app, remote } = electron;
+const { app, remote, dialog } = electron;
 import debugModule from 'debug';
 const debug = debugModule('common.settings');
 
@@ -93,7 +93,8 @@ export function save(settings: Settings): string | Error | undefined {
       fs.writeFileSync(filePath, JSON.stringify(settings));
       debug(`Saved custom configuration at ${filePath}`);
       return 'SAVED';
-    } catch (e) {
+    } catch (e: any) {
+      dialog.showErrorBox('Save Error', e.message);
       debug(`Failed to save custom configuration with error: ${e}`);
       return e as Error;
     }

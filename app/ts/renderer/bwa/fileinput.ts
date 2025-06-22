@@ -9,6 +9,7 @@ const whois = require('../../common/whoiswrapper'),
 
 const {
   ipcRenderer
+  , dialog
 } = require('electron');
 
 require('../../common/stringformat');
@@ -34,21 +35,35 @@ ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath = null, is
     if (isDragDrop === true) {
       $('#bwaEntry').addClass('is-hidden');
       $('#bwaFileinputloading').removeClass('is-hidden');
-      bwaFileStats = fs.statSync(filePath);
-      bwaFileStats['filename'] = filePath.replace(/^.*[\\\/]/, '');
-      bwaFileStats['humansize'] = conversions.byteToHumanFileSize(bwaFileStats['size'], settings['lookup.misc'].useStandardSize);
-      $('#bwaFileSpanInfo').text('Loading file contents...');
-      bwaFileContents = Papa.parse(fs.readFileSync(filePath).toString(), {
-        header: true
-      });
+      try {
+        bwaFileStats = fs.statSync(filePath);
+        bwaFileStats['filename'] = filePath.replace(/^.*[\\\/]/, '');
+        bwaFileStats['humansize'] = conversions.byteToHumanFileSize(bwaFileStats['size'], settings['lookup.misc'].useStandardSize);
+        $('#bwaFileSpanInfo').text('Loading file contents...');
+        bwaFileContents = Papa.parse(fs.readFileSync(filePath).toString(), {
+          header: true
+        });
+      } catch (err: any) {
+        dialog.showErrorBox('File Error', err.message);
+        $('#bwaFileinputloading').addClass('is-hidden');
+        $('#bwaEntry').removeClass('is-hidden');
+        return;
+      }
     } else {
-      bwaFileStats = fs.statSync(filePath[0]);
-      bwaFileStats['filename'] = filePath[0].replace(/^.*[\\\/]/, '');
-      bwaFileStats['humansize'] = conversions.byteToHumanFileSize(bwaFileStats['size'], settings['lookup.misc'].useStandardSize);
-      $('#bwaFileSpanInfo').text('Loading file contents...');
-      bwaFileContents = Papa.parse(fs.readFileSync(filePath[0]).toString(), {
-        header: true
-      });
+      try {
+        bwaFileStats = fs.statSync(filePath[0]);
+        bwaFileStats['filename'] = filePath[0].replace(/^.*[\\\/]/, '');
+        bwaFileStats['humansize'] = conversions.byteToHumanFileSize(bwaFileStats['size'], settings['lookup.misc'].useStandardSize);
+        $('#bwaFileSpanInfo').text('Loading file contents...');
+        bwaFileContents = Papa.parse(fs.readFileSync(filePath[0]).toString(), {
+          header: true
+        });
+      } catch (err: any) {
+        dialog.showErrorBox('File Error', err.message);
+        $('#bwaFileinputloading').addClass('is-hidden');
+        $('#bwaEntry').removeClass('is-hidden');
+        return;
+      }
     }
     //console.log(bwaFileContents.data[0]);
     $('#bwaFileSpanInfo').text('Getting line count...');

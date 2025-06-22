@@ -163,6 +163,7 @@ ipcMain.on('bw:export', function(event, results, options) {
       contentsCompile = contentsHeader + contentsExport;
       fs.writeFile(filePath, contentsCompile, function(err) {
         if (err) {
+          dialog.showErrorBox('Export Error', err.message);
           return debug(err);
         }
         debug("File was saved, {0}".format(filePath));
@@ -179,6 +180,7 @@ ipcMain.on('bw:export', function(event, results, options) {
           }).then(function(content) {
             fs.writeFile(filePath + zip, content, function(err) {
               if (err) {
+                dialog.showErrorBox('Export Error', err.message);
                 return debug(err);
               }
             });
@@ -192,6 +194,7 @@ ipcMain.on('bw:export', function(event, results, options) {
           }).then(function(content) {
             fs.writeFile(filePath + zip, content, function(err) {
               if (err) {
+                dialog.showErrorBox('Export Error', err.message);
                 return debug(err);
               }
             });

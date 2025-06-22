@@ -91,9 +91,13 @@ app.on('ready', function() {
   // Custom application settings startup
   if (fs.existsSync(app.getPath('userData') + configuration.filepath)) {
     debug("Reading persistent configurations");
-    settings = JSON.parse(
-      fs.readFileSync(app.getPath('userData') + configuration.filepath, 'utf8')
-    ) as MainSettings;
+    try {
+      settings = JSON.parse(
+        fs.readFileSync(app.getPath('userData') + configuration.filepath, 'utf8')
+      ) as MainSettings;
+    } catch (err: any) {
+      dialog.showErrorBox('Configuration Error', err.message);
+    }
   } else {
     debug("Using default configurations");
   }

@@ -33,9 +33,15 @@ export function fileReadLines(filePath: string, lines = 2, startLine = 0): Promi
     const linesRead: string[] = [];
     const readline = require('readline');
     const fs = require('fs');
-    const lineReader = readline.createInterface({
-      input: fs.createReadStream(filePath),
-    });
+    let lineReader;
+    try {
+      lineReader = readline.createInterface({
+        input: fs.createReadStream(filePath),
+      });
+    } catch (err: any) {
+      reject(err);
+      return;
+    }
 
     lineReader.on('line', (line: string) => {
       if (lineCounter >= startLine && linesRead.length < lines) {
