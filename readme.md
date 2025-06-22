@@ -98,6 +98,16 @@ npm start
 ```
 which will compile the source to `dist` and launch the application.
 
+### Troubleshooting
+
+If Electron fails to start with an error similar to:
+
+```
+Error: Cannot find module '@electron/remote/main'
+```
+
+your dependencies are missing. Run `npm install` in the project root and try again.
+
 ### Debug
 
 Windows Powershell
