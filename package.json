@@ -2,7 +2,7 @@
   "name": "whoisdigger",
   "version": "0.2.0",
   "description": "Bulk whois lookup tool",
-  "main": "./dist/app/js/main.js",
+  "main": "./dist/app/ts/main.js",
   "scripts": {
     "start": "npm run build && npm run postbuild && electron .",
     "debug-powershell": "@powershell -Command $env:DEBUG='*';npm start;",
@@ -16,7 +16,7 @@
     "build": "tsc",
     "postbuild": "cp -r app/{html,css,fonts,icons} dist/app/",
     "watch": "tsc -w",
-    "lint": "eslint app/js/common/conversions.ts test/**/*.ts",
+    "lint": "eslint app/ts/common/conversions.ts test/**/*.ts",
     "test": "jest"
   },
   "author": "supermarsx",

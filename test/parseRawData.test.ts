@@ -1,4 +1,4 @@
-import parseRawData from '../app/js/common/parseRawData';
+import parseRawData from '../app/ts/common/parseRawData';
 
 describe('parseRawData', () => {
   test('parses key value pairs', () => {
