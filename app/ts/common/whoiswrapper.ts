@@ -258,7 +258,6 @@ export function getDomainParameters(domain: string | null, status: string | null
   results.company =
     resultsJSON.registrantOrganization ||
     resultsJSON.registrant ||
-    resultsJSON.registrantOrganization ||
     resultsJSON.adminName ||
     resultsJSON.ownerName ||
     resultsJSON.contact ||
