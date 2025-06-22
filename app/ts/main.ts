@@ -6,13 +6,14 @@ import {
   Menu,
   ipcMain,
   dialog,
-  remote
+  
 } from 'electron';
 import * as url from 'url';
 import debugModule from 'debug';
 import * as fs from 'fs';
 import { loadSettings } from './common/settings';
 import type { Settings as BaseSettings } from './common/settings';
+import { initialize as initializeRemote, enable as enableRemote } from '@electron/remote/main';
 import type { IpcMainEvent } from 'electron';
 
 const debug = debugModule('main');
@@ -79,6 +80,7 @@ let mainWindow: BrowserWindow;
     When application is ready
  */
 app.on('ready', function() {
+  initializeRemote();
   const {
     'custom.configuration': configuration,
     'app.window': appWindow,
@@ -133,6 +135,7 @@ app.on('ready', function() {
       spellcheck: webPreferences.spellcheck // Enable builtin spellchecker
     }
   });
+  enableRemote(mainWindow.webContents);
 
   // mainWindow, Main window URL load
   mainWindow.loadURL(url.format({

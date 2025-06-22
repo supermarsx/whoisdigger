@@ -1,7 +1,8 @@
 // jshint esversion: 8, -W104, -W069
 
 // Base path --> assets/html
-import { ipcRenderer, remote, dialog } from 'electron';
+import { ipcRenderer, dialog } from 'electron';
+import * as remote from '@electron/remote';
 import type { IpcRendererEvent } from 'electron';
 import * as fs from 'fs';
 import * as $ from 'jquery';
@@ -11,6 +12,9 @@ import { loadSettings, Settings } from './common/settings';
 
 (window as any).$ = $;
 (window as any).jQuery = $;
+(window as any).ipcRenderer = ipcRenderer;
+(window as any).dialog = dialog;
+(window as any).remote = remote;
 
 let settings: Settings = loadSettings();
 
