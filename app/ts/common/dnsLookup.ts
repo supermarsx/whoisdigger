@@ -67,8 +67,7 @@ export async function nsLookup(host: string): Promise<string[] | 'error'> {
     result (boolean) - True if has nameservers, false if not
  */
 export async function hasNsServers(host: string): Promise<boolean> {
-  var result,
-    isArray;
+  var result;
   var {
     'lookup.conversion': conversion,
     'lookup.general': general
