@@ -27,6 +27,6 @@ describe('settings load', () => {
     expect(loaded).toEqual(original);
 
     fs.unlinkSync(path.join(tmpDir, 'bad.json'));
-    fs.rmdirSync(tmpDir, { recursive: true });
+    fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 });
