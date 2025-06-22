@@ -89,7 +89,7 @@ var patterns = {
         {
           type: 'lessthan',
           parameters: [55],
-          value: domainParams.whoisreply.length
+          value: 'domainParams.whoisreply.length'
         }
       ],
       9: 'Object does not exist',
@@ -127,7 +127,7 @@ var patterns = {
     7: [{
       type: 'morethan.Object.keys.length',
       parameters: [5],
-      value: resultsJSON
+      value: 'resultsJSON'
     }],
     8: 'organisation: Internet Assigned Numbers Authority'
   },

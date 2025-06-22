@@ -145,7 +145,7 @@ $('#bwFileButtonConfirm').click(function() {
     Bulk whois file input by drag and drop
  */
 (function dragDropInitialization() {
-  var holder = $('#bwMainContainer');
+  const holder = document.getElementById('bwMainContainer') as HTMLElement;
   holder.ondragover = function() {
     return false;
   };
@@ -160,9 +160,10 @@ $('#bwFileButtonConfirm').click(function() {
 
   holder.ondrop = function(event) {
     event.preventDefault();
-    for (let f of event.dataTransfer.files) {
-      ipcRenderer.send('File(s) you dragged here: {0}'.format(f.path));
-      ipcRenderer.send('ondragstart', f.path);
+    for (const f of Array.from(event.dataTransfer!.files)) {
+      const file = f as any;
+      ipcRenderer.send('File(s) you dragged here: {0}'.format(file.path));
+      ipcRenderer.send('ondragstart', file.path);
     }
     return false;
   };
@@ -193,9 +194,10 @@ $("html").on("drop", function(event) {
  */
 $('#bwMainContainer').on('drop', function(event) {
   event.preventDefault();
-  for (let f of event.originalEvent.dataTransfer.files) {
-    ipcRenderer.send('File(s) you dragged here: {0}'.format(f.path));
-    ipcRenderer.send('ondragstart', f.path);
+  for (const f of Array.from((event as any).originalEvent.dataTransfer.files)) {
+    const file = f as any;
+    ipcRenderer.send('File(s) you dragged here: {0}'.format(file.path));
+    ipcRenderer.send('ondragstart', file.path);
   }
 
   return false;
