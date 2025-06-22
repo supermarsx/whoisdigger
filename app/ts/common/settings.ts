@@ -60,6 +60,7 @@ const isMainProcess = ((): boolean => {
   }
 })();
 
+
 const userDataPath = isMainProcess
   ? app.getPath('userData')
   : remote?.app?.getPath('userData') ?? '';
@@ -81,6 +82,8 @@ export function load(): Settings {
 
   if (configuration.load) {
     try {
+      const filePath =
+        getUserDataPath() + settings['custom.configuration']['filepath'];
       const raw = fs.readFileSync(filePath, 'utf8');
       try {
         settings = JSON.parse(raw) as Settings;
@@ -109,6 +112,8 @@ export function save(settings: Settings): string | Error | undefined {
 
   if (configuration.save) {
     try {
+      const filePath =
+        getUserDataPath() + settings['custom.configuration']['filepath'];
       fs.writeFileSync(filePath, JSON.stringify(settings));
       debug(`Saved custom configuration at ${filePath}`);
       return 'SAVED';
