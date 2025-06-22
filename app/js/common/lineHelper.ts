@@ -1,0 +1,54 @@
+// jshint esversion: 8
+
+/*
+  lineCount
+    Count lines within a string
+  parameters
+    text (string) - string to count lines from
+    newLineChar (string) - new line character
+ */
+export function lineCount(text: string, newLineChar = '\n'): number { // '\n' unix; '\r' macos; '\r\n' windows
+  let lines = 0;
+  for (const ch of text) if (ch === newLineChar) lines++;
+
+  return lines;
+}
+
+/*
+  fileReadLines
+    Read a determined quantity of lines from a specific file
+  parameters
+    filePath (string) - file path to read lines from
+    lines (integer) - line quantity to read from file
+    startLine (integer) - line to start reading from
+ */
+export function fileReadLines(filePath: string, lines = 2, startLine = 0): Promise<string[]> {
+  return new Promise((resolve, reject) => {
+    let lineCounter = startLine;
+    const linesRead: string[] = [];
+    const readline = require('readline');
+    const fs = require('fs');
+    const lineReader = readline.createInterface({
+      input: fs.createReadStream(filePath),
+    });
+
+    lineReader.on('line', (line: string) => {
+      lineCounter++;
+      linesRead.push(line);
+      if (lineCounter === lines) lineReader.close();
+    });
+
+    lineReader.on('close', () => {
+      resolve(linesRead);
+    });
+
+    lineReader.on('error', (err: Error) => reject(err));
+  });
+}
+
+const LineHelper = {
+  lineCount,
+  fileReadLines,
+};
+
+export default LineHelper;
