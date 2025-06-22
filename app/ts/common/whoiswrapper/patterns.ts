@@ -1,8 +1,40 @@
 // jshint esversion: 8, -W069
 
 import { load, Settings } from '../settings';
+import { toJSON, getDomainParameters } from '../whoiswrapper';
+import { getDate } from '../conversions';
 
 const settings: Settings = load();
+
+export interface PatternFunction {
+  (context: PatternContext): boolean;
+}
+
+export interface PatternContext {
+  resultsText: string;
+  resultsJSON: any;
+  domainParams: any;
+  controlDate: string | undefined;
+}
+
+export interface CompiledPattern {
+  fn: PatternFunction;
+  result: string;
+}
+
+export interface PatternCollections {
+  special: CompiledPattern[];
+  available: CompiledPattern[];
+  unavailable: CompiledPattern[];
+  error: CompiledPattern[];
+}
+
+export const builtPatterns: PatternCollections = {
+  special: [],
+  available: [],
+  unavailable: [],
+  error: [],
+};
 
 var patterns = {
 
@@ -164,9 +196,174 @@ var patterns = {
   }
 };
 
-export function buildPatterns(): void {}
+function resolvePath(path: string, context: PatternContext): any {
+  const parts = path.split('.');
+  let value: any;
+  switch (parts.shift()) {
+    case 'domainParams':
+      value = context.domainParams;
+      break;
+    case 'resultsJSON':
+      value = context.resultsJSON;
+      break;
+    case 'resultsText':
+      value = context.resultsText;
+      break;
+    case 'controlDate':
+      value = context.controlDate;
+      break;
+    default:
+      return undefined;
+  }
+  for (const part of parts) {
+    if (value === undefined || value === null) return undefined;
+    value = value[part];
+  }
+  return value;
+}
 
-export function checkPatterns(): void {}
+function compileCondition(cond: any): PatternFunction {
+  if (cond.type) {
+    switch (cond.type) {
+      case 'includes':
+        return (ctx) => ctx.resultsText.includes(cond.value);
+      case 'excludes':
+        return (ctx) => !ctx.resultsText.includes(cond.value);
+      case 'lessthan':
+        return (ctx) => {
+          const v = resolvePath(cond.value, ctx);
+          return Number(v) < cond.parameters[0];
+        };
+      case 'minuslessthan':
+        return (ctx) => {
+          const v1 = resolvePath(cond.parameters[0], ctx);
+          const v2 = resolvePath(cond.parameters[1], ctx);
+          const diff = Date.parse(v1) - Date.parse(v2);
+          return diff < cond.parameters[2];
+        };
+      case 'hasOwnProperty':
+        return (ctx) =>
+          ctx.resultsJSON && Object.prototype.hasOwnProperty.call(ctx.resultsJSON, cond.parameters[0]);
+      case 'morethan.Object.keys.length':
+        return (ctx) => {
+          const obj = resolvePath(cond.value, ctx);
+          return obj && Object.keys(obj).length > cond.parameters[0];
+        };
+      case 'equal':
+        return (ctx) => ctx.resultsText === cond.value;
+      default:
+        return () => false;
+    }
+  }
+
+  return (ctx) => {
+    let ok = true;
+    if (cond.includes) {
+      if (Array.isArray(cond.includes)) {
+        ok = cond.includes.every((s: string) => ctx.resultsText.includes(s));
+      } else {
+        ok = ctx.resultsText.includes(cond.includes);
+      }
+    }
+    if (ok && cond.excludes) {
+      if (Array.isArray(cond.excludes)) {
+        ok = !cond.excludes.some((s: string) => ctx.resultsText.includes(s));
+      } else {
+        ok = !ctx.resultsText.includes(cond.excludes);
+      }
+    }
+    return ok;
+  };
+}
+
+function compileSpec(spec: any, defaultResult: string): CompiledPattern {
+  let result = defaultResult;
+  let conditions: PatternFunction[] = [];
+  if (typeof spec === 'string') {
+    conditions = [compileCondition({ type: 'includes', value: spec })];
+  } else if (Array.isArray(spec)) {
+    conditions = spec.map((c) => compileCondition(c));
+    const withResult = spec.find((c) => c.result !== undefined);
+    if (withResult) result = withResult.result;
+  } else if (typeof spec === 'object') {
+    conditions = [compileCondition(spec)];
+    if (spec.result !== undefined) result = spec.result;
+  }
+
+  return {
+    fn: (ctx) => conditions.every((f) => f(ctx)),
+    result,
+  };
+}
+
+export function buildPatterns(): void {
+  builtPatterns.special = [];
+  builtPatterns.available = [];
+  builtPatterns.unavailable = [];
+  builtPatterns.error = [];
+
+  for (const key in patterns.special) {
+    const spec = (patterns.special as any)[key];
+    builtPatterns.special.push(compileSpec(spec, spec.result || ''));
+  }
+
+  const avail = patterns.available;
+  for (const cat of ['notfound', 'nomatch', 'available', 'unique'] as const) {
+    const group = (avail as any)[cat];
+    for (const k in group) {
+      const spec = group[k];
+      builtPatterns.available.push(compileSpec(spec, 'available'));
+    }
+  }
+
+  const unav = patterns.unavailable;
+  for (const k in unav) {
+    const spec = (unav as any)[k];
+    builtPatterns.unavailable.push(compileSpec(spec, 'unavailable'));
+  }
+
+  const err = patterns.error;
+  const errMap: { [key: string]: string } = {
+    nocontent: 'error:nocontent',
+    unauthorized: 'error:unauthorized',
+    ratelimiting: 'error:ratelimiting',
+  };
+  for (const groupKey in err) {
+    const group = (err as any)[groupKey];
+    const res = errMap[groupKey];
+    for (const k in group) {
+      const spec = group[k];
+      builtPatterns.error.push(compileSpec(spec, res));
+    }
+  }
+}
+
+export function checkPatterns(resultsText: string, resultsJSON?: any): string {
+  if (!builtPatterns.available.length) buildPatterns();
+
+  resultsJSON = resultsJSON || toJSON(resultsText);
+  const domainParams = getDomainParameters(
+    null,
+    null,
+    resultsText,
+    resultsJSON,
+    true
+  );
+  const controlDate = getDate(new Date());
+  const ctx: PatternContext = {
+    resultsText,
+    resultsJSON,
+    domainParams,
+    controlDate,
+  };
+
+  for (const p of builtPatterns.special) if (p.fn(ctx)) return p.result;
+  for (const p of builtPatterns.available) if (p.fn(ctx)) return p.result;
+  for (const p of builtPatterns.unavailable) if (p.fn(ctx)) return p.result;
+  for (const p of builtPatterns.error) if (p.fn(ctx)) return p.result;
+
+  return settings['lookup.assumptions'].unparsable ? 'available' : 'error:unparsable';
+}
 
 const exported = {
   buildPatterns,
