@@ -6,7 +6,7 @@ import * as remote from '@electron/remote';
 import type { IpcRendererEvent } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as $ from 'jquery';
+import $ from 'jquery';
 
 import './renderer/index';
 import { loadSettings, Settings } from './common/settings';
