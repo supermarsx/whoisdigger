@@ -37,27 +37,27 @@ export { settings };
 export default settings;
 
 /*
-  Detect if is Renderer
+  Detect if running in the main Electron process
  */
-const isRenderer = (function() {
+const isMainProcess = ((): boolean => {
   if (electron.app === undefined) {
-    debug("Is renderer");
+    debug('Is renderer');
     return false;
   } else {
-    debug("Is main");
+    debug('Is main');
     return true;
   }
 })();
 
-const filePath = isRenderer ?
-  app.getPath('userData') + settings['custom.configuration']['filepath'] :
-  remote.app.getPath('userData') + settings['custom.configuration']['filepath'];
+const filePath = isMainProcess
+  ? app.getPath('userData') + settings['custom.configuration']['filepath']
+  : remote.app.getPath('userData') + settings['custom.configuration']['filepath'];
 
 /*
-  loadSettings
+  load
     Loads custom configurations from file or defaults
  */
-export function loadSettings(): Settings {
+export function load(): Settings {
   const {
     'custom.configuration': configuration
   } = settings;
@@ -75,12 +75,12 @@ export function loadSettings(): Settings {
 }
 
 /*
-  saveSettings
+  save
     Save custom configurations
   parameters
     settings (object) - Current custom configurations to be saved
  */
-export function saveSettings(settings: Settings): string | Error | undefined {
+export function save(settings: Settings): string | Error | undefined {
   const {
     'custom.configuration': configuration
   } = settings;
@@ -97,5 +97,8 @@ export function saveSettings(settings: Settings): string | Error | undefined {
   }
 
 }
+
+export const loadSettings = load;
+export const saveSettings = save;
 
 
