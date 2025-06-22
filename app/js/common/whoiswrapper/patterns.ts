@@ -1,6 +1,8 @@
 // jshint esversion: 8, -W069
 
-var settings = require('../settings').load();
+import { load, Settings } from '../settings';
+
+const settings: Settings = load();
 
 var patterns = {
 
@@ -162,14 +164,16 @@ var patterns = {
   }
 };
 
-function buildPatterns() {}
+export function buildPatterns(): void {}
 
-function checkPatterns() {}
+export function checkPatterns(): void {}
 
-exports = {
-  default: patterns,
-  buildPatterns: buildPatterns,
+const exported = {
+  buildPatterns,
   build: buildPatterns,
-  checkPatterns: checkPatterns,
-  check: checkPatterns
+  checkPatterns,
+  check: checkPatterns,
 };
+
+export default patterns;
+export { exported as PatternsHelpers };

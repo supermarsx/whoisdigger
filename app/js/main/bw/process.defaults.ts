@@ -1,9 +1,22 @@
+
 var defaultFirstValue = null, // Default that is equivalent or similar to null value: null, undefined, false..
   defaultSecondValue = 0, // Default numeric starting value
   defaultThirdValue = '-',
   defaultForthValue = '.',
   defaultFifthValue = 99999;
 
+export interface BulkWhoisDefaults {
+  input: Record<string, any>;
+  stats: Record<string, any>;
+  results: Record<string, any>;
+  processingIDs: any[];
+  domains: any[];
+  default: Record<string, any>;
+}
+
+
+// Default BulkWhois values
+const defaultBulkWhois = {
 
 // Default BulkWhois values
 module.exports = {
@@ -67,3 +80,6 @@ module.exports = {
     'others': defaultThirdValue
   }
 };
+
+export default defaultBulkWhois;
+

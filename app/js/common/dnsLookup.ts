@@ -1,13 +1,13 @@
 // jshint esversion: 8
-//const settings = require('./settings').load();
-const dns = require('dns'),
-  psl = require('psl'),
-  debug = require('debug')('common.dnsLookup'),
-  {
-    convertDomain
-  } = require('./whoisWrapper');
 
-var settings = require('./settings').load();
+import dns from 'dns';
+import psl from 'psl';
+import debugModule from 'debug';
+import { convertDomain } from './whoisWrapper';
+import { load, Settings } from './settings';
+
+const debug = debugModule('common.dnsLookup');
+let settings: Settings = load();
 
 /*
   dnsResolvePromise
@@ -17,7 +17,7 @@ var settings = require('./settings').load();
   .returns
     [rejects or resolves the promise]
  */
-const dnsResolvePromise = (...args) => {
+const dnsResolvePromise = (...args: any[]): Promise<any> => {
   return new Promise((resolve, reject) => {
     dns.resolve(...args, (err, data) => {
       if (err) return reject(err);
@@ -34,7 +34,7 @@ const dnsResolvePromise = (...args) => {
   .returns
     result (boolean) - Returns array if has nameservers, error string on error
  */
-async function nsLookup(host) {
+export async function nsLookup(host: string): Promise<string[] | 'error'> {
   var result;
   var {
     'lookup.conversion': conversion,
@@ -63,7 +63,7 @@ async function nsLookup(host) {
   .returns
     result (boolean) - True if has nameservers, false if not
  */
-async function hasNsServers(host) {
+export async function hasNsServers(host: string): Promise<boolean> {
   var result,
     isArray;
   var {
@@ -99,14 +99,16 @@ async function hasNsServers(host) {
   .returns
     data (string) - Return 'available' if function returned true, false any other
  */
-function isDomainAvailable(data) {
+export function isDomainAvailable(data: any): string {
   var result = (data === true) ? 'unavailable' : 'available';
   debug(`Checked for availability from data ${data} with result: ${result}`);
   return result;
 }
 
-module.exports = {
-  nsLookup: nsLookup,
-  hasNsServers: hasNsServers,
-  isDomainAvailable: isDomainAvailable
+const DnsLookup = {
+  nsLookup,
+  hasNsServers,
+  isDomainAvailable,
 };
+
+export default DnsLookup;
