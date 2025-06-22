@@ -21,7 +21,7 @@ export interface WhoisResult {
   creationDate?: string | undefined;
   updateDate?: string | undefined;
   expiryDate?: string | undefined;
-  whoisReply?: string;
+  whoisreply?: string;
   whoisJson?: any;
 }
 
@@ -145,10 +145,10 @@ export function isDomainAvailable(resultsText: string, resultsJSON?: any): strin
     case (resultsText.includes('This domain name has not been registered')):
     case (resultsText.includes('The domain has not been registered')):
     case (resultsText.includes('This query returned 0 objects')):
-    case (resultsText.includes(' is free') && domainParams.whoisReply !== undefined && domainParams.whoisReply.length < 50):
+    case (resultsText.includes(' is free') && domainParams.whoisreply !== undefined && domainParams.whoisreply.length < 50):
     case (resultsText.includes('domain name not known in')):
     case (resultsText.includes('registration status: available')):
-    case (resultsText.includes('whois.nic.bo') && domainParams.whoisReply !== undefined && domainParams.whoisReply.length < 55):
+    case (resultsText.includes('whois.nic.bo') && domainParams.whoisreply !== undefined && domainParams.whoisreply.length < 55):
     case (resultsText.includes('Object does not exist')):
     case (resultsText.includes('The queried object does not exist')):
     case (resultsText.includes('Not Registered -')):
@@ -283,7 +283,7 @@ export function getDomainParameters(domain: string | null, status: string | null
     resultsJSON.expirationDate ||
     resultsJSON.expiresOn ||
     resultsJSON.paidTill);
-  results.whoisReply = resultsText ?? undefined;
+  results.whoisreply = resultsText ?? undefined;
   results.whoisJson = resultsJSON;
 
   //debug(results);
