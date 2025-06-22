@@ -1,12 +1,6 @@
 <p align="center"><img width=60% src="https://github.com/whois-team/brand/blob/master/png/whoisdigger_black.png"></p>
-<p align="center"><img src="https://img.shields.io/github/package-json/v/supermarx/whoisdigger"> <img src="https://img.shields.io/github/downloads/supermarx/whoisdigger/total"> <img src="https://img.shields.io/github/issues-raw/supermarx/whoisdigger"></p>
-<p align="center"><a href="https://github.com/supermarx/whoisdigger/blob/master/package.json"><img src="https://img.shields.io/github/package-json/dependency-version/supermarx/whoisdigger/electron"></a>  <a href="https://scrutinizer-ci.com/g/supermarx/whoisdigger/build-status/master"><img src="https://scrutinizer-ci.com/g/whois-team/whoisdigger/badges/build.png?b=master"></a>  <a href="https://david-dm.org/supermarx/whoisdigger"><img src="https://david-dm.org/supermarx/whoisdigger/status.svg"></a>  <a href="https://scrutinizer-ci.com/g/supermarx/whoisdigger/?branch=master"><img src="https://scrutinizer-ci.com/g/supermarx/whoisdigger/badges/quality-score.png?b=master"></a></p>
-<p align="center"><a href="https://www.codacy.com/app/eduardomota/whoisdigger"><img src="https://api.codacy.com/project/badge/Grade/2611b6567d054839a88faa504839e63d"></a>  <a href="https://snyk.io/test/github/supermarx/whoisdigger"><img src="https://snyk.io/test/github/supermarx/whoisdigger/badge.svg"></a>  <a href="https://app.fossa.io/projects/git%2Bgithub.com%supermarx%2Fwhoisdigger"><img src="https://app.fossa.io/api/projects/git%2Bgithub.com%supermarx%2Fwhoisdigger.svg?type=shield"></a>  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/github/license/supermarx/whoisdigger.svg?style=flat"></a></p>
+
 <hr>
-
-
-
-
 
 ![Whoisdigger app](https://github.com/whois-team/website/raw/master/images/projects/whoisdigger.gif)  
 
