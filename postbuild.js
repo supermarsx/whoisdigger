@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const folders = ['html', 'css', 'fonts', 'icons'];
+const folders = ['html', 'css', 'fonts', 'icons', 'ts/common/fontawesome'];
 const appDir = path.join(__dirname, 'app');
 const distDir = path.join(__dirname, 'dist', 'app');
 
