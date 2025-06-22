@@ -5,6 +5,7 @@ import { ipcRenderer, dialog } from 'electron';
 import * as remote from '@electron/remote';
 import type { IpcRendererEvent } from 'electron';
 import * as fs from 'fs';
+import * as path from 'path';
 import * as $ from 'jquery';
 
 import './renderer/index';
@@ -40,10 +41,16 @@ $(document).ready(function() {
   sendDebug('Document is ready');
 
   // Load custom configuration at startup
-  const userData = remote?.app?.getPath('userData');
-  if (userData && fs.existsSync(userData + configuration.filepath)) {
+
+  const configPath = path.join(
+    remote.app.getPath('userData'),
+    configuration.filepath
+  );
+  if (fs.existsSync(configPath)) {
     sendDebug('Reading persistent configurations');
-    settings = JSON.parse(fs.readFileSync(userData + configuration.filepath, 'utf8')) as Settings;
+    settings = JSON.parse(
+      fs.readFileSync(configPath, 'utf8')
+    ) as Settings;
   } else {
     sendDebug('Using default configurations');
   }
