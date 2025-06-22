@@ -1,6 +1,6 @@
 {
   "name": "whoisdigger",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Bulk whois lookup tool",
   "main": "./dist/app/js/main.js",
   "scripts": {
@@ -20,7 +20,7 @@
     "lint": "eslint app/js/common/conversions.ts test/**/*.ts",
     "test": "jest"
   },
-  "author": "Eduardo Mota",
+  "author": "supermarsx",
   "license": "MIT",
   "dependencies": {
     "bulma": "^0.9.2",
