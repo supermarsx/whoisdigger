@@ -1,9 +1,9 @@
 // jshint esversion: 8
 
-const path = require('path');
+import * as path from 'path';
 
 // Default application settings
-module.exports = {
+const appSettings = {
   'settings': {
     'app.window': { // Application window
       'frame': false, // Is basic frame shown (default: false)
@@ -145,3 +145,5 @@ module.exports = {
     }
   }
 };
+
+export default appSettings;
