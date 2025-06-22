@@ -58,6 +58,6 @@ Tab Bulk Whois
 - Bulk whois processing,
   - [If processing is complete], Export
   - [If export is selected], export loading
-  - [after export complete, go to bulk whosi entry]
+  - [after export complete, go to bulk whois entry]
 
 Tab Bulk Whois Analyser
