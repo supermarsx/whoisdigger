@@ -67,8 +67,13 @@ export function load(): Settings {
 
   if (configuration.load) {
     try {
-      settings = JSON.parse(fs.readFileSync(filePath, 'utf8')) as Settings;
-      debug(`Loaded custom configuration at ${filePath}`);
+      const raw = fs.readFileSync(filePath, 'utf8');
+      try {
+        settings = JSON.parse(raw) as Settings;
+        debug(`Loaded custom configuration at ${filePath}`);
+      } catch (parseError) {
+        debug(`Failed to parse custom configuration with error: ${parseError}`);
+      }
     } catch (e) {
       debug(`Failed to load custom configuration with error: ${e}`);
     }
