@@ -71,6 +71,12 @@ const filePath = isMainProcess
       settings['custom.configuration'].filepath
     );
 
+function getUserDataPath(): string {
+  return isMainProcess
+    ? app.getPath('userData')
+    : remote?.app?.getPath('userData') ?? '';
+}
+
 /*
   load
     Loads custom configurations from file or defaults
