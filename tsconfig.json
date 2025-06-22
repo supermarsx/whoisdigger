@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2019",
     "module": "commonjs",
-    
+
     "moduleResolution": "node",
     "allowJs": true,
     "rootDir": "app/js",
@@ -10,7 +10,8 @@
     "esModuleInterop": true,
     "strict": true,
     "skipLibCheck": true,
-    "typeRoots": ["./types"]
+    "types": ["node", "jest"],
+    "typeRoots": ["./types", "./node_modules/@types"]
   },
-  "include": ["app/js/**/*.ts", "**/*.d.ts"]
+  "include": ["app/js/**/*.ts", "test/**/*.ts", "**/*.d.ts"]
 }

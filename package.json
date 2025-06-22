@@ -15,8 +15,10 @@
     "package-all": "npm run build && electron-packager . --all --overwrite --asar --icon=app/icons/app.png --prune=true --out=release_builds",
     "snyk-protect": "snyk protect",
     "prepare": "npm run snyk-protect",
-    "build": "node -e \"require('fs').rmSync('dist', {recursive: true, force: true}); require('fs').cpSync('app', 'dist/app', {recursive: true});\" && tsc",
-    "watch": "tsc -w"
+    "build": "tsc",
+    "watch": "tsc -w",
+    "lint": "eslint app/js/common/conversions.ts test/**/*.ts",
+    "test": "jest"
   },
   "author": "Eduardo Mota",
   "license": "MIT",
@@ -42,9 +44,15 @@
   },
   "snyk": true,
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/jquery": "^3.5.32",
     "@types/node": "^24.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.34.1",
+    "@typescript-eslint/parser": "^8.34.1",
     "electron": "^12.0.1",
+    "eslint": "^9.29.0",
+    "jest": "^30.0.2",
+    "ts-jest": "^29.4.0",
     "typescript": "^5.8.3"
   }
 }
