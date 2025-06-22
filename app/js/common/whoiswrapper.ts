@@ -8,10 +8,10 @@ import whois from 'whois';
 import parseRawData from './parseRawData';
 import debugModule from 'debug';
 import { getDate } from './conversions';
-import { loadSettings, Settings } from './settings';
+import { load, Settings } from './settings';
 
 const debug = debugModule('common.whoisWrapper');
-let settings: Settings = loadSettings();
+let settings: Settings = load();
 
 export interface WhoisResult {
   domain?: string;
