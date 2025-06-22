@@ -21,7 +21,7 @@ ipcRenderer.on('bw:wordlistinput.confirmation', function() {
   var bwFileStats = [];
 
   bwWordlistContents = $('#bwWordlistTextareaDomains').val().toString();
-  if (bwWordlistContents == '' && bwWordlistContents === null) {
+  if (bwWordlistContents === '' || bwWordlistContents === null) {
     $('#bwWordlistconfirm').addClass('is-hidden');
     $('#bwEntry').removeClass('is-hidden');
   } else {
