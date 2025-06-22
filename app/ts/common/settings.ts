@@ -72,9 +72,7 @@ const filePath = isMainProcess
     );
 
 function getUserDataPath(): string {
-  return isMainProcess
-    ? app.getPath('userData')
-    : remote?.app?.getPath('userData') ?? '';
+  return userDataPath;
 }
 
 /*
