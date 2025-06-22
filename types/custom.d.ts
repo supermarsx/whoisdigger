@@ -26,6 +26,9 @@ declare module 'electron' {
     on(event: string, listener: (...args: any[]) => void): void;
     minimize(): void;
     toggleDevTools(): void;
+    webContents: {
+      toggleDevTools(): void;
+    };
   }
   export const Menu: any;
   export interface IpcMainEvent {}
