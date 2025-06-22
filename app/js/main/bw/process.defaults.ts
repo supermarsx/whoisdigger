@@ -5,7 +5,7 @@ var defaultFirstValue = null, // Default that is equivalent or similar to null v
   defaultForthValue = '.',
   defaultFifthValue = 99999;
 
-export interface BulkWhoisDefaults {
+interface BulkWhoisDefaults {
   input: Record<string, any>;
   stats: Record<string, any>;
   results: Record<string, any>;

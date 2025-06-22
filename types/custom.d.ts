@@ -27,7 +27,6 @@ declare module 'electron' {
     minimize(): void;
     toggleDevTools(): void;
   }
-  export const BrowserWindow: any;
   export const Menu: any;
   export interface IpcMainEvent {}
   export const ipcMain: any;
