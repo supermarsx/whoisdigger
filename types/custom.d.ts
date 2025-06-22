@@ -4,9 +4,17 @@ declare module 'fs' {
   export function readFileSync(path: string, options?: any): string;
   export function readFile(path: string, callback: (err: any, data: string) => void): void;
   export function writeFileSync(path: string, data: string): void;
+  export function createReadStream(path: string): any;
 }
 declare module 'url' {
   export function format(urlObject: any): string;
+}
+declare module 'readline' {
+  export function createInterface(options: any): any;
+}
+declare module 'jquery' {
+  const jq: any;
+  export = jq;
 }
 declare module 'electron' {
   export const app: any;
@@ -23,6 +31,7 @@ declare module 'electron' {
   export const Menu: any;
   export interface IpcMainEvent {}
   export const ipcMain: any;
+  export const ipcRenderer: any;
   export const dialog: any;
   export const remote: any;
 }
@@ -46,6 +55,16 @@ declare module 'whois' {
 declare module 'app/js/common/parseRawData' {
   export function parseRawData(rawData: string): Record<string, string>;
   export default parseRawData;
+}
+
+declare module 'change-case' {
+  export function camelCase(input: string): string;
+}
+
+declare module 'html-entities' {
+  export class XmlEntities {
+    decode(input: string): string;
+  }
 }
 
 interface String {
