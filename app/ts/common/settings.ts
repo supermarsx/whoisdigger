@@ -64,6 +64,10 @@ const isMainProcess = ((): boolean => {
 const userDataPath = isMainProcess
   ? app.getPath('userData')
   : remote?.app?.getPath('userData') ?? '';
+
+function getUserDataPath(): string {
+  return userDataPath;
+}
 const filePath = isMainProcess
   ? path.join(app.getPath('userData'), settings['custom.configuration'].filepath)
   : path.join(

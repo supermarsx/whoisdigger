@@ -4,12 +4,12 @@ import * as changeCase from 'change-case';
 import { XmlEntities } from 'html-entities';
 
 /*
-	stripHTMLEntitites
+       stripHTMLEntities
 		Strips HTML entities from a given string
 	parameters
 		rawData (string) - string to strip HTML entities from
  */
-function stripHTMLEntitites(rawData: string): string {
+function stripHTMLEntities(rawData: string): string {
         const entities = new XmlEntities();
         return entities.decode(rawData);
 }
@@ -34,7 +34,7 @@ export function parseRawData(rawData: string): Record<string, string> {
         const DELIMITER = ':';
         const result: Record<string, string> = {};
 
-	rawData = stripHTMLEntitites(rawData);
+       rawData = stripHTMLEntities(rawData);
 	rawData = filterColonChar(rawData);
         const lines = rawData.split('\n');
 
