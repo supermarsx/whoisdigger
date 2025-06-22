@@ -56,7 +56,10 @@ export async function lookup(domain: string, options = getWhoisOptions()): Promi
 
   try {
     domain = conversion.enabled ? convertDomain(domain) : domain;
-    domain = general.psl ? psl.get(domain).replace(/((\*\.)*)/g, '') : domain;
+    if (general.psl) {
+      const clean = psl.get(domain);
+      domain = clean ? clean.replace(/((\*\.)*)/g, '') : domain;
+    }
 
     debug(`Looking up for ${domain}`);
     domainResults = await lookupPromise(domain, options);
