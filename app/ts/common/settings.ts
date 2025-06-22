@@ -29,9 +29,12 @@ export interface Settings {
   [key: string]: any;
 }
 
-const settingsModule: { settings: Settings } = fs.existsSync('./appsettings') ?
-  require('./appsettings') :
-  require('../appsettings');
+const rawModule = fs.existsSync('./appsettings')
+  ? require('./appsettings')
+  : require('../appsettings');
+const settingsModule: { settings: Settings } = rawModule.settings
+  ? rawModule
+  : rawModule.default;
 let { settings } = settingsModule;
 export { settings };
 export default settings;
