@@ -1,6 +1,6 @@
 // jshint esversion: 8
 
-import dns from 'dns';
+import dns from 'dns/promises';
 import psl from 'psl';
 import debugModule from 'debug';
 import { convertDomain } from './whoiswrapper';
@@ -9,22 +9,6 @@ import { load, Settings } from './settings';
 const debug = debugModule('common.dnsLookup');
 let settings: Settings = load();
 
-/*
-  dnsResolvePromise
-    Promisified dns resolution with argument passthrough
-  .parameters
-    [parameter passthrough]
-  .returns
-    [rejects or resolves the promise]
- */
-const dnsResolvePromise = (host: string, rrtype: string): Promise<any> => {
-  return new Promise((resolve, reject) => {
-    dns.resolve(host, rrtype, (err, data) => {
-      if (err) return reject(err);
-      resolve(data);
-    });
-  });
-};
 
 /*
   nsLookup
@@ -48,7 +32,7 @@ export async function nsLookup(host: string): Promise<string[] | 'error'> {
   }
 
   try {
-    result = await dnsResolvePromise(host, 'NS');
+    result = await dns.resolve(host, 'NS');
   } catch (e) {
     result = 'error';
     debug(`Lookup failed with error ${e}`);
@@ -81,7 +65,7 @@ export async function hasNsServers(host: string): Promise<boolean> {
   }
 
   try {
-    result = await dnsResolvePromise(host, 'NS');
+    result = await dns.resolve(host, 'NS');
     result = Array.isArray(result) ? true : false;
   } catch (e) {
     result = settings['lookup.assumptions'].dnsFailureUnavailable ? true : false;

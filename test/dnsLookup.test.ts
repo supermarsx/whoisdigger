@@ -3,16 +3,14 @@ jest.mock('electron', () => ({
   remote: { app: { getPath: jest.fn().mockReturnValue('') } }
 }));
 
-import dns from 'dns';
+import dns from 'dns/promises';
 import { nsLookup, hasNsServers, isDomainAvailable } from '../app/ts/common/dnsLookup';
 
 describe('dnsLookup', () => {
   let resolveMock: jest.SpyInstance;
 
   beforeAll(() => {
-    resolveMock = jest.spyOn(dns, 'resolve').mockImplementation((_: string, __: string, cb: Function) => {
-      cb(new Error('ENOTFOUND'));
-    });
+    resolveMock = jest.spyOn(dns, 'resolve').mockRejectedValue(new Error('ENOTFOUND'));
   });
 
   afterAll(() => {
