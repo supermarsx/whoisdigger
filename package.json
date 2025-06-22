@@ -13,8 +13,6 @@
     "package-win": "npm run build && npm run postbuild && electron-packager . whoisdigger --overwrite --asar --platform=win32 --arch=ia32 --icon=app/icons/app.ico --prune=true --out=release_builds --version-string.CompanyName=\"WhoisTeam\" --version-string.FileDescription=\"WhoisTeam Whoisdigger\" --version-string.ProductName=\"whoisdigger\"",
     "package-linux": "npm run build && npm run postbuild && electron-packager . whoisdigger --overwrite --asar --platform=linux --arch=x64 --icon=app/icons/app.png --prune=true --out=release_builds",
     "package-all": "npm run build && npm run postbuild && electron-packager . --all --overwrite --asar --icon=app/icons/app.png --prune=true --out=release_builds",
-    "snyk-protect": "snyk protect",
-    "prepare": "npm run snyk-protect",
     "build": "tsc",
     "postbuild": "cp -r app/{html,css,fonts,icons} dist/app/",
     "watch": "tsc -w",
@@ -40,10 +38,8 @@
     "papaparse": "^5.3.0",
     "psl": "^1.8.0",
     "punycode": "^2.1.1",
-    "snyk": "^1.667.0",
     "whois": "^2.13.0"
   },
-  "snyk": true,
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/jquery": "^3.5.32",
