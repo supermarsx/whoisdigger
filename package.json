@@ -16,7 +16,7 @@
     "build": "tsc",
     "postbuild": "node postbuild.js",
     "watch": "tsc -w",
-    "lint": "eslint app/ts/common/conversions.ts test/**/*.ts",
+    "lint": "eslint \"app/**/*.ts\" \"test/**/*.ts\"",
     "test": "jest"
   },
   "author": "supermarsx",
