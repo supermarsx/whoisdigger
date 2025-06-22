@@ -52,23 +52,23 @@ declare module 'whois' {
   export function lookup(domain: string, options: any, callback: (err: any, data: any) => void): void;
   export function lookup(domain: string, callback: (err: any, data: any) => void): void;
 }
-declare module 'app/js/common/parseRawData' {
+declare module 'app/ts/common/parseRawData' {
   export function parseRawData(rawData: string): Record<string, string>;
   export default parseRawData;
 }
 
-declare module 'app/js/main/bw/auxiliary' {
+declare module 'app/ts/main/bw/auxiliary' {
   import type { IpcMainEvent } from 'electron';
   export function resetUiCounters(event: IpcMainEvent): void;
   export { resetUiCounters as rstUiCntrs };
 }
 
-declare module 'app/js/main/bw/process.defaults' {
+declare module 'app/ts/main/bw/process.defaults' {
   const defaults: any;
   export = defaults;
 }
 
-declare module 'app/js/common/resetObject' {
+declare module 'app/ts/common/resetObject' {
   export function resetObj<T>(defaultObject?: T): T;
   export { resetObj as resetObject };
 }

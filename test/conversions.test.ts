@@ -1,4 +1,4 @@
-import { byteToHumanFileSize, msToHumanTime, getDate } from '../app/js/common/conversions';
+import { byteToHumanFileSize, msToHumanTime, getDate } from '../app/ts/common/conversions';
 
 describe('conversions', () => {
   test('byteToHumanFileSize converts bytes', () => {
