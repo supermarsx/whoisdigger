@@ -162,7 +162,7 @@ export function isDomainAvailable(resultsText: string, resultsJSON?: any): strin
     case (resultsText.includes('Domain unknown')):
     case (resultsText.includes('No information available about domain name')):
     case (resultsText.includes('Error.') && resultsText.includes('SaudiNIC')):
-    case (resultsText.includes('is not valid!')): // ???
+    case (resultsText.includes('is not valid!')): // Whois server rejected the domain as syntactically invalid
       return 'available';
 
       /*
