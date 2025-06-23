@@ -16,6 +16,7 @@
     "build": "tsc",
     "postbuild": "node postbuild.js",
     "watch": "tsc -w",
+    "dev": "concurrently \"npm:watch\" \"electronmon .\"",
     "lint": "eslint \"app/**/*.ts\" \"test/**/*.ts\"",
     "test": "jest",
     "prebuild": "node prebuild.js"
@@ -49,7 +50,9 @@
     "@types/node": "^24.0.3",
     "@typescript-eslint/eslint-plugin": "^8.34.1",
     "@typescript-eslint/parser": "^8.34.1",
+    "concurrently": "^9.2.0",
     "electron": "^36.5.0",
+    "electronmon": "^2.0.3",
     "eslint": "^9.29.0",
     "jest": "^30.0.2",
     "jest-environment-jsdom": "^30.0.2",
