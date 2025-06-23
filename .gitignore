@@ -4,3 +4,4 @@ dist/
 
 dns.json
 reload.json
+.DS_Store
