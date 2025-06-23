@@ -30,7 +30,13 @@ export interface Settings {
   'lookup.randomize.follow': { randomize: boolean; minimumDepth: number; maximumDepth: number };
   'lookup.randomize.timeout': { randomize: boolean; minimum: number; maximum: number };
   'lookup.randomize.timeBetween': { randomize: boolean; minimum: number; maximum: number };
-  'lookup.assumptions': { uniregistry: boolean; ratelimit: boolean; unparsable: boolean; dnsFailureUnavailable: boolean };
+  'lookup.assumptions': {
+    uniregistry: boolean;
+    ratelimit: boolean;
+    unparsable: boolean;
+    dnsFailureUnavailable: boolean;
+    expired?: boolean;
+  };
   'custom.configuration': { filepath: string; load: boolean; save: boolean };
   theme: { darkMode: boolean };
   [key: string]: any;

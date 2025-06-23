@@ -21,7 +21,7 @@ export interface WhoisResult {
   updateDate?: string | undefined;
   expiryDate?: string | undefined;
   whoisreply?: string;
-  whoisJson?: any;
+  whoisJson?: Record<string, unknown>;
 }
 
 
@@ -29,9 +29,9 @@ export interface WhoisResult {
   lookupPromise
     Promisified whois lookup
  */
-const lookupPromise = (...args: any[]): Promise<any> => {
+const lookupPromise = (...args: unknown[]): Promise<string> => {
   return new Promise((resolve, reject) => {
-    (whois as any).lookup(...args, (err: any, data: any) => {
+    (whois as any).lookup(...args, (err: unknown, data: string) => {
       if (err) return reject(err);
       resolve(data);
       return undefined;
@@ -75,16 +75,19 @@ export async function lookup(domain: string, options = getWhoisOptions()): Promi
   parameters
     resultsText (string) - whois domain reply string
  */
-export function toJSON(resultsText: any): any {
+export function toJSON(
+  resultsText: string | Record<string, unknown> | Array<{ data: string }>
+): Record<string, unknown> | string {
   if (typeof resultsText === 'string' && resultsText.includes("lookup: timeout")) return "timeout";
 
   if (typeof resultsText === 'object') {
-    //JSON.stringify(resultsText, null, 2);
-    resultsText.map(function(data: any) {
-      data.data = parseRawData(data.data);
-      return data;
-    });
-    return resultsText;
+    (resultsText as Array<{ data: string | Record<string, string> }>).map(
+      function (data) {
+        data.data = parseRawData(data.data as string);
+        return data;
+      }
+    );
+    return resultsText as Record<string, unknown>;
   } else {
     return parseRawData(preStringStrip(resultsText));
   }
@@ -97,14 +100,15 @@ export function toJSON(resultsText: any): any {
     resultsText (string) - Pure text whois reply
     resultsJSON (JSON Object) - JSON transformed whois reply
  */
-export function isDomainAvailable(resultsText: string, resultsJSON?: any): string {
+export function isDomainAvailable(
+  resultsText: string,
+  resultsJSON?: Record<string, unknown>
+): string {
   const {
     'lookup.assumptions': assumptions
   } = settings;
 
-  resultsJSON = resultsJSON || 0;
-
-  if (resultsJSON === 0) resultsJSON = toJSON(resultsText);
+  if (!resultsJSON) resultsJSON = toJSON(resultsText) as Record<string, unknown>;
 
   const domainParams = getDomainParameters(null, null, null, resultsJSON, true);
   const controlDate = getDate(new Date());
@@ -247,41 +251,47 @@ export function isDomainAvailable(resultsText: string, resultsJSON?: any): strin
     resultsJSON (JSON Object) - JSON transformed whois reply
     isAuxiliary (boolean) - Is auxiliary function to domain availability check, if used in "isDomainAvailable" fn
  */
-export function getDomainParameters(domain: string | null, status: string | null, resultsText: string | null, resultsJSON: any, isAuxiliary = false): WhoisResult {
+export function getDomainParameters(
+  domain: string | null,
+  status: string | null,
+  resultsText: string | null,
+  resultsJSON: Record<string, unknown>,
+  isAuxiliary = false
+): WhoisResult {
   const results: WhoisResult = {};
 
   results.domain = domain ?? undefined;
   results.status = status ?? undefined;
-  results.registrar = resultsJSON.registrar;
+  results.registrar = resultsJSON.registrar as string | undefined;
   results.company =
-    resultsJSON.registrantOrganization ||
-    resultsJSON.registrant ||
-    resultsJSON.adminName ||
-    resultsJSON.ownerName ||
-    resultsJSON.contact ||
-    resultsJSON.name;
+    (resultsJSON.registrantOrganization as string | undefined) ||
+    (resultsJSON.registrant as string | undefined) ||
+    (resultsJSON.adminName as string | undefined) ||
+    (resultsJSON.ownerName as string | undefined) ||
+    (resultsJSON.contact as string | undefined) ||
+    (resultsJSON.name as string | undefined);
   results.creationDate = getDate(
-    resultsJSON.creationDate ||
-    resultsJSON.createdDate ||
-    resultsJSON.created ||
-    resultsJSON.registered ||
-    resultsJSON.registeredOn);
+    (resultsJSON.creationDate as string | boolean | Date | undefined) ||
+    (resultsJSON.createdDate as string | boolean | Date | undefined) ||
+    (resultsJSON.created as string | boolean | Date | undefined) ||
+    (resultsJSON.registered as string | boolean | Date | undefined) ||
+    (resultsJSON.registeredOn as string | boolean | Date | undefined));
   results.updateDate = getDate(
-    resultsJSON.updatedDate ||
-    resultsJSON.lastUpdated ||
-    resultsJSON.UpdatedDate ||
-    resultsJSON.changed ||
-    resultsJSON.lastModified ||
-    resultsJSON.lastUpdate);
+    (resultsJSON.updatedDate as string | boolean | Date | undefined) ||
+    (resultsJSON.lastUpdated as string | boolean | Date | undefined) ||
+    (resultsJSON.UpdatedDate as string | boolean | Date | undefined) ||
+    (resultsJSON.changed as string | boolean | Date | undefined) ||
+    (resultsJSON.lastModified as string | boolean | Date | undefined) ||
+    (resultsJSON.lastUpdate as string | boolean | Date | undefined));
   results.expiryDate = getDate(
-    resultsJSON.expires ||
-    resultsJSON.registryExpiryDate ||
-    resultsJSON.expiryDate ||
-    resultsJSON.registrarRegistrationExpirationDate ||
-    resultsJSON.expire ||
-    resultsJSON.expirationDate ||
-    resultsJSON.expiresOn ||
-    resultsJSON.paidTill);
+    (resultsJSON.expires as string | boolean | Date | undefined) ||
+    (resultsJSON.registryExpiryDate as string | boolean | Date | undefined) ||
+    (resultsJSON.expiryDate as string | boolean | Date | undefined) ||
+    (resultsJSON.registrarRegistrationExpirationDate as string | boolean | Date | undefined) ||
+    (resultsJSON.expire as string | boolean | Date | undefined) ||
+    (resultsJSON.expirationDate as string | boolean | Date | undefined) ||
+    (resultsJSON.expiresOn as string | boolean | Date | undefined) ||
+    (resultsJSON.paidTill as string | boolean | Date | undefined));
   results.whoisreply = resultsText ?? undefined;
   results.whoisJson = resultsJSON;
 
@@ -330,12 +340,12 @@ export function convertDomain(domain: string, mode?: string): string {
   getWhoisOptions
     Create whois options based on appSettings
  */
-export function getWhoisOptions(): Record<string, any> {
+export function getWhoisOptions(): Record<string, unknown> {
   const {
     'lookup.general': general
   } = settings;
 
-  const options: Record<string, any> = {},
+  const options: Record<string, unknown> = {},
     follow = 'follow',
     timeout = 'timeout';
 
