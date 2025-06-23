@@ -80,7 +80,11 @@ function startup() {
   }
 
   sendDebug(formatString("'navigation.extendedmenu': {0}", String(navigation.enableExtendedMenu)));
-  if (navigation.enableExtendedMenu) $('#navButtonExpandedmenu').addClass('is-force-hidden');
+  if (!navigation.enableExtendedMenu) {
+    $('#navButtonExpandedmenu').addClass('is-force-hidden');
+  } else {
+    $('#navButtonExpandedmenu').removeClass('is-force-hidden');
+  }
 
   return;
 }
