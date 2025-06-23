@@ -158,6 +158,7 @@ Errors during bulk lookups are pretty common due to sheer request volume, this m
 
 Run `npm install` to download all runtime and development dependencies.
 Development packages such as `@types/node` and `@types/jest` are required for TypeScript compilation and running tests. A `prebuild` script in `package.json` checks for `node_modules` and aborts if dependencies are missing.
+Use `npm run dev` to watch source files and automatically reload the application during development.
 
 
 ## Settings
