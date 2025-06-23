@@ -126,8 +126,8 @@ $('#bwaFileinputconfirmButtonStart').click(function() {
 /*
 // File Input, proceed to bulk whois
 $('#bwafButtonConfirm').click(function() {
-  var bwDomainArray = bwFileContents.toString().split('\n').map(Function.prototype.call, String.prototype.trim);
-  var bwTldsArray = $('#bwfSearchTlds').val().toString().split(',');
+  const bwDomainArray = bwFileContents.toString().split('\n').map(Function.prototype.call, String.prototype.trim);
+  const bwTldsArray = $('#bwfSearchTlds').val().toString().split(',');
 
   $('#bwFileInputConfirm').addClass('is-hidden');
   $('#bwProcessing').removeClass('is-hidden');
@@ -137,7 +137,7 @@ $('#bwafButtonConfirm').click(function() {
 
 // Bulk whois file input by drag and drop
 (function() {
-  var holder = document.getElementById('bwaMainContainer');
+  const holder = document.getElementById('bwaMainContainer');
   holder.ondragover = function() {
     return false;
   };

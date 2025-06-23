@@ -71,7 +71,7 @@ function showTable() {
 
   // Generate header column content
   header.content = '<tr>\n';
-  for (var column in header.columns) {
+  for (const column in header.columns) {
     header.content += formatString('\t<th><abbr title="{0}">{1}</abbr></th>\n', header.columns[column], getInitials(header.columns[column]));
   }
   header.content += '</tr>';
@@ -80,10 +80,10 @@ function showTable() {
 
   // Generate record fields
   body.content = '';
-  for (var record in body.records) {
+  for (const record in body.records) {
     body.content += '<tr>\n';
 
-    for (var field in body.records[record]) {
+    for (const field in body.records[record]) {
       body.content += formatString('\t<td>{0}</td>\n', body.records[record][field]);
     }
     body.content += '</tr>\n';

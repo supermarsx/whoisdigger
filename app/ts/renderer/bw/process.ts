@@ -15,7 +15,7 @@ ipcRenderer.on('bulkwhois:results', function(event, domain, domainResults) {
 
 
   (function() {
-    var result;
+    let result;
     if (typeof domainResults === 'object') {
       JSON.stringify(domainResults, null, 2);
       result = domainResults.map(function(data) {
@@ -48,7 +48,7 @@ ipcRenderer.on('bulkwhois:resultreceive', function(event, results) {
  */
 ipcRenderer.on('bw:status.update', function(event, stat, value) {
   ipcRenderer.send('app:debug', formatString('{0}, value update to {1}', stat, value)); // status update
-  var percent;
+  let percent;
   switch (stat) {
     case 'start':
       if ($('#bwProcessingButtonNext').hasClass('is-hidden') === false) {
@@ -128,7 +128,7 @@ ipcRenderer.on('bw:status.update', function(event, stat, value) {
     Bulk processing, pause/continue process
  */
 $(document).on('click', '#bwProcessingButtonPause', function() {
-  var searchStatus = $('#bwProcessingButtonPauseSpanText').text();
+  const searchStatus = $('#bwProcessingButtonPauseSpanText').text();
   switch (searchStatus) {
     case 'Continue':
       setPauseButton();

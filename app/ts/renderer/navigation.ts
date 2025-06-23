@@ -41,7 +41,7 @@ $(document).on('click', '#navButtonDevtools', function() {
     On click: Toggle between tabs
  */
 $(document).on('click', 'section.tabs ul li', function() {
-  var tabName = $(this).attr('data-tab');
+  const tabName = $(this).attr('data-tab');
 
   if (tabName != '#') {
     $('section.tabs ul li').removeClass('is-active');
@@ -61,7 +61,7 @@ $(document).on('click', 'section.tabs ul li', function() {
  */
 $(document).on('click', '.delete', function() {
   ipcRenderer.send('app:debug', ".delete (notifications) was clicked");
-  var notificationId = $(this).attr('data-notif');
+  const notificationId = $(this).attr('data-notif');
 
   $('#' + notificationId).addClass('is-hidden');
 

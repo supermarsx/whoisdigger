@@ -52,7 +52,7 @@ ipcRenderer.on('sw:results', function(event, domainResults: string) {
   domainStatus = isDomainAvailable(domainResults);
   resultFilter = getDomainParameters(domainName, domainStatus, domainResults, domainResultsJSON);
 
-  var {
+  const {
     domain,
     updateDate,
     registrar,
