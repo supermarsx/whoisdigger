@@ -3,11 +3,14 @@ import dns from 'dns/promises';
 import psl from 'psl';
 import debugModule from 'debug';
 import { convertDomain } from './lookup';
-import { load, Settings } from './settings';
+import { loadSettings, Settings } from './settings';
 import { DnsLookupError, Result } from './errors';
 
 const debug = debugModule('common.dnsLookup');
-let settings: Settings = load();
+
+function getSettings(): Settings {
+  return loadSettings();
+}
 
 
 /*
@@ -24,7 +27,7 @@ export async function nsLookup(host: string): Promise<string[]> {
   const {
     'lookup.conversion': conversion,
     'lookup.general': general
-  } = settings;
+  } = getSettings();
 
   host = conversion.enabled ? convertDomain(host) : host;
   if (general.psl) {
@@ -59,7 +62,7 @@ export async function hasNsServers(host: string): Promise<Result<boolean, DnsLoo
   const {
     'lookup.conversion': conversion,
     'lookup.general': general
-  } = settings;
+  } = getSettings();
 
   host = conversion.enabled ? convertDomain(host) : host;
   if (general.psl) {
