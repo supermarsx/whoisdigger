@@ -16,7 +16,8 @@
     "build": "tsc",
     "postbuild": "node postbuild.js",
     "watch": "tsc -w",
-    "dev": "concurrently \"npm:watch\" \"electronmon .\"",
+    "watch-assets": "node watch-assets.js",
+    "dev": "concurrently \"npm:watch\" \"npm:watch-assets\" \"electronmon .\"",
     "lint": "eslint \"app/**/*.ts\" \"test/**/*.ts\"",
     "test": "jest",
     "prebuild": "node prebuild.js"
