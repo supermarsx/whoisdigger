@@ -1,3 +1,4 @@
+import type { BulkWhois } from './types';
 
 const defaultFirstValue = null, // Default that is equivalent or similar to null value: null, undefined, false..
   defaultSecondValue = 0, // Default numeric starting value
@@ -5,18 +6,10 @@ const defaultFirstValue = null, // Default that is equivalent or similar to null
   defaultForthValue = '.',
   defaultFifthValue = 99999;
 
-interface BulkWhoisDefaults {
-  input: Record<string, any>;
-  stats: Record<string, any>;
-  results: Record<string, any>;
-  processingIDs: any[];
-  domains: any[];
-  default: Record<string, any>;
-}
 
 
 // Default BulkWhois values
-const defaultBulkWhois: BulkWhoisDefaults = {
+const defaultBulkWhois: BulkWhois = {
   'input': {
     'domains': [],
     'domainsPending': [],
