@@ -22,9 +22,23 @@ describe('dnsLookup', () => {
     expect(result).toBe('error');
   });
 
+  test('nsLookup returns server list for valid domain', async () => {
+    const servers = ['ns1.example.com', 'ns2.example.com'];
+    resolveMock.mockResolvedValueOnce(servers);
+    const result = await nsLookup('example.com');
+    expect(result).toEqual(servers);
+  });
+
   test('hasNsServers handles invalid domain', async () => {
     const result = await hasNsServers('invalid_domain');
     expect(result).toBe(false);
+  });
+
+  test('hasNsServers returns true when records exist', async () => {
+    const servers = ['ns1.example.com'];
+    resolveMock.mockResolvedValueOnce(servers);
+    const result = await hasNsServers('example.com');
+    expect(result).toBe(true);
   });
 
   test('isDomainAvailable returns unavailable for true', () => {
