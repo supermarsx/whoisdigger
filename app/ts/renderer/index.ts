@@ -1,5 +1,5 @@
 
-import './sw';
+import './singlewhois';
 import './bw';
 import './bwa';
 import './darkmode';

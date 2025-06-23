@@ -5,7 +5,7 @@ import * as path from 'path';
 import * as url from 'url';
 import { lookup as whoisLookup } from '../common/lookup';
 import debugModule from 'debug';
-const debug = debugModule('main.sw');
+const debug = debugModule('main.singlewhois');
 
 const {
   app,
@@ -22,10 +22,10 @@ import { settings } from '../common/settings';
 import type { Settings } from '../common/settings';
 
 /*
-  ipcMain.on('sw:lookup', function(...) {...});
+  ipcMain.on('singlewhois:lookup', function(...) {...});
     Single whois lookup
  */
-ipcMain.on('sw:lookup', async function(event, domain) {
+ipcMain.on('singlewhois:lookup', async function(event, domain) {
   const {
     sender
   } = event;
@@ -34,19 +34,19 @@ ipcMain.on('sw:lookup', async function(event, domain) {
   whoisLookup(domain)
     .then(function(data) {
       debug('Sending back whois reply');
-      sender.send('sw:results', data);
+      sender.send('singlewhois:results', data);
     })
     .catch(function(err) {
       debug('Whois lookup threw an error');
-      sender.send('sw:results', err);
+      sender.send('singlewhois:results', err);
     });
 });
 
 /*
-  ipcMain.on('sw:openlink', function(...) {...});
+  ipcMain.on('singlewhois:openlink', function(...) {...});
     Open link or copy to clipboard
  */
-ipcMain.on('sw:openlink', function(event, domain) {
+ipcMain.on('singlewhois:openlink', function(event, domain) {
   const {
     'lookup.misc': misc
   } = settings;
@@ -70,7 +70,7 @@ function copyToClipboard(event: IpcMainEvent, domain: string): void {
 
   debug(formatString('Copied {0} to clipboard', domain));
   clipboard.writeText(domain);
-  sender.send('sw:copied');
+  sender.send('singlewhois:copied');
 
   return;
 }

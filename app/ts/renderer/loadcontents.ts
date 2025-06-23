@@ -36,7 +36,7 @@ import $ from 'jquery';
   $('#navBottom').load(nav + "navBottom.html");
 
   // Single whois
-  $('#swMainContainer').load(tab + "sw.html");
+  $('#singlewhoisMainContainer').load(tab + "singlewhois.html");
 
   // Bulk whois lookup tab/steps
   $('#bwEntry').load(bw + "bwEntry.html");
