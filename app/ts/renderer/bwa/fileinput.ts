@@ -6,6 +6,7 @@ const whois = require('../../common/whoiswrapper'),
   fs = require('fs'),
   Papa = require('papaparse'),
   dt = require('datatables')();
+const { settings } = require('../../common/settings');
 
 const {
   ipcRenderer
