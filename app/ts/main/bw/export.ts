@@ -17,6 +17,7 @@ const {
 } = electron;
 
 const settings = require('../../common/settings').load();
+import type { IpcMainEvent } from 'electron';
 
 /*
   ipcMain.on('bw:export', function(...) {...});
@@ -26,7 +27,7 @@ const settings = require('../../common/settings').load();
     results (object) - bulk whois results object
     options (object) - bulk whois export options object
  */
-ipcMain.on('bw:export', function(event, results, options) {
+ipcMain.on('bw:export', function(event: IpcMainEvent, results, options) {
   const {
     'lookup.export': resExports
   } = settings;

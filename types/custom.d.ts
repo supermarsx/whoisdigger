@@ -113,7 +113,12 @@ declare module '@electron/remote' {
   export function getCurrentWebContents(): any;
 }
 
-declare module '@electron/remote/main' {
-  export function initialize(): void;
-  export function enable(webContents: any): void;
+  declare module '@electron/remote/main' {
+    export function initialize(): void;
+    export function enable(webContents: any): void;
+  }
+
+interface BwLookupEvent {
+  domains: string[];
+  tlds: string[];
 }

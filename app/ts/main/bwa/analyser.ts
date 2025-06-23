@@ -10,6 +10,7 @@ const {
   ipcMain,
   dialog
 } = electron;
+import type { IpcMainEvent } from 'electron';
 
 /*
   ipcMain.on('bwa:analyser.start', function(...) {...});
@@ -18,7 +19,7 @@ const {
     event (object) - renderer object
     contents (object) - bulk whois lookup results object
  */
-ipcMain.on('bwa:analyser.start', function(event, contents) {
+ipcMain.on('bwa:analyser.start', function(event: IpcMainEvent, contents) {
   const {
     sender
   } = event;

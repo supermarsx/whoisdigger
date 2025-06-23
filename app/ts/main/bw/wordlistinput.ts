@@ -11,6 +11,7 @@ const {
   dialog,
   remote
 } = electron;
+import type { IpcMainEvent } from 'electron';
 
 /*
   ipcMain.on('bw:input.wordlist', function(...) {...});
@@ -18,7 +19,7 @@ const {
   parameters
     event (object) - renderer object
  */
-ipcMain.on('bw:input.wordlist', function(event) {
+ipcMain.on('bw:input.wordlist', function(event: IpcMainEvent) {
   const {
     sender
   } = event;

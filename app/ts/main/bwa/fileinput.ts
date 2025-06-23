@@ -10,6 +10,7 @@ const {
   ipcMain,
   dialog
 } = electron;
+import type { IpcMainEvent } from 'electron';
 
 /*
   ipcMain.on('bwa:input.file', function(...) {...});
@@ -17,7 +18,7 @@ const {
   parameters
     event
  */
-ipcMain.on('bwa:input.file', function(event) {
+ipcMain.on('bwa:input.file', function(event: IpcMainEvent) {
   const {
     sender
   } = event;
@@ -34,7 +35,7 @@ ipcMain.on('bwa:input.file', function(event) {
 
 /*
 // On drag and drop file
-ipcMain.on('ondragstart', function(event, filePath) {
+ipcMain.on('ondragstart', function(event: IpcMainEvent, filePath) {
   event.sender.startDrag({
     file: filePath,
     icon: appSettings.window.icon

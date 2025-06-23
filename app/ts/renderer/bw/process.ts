@@ -7,6 +7,7 @@ const whois = require('../../common/whoiswrapper'),
 const {
   ipcRenderer
 } = require('electron');
+import type { IpcRendererEvent } from 'electron';
 
 require('../../common/stringformat');
 
@@ -49,7 +50,7 @@ ipcRenderer.on('bulkwhois:resultreceive', function(event, results) {
     stat
     value
  */
-ipcRenderer.on('bw:status.update', function(event, stat, value) {
+ipcRenderer.on('bw:status.update', function(event: IpcRendererEvent, stat, value) {
   ipcRenderer.send('app:debug', "{0}, value update to {1}".format(stat, value)); // status update
   var percent;
   switch (stat) {

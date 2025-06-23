@@ -26,6 +26,7 @@ const {
   dialog,
   remote
 } = electron;
+import type { IpcMainEvent } from 'electron';
 
 const defaultValue = null; // Changing this implies changing all dependant comparisons
 let bulkWhois; // BulkWhois object
@@ -39,7 +40,8 @@ let reqtime: any[] = [];
     domains (array) - domains to request whois for
     tlds (array) - tlds to look for
  */
-ipcMain.on('bw:lookup', function(event, domains, tlds) {
+ipcMain.on('bw:lookup', function(event: IpcMainEvent, message: BwLookupEvent) {
+  const { domains, tlds } = message;
   resetUiCounters(event); // Reset UI counters, pass window param
   bulkWhois = resetObject(defaultBulkWhois); // Resets the bulkWhois object to default
   reqtime = [];
@@ -128,7 +130,7 @@ ipcMain.on('bw:lookup', function(event, domains, tlds) {
   parameters
     event (object) - renderer event
  */
-ipcMain.on('bw:lookup.pause', function(event) {
+ipcMain.on('bw:lookup.pause', function(event: IpcMainEvent) {
 
   // bulkWhois section
   const {
@@ -159,7 +161,7 @@ ipcMain.on('bw:lookup.pause', function(event) {
   parameters
     event (object) - renderer object
  */
-ipcMain.on('bw:lookup.continue', function(event) {
+ipcMain.on('bw:lookup.continue', function(event: IpcMainEvent) {
   debug('Continuing bulk whois requests');
 
   // Go through the remaining domains and queue them again using setTimeouts
@@ -242,7 +244,7 @@ ipcMain.on('bw:lookup.continue', function(event) {
   parameters
     event (object) - Current renderer object
  */
-ipcMain.on('bw:lookup.stop', function(event) {
+ipcMain.on('bw:lookup.stop', function(event: IpcMainEvent) {
   const {
     results,
     stats

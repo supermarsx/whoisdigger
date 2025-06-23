@@ -9,6 +9,7 @@ const {
 } = require('electron'), {
   tableReset
 } = require('./auxiliary');
+import type { IpcRendererEvent } from 'electron';
 
 require('../../common/stringformat');
 
@@ -120,7 +121,7 @@ $(document).on('click', '#bwWordlistconfirmButtonStart', function() {
   $('#bwWordlistconfirm').addClass('is-hidden');
   $('#bwProcessing').removeClass('is-hidden');
 
-  ipcRenderer.send("bw:lookup", bwDomainArray, bwTldsArray);
+  ipcRenderer.send("bw:lookup", { domains: bwDomainArray, tlds: bwTldsArray });
 
   return;
 });

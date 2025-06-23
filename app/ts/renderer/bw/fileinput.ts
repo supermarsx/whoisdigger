@@ -11,6 +11,7 @@ const {
 } = require('electron'), {
   tableReset
 } = require('./auxiliary');
+import type { IpcRendererEvent } from 'electron';
 
 require('../../common/stringformat');
 
@@ -24,7 +25,7 @@ var bwFileContents;
     filePath
     isDragDrop
  */
-ipcRenderer.on('bw:fileinput.confirmation', async function(event, filePath = null, isDragDrop = false) {
+ipcRenderer.on('bw:fileinput.confirmation', async function(event: IpcRendererEvent, filePath = null, isDragDrop = false) {
   var bwFileStats; // File stats, size, last changed, etc
   const misc = settings['lookup.misc'];
   const lookup = {
@@ -137,7 +138,7 @@ $(document).on('click', '#bwFileButtonConfirm', function() {
   debug(bwDomainArray);
   debug(bwTldsArray);
 
-  ipcRenderer.send("bw:lookup", bwDomainArray, bwTldsArray);
+  ipcRenderer.send("bw:lookup", { domains: bwDomainArray, tlds: bwTldsArray });
 });
 
 /*

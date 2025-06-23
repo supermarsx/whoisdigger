@@ -12,6 +12,7 @@ const {
 } = electron;
 
 const settings = require('../../common/settings').load();
+import type { IpcMainEvent } from 'electron';
 
 /*
   ipcMain.on('bw:input.file', function(...) {...});
@@ -19,7 +20,7 @@ const settings = require('../../common/settings').load();
   parameters
     event (object) - renderer object
  */
-ipcMain.on('bw:input.file', function(event) {
+ipcMain.on('bw:input.file', function(event: IpcMainEvent) {
   debug("Waiting for file selection");
   const filePath = dialog.showOpenDialogSync({
     title: "Select wordlist file",
@@ -42,7 +43,7 @@ ipcMain.on('bw:input.file', function(event) {
     event (object) - renderer object
     filePath (string) - dropped file path
  */
-ipcMain.on('ondragstart', function(event, filePath) {
+ipcMain.on('ondragstart', function(event: IpcMainEvent, filePath) {
   const {
     'app.window': appWindow
   } = settings;

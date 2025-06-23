@@ -13,6 +13,7 @@ const {
   setExportOptions,
   setExportOptionsEx
 } = require('./auxiliary');
+import type { IpcRendererEvent } from 'electron';
 
 require('../../common/stringformat');
 
@@ -25,7 +26,7 @@ var results, options;
     event
     rcvResults
  */
-ipcRenderer.on('bw:result.receive', function(event, rcvResults) {
+ipcRenderer.on('bw:result.receive', function(event: IpcRendererEvent, rcvResults) {
   ipcRenderer.send('app:debug', "Results are ready for export {0}".format(rcvResults));
 
   results = rcvResults;
