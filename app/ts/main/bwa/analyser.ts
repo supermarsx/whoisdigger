@@ -1,6 +1,7 @@
 
-const electron = require('electron'),
-  debug = require('debug')('main.bwa.analyser');
+import electron from 'electron';
+import debugModule from 'debug';
+const debug = debugModule('main.bwa.analyser');
 
 const {
   app,

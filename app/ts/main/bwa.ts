@@ -1,3 +1,3 @@
 
-require('./bwa/fileinput'); // File input
-require('./bwa/analyser');
+import './bwa/fileinput'; // File input
+import './bwa/analyser';

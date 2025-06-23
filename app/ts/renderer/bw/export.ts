@@ -1,19 +1,17 @@
 
-const whois = require('../../common/whoiswrapper'),
-  conversions = require('../../common/conversions'),
-  defaultExportOptions = require('./export.defaults');
+import * as whois from '../../common/whoiswrapper';
+import * as conversions from '../../common/conversions';
+import defaultExportOptions from './export.defaults';
 
-const {
-  ipcRenderer
-} = require('electron'), {
-  resetObject
-} = require('../../common/resetObject'), {
+import { ipcRenderer } from 'electron';
+import { resetObject } from '../../common/resetObject';
+import {
   getExportOptions,
   setExportOptions,
-  setExportOptionsEx
-} = require('./auxiliary');
+  setExportOptionsEx,
+} from './auxiliary';
 
-const { formatString } = require('../../common/stringformat');
+import { formatString } from '../../common/stringformat';
 
 var results, options;
 

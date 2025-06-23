@@ -1,13 +1,12 @@
 
-const whois = require('../../common/whoiswrapper'),
-  conversions = require('../../common/conversions'),
-  base = 10;
+import * as whois from '../../common/whoiswrapper';
+import * as conversions from '../../common/conversions';
+import parseRawData from '../../common/parseRawData';
+const base = 10;
 
-const {
-  ipcRenderer
-} = require('electron');
+import { ipcRenderer } from 'electron';
 
-const { formatString } = require('../../common/stringformat');
+import { formatString } from '../../common/stringformat';
 
 /*
 // Receive whois lookup reply

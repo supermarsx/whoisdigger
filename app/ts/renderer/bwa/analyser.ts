@@ -1,16 +1,15 @@
 
 /** global: appSettings */
-const whois = require('../../common/whoiswrapper'),
-  conversions = require('../../common/conversions'),
-  fs = require('fs'),
-  Papa = require('papaparse'),
-  dt = require('datatables')();
+import * as whois from '../../common/whoiswrapper';
+import * as conversions from '../../common/conversions';
+import fs from 'fs';
+import Papa from 'papaparse';
+import datatables from 'datatables';
+const dt = datatables();
 
-const {
-  ipcRenderer
-} = require('electron');
+import { ipcRenderer } from 'electron';
 
-const { formatString } = require('../../common/stringformat');
+import { formatString } from '../../common/stringformat';
 
 var bwaFileContents;
 

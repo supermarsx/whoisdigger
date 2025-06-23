@@ -1,21 +1,18 @@
 
-const electron = require('electron'),
-  whois = require('../../common/whoiswrapper'),
-  debug = require('debug')('main.bw.process'),
-  defaultBulkWhois = require('./process.defaults'),
-  dns = require('../../common/dnsLookup');
+import electron from 'electron';
+import * as whois from '../../common/whoiswrapper';
+import debugModule from 'debug';
+const debug = debugModule('main.bw.process');
+import defaultBulkWhois from './process.defaults';
+import * as dns from '../../common/dnsLookup';
 
-const {
-  msToHumanTime
-} = require('../../common/conversions'), {
-  resetObject
-} = require('../../common/resetObject'), {
-  resetUiCounters
-} = require('./auxiliary'), {
-  performance
-} = require('perf_hooks');
+import { msToHumanTime } from '../../common/conversions';
+import { resetObject } from '../../common/resetObject';
+import { resetUiCounters } from './auxiliary';
+import { performance } from 'perf_hooks';
 
-const settings = require('../../common/settings').load();
+import { loadSettings } from '../../common/settings';
+const settings = loadSettings();
 
 const {
   app,
@@ -25,7 +22,7 @@ const {
   dialog,
   remote
 } = electron;
-const { formatString } = require('../../common/stringformat');
+import { formatString } from '../../common/stringformat';
 
 const defaultValue = null; // Changing this implies changing all dependant comparisons
 let bulkWhois; // BulkWhois object
@@ -440,7 +437,7 @@ function processData(event, domain, index, data = null, isError = false) {
   stats.domains.waiting--; // Waiting in queue
   sender.send('bw:status.update', 'domains.waiting', stats.domains.waiting); // Waiting in queue, update stats
 
-  let resultFilter = {
+  let resultFilter: any = {
     domain: '',
     status: '',
     registrar: '',
@@ -545,12 +542,25 @@ function getDomainSetup(isRandom) {
   */
 
   debug(formatString("Time between requests, 'israndom': {0}, 'timebetweenmax': {1}, 'timebetweenmin': {2}, 'timebetween': {3}", isRandom, settings['lookup.randomize.timeBetween'].maximum, settings['lookup.randomize.timeBetween'].minimum, settings['lookup.general'].timeBetween));
-  debug(formatString("Follow depth, 'israndom': {0}, 'followmax': {1}, 'followmin': {2}, 'follow': {3}", isRandom, settings['lookup.randomize.follow'].maximum, settings['lookup.randomize.follow'].minimum, settings['lookup.general'].follow));
+  debug(
+    formatString(
+      "Follow depth, 'israndom': {0}, 'followmax': {1}, 'followmin': {2}, 'follow': {3}",
+      isRandom,
+      settings['lookup.randomize.follow'].maximumDepth,
+      settings['lookup.randomize.follow'].minimumDepth,
+      settings['lookup.general'].follow,
+    ),
+  );
   debug(formatString("Request timeout, 'israndom': {0}, 'timeoutmax': {1}, 'timeoutmin': {2}, 'timeout': {3}", isRandom, settings['lookup.randomize.timeout'].maximum, settings['lookup.randomize.timeout'].minimum, settings['lookup.general'].timeout));
 
   return {
     timebetween: (isRandom.timeBetween ? (Math.floor((Math.random() * settings['lookup.randomize.timeBetween'].maximum) + settings['lookup.randomize.timeBetween'].minimum)) : settings['lookup.general'].timeBetween),
-    follow: (isRandom.followDepth ? (Math.floor((Math.random() * settings['lookup.randomize.follow'].maximum) + settings['lookup.randomize.follow'].minimum)) : settings['lookup.general'].follow),
+    follow: (isRandom.followDepth
+      ? Math.floor(
+          Math.random() * settings['lookup.randomize.follow'].maximumDepth +
+            settings['lookup.randomize.follow'].minimumDepth,
+        )
+      : settings['lookup.general'].follow),
     timeout: (isRandom.timeout ? (Math.floor((Math.random() * settings['lookup.randomize.timeout'].maximum) + settings['lookup.randomize.timeout'].minimum)) : settings['lookup.general'].timeout)
   };
 }

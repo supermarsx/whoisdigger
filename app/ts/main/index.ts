@@ -1,4 +1,4 @@
 
-require('./sw');
-require('./bw');
-require('./bwa');
+import './sw';
+import './bw';
+import './bwa';
