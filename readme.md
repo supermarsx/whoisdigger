@@ -83,7 +83,7 @@ Check out and download the latest release for your architecture/OS.
 
 ### Latest changes
 
-Basic whoisdigger requirements are `node`, `npm` and `git`.
+Basic whoisdigger requirements are Node.js (tested with v20 or later), `npm` and `git`.
 
 Clone whoisdigger code and install dependencies
 
@@ -160,7 +160,7 @@ Errors during bulk lookups are pretty common due to sheer request volume, this m
 Run `npm ci` before testing or linting to install the exact dependency versions
 listed in `package-lock.json`.
 If `node_modules` is missing, `npm run prebuild` will automatically fetch
-dependencies before building.
+dependencies before building. This script runs whenever you execute `npm run build`.
 
 ## Development setup
 
@@ -193,6 +193,7 @@ You can use assumptions (`lookup.assumptions` settings section) to make more rel
 Whoisdigger uses a small build step before packaging. Each packaging command
 compiles the application into the `dist` folder and then invokes
 `@electron/packager`.
+Running `npm run build` automatically executes the `prebuild` script. `prebuild.js` installs dependencies using `npm install` if `node_modules` is missing.
 
 MacOS
 
