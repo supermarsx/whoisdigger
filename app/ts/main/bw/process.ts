@@ -1,19 +1,15 @@
 
 import electron from 'electron';
 import type { IpcMainEvent } from 'electron';
-import { lookup as whoisLookup } from '../../common/lookup';
-import { isDomainAvailable, getDomainParameters } from '../../common/availability';
-import { toJSON } from '../../common/parser';
 import debugModule from 'debug';
 const debug = debugModule('main.bw.process');
 import defaultBulkWhois from './process.defaults';
-import * as dns from '../../common/dnsLookup';
 
-import { msToHumanTime } from '../../common/conversions';
+import type { BulkWhois, DomainSetup } from './types';
+import { compileQueue, getDomainSetup } from './queue';
+import { processDomain, counter } from './scheduler';
 import { resetObject } from '../../common/resetObject';
 import { resetUiCounters } from './auxiliary';
-import { performance } from 'perf_hooks';
-import { Result, DnsLookupError } from '../../common/errors';
 
 import { loadSettings } from '../../common/settings';
 const settings = loadSettings();
@@ -28,17 +24,9 @@ const {
 } = electron;
 import { formatString } from '../../common/stringformat';
 
-const defaultValue = null; // Changing this implies changing all dependant comparisons
-let bulkWhois: any; // BulkWhois object
-let reqtime: any[] = [];
+let bulkWhois: BulkWhois; // BulkWhois object
+let reqtime: number[] = [];
 
-interface DomainSetup {
-  domain?: string;
-  index?: number;
-  timebetween: number;
-  follow: number;
-  timeout: number;
-}
 
 /*
   ipcMain.on('bw:lookup', function(...) {...});
@@ -92,11 +80,7 @@ ipcMain.on('bw:lookup', function(event: IpcMainEvent, domains: string[], tlds: s
   sender.send('bw:status.update', 'domains.total', stats.domains.total); // Display total amount of domains
 
   // Compile domains to process
-  for (let tld in input.tlds) {
-    domainsPending.push(...input.domains.map(function(domain: string) {
-      return domain + tldSeparator + input.tlds[tld];
-    }));
-  }
+  domainsPending.push(...compileQueue(input.domains, input.tlds, tldSeparator));
 
   // Process compiled domains into future requests
   for (let domain in domainsPending) {
@@ -112,7 +96,7 @@ ipcMain.on('bw:lookup', function(event: IpcMainEvent, domains: string[], tlds: s
 
     debug(formatString('Using timebetween, {0}, follow, {1}, timeout, {2}', domainSetup.timebetween, domainSetup.follow, domainSetup.timeout));
 
-    processDomain(domainSetup, event);
+    processDomain(bulkWhois, reqtime, domainSetup, event);
 
     stats.domains.processed = Number(domainSetup.index) + 1;
     sender.send('bw:status.update', 'domains.processed', stats.domains.processed);
@@ -127,7 +111,7 @@ ipcMain.on('bw:lookup', function(event: IpcMainEvent, domains: string[], tlds: s
     (stats.time.remainingcounter += settings['lookup.randomize.timeout'].maximum) :
     (stats.time.remainingcounter += settings['lookup.general'].timeout);
 
-  counter(event);
+  counter(bulkWhois, event);
 
 });
 
@@ -153,7 +137,7 @@ ipcMain.on('bw:lookup.pause', function(event: IpcMainEvent) {
   } = input; // Bulk whois input
 
   debug('Stopping unsent bulk whois requests');
-  counter(event, false); // Stop counter/timer
+  counter(bulkWhois, event, false); // Stop counter/timer
 
   // Go through all queued domain lookups and delete setTimeouts for remaining domains
   for (let j = stats.domains.sent; j < stats.domains.processed; j++) {
@@ -198,11 +182,7 @@ ipcMain.on('bw:lookup.continue', function(event: IpcMainEvent) {
   } = event;
 
   // Compile domains to process
-  for (let tld in input.tlds) {
-    domainsPending.push(...input.domains.map(function(domain: string) {
-      return domain + tldSeparator + input.tlds[tld];
-    }));
-  }
+  domainsPending.push(...compileQueue(input.domains, input.tlds, tldSeparator));
 
   // Do domain setup
   for (let domain = stats.domains.sent; domain < domainsPending.length; domain++) {
@@ -225,7 +205,7 @@ ipcMain.on('bw:lookup.continue', function(event: IpcMainEvent) {
     */
 
     debug(domain);
-    processDomain(domainSetup, event);
+    processDomain(bulkWhois, reqtime, domainSetup, event);
 
     stats.domains.processed = Number(domainSetup.index) + 1;
     sender.send('bw:status.update', 'domains.processed', stats.domains.processed);
@@ -241,7 +221,7 @@ ipcMain.on('bw:lookup.continue', function(event: IpcMainEvent) {
     settings['lookup.randomize.timeout'].maximum :
     settings['lookup.general'].timeout;
 
-  counter(event); // Start counter/timer
+  counter(bulkWhois, event); // Start counter/timer
 
 });
 
@@ -261,410 +241,8 @@ ipcMain.on('bw:lookup.stop', function(event: IpcMainEvent) {
     sender
   } = event;
 
-  clearTimeout(stats.time.counter);
+  clearTimeout(stats.time.counter!);
   sender.send('bw:result.receive', results);
   sender.send('bw:status.update', 'finished');
 });
 
-/*
-  processDomain
-    Process domain whois request
-  .parameters
-    domainSetup (object)
-      domain (string) - domain to request whois
-      index (integer) - index on whois results
-      timebetween (integer) - time between requests in milliseconds
-      follow (integer) - whois request follow depth
-      timeout (integer) - time in milliseconds for request to timeout
-    event (object) - renderer object
- */
-function processDomain(domainSetup: DomainSetup, event: IpcMainEvent): void {
-  debug(formatString('Domain: {0}, id/index: {1}, timebetween: {2}', domainSetup.domain, domainSetup.index, domainSetup.timebetween));
-
-  // bulkWhois section
-  const {
-    results,
-    input,
-    stats,
-    processingIDs
-  } = bulkWhois;
-
-  const {
-    domainsPending, // Domains pending processing/requests
-    tldSeparator // TLD separator
-  } = input; // Bulk whois input
-
-  const {
-    reqtimes, // request times
-    status // request
-  } = stats;
-
-  const {
-    sender // expose shorthand sender
-  } = event;
-
-  /*
-    setTimeout function
-      Processing ID specific function
-   */
-  processingIDs[domainSetup.index!] = setTimeout(async () => {
-
-    let data: any;
-    stats.domains.sent++; // Add to requests sent
-    sender.send('bw:status.update', 'domains.sent', stats.domains.sent); // Requests sent, update stats
-
-    stats.domains.waiting++; // Waiting in queue
-    sender.send('bw:status.update', 'domains.waiting', stats.domains.waiting); // Waiting in queue, update stats
-
-    reqtime[domainSetup.index!] = await performance.now();
-
-    debug(formatString('Looking up domain: {0}', domainSetup.domain));
-
-    try {
-      data = (settings['lookup.general'].type == 'whois') ?
-        await whoisLookup(domainSetup.domain!, {
-          'follow': domainSetup.follow,
-          'timeout': domainSetup.timeout
-        }) : await dns.hasNsServers(domainSetup.domain!);
-      processData(event, domainSetup.domain!, domainSetup.index!, data, false);
-    } catch (e) {
-      console.log(e);
-      console.trace();
-    }
-
-  }, domainSetup.timebetween * (domainSetup.index! - stats.domains.sent + 1)); // End processing domains
-
-  debug(
-    formatString(
-      'Timebetween: {0}',
-      domainSetup.timebetween * (domainSetup.index! - stats.domains.sent + 1),
-    ),
-  );
-
-
-  // Self executing function hack to do whois lookup PROBLEM HERE
-  /*
-  (function(domainSetup) {
-
-
-  })(domain, index, timebetween, follow, timeout);
-  */
-}
-
-/*
-  processData
-    Process gathered whois data
-  parameters
-    event (object) - renderer object
-    data (string) - whois text reply
-    isError (boolean) - is whois reply an error
-    domain (string) - domain name
-    index (integer) - domain index within results
- */
-function processData(
-  event: IpcMainEvent,
-  domain: string,
-  index: number,
-  data: string | Result<boolean, DnsLookupError> | null = null,
-  isError = false,
-): void {
-  let lastweight;
-
-  const {
-    sender
-  } = event;
-
-  const {
-    results,
-    input,
-    stats,
-    processingIDs
-  } = bulkWhois;
-
-  const {
-    reqtimes, // request times
-    status // request
-  } = stats;
-  let domainAvailable: string;
-  let lastStatus: string | undefined;
-  let resultsJSON: any;
-
-  reqtime[index] = Number(performance.now() - reqtime[index]).toFixed(2);
-
-  // Update request minimum times
-  Number(reqtimes.minimum) > Number(reqtime[index]) ? (function() {
-    reqtimes.minimum = reqtime[index];
-    sender.send('bw:status.update', 'reqtimes.minimum', reqtimes.minimum);
-  })() : false;
-
-  // Update request maximum times
-  Number(reqtimes.maximum) < Number(reqtime[index]) ? (function() {
-    reqtimes.maximum = reqtime[index];
-    sender.send('bw:status.update', 'reqtimes.maximum', reqtimes.maximum);
-  })() : false;
-
-  // Update last request performance time
-  reqtimes.last = reqtime[index];
-  sender.send('bw:status.update', 'reqtimes.last', reqtimes.last);
-
-  // Calculate function averages based on defined settings
-  settings['lookup.misc'].asfOverride ? (function() { // true average
-    lastweight = Number(((stats.domains.sent - stats.domains.waiting) / stats.domains.processed).toFixed(2));
-    reqtimes.average = (
-      Number(reqtimes.average) * lastweight +
-      (1 - lastweight) * Number(reqtime[index])
-    ).toFixed(2);
-  })() : (function() { // Alternative smoothed/weighted average
-    reqtimes.average = reqtimes.average || reqtime[index];
-    reqtimes.average = (
-      Number(reqtime[index]) * settings['lookup.misc'].averageSmoothingFactor +
-      (1 - settings['lookup.misc'].averageSmoothingFactor) * Number(reqtimes.average)
-    ).toFixed(2);
-  })();
-
-  // Detect domain availability
-  isError ? (function() { // whois lookup error
-    status.error++;
-    sender.send('bw:status.update', 'status.error', status.error);
-    stats.laststatus.error = domain;
-    sender.send('bw:status.update', 'laststatus.error', stats.laststatus.error);
-  })() : (function() {
-    domainAvailable =
-      settings['lookup.general'].type == 'whois'
-        ? isDomainAvailable(data as string)
-        : dns.isDomainAvailable(data as Result<boolean, DnsLookupError>);
-    switch (domainAvailable) {
-      case 'available':
-        status.available++;
-        sender.send('bw:status.update', 'status.available', status.available);
-        stats.laststatus.available = domain;
-        sender.send('bw:status.update', 'laststatus.available', stats.laststatus.available);
-        lastStatus = 'available';
-        break;
-      case 'unavailable':
-        status.unavailable++;
-        sender.send('bw:status.update', 'status.unavailable', status.unavailable);
-        bulkWhois.stats.laststatus.unavailable = domain;
-        sender.send('bw:status.update', 'laststatus.unavailable', stats.laststatus.unavailable);
-        lastStatus = 'unavailable';
-        break;
-
-      default:
-        if (domainAvailable.includes('error')) {
-          status.error++;
-          sender.send('bw:status.update', 'status.error', status.error);
-          stats.laststatus.error = domain;
-          sender.send('bw:status.update', 'laststatus.error', stats.laststatus.error);
-          lastStatus = 'error';
-        }
-        break;
-
-    }
-  })();
-
-  debug(formatString('Average request time {0}ms', reqtimes.average));
-
-  sender.send('bw:status.update', 'reqtimes.average', reqtimes.average);
-  //sender.send('bulkwhois:results', domain, data);
-  stats.domains.waiting--; // Waiting in queue
-  sender.send('bw:status.update', 'domains.waiting', stats.domains.waiting); // Waiting in queue, update stats
-
-  let resultFilter: any = {
-    domain: '',
-    status: '',
-    registrar: '',
-    company: '',
-    creationdate: '',
-    updatedate: '',
-    expirydate: '',
-    whoisreply: '',
-    whoisjson: ''
-  };
-
-    if (settings['lookup.general'].type == 'whois') {
-      resultsJSON = toJSON(data as string);
-      resultFilter = getDomainParameters(domain, lastStatus ?? null, data as string, resultsJSON);
-  } else {
-    resultFilter.domain = domain;
-    resultFilter.status = lastStatus ?? null;
-    resultFilter.registrar = null;
-    resultFilter.company = null;
-    resultFilter.creationdate = null;
-    resultFilter.updatedate = null;
-    resultFilter.expirydate = null;
-    resultFilter.whoisreply = null;
-    resultFilter.whoisjson = null;
-  }
-
-
-  results.id[index] = Number(index + 1);
-  results.domain[index] = resultFilter.domain;
-  results.status[index] = resultFilter.status;
-  results.registrar[index] = resultFilter.registrar;
-  results.company[index] = resultFilter.company;
-  results.creationdate[index] = resultFilter.creationdate;
-  results.updatedate[index] = resultFilter.updatedate;
-  results.expirydate[index] = resultFilter.expirydate;
-  results.whoisreply[index] = resultFilter.whoisreply;
-  results.whoisjson[index] = resultFilter.whoisjson;
-  results.requesttime[index] = reqtime[index];
-
-  //debug(results);
-} // End processData
-
-
-/*
-  counter
-    Counter/timer control, controls the timer but starting or stopping
-  parameters
-    event (object) - renderer object
-    start (boolean) start or stop counter
- */
-function counter(event: IpcMainEvent, start = true): void {
-  const {
-    results,
-    input,
-    stats,
-    processingIDs
-  } = bulkWhois;
-  const {
-    sender
-  } = event;
-  start ? (function() { // Start counter
-    stats.time.counter = setInterval(function() {
-      stats.time.currentcounter += 1000;
-      stats.time.remainingcounter -= 1000;
-
-      stats.time.remainingcounter <= 0 ? (function() {
-          stats.time.remainingcounter = 0;
-          bulkWhois.stats.time.remaining = '-';
-        })() :
-        stats.time.remaining = msToHumanTime(stats.time.remainingcounter);
-      stats.time.current = msToHumanTime(stats.time.currentcounter);
-      sender.send('bw:status.update', 'time.current', stats.time.current);
-      sender.send('bw:status.update', 'time.remaining', stats.time.remaining);
-      (stats.domains.total == stats.domains.sent && stats.domains.waiting === 0) ? (function() {
-        clearTimeout(stats.time.counter);
-        sender.send('bw:result.receive', results);
-        sender.send('bw:status.update', 'finished');
-        //console.log(bulkWhois);
-      })() : null;
-    }, 1000);
-  })() : (function() { // Stop counter
-    clearTimeout(stats.time.counter);
-  })();
-}
-
-/*
-  getDomainSetup
-    Get main domain setup, timebetween requests, follow depth and timeout
-  .parameters
-    isRandom (object) - boolean values
-  .returns
-
- */
-function getDomainSetup(
-  isRandom: { timeBetween: boolean; followDepth: boolean; timeout: boolean },
-): DomainSetup {
-  /*
-  Is random object
-  {
-    timeBetween = false,
-    followDepth = false,
-    timeout = false
-  }
-  */
-
-  debug(formatString("Time between requests, 'israndom': {0}, 'timebetweenmax': {1}, 'timebetweenmin': {2}, 'timebetween': {3}", isRandom, settings['lookup.randomize.timeBetween'].maximum, settings['lookup.randomize.timeBetween'].minimum, settings['lookup.general'].timeBetween));
-  debug(
-    formatString(
-      "Follow depth, 'israndom': {0}, 'followmax': {1}, 'followmin': {2}, 'follow': {3}",
-      isRandom,
-      settings['lookup.randomize.follow'].maximumDepth,
-      settings['lookup.randomize.follow'].minimumDepth,
-      settings['lookup.general'].follow,
-    ),
-  );
-  debug(formatString("Request timeout, 'israndom': {0}, 'timeoutmax': {1}, 'timeoutmin': {2}, 'timeout': {3}", isRandom, settings['lookup.randomize.timeout'].maximum, settings['lookup.randomize.timeout'].minimum, settings['lookup.general'].timeout));
-
-  return {
-    timebetween: (isRandom.timeBetween ? (Math.floor((Math.random() * settings['lookup.randomize.timeBetween'].maximum) + settings['lookup.randomize.timeBetween'].minimum)) : settings['lookup.general'].timeBetween),
-    follow: (isRandom.followDepth
-      ? Math.floor(
-          Math.random() * settings['lookup.randomize.follow'].maximumDepth +
-            settings['lookup.randomize.follow'].minimumDepth,
-        )
-      : settings['lookup.general'].follow),
-    timeout: (isRandom.timeout ? (Math.floor((Math.random() * settings['lookup.randomize.timeout'].maximum) + settings['lookup.randomize.timeout'].minimum)) : settings['lookup.general'].timeout)
-  };
-}
-
-/*
-  getTimeBetween
-    Get time between requests
-  parameters
-    isRandom (boolean) - is time between requests randomized
- */
-function getTimeBetween(isRandom = false) {
-  const {
-    lookup
-  } = settings;
-  const {
-    randomize,
-    timebetween
-  } = lookup;
-  const {
-    timebetweenmax,
-    timebetweenmin
-  } = randomize;
-
-  debug(formatString("Time between requests, 'israndom': {0}, 'timebetweenmax': {1}, 'timebetweenmin': {2}, 'timebetween': {3}", isRandom, timebetweenmax, timebetweenmin, timebetween));
-  return (isRandom ? (Math.floor((Math.random() * timebetweenmax) + timebetweenmin)) : timebetween);
-}
-
-
-/*
-  getFollowDepth
-    Get request follow level/depth
-  parameters
-    isRandom (boolean) - is follow depth randomized
- */
-function getFollowDepth(isRandom = false) {
-  const {
-    lookup
-  } = settings;
-  const {
-    randomize,
-    follow
-  } = lookup;
-  const {
-    followmax,
-    followmin
-  } = randomize;
-
-  debug(formatString("Follow depth, 'israndom': {0}, 'followmax': {1}, 'followmin': {2}, 'follow': {3}", isRandom, followmax, followmin, follow));
-  return (isRandom ? (Math.floor((Math.random() * followmax) + followmin)) : follow);
-}
-
-/*
-  getTimeout
-    Get request timeout
-  parameters
-    isRandom (boolean) - is timeout randomized
- */
-function getTimeout(isRandom = false) {
-  const {
-    lookup,
-  } = settings;
-  const {
-    randomize,
-    timeout
-  } = lookup;
-  const {
-    timeoutmax,
-    timeoutmin
-  } = randomize;
-
-  debug(formatString("Request timeout, 'israndom': {0}, 'timeoutmax': {1}, 'timeoutmin': {2}, 'timeout': {3}", isRandom, timeoutmax, timeoutmin, timeout));
-  return (isRandom ? (Math.floor((Math.random() * timeoutmax) + timeoutmin)) : timeout);
-}
