@@ -1,7 +1,8 @@
 import '../test/electronMock';
 
 import whois from 'whois';
-import { lookup, toJSON } from '../app/ts/common/whoiswrapper';
+import { lookup } from '../app/ts/common/lookup';
+import { toJSON } from '../app/ts/common/parser';
 
 describe('whoiswrapper', () => {
   let lookupMock: jest.SpyInstance;

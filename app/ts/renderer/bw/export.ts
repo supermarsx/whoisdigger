@@ -1,5 +1,4 @@
 
-import * as whois from '../../common/whoiswrapper';
 import * as conversions from '../../common/conversions';
 import defaultExportOptions from './export.defaults';
 

@@ -1,17 +1,12 @@
 
-import * as whois from '../common/whoiswrapper';
-import parseRawData from '../common/parseRawData';
+import { isDomainAvailable, getDomainParameters } from '../common/availability';
+import { preStringStrip, toJSON } from '../common/parser';
 
 import { getDate } from '../common/conversions';
 import { ipcRenderer } from 'electron';
 import { formatString } from '../common/stringformat';
 
-const {
-  isDomainAvailable,
-  getDomainParameters,
-  preStringStrip,
-  toJSON
-} = whois;
+
 
 import jquery from 'jquery';
 (window as any).$ = (window as any).jQuery = jquery;

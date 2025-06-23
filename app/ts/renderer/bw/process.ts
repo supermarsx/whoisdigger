@@ -1,7 +1,6 @@
 
-import * as whois from '../../common/whoiswrapper';
 import * as conversions from '../../common/conversions';
-import parseRawData from '../../common/parseRawData';
+import parseRawData from '../../common/parser';
 const base = 10;
 
 import { ipcRenderer } from 'electron';
