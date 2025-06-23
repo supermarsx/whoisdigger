@@ -11,7 +11,7 @@ import { processDomain, counter } from './scheduler';
 import { resetObject } from '../../common/resetObject';
 import { resetUiCounters } from './auxiliary';
 
-import { loadSettings } from '../../common/settings';
+import { settings } from '../../common/settings';
 
 const {
   app,
@@ -35,8 +35,7 @@ let reqtime: number[] = [];
     domains (array) - domains to request whois for
     tlds (array) - tlds to look for
  */
-ipcMain.on('bw:lookup', async function(event: IpcMainEvent, domains: string[], tlds: string[]) {
-  const settings = await loadSettings();
+ipcMain.on('bw:lookup', function(event: IpcMainEvent, domains: string[], tlds: string[]) {
   resetUiCounters(event); // Reset UI counters, pass window param
   bulkWhois = resetObject(defaultBulkWhois); // Resets the bulkWhois object to default
   reqtime = [];
@@ -152,8 +151,7 @@ ipcMain.on('bw:lookup.pause', function(event: IpcMainEvent) {
   parameters
     event (object) - renderer object
  */
-ipcMain.on('bw:lookup.continue', async function(event: IpcMainEvent) {
-  const settings = await loadSettings();
+ipcMain.on('bw:lookup.continue', function(event: IpcMainEvent) {
   debug('Continuing bulk whois requests');
 
   // Go through the remaining domains and queue them again using setTimeouts

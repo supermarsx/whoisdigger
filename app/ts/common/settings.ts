@@ -13,6 +13,8 @@ const { app, ipcRenderer } = electron as any;
 import debugModule from 'debug';
 const debug = debugModule('common.settings');
 
+let watcher: fs.FSWatcher | undefined;
+
 
 export interface Settings {
   'lookup.conversion': { enabled: boolean; algorithm: string };
@@ -73,12 +75,36 @@ const userDataPath = isMainProcess
 function getUserDataPath(): string {
   return userDataPath;
 }
-const filePath = isMainProcess
-  ? path.join(app.getPath('userData'), settings['custom.configuration'].filepath)
-  : path.join(
-      remote?.app?.getPath('userData') ?? '',
-      settings['custom.configuration'].filepath
-    );
+
+function getConfigFile(): string {
+  return path.join(
+    getUserDataPath(),
+    settings['custom.configuration'].filepath
+  );
+}
+
+function watchConfig(): void {
+  if (watcher) {
+    watcher.close();
+  }
+  const cfg = getConfigFile();
+  if (!fs.existsSync(cfg)) {
+    return;
+  }
+  watcher = fs.watch(cfg, { persistent: false }, async event => {
+    if (event !== 'change') return;
+    try {
+      const raw = await fs.promises.readFile(cfg, 'utf8');
+      settings = JSON.parse(raw) as Settings;
+      debug(`Reloaded custom configuration at ${cfg}`);
+    } catch (e) {
+      debug(`Failed to reload configuration with error: ${e}`);
+      if (!isMainProcess && ipcRenderer) {
+        ipcRenderer.send('app:error', `Failed to load configuration: ${e}`);
+      }
+    }
+  });
+}
 
 /*
   load
@@ -111,6 +137,7 @@ export async function load(): Promise<Settings> {
     }
   }
 
+  watchConfig();
   return settings;
 }
 
@@ -120,20 +147,23 @@ export async function load(): Promise<Settings> {
   parameters
     settings (object) - Current custom configurations to be saved
  */
-export async function save(settings: Settings): Promise<string | Error | undefined> {
+export async function save(cfg: Settings): Promise<string | Error | undefined> {
   const {
     'custom.configuration': configuration
-  } = settings;
+  } = cfg;
 
   if (configuration.save) {
     try {
       const filePath =
         path.join(
           getUserDataPath(),
-          settings['custom.configuration'].filepath
+          cfg['custom.configuration'].filepath
         );
-      await fs.promises.writeFile(filePath, JSON.stringify(settings));
+      await fs.promises.writeFile(filePath, JSON.stringify(cfg));
       debug(`Saved custom configuration at ${filePath}`);
+      // Replace global object with the saved version
+      settings = cfg;
+      watchConfig();
       return 'SAVED';
     } catch (e) {
       debug(`Failed to save custom configuration with error: ${e}`);
