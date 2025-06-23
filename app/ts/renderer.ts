@@ -17,7 +17,7 @@ import { formatString } from './common/stringformat';
 (window as any).dialog = dialog;
 (window as any).remote = remote;
 
-let settings: Settings = loadSettings();
+let settings: Settings;
 
 interface DebugMessage {
   channel: 'app:debug';
@@ -33,7 +33,8 @@ function sendDebug(message: string): void {
   $(document).ready(function() {...});
     When document is ready
  */
-$(document).ready(function() {
+$(document).ready(async function() {
+  settings = await loadSettings();
   const {
     'custom.configuration': configuration
   } = settings;
@@ -49,7 +50,7 @@ $(document).ready(function() {
   if (fs.existsSync(configPath)) {
     sendDebug('Reading persistent configurations');
     settings = JSON.parse(
-      fs.readFileSync(configPath, 'utf8')
+      await fs.promises.readFile(configPath, 'utf8')
     ) as Settings;
   } else {
     sendDebug('Using default configurations');

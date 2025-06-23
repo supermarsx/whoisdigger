@@ -1,10 +1,9 @@
 
-import { load, Settings } from '../settings';
+import { settings as appSettings, Settings } from '../settings';
 import { toJSON } from '../parser';
 import { getDomainParameters, WhoisResult } from '../availability';
 import { getDate } from '../conversions';
 
-const settings: Settings = load();
 
 export interface PatternFunction {
   (context: PatternContext): boolean;
@@ -116,7 +115,7 @@ const patterns: PatternsSpec = {
   special: {
     1: {
       includes: ['Uniregistry', 'Query limit exceeded'],
-      result: settings['lookup.assumptions']['uniregistry'] ?
+      result: appSettings['lookup.assumptions']['uniregistry'] ?
         'unavailable' : 'error:ratelimiting'
     }
   },
@@ -171,7 +170,7 @@ const patterns: PatternsSpec = {
       1: [{
         type: 'minuslessthan',
         parameters: ['domainParams.expiryDate', 'controlDate', 0],
-        result: settings['lookup.assumptions']['expired'] ? 'expired' : 'available'
+        result: appSettings['lookup.assumptions']['expired'] ? 'expired' : 'available'
       }],
       2: 'This domain name has not been registered',
       3: 'The domain has not been registered',
@@ -439,7 +438,7 @@ export function checkPatterns(
   for (const p of builtPatterns.unavailable) if (p.fn(ctx)) return p.result;
   for (const p of builtPatterns.error) if (p.fn(ctx)) return p.result;
 
-  return settings['lookup.assumptions'].unparsable ? 'available' : 'error:unparsable';
+  return appSettings['lookup.assumptions'].unparsable ? 'available' : 'error:unparsable';
 }
 
 const exported = {

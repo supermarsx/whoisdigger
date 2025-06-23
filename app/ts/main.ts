@@ -73,15 +73,16 @@ interface MainSettings extends BaseSettings {
 
 import './main/index';
 
-let settings: MainSettings = loadSettings() as MainSettings;
+let settings: MainSettings;
 let mainWindow: BrowserWindow;
 
 /*
   app.on('ready', function() {...}
     When application is ready
  */
-app.on('ready', function() {
+app.on('ready', async function() {
   initializeRemote();
+  settings = (await loadSettings()) as MainSettings;
   const {
     'custom.configuration': configuration,
     'app.window': appWindow,
@@ -94,7 +95,7 @@ app.on('ready', function() {
   if (fs.existsSync(configPath)) {
     debug("Reading persistent configurations");
     settings = JSON.parse(
-      fs.readFileSync(configPath, 'utf8')
+      await fs.promises.readFile(configPath, 'utf8')
     ) as MainSettings;
   } else {
     debug("Using default configurations");

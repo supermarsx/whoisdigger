@@ -84,7 +84,7 @@ const filePath = isMainProcess
   load
     Loads custom configurations from file or defaults
  */
-export function load(): Settings {
+export async function load(): Promise<Settings> {
   const {
     'custom.configuration': configuration
   } = settings;
@@ -96,7 +96,7 @@ export function load(): Settings {
           getUserDataPath(),
           settings['custom.configuration'].filepath
         );
-      const raw = fs.readFileSync(filePath, 'utf8');
+      const raw = await fs.promises.readFile(filePath, 'utf8');
       try {
         settings = JSON.parse(raw) as Settings;
         debug(`Loaded custom configuration at ${filePath}`);
@@ -117,7 +117,7 @@ export function load(): Settings {
   parameters
     settings (object) - Current custom configurations to be saved
  */
-export function save(settings: Settings): string | Error | undefined {
+export async function save(settings: Settings): Promise<string | Error | undefined> {
   const {
     'custom.configuration': configuration
   } = settings;
@@ -129,7 +129,7 @@ export function save(settings: Settings): string | Error | undefined {
           getUserDataPath(),
           settings['custom.configuration'].filepath
         );
-      fs.writeFileSync(filePath, JSON.stringify(settings));
+      await fs.promises.writeFile(filePath, JSON.stringify(settings));
       debug(`Saved custom configuration at ${filePath}`);
       return 'SAVED';
     } catch (e) {

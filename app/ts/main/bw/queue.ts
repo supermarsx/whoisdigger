@@ -1,10 +1,9 @@
 import debugModule from 'debug';
 import { formatString } from '../../common/stringformat';
-import { loadSettings } from '../../common/settings';
+import type { Settings } from '../../common/settings';
 import type { DomainSetup } from './types';
 
 const debug = debugModule('main.bw.queue');
-const settings = loadSettings();
 
 export function compileQueue(domains: string[], tlds: string[], separator: string): string[] {
   const queue: string[] = [];
@@ -14,7 +13,7 @@ export function compileQueue(domains: string[], tlds: string[], separator: strin
   return queue;
 }
 
-export function getDomainSetup(isRandom: {
+export function getDomainSetup(settings: Settings, isRandom: {
   timeBetween: boolean;
   followDepth: boolean;
   timeout: boolean;

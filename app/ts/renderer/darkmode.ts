@@ -16,7 +16,7 @@ $(document).ready(() => {
       const state = checkbox.is(':checked');
       settings.theme = settings.theme || { darkMode: false };
       settings.theme.darkMode = state;
-      saveSettings(settings);
+      void saveSettings(settings);
       applyDarkMode(state);
     });
   }

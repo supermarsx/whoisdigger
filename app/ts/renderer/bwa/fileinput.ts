@@ -18,7 +18,7 @@ let bwaFileContents: any;
   ipcRenderer.on('bwa:fileinput.confirmation', function(...) {...});
     File input, path and information confirmation container
  */
-ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath: string | string[] | null = null, isDragDrop = false) {
+ipcRenderer.on('bwa:fileinput.confirmation', async function(event, filePath: string | string[] | null = null, isDragDrop = false) {
   let bwaFileStats: FileStats; // File stats, size, last changed, etc
 
   $('#bwaFileSpanInfo').text('Waiting for file...');
@@ -37,7 +37,7 @@ ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath: string | 
       bwaFileStats.filename = (filePath as string).replace(/^.*[\\\/]/, '');
       bwaFileStats.humansize = conversions.byteToHumanFileSize(bwaFileStats.size, settings['lookup.misc'].useStandardSize);
       $('#bwaFileSpanInfo').text('Loading file contents...');
-      bwaFileContents = Papa.parse(fs.readFileSync(filePath as string).toString(), {
+      bwaFileContents = Papa.parse((await fs.promises.readFile(filePath as string)).toString(), {
         header: true
       });
     } else {
@@ -45,7 +45,7 @@ ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath: string | 
       bwaFileStats.filename = (filePath as string[])[0].replace(/^.*[\\\/]/, '');
       bwaFileStats.humansize = conversions.byteToHumanFileSize(bwaFileStats.size, settings['lookup.misc'].useStandardSize);
       $('#bwaFileSpanInfo').text('Loading file contents...');
-      bwaFileContents = Papa.parse(fs.readFileSync((filePath as string[])[0]).toString(), {
+      bwaFileContents = Papa.parse((await fs.promises.readFile((filePath as string[])[0])).toString(), {
         header: true
       });
     }

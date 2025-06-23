@@ -12,7 +12,6 @@ import { resetObject } from '../../common/resetObject';
 import { resetUiCounters } from './auxiliary';
 
 import { loadSettings } from '../../common/settings';
-const settings = loadSettings();
 
 const {
   app,
@@ -36,7 +35,8 @@ let reqtime: number[] = [];
     domains (array) - domains to request whois for
     tlds (array) - tlds to look for
  */
-ipcMain.on('bw:lookup', function(event: IpcMainEvent, domains: string[], tlds: string[]) {
+ipcMain.on('bw:lookup', async function(event: IpcMainEvent, domains: string[], tlds: string[]) {
+  const settings = await loadSettings();
   resetUiCounters(event); // Reset UI counters, pass window param
   bulkWhois = resetObject(defaultBulkWhois); // Resets the bulkWhois object to default
   reqtime = [];
@@ -85,7 +85,7 @@ ipcMain.on('bw:lookup', function(event: IpcMainEvent, domains: string[], tlds: s
   // Process compiled domains into future requests
   for (let domain in domainsPending) {
 
-    domainSetup = getDomainSetup({
+    domainSetup = getDomainSetup(settings, {
       timeBetween: settings['lookup.randomize.timeBetween'].randomize,
       followDepth: settings['lookup.randomize.follow'].randomize,
       timeout: settings['lookup.randomize.timeout'].randomize
@@ -152,7 +152,8 @@ ipcMain.on('bw:lookup.pause', function(event: IpcMainEvent) {
   parameters
     event (object) - renderer object
  */
-ipcMain.on('bw:lookup.continue', function(event: IpcMainEvent) {
+ipcMain.on('bw:lookup.continue', async function(event: IpcMainEvent) {
+  const settings = await loadSettings();
   debug('Continuing bulk whois requests');
 
   // Go through the remaining domains and queue them again using setTimeouts
@@ -187,7 +188,7 @@ ipcMain.on('bw:lookup.continue', function(event: IpcMainEvent) {
   // Do domain setup
   for (let domain = stats.domains.sent; domain < domainsPending.length; domain++) {
 
-    domainSetup = getDomainSetup({
+    domainSetup = getDomainSetup(settings, {
       timeBetween: settings['lookup.randomize.timeBetween'].randomize,
       followDepth: settings['lookup.randomize.follow'].randomize,
       timeout: settings['lookup.randomize.timeout'].randomize

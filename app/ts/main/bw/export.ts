@@ -18,7 +18,6 @@ const {
 } = electron;
 
 import { loadSettings } from '../../common/settings';
-const settings = loadSettings();
 
 /*
   ipcMain.on('bw:export', function(...) {...});
@@ -29,6 +28,7 @@ const settings = loadSettings();
     options (object) - bulk whois export options object
  */
   ipcMain.handle('bw:export', async function(event, results, options) {
+  const settings = await loadSettings();
   const {
     'lookup.export': resExports
   } = settings;
