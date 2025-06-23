@@ -153,3 +153,7 @@ html.has-navbar-fixed-top {
   height: 100%;
   border-radius: 0;
 }
+
+html[data-theme='dark'] #toTable .button {
+  color: #363636;
+}
