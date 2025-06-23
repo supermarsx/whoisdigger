@@ -83,7 +83,7 @@ $(document).on('click', '#bwExportButtonCancel', function() {
     ipsum
  */
 $(document).on('change', '#bwExportSelectPreset', function() {
-  var preset = $('#bwExportSelectPreset').val() as string;
+  const preset = $('#bwExportSelectPreset').val() as string;
   setExportOptions(preset);
 
   return;
@@ -94,7 +94,7 @@ $(document).on('change', '#bwExportSelectPreset', function() {
     ipsum
  */
 $(document).on('change', '#bwExportSelectFiletype', function() {
-  var filetype = $('#bwExportSelectFiletype').val() as string;
+  const filetype = $('#bwExportSelectFiletype').val() as string;
   setExportOptionsEx(filetype);
 
   return;
