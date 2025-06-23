@@ -1,5 +1,5 @@
 
-import { isDomainAvailable, getDomainParameters } from '../common/availability';
+import { isDomainAvailable, getDomainParameters, WhoisResult } from '../common/availability';
 import { preStringStrip, toJSON } from '../common/parser';
 
 import { getDate } from '../common/conversions';

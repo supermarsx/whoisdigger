@@ -244,11 +244,11 @@ function compileCondition(cond: any): PatternFunction {
       case 'hasOwnProperty':
         return (ctx) =>
           ctx.resultsJSON && Object.prototype.hasOwnProperty.call(ctx.resultsJSON, cond.parameters[0]);
-      case 'morethan.Object.keys.length':
-        return (ctx) => {
-          const obj = resolvePath(cond.value, ctx);
-          return obj && Object.keys(obj).length > cond.parameters[0];
-        };
+        case 'morethan.Object.keys.length':
+          return (ctx) => {
+            const obj = resolvePath(cond.value, ctx) as Record<string, unknown> | undefined;
+            return !!obj && Object.keys(obj).length > cond.parameters[0];
+          };
       case 'equal':
         return (ctx) => ctx.resultsText === cond.value;
       default:

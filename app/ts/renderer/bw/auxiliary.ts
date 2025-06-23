@@ -40,7 +40,7 @@ function getExportOptions() {
   parameters
     preset (string) - Use a determined string formatted preset for export
  */
-function setExportOptions(preset) {
+function setExportOptions(preset: string): void {
   switch (preset) {
     case ('none'):
       unlockFields();
@@ -83,7 +83,7 @@ function setExportOptions(preset) {
   parameters
     filetype (string) - Filetype, set field locks if is txt file
  */
-function setExportOptionsEx(filetype) {
+function setExportOptionsEx(filetype: string): void {
   switch (filetype) {
     case 'txt':
       lockFields(true);

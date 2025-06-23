@@ -1,5 +1,6 @@
 
 import electron from 'electron';
+import type { IpcMainEvent } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
 import { lookup as whoisLookup } from '../common/lookup';
@@ -62,7 +63,7 @@ ipcMain.on('sw:openlink', function(event, domain) {
     event
     domain
  */
-function copyToClipboard(event, domain) {
+function copyToClipboard(event: IpcMainEvent, domain: string): void {
   const {
     sender
   } = event;
@@ -81,7 +82,7 @@ function copyToClipboard(event, domain) {
     event
     domain
  */
-function openUrl(event, domain) {
+function openUrl(event: IpcMainEvent, domain: string): void {
   const {
     'app.window': appWindow,
   } = settings;
