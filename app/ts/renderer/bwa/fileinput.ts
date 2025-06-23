@@ -1,5 +1,4 @@
 
-/** global: settings */
 import * as conversions from '../../common/conversions';
 import fs from 'fs';
 import type { FileStats } from '../../common/fileStats';

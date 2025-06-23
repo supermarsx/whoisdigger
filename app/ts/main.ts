@@ -9,9 +9,7 @@ import {
 } from 'electron';
 import * as url from 'url';
 import debugModule from 'debug';
-import * as fs from 'fs';
-import * as path from 'path';
-import { loadSettings } from './common/settings';
+import { loadSettings, settings as store } from './common/settings';
 import type { Settings as BaseSettings } from './common/settings';
 import { formatString } from './common/stringformat';
 import { initialize as initializeRemote, enable as enableRemote } from '@electron/remote/main';
@@ -82,28 +80,13 @@ let mainWindow: BrowserWindow;
  */
 app.on('ready', async function() {
   initializeRemote();
-  settings = (await loadSettings()) as MainSettings;
+  await loadSettings();
+  settings = store as MainSettings;
   const {
-    'custom.configuration': configuration,
     'app.window': appWindow,
     'app.window.webPreferences': webPreferences,
     'app.window.url': appUrl
   } = settings;
-
-  // Custom application settings startup
-  const configPath = path.join(app.getPath('userData'), configuration.filepath);
-  if (fs.existsSync(configPath)) {
-    debug("Reading persistent configurations");
-    try {
-      const raw = await fs.promises.readFile(configPath, 'utf8');
-      settings = JSON.parse(raw) as MainSettings;
-    } catch (e) {
-      debug(`Failed to read persistent configurations: ${e}`);
-      dialog.showErrorBox('Error', String(e));
-    }
-  } else {
-    debug("Using default configurations");
-  }
 
   // Some application start debugging messages
   debug("App is starting");

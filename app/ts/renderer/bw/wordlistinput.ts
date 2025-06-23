@@ -1,5 +1,4 @@
 
-/** global: settings */
 import * as conversions from '../../common/conversions';
 import { settings } from '../../common/settings';
 

@@ -18,8 +18,8 @@ const {
 } = electron;
 import { formatString } from '../common/stringformat';
 
-import { settings, Settings } from '../common/settings';
-
+import { settings } from '../common/settings';
+import type { Settings } from '../common/settings';
 
 /*
   ipcMain.on('sw:lookup', function(...) {...});

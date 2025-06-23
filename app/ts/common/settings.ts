@@ -143,30 +143,28 @@ export async function load(): Promise<Settings> {
   parameters
     settings (object) - Current custom configurations to be saved
  */
-export async function save(cfg: Settings): Promise<string | Error | undefined> {
+export async function save(newSettings: Settings): Promise<string | Error | undefined> {
   const {
     'custom.configuration': configuration
-  } = cfg;
+  } = newSettings;
 
   if (configuration.save) {
     try {
       const filePath =
         path.join(
           getUserDataPath(),
-          cfg['custom.configuration'].filepath
+          newSettings['custom.configuration'].filepath
         );
-      await fs.promises.writeFile(filePath, JSON.stringify(cfg));
+      await fs.promises.writeFile(filePath, JSON.stringify(newSettings));
       debug(`Saved custom configuration at ${filePath}`);
-      // Replace global object with the saved version
-      settings = cfg;
-      watchConfig();
+      settings = newSettings;
       return 'SAVED';
     } catch (e) {
       debug(`Failed to save custom configuration with error: ${e}`);
       return e as Error;
     }
   }
-
+  settings = newSettings;
 }
 
 export const loadSettings = load;

@@ -1,5 +1,4 @@
 
-/** global: appSettings */
 import * as conversions from '../../common/conversions';
 import fs from 'fs';
 import Papa from 'papaparse';
