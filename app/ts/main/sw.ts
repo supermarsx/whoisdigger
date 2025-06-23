@@ -1,9 +1,10 @@
 
-const electron = require('electron'),
-  path = require('path'),
-  url = require('url'),
-  whois = require('../common/whoiswrapper'),
-  debug = require('debug')('main.sw');
+import electron from 'electron';
+import * as path from 'path';
+import * as url from 'url';
+import * as whois from '../common/whoiswrapper';
+import debugModule from 'debug';
+const debug = debugModule('main.sw');
 
 const {
   app,
@@ -14,9 +15,10 @@ const {
   remote,
   clipboard
 } = electron;
-const { formatString } = require('../common/stringformat');
+import { formatString } from '../common/stringformat';
 
-const settings = require('../common/settings').load();
+import { loadSettings } from '../common/settings';
+const settings = loadSettings();
 
 /*
   ipcMain.on('sw:lookup', function(...) {...});

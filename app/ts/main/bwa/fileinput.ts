@@ -1,6 +1,7 @@
 
-const electron = require('electron'),
-  debug = require('debug')('main.bwa.fileinput');
+import electron from 'electron';
+import debugModule from 'debug';
+const debug = debugModule('main.bwa.fileinput');
 
 const {
   app,
@@ -9,7 +10,7 @@ const {
   ipcMain,
   dialog
 } = electron;
-const { formatString } = require('../../common/stringformat');
+import { formatString } from '../../common/stringformat';
 
 /*
   ipcMain.on('bwa:input.file', function(...) {...});

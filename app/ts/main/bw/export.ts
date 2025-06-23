@@ -1,11 +1,12 @@
 
-const electron = require('electron'),
-  fs = require('fs'),
-  path = require('path'),
-  conversions = require('../../common/conversions'),
-  debug = require('debug')('main.bw.export'),
-  JSZip = require('jszip');
-const { formatString } = require('../../common/stringformat');
+import electron from 'electron';
+import fs from 'fs';
+import path from 'path';
+import * as conversions from '../../common/conversions';
+import debugModule from 'debug';
+const debug = debugModule('main.bw.export');
+import JSZip from 'jszip';
+import { formatString } from '../../common/stringformat';
 
 const {
   app,
@@ -16,7 +17,8 @@ const {
   remote
 } = electron;
 
-const settings = require('../../common/settings').load();
+import { loadSettings } from '../../common/settings';
+const settings = loadSettings();
 
 /*
   ipcMain.on('bw:export', function(...) {...});
@@ -72,10 +74,9 @@ ipcMain.on('bw:export', async function(event, results, options) {
   }
 
   const filePath = dialog.showSaveDialogSync({
-    title: "Save export file",
-    buttonLabel: "Save",
-    properties: ['openFile', 'showHiddenFiles'],
-    filters: filters
+    title: 'Save export file',
+    buttonLabel: 'Save',
+    filters,
   });
 
   if (filePath === undefined || filePath == '' || filePath === null) {

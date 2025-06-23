@@ -1,4 +1,4 @@
-const { formatString } = require('../common/stringformat');
+import { formatString } from '../common/stringformat';
 
 /*
   $(document).on('drop', function(...) {...});

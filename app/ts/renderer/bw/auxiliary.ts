@@ -1,7 +1,5 @@
 
-const {
-  resetObject
-} = require('../../common/resetObject');
+import { resetObject } from '../../common/resetObject';
 
 /*
   tableReset
@@ -139,12 +137,12 @@ function unlockFields(isTxt = false) {
   return;
 }
 
-module.exports = {
-  tableReset: tableReset,
-  tblReset: tableReset,
-  getExportOptions: getExportOptions,
-  getExprtOptns: getExportOptions,
-  setExportOptions: setExportOptions,
-  setExprtOptns: setExportOptions,
-  setExportOptionsEx: setExportOptionsEx
+export {
+  tableReset,
+  tableReset as tblReset,
+  getExportOptions,
+  getExportOptions as getExprtOptns,
+  setExportOptions,
+  setExportOptions as setExprtOptns,
+  setExportOptionsEx,
 };

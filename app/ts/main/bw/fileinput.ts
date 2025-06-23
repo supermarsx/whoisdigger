@@ -1,6 +1,7 @@
 
-const electron = require('electron'),
-  debug = require('debug')('main.bw.fileinput');
+import electron from 'electron';
+import debugModule from 'debug';
+const debug = debugModule('main.bw.fileinput');
 
 const {
   app,
@@ -9,9 +10,10 @@ const {
   ipcMain,
   dialog
 } = electron;
-const { formatString } = require('../../common/stringformat');
+import { formatString } from '../../common/stringformat';
 
-const settings = require('../../common/settings').load();
+import { loadSettings } from '../../common/settings';
+const settings = loadSettings();
 
 /*
   ipcMain.on('bw:input.file', function(...) {...});

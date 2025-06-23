@@ -71,7 +71,7 @@ interface MainSettings extends BaseSettings {
   [key: string]: any;
 }
 
-require('./main/index');
+import './main/index';
 
 let settings: MainSettings = loadSettings() as MainSettings;
 let mainWindow: BrowserWindow;

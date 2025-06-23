@@ -1,17 +1,15 @@
 /** global: appSettings */
 
-const whois = require('../../common/whoiswrapper'),
-  conversions = require('../../common/conversions'),
-  fs = require('fs'),
-  debug = require('debug')('renderer.bw.fileinput');
+import * as whois from '../../common/whoiswrapper';
+import * as conversions from '../../common/conversions';
+import fs from 'fs';
+import debugModule from 'debug';
+const debug = debugModule('renderer.bw.fileinput');
 
-const {
-  ipcRenderer
-} = require('electron'), {
-  tableReset
-} = require('./auxiliary');
+import { ipcRenderer } from 'electron';
+import { tableReset } from './auxiliary';
 
-const { formatString } = require('../../common/stringformat');
+import { formatString } from '../../common/stringformat';
 
 var bwFileContents;
 

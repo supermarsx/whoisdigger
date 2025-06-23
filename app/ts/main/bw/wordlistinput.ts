@@ -1,6 +1,7 @@
 
-const electron = require('electron'),
-  debug = require('debug')('main.bw.wordlistinput');
+import electron from 'electron';
+import debugModule from 'debug';
+const debug = debugModule('main.bw.wordlistinput');
 
 const {
   app,

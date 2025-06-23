@@ -1,4 +1,7 @@
 
+import * as readline from 'readline';
+import * as fs from 'fs';
+
 /*
   lineCount
     Count lines within a string
@@ -30,8 +33,6 @@ export function fileReadLines(filePath: string, lines = 2, startLine = 0): Promi
   return new Promise((resolve, reject) => {
     let lineCounter = 0;
     const linesRead: string[] = [];
-    const readline = require('readline');
-    const fs = require('fs');
     const lineReader = readline.createInterface({
       input: fs.createReadStream(filePath),
     });

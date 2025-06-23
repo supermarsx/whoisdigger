@@ -1,13 +1,10 @@
 
-const whois = require('../common/whoiswrapper'),
-  parseRawData = require('../common/parseRawData');
+import * as whois from '../common/whoiswrapper';
+import parseRawData from '../common/parseRawData';
 
-const {
-  getDate
-} = require('../common/conversions'), {
-  ipcRenderer
-} = require('electron');
-const { formatString } = require('../common/stringformat');
+import { getDate } from '../common/conversions';
+import { ipcRenderer } from 'electron';
+import { formatString } from '../common/stringformat';
 
 const {
   isDomainAvailable,
@@ -16,7 +13,8 @@ const {
   toJSON
 } = whois;
 
-(window as any).$ = (window as any).jQuery = require('jquery');
+import jquery from 'jquery';
+(window as any).$ = (window as any).jQuery = jquery;
 
 var singleWhois = {
   'input': {
