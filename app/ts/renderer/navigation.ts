@@ -1,3 +1,4 @@
+const { formatString } = require('../common/stringformat');
 
 /*
   $(document).on('drop', function(...) {...});
@@ -49,7 +50,7 @@ $(document).on('click', 'section.tabs ul li', function() {
     $(this).addClass('is-active');
     $("#" + tabName).addClass('current');
   }
-  ipcRenderer.send('app:debug', "#section.tabs switched to data tab, {0}".format(tabName));
+  ipcRenderer.send('app:debug', formatString('#section.tabs switched to data tab, {0}', tabName));
 
   return;
 });
@@ -73,7 +74,7 @@ $(document).on('click', '.delete', function() {
  */
 $(document).keyup(function(event) {
   if (event.keyCode === 27) {
-    ipcRenderer.send('app:debug', "Hotkey, Used [ESC] key, {0}".format(event.keyCode));
+    ipcRenderer.send('app:debug', formatString('Hotkey, Used [ESC] key, {0}', event.keyCode));
     switch (true) {
 
       // Single whois tab is active

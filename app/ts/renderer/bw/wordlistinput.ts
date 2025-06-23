@@ -9,7 +9,7 @@ const {
   tableReset
 } = require('./auxiliary');
 
-require('../../common/stringformat');
+const { formatString } = require('../../common/stringformat');
 
 var bwWordlistContents; // Global wordlist input contents
 
@@ -32,14 +32,14 @@ ipcRenderer.on('bw:wordlistinput.confirmation', function() {
     if (settings['lookup.randomize.timeBetween'].randomize === true) {
       bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * settings['lookup.randomize.timeBetween'].minimum);
       bwFileStats['maxestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * settings['lookup.randomize.timeBetween'].maximum);
-      $('#bwWordlistSpanTimebetweenmin').text('{0}ms '.format(settings['lookup.randomize.timeBetween'].minimum));
-      $('#bwWordlistSpanTimebetweenmax').text('/ {0}ms'.format(settings['lookup.randomize.timeBetween'].maximum));
-      $('#bwWordlistTdEstimate').text('{0} to {1}'.format(bwFileStats['minestimate'], bwFileStats['maxestimate']));
+      $('#bwWordlistSpanTimebetweenmin').text(formatString('{0}ms ', settings['lookup.randomize.timeBetween'].minimum));
+      $('#bwWordlistSpanTimebetweenmax').text(formatString('/ {0}ms', settings['lookup.randomize.timeBetween'].maximum));
+      $('#bwWordlistTdEstimate').text(formatString('{0} to {1}', bwFileStats['minestimate'], bwFileStats['maxestimate']));
     } else {
       bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * settings['lookup.general'].timeBetween);
       $('#bwWordlistSpanTimebetweenminmax').addClass('is-hidden');
       $('#bwWordlistSpanTimebetweenmin').text(settings['lookup.general'].timeBetween + 'ms');
-      $('#bwWordlistTdEstimate').text('> {0}'.format(bwFileStats['minestimate']));
+      $('#bwWordlistTdEstimate').text(formatString('> {0}', bwFileStats['minestimate']));
     }
 
     bwFileStats['filepreview'] = bwWordlistContents.toString().substring(0, 50);
@@ -51,7 +51,7 @@ ipcRenderer.on('bw:wordlistinput.confirmation', function() {
     $('#bwWordlistconfirm').removeClass('is-hidden');
 
     // stats
-    $('#bwWordlistTdDomains').text('{0} line(s)'.format(bwFileStats['linecount']));
+    $('#bwWordlistTdDomains').text(formatString('{0} line(s)', bwFileStats['linecount']));
     $('#bwWordlistTdFilepreview').text(bwFileStats['filepreview'] + '...');
   }
 

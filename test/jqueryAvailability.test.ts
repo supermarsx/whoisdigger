@@ -1,9 +1,6 @@
 /** @jest-environment jsdom */
 
-jest.mock('electron', () => ({
-  ipcRenderer: { send: jest.fn() },
-  dialog: {}
-}));
+import '../test/electronMock';
 
 jest.mock('@electron/remote', () => ({
   app: { getPath: jest.fn(() => '') }

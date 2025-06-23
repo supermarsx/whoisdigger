@@ -4,6 +4,7 @@ import psl from 'psl';
 import debugModule from 'debug';
 import { convertDomain } from './whoiswrapper';
 import { load, Settings } from './settings';
+import { DnsLookupError, Result } from './errors';
 
 const debug = debugModule('common.dnsLookup');
 let settings: Settings = load();
@@ -15,9 +16,10 @@ let settings: Settings = load();
   .parameters
     host (string) - Host name
   .returns
-    result (boolean) - Returns array if has nameservers, error string on error
+    result (string[]) - array of nameservers
+    throws DnsLookupError on failure
  */
-export async function nsLookup(host: string): Promise<string[] | 'error'> {
+export async function nsLookup(host: string): Promise<string[]> {
   let result;
   const {
     'lookup.conversion': conversion,
@@ -33,13 +35,13 @@ export async function nsLookup(host: string): Promise<string[] | 'error'> {
   try {
     result = await dns.resolve(host, 'NS');
   } catch (e) {
-    result = 'error';
     debug(`Lookup failed with error ${e}`);
+    throw new DnsLookupError((e as Error).message);
   }
 
   debug(`Looked up for ${host} with ${result}`);
 
-  return result;
+  return result as string[];
 }
 
 /*
@@ -48,9 +50,11 @@ export async function nsLookup(host: string): Promise<string[] | 'error'> {
   .parameters
     host (string) - Host name
   .returns
-    result (boolean) - True if has nameservers, false if not
+    result (Result<boolean, DnsLookupError>)
+      ok true -> has nameservers
+      ok false -> lookup failed
  */
-export async function hasNsServers(host: string): Promise<boolean> {
+export async function hasNsServers(host: string): Promise<Result<boolean, DnsLookupError>> {
   let result;
   const {
     'lookup.conversion': conversion,
@@ -66,42 +70,32 @@ export async function hasNsServers(host: string): Promise<boolean> {
   try {
     result = await dns.resolve(host, 'NS');
     result = Array.isArray(result) ? true : false;
+    debug(`Looked up for ${host} with result ${result}`);
+    return { ok: true, value: result };
   } catch (e) {
-    result = settings['lookup.assumptions'].dnsFailureUnavailable ? true : false;
-    if (e.toString().includes('ENOTFOUND')) {
-      result = false;
-    }
-
     debug(`Lookup failed with error ${e}`);
+    return { ok: false, error: new DnsLookupError((e as Error).message) };
   }
-
-  debug(`Looked up for ${host} with result ${result}`);
-
-  return result;
 }
 
 /*
   isDomainAvailable
     Check if a domain is available
   .parameters
-    data (boolean | string) - Domain lookup response. 'error' indicates DNS resolution failure
+    data (Result<boolean, DnsLookupError>) - DNS lookup result
   .returns
     result (string) - Availability status
  */
-export function isDomainAvailable(data: boolean | string): string {
+export function isDomainAvailable(data: Result<boolean, DnsLookupError>): string {
   let result: string;
 
-  if (data === true) {
-    result = 'unavailable';
-  } else if (data === false) {
-    result = 'available';
-  } else if (data === 'error') {
-    result = 'error';
+  if (data.ok) {
+    result = data.value ? 'unavailable' : 'available';
   } else {
     result = 'error';
   }
 
-  debug(`Checked for availability from data ${data} with result: ${result}`);
+  debug(`Checked for availability from data ${JSON.stringify(data)} with result: ${result}`);
   return result;
 }
 

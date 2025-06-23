@@ -5,6 +5,7 @@ const electron = require('electron'),
   conversions = require('../../common/conversions'),
   debug = require('debug')('main.bw.export'),
   JSZip = require('jszip');
+const { formatString } = require('../../common/stringformat');
 
 const {
   app,
@@ -25,7 +26,7 @@ const settings = require('../../common/settings').load();
     results (object) - bulk whois results object
     options (object) - bulk whois export options object
  */
-ipcMain.on('bw:export', function(event, results, options) {
+ipcMain.on('bw:export', async function(event, results, options) {
   const {
     'lookup.export': resExports
   } = settings;
@@ -42,8 +43,8 @@ ipcMain.on('bw:export', function(event, results, options) {
     zip = resExports.filetypeZip; // Zip file
   let filters;
 
-  debug('options: \n {0}'.format(JSON.stringify(options)));
-  debug('results: \n {0}'.format(JSON.stringify(results)));
+  debug(formatString('options: \n {0}', JSON.stringify(options)));
+  debug(formatString('results: \n {0}', JSON.stringify(results)));
 
   switch (options.filetype) {
     case 'txt':
@@ -78,7 +79,7 @@ ipcMain.on('bw:export', function(event, results, options) {
   });
 
   if (filePath === undefined || filePath == '' || filePath === null) {
-    debug("Using selected file at {0}".format(filePath));
+    debug(formatString('Using selected file at {0}', filePath));
     sender.send('bw:export.cancel');
   } else {
     let contentsExport = "",
@@ -106,7 +107,7 @@ ipcMain.on('bw:export', function(event, results, options) {
           break;
       }
     }
-    debug('Available + Unavailable, {0}'.format(toProcess));
+    debug(formatString('Available + Unavailable, {0}', toProcess));
 
     // Add errors to queue
     for (let i = 0; i < results.id.length; i++) {
@@ -114,7 +115,7 @@ ipcMain.on('bw:export', function(event, results, options) {
         toProcess.push(i);
       }
     }
-    debug('Available + Unavailable + Errors, {0}'.format(toProcess));
+    debug(formatString('Available + Unavailable + Errors, {0}', toProcess));
 
     const contentZip = new JSZip();
 
@@ -124,32 +125,32 @@ ipcMain.on('bw:export', function(event, results, options) {
 
     } else {
       // Make contentsHeader
-      contentsHeader += '{0}Domain{0}{1}{0}Status{0}'.format(e, s);
+      contentsHeader += formatString('{0}Domain{0}{1}{0}Status{0}', e, s);
       if (options.information.includes('basic') === true) {
-        contentsHeader += '{1}{0}Registrar{0}{1}{0}Company{0}{1}{0}Creation Date{0}{1}{0}Update Date{0}{1}{0}Expiry Date{0}'.format(e, s);
+        contentsHeader += formatString('{1}{0}Registrar{0}{1}{0}Company{0}{1}{0}Creation Date{0}{1}{0}Update Date{0}{1}{0}Expiry Date{0}', e, s);
       }
       if (options.information.includes('debug') === true) {
-        contentsHeader += '{1}{0}ID{0}{1}{0}Request Time{0}'.format(e, s);
+        contentsHeader += formatString('{1}{0}ID{0}{1}{0}Request Time{0}', e, s);
       }
       if (options.whoisreply.includes('yes+inline') === true) {
-        contentsHeader += '{1}{0}Whois Reply{0}'.format(e, s);
+        contentsHeader += formatString('{1}{0}Whois Reply{0}', e, s);
       }
       // Process information for CSV
       for (let i = 0; i < toProcess.length; i++) {
-        contentsExport += '{2}{0}{3}{0}{1}{0}{4}{0}'.format(e, s, l, results.domain[toProcess[i]], results.status[toProcess[i]]);
+        contentsExport += formatString('{2}{0}{3}{0}{1}{0}{4}{0}', e, s, l, results.domain[toProcess[i]], results.status[toProcess[i]]);
 
         if (options.information.includes('basic') === true) {
-          contentsExport += '{1}{0}{2}{0}{1}{0}{3}{0}{1}{0}{4}{0}{1}{0}{5}{0}{1}{0}{6}{0}'.format(e, s,
+          contentsExport += formatString('{1}{0}{2}{0}{1}{0}{3}{0}{1}{0}{4}{0}{1}{0}{5}{0}{1}{0}{6}{0}', e, s,
             results.registrar[toProcess[i]], results.company[toProcess[i]], results.creationdate[toProcess[i]], results.updatedate[toProcess[i]], results.expirydate[toProcess[i]]
           );
         }
 
         if (options.information.includes('debug') === true)
-          contentsExport += '{1}{0}{2}{0}{1}{0}{3}{0}'.format(e, s, results.id[toProcess[i]], results.requesttime[toProcess[i]]);
+          contentsExport += formatString('{1}{0}{2}{0}{1}{0}{3}{0}', e, s, results.id[toProcess[i]], results.requesttime[toProcess[i]]);
 
         switch (options.whoisreply) {
           case ('yes+inline'):
-            contentsExport += '{1}{0}{2}{0}'.format(e, s, results.whoisreply[toProcess[i]]);
+            contentsExport += formatString('{1}{0}{2}{0}', e, s, results.whoisreply[toProcess[i]]);
             break;
           case ('yes+inlineseparate'):
             contentZip.file(results.domain[toProcess[i]] + csv, results.whoisjson[toProcess[i]]);
@@ -161,44 +162,25 @@ ipcMain.on('bw:export', function(event, results, options) {
       }
 
       contentsCompile = contentsHeader + contentsExport;
-      fs.writeFile(filePath, contentsCompile, function(err) {
-        if (err) {
-          return debug(err);
-        }
-        debug("File was saved, {0}".format(filePath));
-      });
+      try {
+        await fs.promises.writeFile(filePath, contentsCompile);
+        debug(formatString('File was saved, {0}', filePath));
+      } catch (err) {
+        debug(err);
+      }
     }
 
     switch (true) {
       case (options.whoisreply == 'yes+inlineseparate' && options.filetype == 'csv'):
       case (options.whoisreply == 'yes+block' && options.filetype == 'csv'):
       case (options.filetype == 'txt'):
-        if (JSZip.support.uint8array) {
-          contentZip.generateAsync({
-            type: "uint8array"
-          }).then(function(content) {
-            fs.writeFile(filePath + zip, content, function(err) {
-              if (err) {
-                return debug(err);
-              }
-            });
-            debug("Zip saved, {0}".format(filePath + zip));
-          }).catch(function(err) {
-            debug("Error, {0}".format(err));
-          });
-        } else {
-          contentZip.generateAsync({
-            type: "string"
-          }).then(function(content) {
-            fs.writeFile(filePath + zip, content, function(err) {
-              if (err) {
-                return debug(err);
-              }
-            });
-            debug("Zip saved, {0}".format(filePath + zip));
-          }).catch(function(err) {
-            debug("Error, {0}".format(err));
-          });
+        try {
+          const genType = JSZip.support.uint8array ? 'uint8array' : 'string';
+          const content = await contentZip.generateAsync({ type: genType });
+          await fs.promises.writeFile(filePath + zip, content);
+          debug(formatString('Zip saved, {0}', filePath + zip));
+        } catch (err) {
+          debug(formatString('Error, {0}', err));
         }
         break;
     }

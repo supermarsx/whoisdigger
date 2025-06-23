@@ -32,8 +32,52 @@ declare module 'electron' {
   }
   export const Menu: any;
   export interface IpcMainEvent {}
-  export const ipcMain: any;
-  export const ipcRenderer: any;
+  export interface IpcRendererEvent {}
+
+  interface RendererToMainIpc {
+    'app:minimize': [];
+    'app:debug': [message: any];
+    'bw:lookup': [string[], string[]];
+    'bw:lookup.pause': [];
+    'bw:lookup.continue': [];
+    'bw:lookup.stop': [];
+    'bw:export': [any, any];
+    'bw:input.file': [];
+    'bw:input.wordlist': [];
+    'ondragstart': [string];
+    'sw:lookup': [string];
+    'sw:openlink': [string];
+  }
+
+  interface MainToRendererIpc {
+    'bw:status.update': [string, any];
+    'bw:fileinput.confirmation': [string | string[] | null, boolean?];
+    'bw:result.receive': [any];
+    'bw:export.cancel': [];
+    'sw:results': [any];
+    'sw:copied': [];
+  }
+
+  export interface IpcMain {
+    on<C extends keyof RendererToMainIpc>(
+      channel: C,
+      listener: (event: IpcMainEvent, ...args: RendererToMainIpc[C]) => void
+    ): void;
+  }
+
+  export interface IpcRenderer {
+    send<C extends keyof RendererToMainIpc>(
+      channel: C,
+      ...args: RendererToMainIpc[C]
+    ): void;
+    on<C extends keyof MainToRendererIpc>(
+      channel: C,
+      listener: (event: IpcRendererEvent, ...args: MainToRendererIpc[C]) => void
+    ): void;
+  }
+
+  export const ipcMain: IpcMain;
+  export const ipcRenderer: IpcRenderer;
   export const dialog: any;
   export const remote: any;
   export const clipboard: any;
@@ -89,9 +133,6 @@ declare module 'html-entities' {
   }
 }
 
-interface String {
-  format(...args: any[]): string;
-}
 
 declare const $: any;
 declare const ipcRenderer: any;

@@ -1,22 +1,17 @@
 
 /*
-  .format String Prototype
+  formatString Helper
     formats a given string with input parameters
   parameters
-    string + x (string) - String to include in string
- */
-declare global {
-  interface String {
-    format(...args: any[]): string;
+    str (string) - String with placeholders
+    ...args (unknown[]) - values to insert
+*/
+
+export function formatString(str: string, ...args: unknown[]): string {
+  let result = str;
+  for (const k in args) {
+    result = result.replace(new RegExp(`\\{${k}\\}`, 'g'), String(args[k]));
   }
+  return result;
 }
 
-String.prototype.format = function (...args: any[]): string {
-  let a = this as string;
-  for (const k in args) {
-    a = a.replace(new RegExp(`\\{${k}\\}`, 'g'), args[k]);
-  }
-  return a;
-};
-
-export {};

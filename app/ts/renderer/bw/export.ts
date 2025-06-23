@@ -13,7 +13,7 @@ const {
   setExportOptionsEx
 } = require('./auxiliary');
 
-require('../../common/stringformat');
+const { formatString } = require('../../common/stringformat');
 
 var results, options;
 
@@ -25,7 +25,7 @@ var results, options;
     rcvResults
  */
 ipcRenderer.on('bw:result.receive', function(event, rcvResults) {
-  ipcRenderer.send('app:debug', "Results are ready for export {0}".format(rcvResults));
+  ipcRenderer.send('app:debug', formatString('Results are ready for export {0}', rcvResults));
 
   results = rcvResults;
   //console.log("%o", results);

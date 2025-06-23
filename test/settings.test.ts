@@ -1,12 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-
-const mockGetPath = jest.fn();
-
-jest.mock('electron', () => ({
-  app: undefined,
-  remote: { app: { getPath: mockGetPath } }
-}));
+import { mockGetPath } from '../test/electronMock';
 
 import { loadSettings, settings } from '../app/ts/common/settings';
 

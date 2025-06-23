@@ -7,6 +7,7 @@ const {
 } = require('../common/conversions'), {
   ipcRenderer
 } = require('electron');
+const { formatString } = require('../common/stringformat');
 
 const {
   isDomainAvailable,
@@ -82,10 +83,10 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
     default:
       if (domainStatus.includes('error')) {
         errorReason = domainStatus.split(':')[1]; // Get Error reason
-        $('#swMessageWhoisResults').text("Whois error due to {0}:\n{1}".format(errorReason, domainResults));
+        $('#swMessageWhoisResults').text(formatString('Whois error due to {0}:\n{1}', errorReason, domainResults));
         $('#swMessageError').removeClass('is-hidden');
       } else {
-        $('#swMessageWhoisResults').text("Whois default error\n{0}".format(domainResults));
+        $('#swMessageWhoisResults').text(formatString('Whois default error\n{0}', domainResults));
         $('#swMessageError').removeClass('is-hidden');
       }
       break;
@@ -148,7 +149,7 @@ $(document).on('click', '#swSearchButtonSearch', function() {
 
   domain = $('#swSearchInputDomain').val();
 
-  ipcRenderer.send('app:debug', "Looking up for {0}".format(domain));
+ipcRenderer.send('app:debug', formatString('Looking up for {0}', domain));
 
   $('#swSearchButtonSearch').addClass('is-loading');
   $('#swSearchInputDomain').attr('readonly', '');

@@ -13,7 +13,6 @@ const { app } = electron;
 import debugModule from 'debug';
 const debug = debugModule('common.settings');
 
-import './stringformat';
 
 export interface Settings {
   'lookup.conversion': { enabled: boolean; algorithm: string };

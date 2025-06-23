@@ -1,10 +1,8 @@
-jest.mock('electron', () => ({
-  app: undefined,
-  remote: { app: { getPath: jest.fn().mockReturnValue('') } }
-}));
+import '../test/electronMock';
 
 import dns from 'dns/promises';
 import { nsLookup, hasNsServers, isDomainAvailable } from '../app/ts/common/dnsLookup';
+import { DnsLookupError } from '../app/ts/common/errors';
 
 describe('dnsLookup', () => {
   let resolveMock: jest.SpyInstance;
@@ -18,8 +16,7 @@ describe('dnsLookup', () => {
   });
 
   test('nsLookup handles invalid domain', async () => {
-    const result = await nsLookup('invalid_domain');
-    expect(result).toBe('error');
+    await expect(nsLookup('invalid_domain')).rejects.toBeInstanceOf(DnsLookupError);
   });
 
   test('nsLookup returns server list for valid domain', async () => {
@@ -31,29 +28,30 @@ describe('dnsLookup', () => {
 
   test('hasNsServers handles invalid domain', async () => {
     const result = await hasNsServers('invalid_domain');
-    expect(result).toBe(false);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      const errorResult = result as { ok: false; error: DnsLookupError };
+      expect(errorResult.error).toBeInstanceOf(DnsLookupError);
+    }
   });
 
   test('hasNsServers returns true when records exist', async () => {
     const servers = ['ns1.example.com'];
     resolveMock.mockResolvedValueOnce(servers);
     const result = await hasNsServers('example.com');
-    expect(result).toBe(true);
+    expect(result).toEqual({ ok: true, value: true });
   });
 
   test('isDomainAvailable returns unavailable for true', () => {
-    expect(isDomainAvailable(true)).toBe('unavailable');
+    expect(isDomainAvailable({ ok: true, value: true })).toBe('unavailable');
   });
 
   test('isDomainAvailable returns available for false', () => {
-    expect(isDomainAvailable(false)).toBe('available');
+    expect(isDomainAvailable({ ok: true, value: false })).toBe('available');
   });
 
-  test("isDomainAvailable returns 'error' on error string", () => {
-    expect(isDomainAvailable('error')).toBe('error');
-  });
-
-  test('isDomainAvailable treats unknown strings as error', () => {
-    expect(isDomainAvailable('unknown')).toBe('error');
+  test("isDomainAvailable returns 'error' on error result", () => {
+    const error = new DnsLookupError('fail');
+    expect(isDomainAvailable({ ok: false, error })).toBe('error');
   });
 });
