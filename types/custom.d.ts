@@ -42,8 +42,8 @@ declare module 'electron' {
     'bw:input.file': [];
     'bw:input.wordlist': [];
     'ondragstart': [string];
-    'sw:lookup': [string];
-    'sw:openlink': [string];
+    'singlewhois:lookup': [string];
+    'singlewhois:openlink': [string];
   }
 
   interface MainToRendererIpc {
@@ -52,8 +52,8 @@ declare module 'electron' {
     'bw:result.receive': [any];
     'bw:export.cancel': [];
     'bw:export.error': [string];
-    'sw:results': [any];
-    'sw:copied': [];
+    'singlewhois:results': [any];
+    'singlewhois:copied': [];
   }
 
   export interface IpcMain {

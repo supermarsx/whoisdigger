@@ -79,21 +79,21 @@ $(document).keyup(function(event) {
     switch (true) {
 
       // Single whois tab is active
-      case ($('#navButtonSw').hasClass('is-active')):
+      case ($('#navButtonSinglewhois').hasClass('is-active')):
         ipcRenderer.send('app:debug', "Hotkey, Single whois tab is active");
         switch (true) {
-          case ($('#swDomainCopied').hasClass('is-active')):
-            $('#swDomainCopiedClose').click();
+          case ($('#singlewhoisDomainCopied').hasClass('is-active')):
+            $('#singlewhoisDomainCopiedClose').click();
             break;
 
           // Single whois, Dialog is open
-          case ($('#swMessageWhois').hasClass('is-active')):
-            $('#swMessageWhoisClose').click();
+          case ($('#singlewhoisMessageWhois').hasClass('is-active')):
+            $('#singlewhoisMessageWhoisClose').click();
             break;
 
             // Single whois, Information table not hidden
-          case (!$('#swTableWhoisinfo').hasClass('is-hidden')):
-            $('#swTableWhoisinfo').addClass('is-hidden');
+          case (!$('#singlewhoisTableWhoisinfo').hasClass('is-hidden')):
+            $('#singlewhoisTableWhoisinfo').addClass('is-hidden');
             break;
 
             // Single whois, Notification not hidden

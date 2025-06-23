@@ -22,7 +22,7 @@ jest.mock('electron', () => ({
 }));
 
 import { settings } from '../app/ts/common/settings';
-import '../app/ts/main/sw';
+import '../app/ts/main/singlewhois';
 
 describe('openUrl', () => {
   beforeEach(() => {
@@ -32,7 +32,7 @@ describe('openUrl', () => {
 
   test('opens new window for valid http url', async () => {
     settings['lookup.misc'].onlyCopy = false;
-    const handler = ipcMainHandlers['sw:openlink'];
+    const handler = ipcMainHandlers['singlewhois:openlink'];
     await handler({ sender: { send: jest.fn() } } as any, 'https://example.com');
 
     expect(BrowserWindowMock).toHaveBeenCalled();
@@ -42,7 +42,7 @@ describe('openUrl', () => {
   test('rejects invalid url', async () => {
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     settings['lookup.misc'].onlyCopy = false;
-    const handler = ipcMainHandlers['sw:openlink'];
+    const handler = ipcMainHandlers['singlewhois:openlink'];
     await handler({ sender: { send: jest.fn() } } as any, 'ftp://example.com');
 
     expect(BrowserWindowMock).not.toHaveBeenCalled();
@@ -53,7 +53,7 @@ describe('openUrl', () => {
   test('rejects malformed url string', async () => {
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     settings['lookup.misc'].onlyCopy = false;
-    const handler = ipcMainHandlers['sw:openlink'];
+    const handler = ipcMainHandlers['singlewhois:openlink'];
     await handler({ sender: { send: jest.fn() } } as any, 'http://');
 
     expect(BrowserWindowMock).not.toHaveBeenCalled();
@@ -64,7 +64,7 @@ describe('openUrl', () => {
   test('rejects url without http protocol', async () => {
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     settings['lookup.misc'].onlyCopy = false;
-    const handler = ipcMainHandlers['sw:openlink'];
+    const handler = ipcMainHandlers['singlewhois:openlink'];
     await handler({ sender: { send: jest.fn() } } as any, 'example.com');
 
     expect(BrowserWindowMock).not.toHaveBeenCalled();

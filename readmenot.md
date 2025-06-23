@@ -12,7 +12,7 @@ At `js` root there's a `common` folder that includes functions that are not rend
 
 Folders or single files correspond to different tabs across the app:
 
-`sw.js`: single whois lookup
+`singlewhois.js`: single whois lookup
 
 `bw`: bulk whois lookup
 
@@ -43,7 +43,7 @@ Html is split across different files and is fully loaded at startup with Jquery 
 
 Tab Single Whois
 
-- Single Whois Panel, `#swMainContainer`, `tabs\sw.html`, search for domain using input.
+- Single Whois Panel, `#singlewhoisMainContainer`, `tabs\singlewhois.html`, search for domain using input.
 
 Tab Bulk Whois
 
