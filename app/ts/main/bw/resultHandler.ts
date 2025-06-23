@@ -2,7 +2,7 @@ import debugModule from 'debug';
 import { isDomainAvailable, getDomainParameters } from '../../common/availability';
 import { toJSON } from '../../common/parser';
 import { performance } from 'perf_hooks';
-import { loadSettings } from "../../common/settings";
+import { settings } from "../../common/settings";
 import { formatString } from '../../common/stringformat';
 import type { BulkWhois, ProcessedResult } from './types';
 import * as dns from '../../common/dnsLookup';
@@ -20,7 +20,6 @@ export async function processData(
   data: string | Result<boolean, DnsLookupError> | null = null,
   isError = false,
 ): Promise<void> {
-  const settings = await loadSettings();
   let lastweight: number;
   const { sender } = event;
   const { results, stats } = bulkWhois;
