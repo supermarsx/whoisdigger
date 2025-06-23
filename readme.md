@@ -156,7 +156,8 @@ Errors during bulk lookups are pretty common due to sheer request volume, this m
 
 ## Development setup
 
-Run `npm install` to download all runtime and development dependencies.
+Run `npm install` before testing to download all runtime and development dependencies.
+After installing, execute `npm test` to run the project's unit tests.
 Development packages such as `@types/node` and `@types/jest` are required for TypeScript compilation and running tests. A `prebuild` script in `package.json` checks for `node_modules` and aborts if dependencies are missing.
 Use `npm run dev` to watch source files and automatically reload the application during development. Static assets such as stylesheets are synced to `dist` while this command runs, so CSS changes are picked up without rebuilding.
 
