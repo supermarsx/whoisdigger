@@ -1,3 +1,6 @@
 release_builds/
 node_modules/
 dist/
+
+dns.json
+reload.json
