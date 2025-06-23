@@ -12,7 +12,7 @@ const {
   ipcRenderer
 } = require('electron');
 
-require('../../common/stringformat');
+const { formatString } = require('../../common/stringformat');
 
 var bwaFileContents;
 
@@ -73,7 +73,7 @@ ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath = null, is
     $('#bwaFileTdFilename').text(bwaFileStats['filename']);
     $('#bwaFileTdLastmodified').text(conversions.getDate(bwaFileStats['mtime']));
     $('#bwaFileTdLastaccessed').text(conversions.getDate(bwaFileStats['atime']));
-    $('#bwaFileTdFilesize').text(bwaFileStats['humansize'] + ' ({0} record(s))'.format(bwaFileStats['linecount']));
+    $('#bwaFileTdFilesize').text(bwaFileStats['humansize'] + formatString(' ({0} record(s))', bwaFileStats['linecount']));
     $('#bwaFileTdFilepreview').text(bwaFileStats['filepreview'] + '...');
     $('#bwaFileTextareaErrors').text(bwaFileStats['errors'] || "No errors");
     //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']);

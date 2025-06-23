@@ -12,7 +12,7 @@ const {
   tableReset
 } = require('./auxiliary');
 
-require('../../common/stringformat');
+const { formatString } = require('../../common/stringformat');
 
 var bwFileContents;
 
@@ -62,9 +62,9 @@ ipcRenderer.on('bw:fileinput.confirmation', async function(event, filePath = nul
       bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.randomize.timeBetween.minimum);
       bwFileStats['maxestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.randomize.timeBetween.maximum);
 
-      $('#bwFileSpanTimebetweenmin').text('{0}ms '.format(lookup.randomize.timeBetween.minimum));
-      $('#bwFileSpanTimebetweenmax').text('/ {0}ms'.format(lookup.randomize.timeBetween.maximum));
-      $('#bwFileTdEstimate').text('{0} to {1}'.format(bwFileStats['minestimate'], bwFileStats['maxestimate']));
+      $('#bwFileSpanTimebetweenmin').text(formatString('{0}ms ', lookup.randomize.timeBetween.minimum));
+      $('#bwFileSpanTimebetweenmax').text(formatString('/ {0}ms', lookup.randomize.timeBetween.maximum));
+      $('#bwFileTdEstimate').text(formatString('{0} to {1}', bwFileStats['minestimate'], bwFileStats['maxestimate']));
     } else {
       bwFileStats['minestimate'] = conversions.msToHumanTime(
         bwFileStats['linecount'] * settings['lookup.general'].timeBetween
@@ -73,7 +73,7 @@ ipcRenderer.on('bw:fileinput.confirmation', async function(event, filePath = nul
       $('#bwFileSpanTimebetweenmin').text(
         settings['lookup.general'].timeBetween + 'ms'
       );
-      $('#bwFileTdEstimate').text('> {0}'.format(bwFileStats['minestimate']));
+      $('#bwFileTdEstimate').text(formatString('> {0}', bwFileStats['minestimate']));
     }
 
 
@@ -87,7 +87,7 @@ ipcRenderer.on('bw:fileinput.confirmation', async function(event, filePath = nul
     $('#bwFileTdName').text(bwFileStats['filename']);
     $('#bwFileTdLastmodified').text(conversions.getDate(bwFileStats['mtime']));
     $('#bwFileTdLastaccess').text(conversions.getDate(bwFileStats['atime']));
-    $('#bwFileTdFilesize').text(bwFileStats['humansize'] + ' ({0} line(s))'.format(bwFileStats['linecount']));
+    $('#bwFileTdFilesize').text(bwFileStats['humansize'] + formatString(' ({0} line(s))', bwFileStats['linecount']));
     $('#bwFileTdFilepreview').text(bwFileStats['filepreview'] + '...');
     //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']);
     debug('cont:' + bwFileContents);

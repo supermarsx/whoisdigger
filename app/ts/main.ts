@@ -14,6 +14,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { loadSettings } from './common/settings';
 import type { Settings as BaseSettings } from './common/settings';
+import { formatString } from './common/stringformat';
 import { initialize as initializeRemote, enable as enableRemote } from '@electron/remote/main';
 import type { IpcMainEvent } from 'electron';
 
@@ -102,9 +103,9 @@ app.on('ready', function() {
 
   // Some application start debugging messages
   debug("App is starting");
-  debug("'appWindow.frame': {0}".format(appWindow.frame));
-  debug("'appWindow.height': {0}".format(appWindow.height));
-  debug("'appWindow.width': {0}".format(appWindow.width));
+  debug(formatString("'appWindow.frame': {0}", appWindow.frame));
+  debug(formatString("'appWindow.height': {0}", appWindow.height));
+  debug(formatString("'appWindow.width': {0}", appWindow.width));
 
   // mainWindow, Main application window initialization
   mainWindow = new BrowserWindow({
@@ -147,8 +148,8 @@ app.on('ready', function() {
   }));
 
   // Some more debugging messages
-  debug("'settings.url.protocol': {0}".format(appUrl.protocol));
-  debug("'settings.url.pathname': {0}".format(appUrl.pathname));
+  debug(formatString("'settings.url.protocol': {0}", appUrl.protocol));
+  debug(formatString("'settings.url.pathname': {0}", appUrl.pathname));
   debug("'mainWindow' object: %o", mainWindow);
 
   /*
@@ -193,7 +194,7 @@ function startup() {
   } = settings;
 
   debug('Doing startup checks');
-  debug("'settings.startup.developerTools': {0}".format(startup.developerTools));
+  debug(formatString("'settings.startup.developerTools': {0}", startup.developerTools));
   if (startup.developerTools) mainWindow.webContents.toggleDevTools();
 
   return;

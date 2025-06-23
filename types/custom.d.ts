@@ -89,9 +89,6 @@ declare module 'html-entities' {
   }
 }
 
-interface String {
-  format(...args: any[]): string;
-}
 
 declare const $: any;
 declare const ipcRenderer: any;

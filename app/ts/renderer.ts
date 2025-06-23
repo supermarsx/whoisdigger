@@ -10,6 +10,7 @@ import $ from 'jquery';
 
 import './renderer/index';
 import { loadSettings, Settings } from './common/settings';
+import { formatString } from './common/stringformat';
 
 (window as any).$ = $;
 (window as any).jQuery = $;
@@ -70,16 +71,16 @@ function startup() {
     'app.window.navigation': navigation
   } = settings;
 
-  sendDebug("'navigation.developerTools': {0}".format(String(navigation.developerTools)));
+  sendDebug(formatString("'navigation.developerTools': {0}", String(navigation.developerTools)));
   if (navigation.developerTools) $('#navTabDevtools').removeClass('is-force-hidden');
 
-  sendDebug("'navigation.extendedcollapsed': {0}".format(String(navigation.extendedCollapsed)));
+  sendDebug(formatString("'navigation.extendedcollapsed': {0}", String(navigation.extendedCollapsed)));
   if (navigation.extendedCollapsed) {
     $('#navButtonExpandedmenu').toggleClass('is-active');
     $('.is-specialmenu').toggleClass('is-hidden');
   }
 
-  sendDebug("'navigation.extendedmenu': {0}".format(String(navigation.enableExtendedMenu)));
+  sendDebug(formatString("'navigation.extendedmenu': {0}", String(navigation.enableExtendedMenu)));
   if (navigation.enableExtendedMenu) $('#navButtonExpandedmenu').addClass('is-force-hidden');
 
   return;
