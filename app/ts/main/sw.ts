@@ -15,6 +15,7 @@ const {
   remote,
   clipboard
 } = electron;
+const { formatString } = require('../common/stringformat');
 
 const settings = require('../common/settings').load();
 
@@ -65,7 +66,7 @@ function copyToClipboard(event, domain) {
     sender
   } = event;
 
-  debug('Copied {0} to clipboard'.format(domain));
+  debug(formatString('Copied {0} to clipboard', domain));
   clipboard.writeText(domain);
   sender.send('sw:copied');
 
@@ -84,7 +85,7 @@ function openUrl(event, domain) {
     'app.window': appWindow,
   } = settings;
 
-  debug('Opening {0} on a new window'.format(domain));
+  debug(formatString('Opening {0} on a new window', domain));
 
   let hwnd: any = new BrowserWindow({
     frame: true,

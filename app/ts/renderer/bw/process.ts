@@ -8,7 +8,7 @@ const {
   ipcRenderer
 } = require('electron');
 
-require('../../common/stringformat');
+const { formatString } = require('../../common/stringformat');
 
 /*
 // Receive whois lookup reply
@@ -50,7 +50,7 @@ ipcRenderer.on('bulkwhois:resultreceive', function(event, results) {
     value
  */
 ipcRenderer.on('bw:status.update', function(event, stat, value) {
-  ipcRenderer.send('app:debug', "{0}, value update to {1}".format(stat, value)); // status update
+  ipcRenderer.send('app:debug', formatString('{0}, value update to {1}', stat, value)); // status update
   var percent;
   switch (stat) {
     case 'start':
@@ -62,57 +62,57 @@ ipcRenderer.on('bw:status.update', function(event, stat, value) {
       break;
     case 'domains.processed': // processed domains
       percent = parseFloat((value / parseInt($('#bwProcessingSpanTotal').text(), base) * 100).toFixed(1)) || 0;
-      $('#bwProcessingSpanProcessed').text('{0} ({1}%)'.format(value, percent));
+      $('#bwProcessingSpanProcessed').text(formatString('{0} ({1}%)', value, percent));
       break;
     case 'domains.waiting': // whois requests waiting reply
       percent = parseFloat((value / parseInt($('#bwProcessingSpanSent').text(), base) * 100).toFixed(1)) || 0;
-      $('#bwProcessingSpanWaiting').text('{0} ({1}%)'.format(value, percent));
+      $('#bwProcessingSpanWaiting').text(formatString('{0} ({1}%)', value, percent));
       break;
     case 'domains.sent': // sent whois requests
       percent = parseFloat((value / parseInt($('#bwProcessingSpanTotal').text(), base) * 100).toFixed(1)) || 0;
-      $('#bwProcessingSpanSent').text('{0} ({1}%)'.format(value, percent));
+      $('#bwProcessingSpanSent').text(formatString('{0} ({1}%)', value, percent));
       break;
     case 'domains.total': // total domains
       $('#bwProcessingSpanTotal').text(value);
       break;
     case 'time.current': // current time
-      $('#bwProcessingSpanTimecurrent').text('{0}'.format(value));
+      $('#bwProcessingSpanTimecurrent').text(formatString('{0}', value));
       break;
     case 'time.remaining': // remaining time
-      $('#bwProcessingSpanTimeremaining').text('{0}'.format(value));
+      $('#bwProcessingSpanTimeremaining').text(formatString('{0}', value));
       break;
     case 'reqtimes.maximum': // maximum request reply time
-      $('#bwProcessingSpanReqtimemax').text('{0}ms'.format(value));
+      $('#bwProcessingSpanReqtimemax').text(formatString('{0}ms', value));
       break;
     case 'reqtimes.minimum': // minimum request reply time
-      $('#bwProcessingSpanReqtimemin').text('{0}ms'.format(value));
+      $('#bwProcessingSpanReqtimemin').text(formatString('{0}ms', value));
       break;
     case 'reqtimes.last': // last request reply time
-      $('#bwProcessingSpanReqtimelast').text('{0}ms'.format(value));
+      $('#bwProcessingSpanReqtimelast').text(formatString('{0}ms', value));
       break;
     case 'reqtimes.average': // Average request reply time
-      $('#bwProcessingSpanReqtimeavg').text('{0}ms'.format(value));
+      $('#bwProcessingSpanReqtimeavg').text(formatString('{0}ms', value));
       break;
     case 'status.available': // Domains available
       percent = parseFloat((value / parseInt($('#bwProcessingSpanTotal').text(), base) * 100).toFixed(1)) || 0;
-      $('#bwProcessingSpanStatusavailable').text('{0} ({1}%)'.format(value, percent));
+      $('#bwProcessingSpanStatusavailable').text(formatString('{0} ({1}%)', value, percent));
       break;
     case 'status.unavailable': // Domains unavailable
       percent = parseFloat((value / parseInt($('#bwProcessingSpanTotal').text(), base) * 100).toFixed(1)) || 0;
-      $('#bwProcessingSpanStatusunavailable').text('{0} ({1}%)'.format(value, percent));
+      $('#bwProcessingSpanStatusunavailable').text(formatString('{0} ({1}%)', value, percent));
       break;
     case 'status.error': // Domains error
       percent = parseFloat((value / parseInt($('#bwProcessingSpanTotal').text(), base) * 100).toFixed(1)) || 0;
-      $('#bwProcessingSpanStatuserror').text('{0} ({1}%)'.format(value, percent));
+      $('#bwProcessingSpanStatuserror').text(formatString('{0} ({1}%)', value, percent));
       break;
     case 'laststatus.available': // Last available domain
-      $('#bwProcessingSpanLaststatusavailable').text('{0}'.format(value));
+      $('#bwProcessingSpanLaststatusavailable').text(formatString('{0}', value));
       break;
     case 'laststatus.unavailable': // Last unavailable domain
-      $('#bwProcessingSpanLaststatusunavailable').text('{0}'.format(value));
+      $('#bwProcessingSpanLaststatusunavailable').text(formatString('{0}', value));
       break;
     case 'laststatus.error': // Last error domain
-      $('#bwProcessingSpanLaststatuserror').text('{0}'.format(value));
+      $('#bwProcessingSpanLaststatuserror').text(formatString('{0}', value));
       break;
     case 'finished': // Finished
       $('#bwProcessingButtonPause').addClass('is-hidden');

@@ -10,6 +10,7 @@ const {
   ipcMain,
   dialog
 } = electron;
+const { formatString } = require('../../common/stringformat');
 
 /*
   ipcMain.on('bwa:input.file', function(...) {...});
@@ -28,7 +29,7 @@ ipcMain.on('bwa:input.file', function(event) {
     buttonLabel: "Open",
     properties: ['openFile', 'showHiddenFiles']
   });
-  debug("Using selected file at {0}".format(filePath));
+  debug(formatString('Using selected file at {0}', filePath));
   sender.send('bwa:fileinput.confirmation', filePath);
 });
 
@@ -39,7 +40,7 @@ ipcMain.on('ondragstart', function(event, filePath) {
     file: filePath,
     icon: appSettings.window.icon
   });
-  debug('File drag filepath: {0}'.format(filePath));
+  debug(formatString('File drag filepath: {0}', filePath));
   event.sender.send('bwa:fileinput.confirmation', filePath, true);
 });
 */

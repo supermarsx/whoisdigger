@@ -26,6 +26,7 @@ const {
   dialog,
   remote
 } = electron;
+const { formatString } = require('../../common/stringformat');
 
 const defaultValue = null; // Changing this implies changing all dependant comparisons
 let bulkWhois; // BulkWhois object
@@ -101,7 +102,7 @@ ipcMain.on('bw:lookup', function(event, domains, tlds) {
     domainSetup.domain = domainsPending[domain];
     domainSetup.index = domain;
 
-    debug("Using timebetween, {0}, follow, {1}, timeout, {2}".format(domainSetup.timebetween, domainSetup.follow, domainSetup.timeout));
+    debug(formatString('Using timebetween, {0}, follow, {1}, timeout, {2}', domainSetup.timebetween, domainSetup.follow, domainSetup.timeout));
 
     processDomain(domainSetup, event);
 
@@ -148,7 +149,7 @@ ipcMain.on('bw:lookup.pause', function(event) {
 
   // Go through all queued domain lookups and delete setTimeouts for remaining domains
   for (let j = stats.domains.sent; j < stats.domains.processed; j++) {
-    debug('Stopping whois request {0} with id {1}'.format(j, processingIDs[j]));
+    debug(formatString('Stopping whois request {0} with id {1}', j, processingIDs[j]));
     clearTimeout(processingIDs[j]);
   }
 });
@@ -270,7 +271,7 @@ ipcMain.on('bw:lookup.stop', function(event) {
     event (object) - renderer object
  */
 function processDomain(domainSetup, event) {
-  debug("Domain: {0}, id/index: {1}, timebetween: {2}".format(domainSetup.domain, domainSetup.index, domainSetup.timebetween));
+  debug(formatString('Domain: {0}, id/index: {1}, timebetween: {2}', domainSetup.domain, domainSetup.index, domainSetup.timebetween));
 
   // bulkWhois section
   const {
@@ -309,7 +310,7 @@ function processDomain(domainSetup, event) {
 
     reqtime[domainSetup.index] = await performance.now();
 
-    debug('Looking up domain: {0}'.format(domainSetup.domain));
+    debug(formatString('Looking up domain: {0}', domainSetup.domain));
 
     try {
       data = (settings['lookup.general'].type == 'whois') ?
@@ -325,7 +326,7 @@ function processDomain(domainSetup, event) {
 
   }, domainSetup.timebetween * (Number(domainSetup.index - stats.domains.sent) + 1)); // End processing domains
 
-  debug("Timebetween: {0}".format((domainSetup.timebetween * (Number(domainSetup.index - stats.domains.sent) + 1))));
+  debug(formatString('Timebetween: {0}', (domainSetup.timebetween * (Number(domainSetup.index - stats.domains.sent) + 1))));
 
 
   // Self executing function hack to do whois lookup PROBLEM HERE
@@ -433,7 +434,7 @@ function processData(event, domain, index, data = null, isError = false) {
     }
   })();
 
-  debug('Average request time {0}ms'.format(reqtimes.average));
+  debug(formatString('Average request time {0}ms', reqtimes.average));
 
   sender.send('bw:status.update', 'reqtimes.average', reqtimes.average);
   //sender.send('bulkwhois:results', domain, data);
@@ -544,9 +545,9 @@ function getDomainSetup(isRandom) {
   }
   */
 
-  debug("Time between requests, 'israndom': {0}, 'timebetweenmax': {1}, 'timebetweenmin': {2}, 'timebetween': {3}".format(isRandom, settings['lookup.randomize.timeBetween'].maximum, settings['lookup.randomize.timeBetween'].minimum, settings['lookup.general'].timeBetween));
-  debug("Follow depth, 'israndom': {0}, 'followmax': {1}, 'followmin': {2}, 'follow': {3}".format(isRandom, settings['lookup.randomize.follow'].maximum, settings['lookup.randomize.follow'].minimum, settings['lookup.general'].follow));
-  debug("Request timeout, 'israndom': {0}, 'timeoutmax': {1}, 'timeoutmin': {2}, 'timeout': {3}".format(isRandom, settings['lookup.randomize.timeout'].maximum, settings['lookup.randomize.timeout'].minimum, settings['lookup.general'].timeout));
+  debug(formatString("Time between requests, 'israndom': {0}, 'timebetweenmax': {1}, 'timebetweenmin': {2}, 'timebetween': {3}", isRandom, settings['lookup.randomize.timeBetween'].maximum, settings['lookup.randomize.timeBetween'].minimum, settings['lookup.general'].timeBetween));
+  debug(formatString("Follow depth, 'israndom': {0}, 'followmax': {1}, 'followmin': {2}, 'follow': {3}", isRandom, settings['lookup.randomize.follow'].maximum, settings['lookup.randomize.follow'].minimum, settings['lookup.general'].follow));
+  debug(formatString("Request timeout, 'israndom': {0}, 'timeoutmax': {1}, 'timeoutmin': {2}, 'timeout': {3}", isRandom, settings['lookup.randomize.timeout'].maximum, settings['lookup.randomize.timeout'].minimum, settings['lookup.general'].timeout));
 
   return {
     timebetween: (isRandom.timeBetween ? (Math.floor((Math.random() * settings['lookup.randomize.timeBetween'].maximum) + settings['lookup.randomize.timeBetween'].minimum)) : settings['lookup.general'].timeBetween),
@@ -574,7 +575,7 @@ function getTimeBetween(isRandom = false) {
     timebetweenmin
   } = randomize;
 
-  debug("Time between requests, 'israndom': {0}, 'timebetweenmax': {1}, 'timebetweenmin': {2}, 'timebetween': {3}".format(isRandom, timebetweenmax, timebetweenmin, timebetween));
+  debug(formatString("Time between requests, 'israndom': {0}, 'timebetweenmax': {1}, 'timebetweenmin': {2}, 'timebetween': {3}", isRandom, timebetweenmax, timebetweenmin, timebetween));
   return (isRandom ? (Math.floor((Math.random() * timebetweenmax) + timebetweenmin)) : timebetween);
 }
 
@@ -598,7 +599,7 @@ function getFollowDepth(isRandom = false) {
     followmin
   } = randomize;
 
-  debug("Follow depth, 'israndom': {0}, 'followmax': {1}, 'followmin': {2}, 'follow': {3}".format(isRandom, followmax, followmin, follow));
+  debug(formatString("Follow depth, 'israndom': {0}, 'followmax': {1}, 'followmin': {2}, 'follow': {3}", isRandom, followmax, followmin, follow));
   return (isRandom ? (Math.floor((Math.random() * followmax) + followmin)) : follow);
 }
 
@@ -621,6 +622,6 @@ function getTimeout(isRandom = false) {
     timeoutmin
   } = randomize;
 
-  debug("Request timeout, 'israndom': {0}, 'timeoutmax': {1}, 'timeoutmin': {2}, 'timeout': {3}".format(isRandom, timeoutmax, timeoutmin, timeout));
+  debug(formatString("Request timeout, 'israndom': {0}, 'timeoutmax': {1}, 'timeoutmin': {2}, 'timeout': {3}", isRandom, timeoutmax, timeoutmin, timeout));
   return (isRandom ? (Math.floor((Math.random() * timeoutmax) + timeoutmin)) : timeout);
 }

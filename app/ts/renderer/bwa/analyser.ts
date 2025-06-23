@@ -11,6 +11,8 @@ const {
   ipcRenderer
 } = require('electron');
 
+const { formatString } = require('../../common/stringformat');
+
 var bwaFileContents;
 
 /*
@@ -73,7 +75,7 @@ function showTable() {
   // Generate header column content
   header.content = '<tr>\n';
   for (var column in header.columns) {
-    header.content += '\t<th><abbr title="{0}">{1}</abbr></th>\n'.format(header.columns[column], getInitials(header.columns[column]));
+    header.content += formatString('\t<th><abbr title="{0}">{1}</abbr></th>\n', header.columns[column], getInitials(header.columns[column]));
   }
   header.content += '</tr>';
 
@@ -85,7 +87,7 @@ function showTable() {
     body.content += '<tr>\n';
 
     for (var field in body.records[record]) {
-      body.content += '\t<td>{0}</td>\n'.format(body.records[record][field]);
+      body.content += formatString('\t<td>{0}</td>\n', body.records[record][field]);
     }
     body.content += '</tr>\n';
   }
