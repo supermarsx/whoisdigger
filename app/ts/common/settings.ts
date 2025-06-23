@@ -99,9 +99,7 @@ function watchConfig(): void {
       debug(`Reloaded custom configuration at ${cfg}`);
     } catch (e) {
       debug(`Failed to reload configuration with error: ${e}`);
-      if (!isMainProcess && ipcRenderer) {
-        ipcRenderer.send('app:error', `Failed to load configuration: ${e}`);
-      }
+      // Silently ignore reload errors
     }
   });
 }
@@ -131,9 +129,7 @@ export async function load(): Promise<Settings> {
       }
     } catch (e) {
       debug(`Failed to load custom configuration with error: ${e}`);
-      if (!isMainProcess && ipcRenderer) {
-        ipcRenderer.send('app:error', `Failed to load configuration: ${e}`);
-      }
+      // Silently ignore loading errors
     }
   }
 
