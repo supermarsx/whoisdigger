@@ -84,7 +84,7 @@ ipcMain.on('bw:lookup', function(event, domains, tlds) {
 
   // Compile domains to process
   for (let tld in input.tlds) {
-    domainsPending = domainsPending.concat(input.domains.map(function(domain) {
+    domainsPending.push(...input.domains.map(function(domain) {
       return domain + tldSeparator + input.tlds[tld];
     }));
   }
@@ -190,7 +190,7 @@ ipcMain.on('bw:lookup.continue', function(event) {
 
   // Compile domains to process
   for (let tld in input.tlds) {
-    domainsPending = domainsPending.concat(input.domains.map(function(domain) {
+    domainsPending.push(...input.domains.map(function(domain) {
       return domain + tldSeparator + input.tlds[tld];
     }));
   }
