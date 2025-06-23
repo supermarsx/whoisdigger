@@ -14,13 +14,13 @@ const debug = debugModule('main.bw.auxiliary');
  */
 
 function resetUiCounters(event) {
-  var {
+  const {
     sender
   } = event;
 
   debug("Resetting bulk whois UI counters");
 
-  var baseValues = {
+  const baseValues = {
       integer: 0,
       string: '-'
     },
@@ -38,8 +38,8 @@ function resetUiCounters(event) {
     channel = 'bw:status.update';
 
   // Loop through events and send default values
-  for (var eventType in events)
-    for (var listedEvent in events[eventType])
+  for (const eventType in events)
+    for (const listedEvent in events[eventType])
       sender.send(channel, events[eventType][listedEvent], baseValues[eventType]);
 
 }

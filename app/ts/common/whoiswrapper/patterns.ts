@@ -36,7 +36,7 @@ export const builtPatterns: PatternCollections = {
   error: [],
 };
 
-var patterns = {
+const patterns = {
 
   // Special cases
   special: {

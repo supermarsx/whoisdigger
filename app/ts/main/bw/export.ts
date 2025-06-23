@@ -16,7 +16,7 @@ const {
   remote
 } = electron;
 
-var settings = require('../../common/settings').load();
+const settings = require('../../common/settings').load();
 
 /*
   ipcMain.on('bw:export', function(...) {...});
@@ -31,17 +31,17 @@ ipcMain.on('bw:export', function(event, results, options) {
     'lookup.export': resExports
   } = settings;
 
-  var {
+  const {
     sender
   } = event;
 
-  var s = resExports.separator, // Field separation char
+  const s = resExports.separator, // Field separation char
     e = resExports.enclosure, // Field enclosing char
     l = resExports.linebreak, // Line break char
     txt = resExports.filetypeText, // Text file
     csv = resExports.filetypeCsv, // CSV file
-    zip = resExports.filetypeZip, // Zip file
-    filters;
+    zip = resExports.filetypeZip; // Zip file
+  let filters;
 
   debug('options: \n {0}'.format(JSON.stringify(options)));
   debug('results: \n {0}'.format(JSON.stringify(results)));
@@ -71,7 +71,7 @@ ipcMain.on('bw:export', function(event, results, options) {
       break;
   }
 
-  var filePath = dialog.showSaveDialogSync({
+  const filePath = dialog.showSaveDialogSync({
     title: "Save export file",
     buttonLabel: "Save",
     properties: ['openFile', 'showHiddenFiles'],
@@ -82,9 +82,10 @@ ipcMain.on('bw:export', function(event, results, options) {
     debug("Using selected file at {0}".format(filePath));
     sender.send('bw:export.cancel');
   } else {
-    var contentsExport = "",
+    let contentsExport = "",
       contentsHeader = "",
-      contentsCompile, toProcess = [];
+      contentsCompile;
+    const toProcess = [];
 
     // Add domains to queue
     for (let i = 0; i < results.id.length; i++) {
@@ -116,7 +117,7 @@ ipcMain.on('bw:export', function(event, results, options) {
     }
     debug('Available + Unavailable + Errors, {0}'.format(toProcess));
 
-    var contentZip = new JSZip();
+    const contentZip = new JSZip();
 
     if (options.filetype == 'txt') {
       for (let i = 0; i < toProcess.length; i++)

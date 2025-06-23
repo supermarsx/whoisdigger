@@ -16,14 +16,14 @@ const {
   clipboard
 } = electron;
 
-var settings = require('../common/settings').load();
+const settings = require('../common/settings').load();
 
 /*
   ipcMain.on('sw:lookup', function(...) {...});
     Single whois lookup
  */
 ipcMain.on('sw:lookup', async function(event, domain) {
-  var {
+  const {
     sender
   } = event;
 
@@ -61,7 +61,7 @@ ipcMain.on('sw:openlink', function(event, domain) {
     domain
  */
 function copyToClipboard(event, domain) {
-  var {
+  const {
     sender
   } = event;
 
