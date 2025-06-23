@@ -12,8 +12,8 @@ $(document).ready(() => {
   applyDarkMode(stored);
   if (checkbox.length) {
     checkbox.prop('checked', stored);
-    checkbox.on('change', function () {
-      const state = $(this).is(':checked');
+    checkbox.on('change', () => {
+      const state = checkbox.is(':checked');
       settings.theme = settings.theme || { darkMode: false };
       settings.theme.darkMode = state;
       saveSettings(settings);

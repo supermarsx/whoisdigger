@@ -19,9 +19,9 @@
       "./node_modules/@types",
       "./types"
     ],
-    "noImplicitAny": false,
-    "strictNullChecks": false,
-    "noImplicitThis": false
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitThis": true
   },
   "include": [
     "app/ts/**/*.ts",

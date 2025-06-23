@@ -10,7 +10,7 @@ import { tableReset } from './auxiliary';
 
 import { formatString } from '../../common/stringformat';
 
-var bwFileContents;
+let bwFileContents: Buffer;
 
 /*
   ipcRenderer.on('bw:fileinput.confirmation', function(...) {...});
@@ -20,8 +20,8 @@ var bwFileContents;
     filePath
     isDragDrop
  */
-ipcRenderer.on('bw:fileinput.confirmation', async function(event, filePath = null, isDragDrop = false) {
-  var bwFileStats; // File stats, size, last changed, etc
+ipcRenderer.on('bw:fileinput.confirmation', async function(event, filePath: string | string[] | null = null, isDragDrop = false) {
+  let bwFileStats: fs.Stats & Record<string, any>; // File stats, size, last changed, etc
   const misc = settings['lookup.misc'];
   const lookup = {
     randomize: {
@@ -39,52 +39,52 @@ ipcRenderer.on('bw:fileinput.confirmation', async function(event, filePath = nul
     if (isDragDrop === true) {
       $('#bwEntry').addClass('is-hidden');
       $('#bwFileinputloading').removeClass('is-hidden');
-      bwFileStats = await fs.promises.stat(filePath);
-      bwFileStats['filename'] = filePath.replace(/^.*[\\\/]/, '');
-      bwFileStats['humansize'] = conversions.byteToHumanFileSize(bwFileStats['size'], misc.useStandardSize);
+      bwFileStats = (await fs.promises.stat(filePath as string)) as fs.Stats & Record<string, any>;
+      (bwFileStats as any)['filename'] = (filePath as string).replace(/^.*[\\\/]/, '');
+      (bwFileStats as any)['humansize'] = conversions.byteToHumanFileSize(bwFileStats['size'], misc.useStandardSize);
       $('#bwFileSpanInfo').text('Loading file contents...');
-      bwFileContents = await fs.promises.readFile(filePath);
+      bwFileContents = await fs.promises.readFile(filePath as string);
     } else {
-      bwFileStats = await fs.promises.stat(filePath[0]);
-      bwFileStats['filename'] = filePath[0].replace(/^.*[\\\/]/, '');
-      bwFileStats['humansize'] = conversions.byteToHumanFileSize(bwFileStats['size'], misc.useStandardSize);
+      bwFileStats = (await fs.promises.stat((filePath as string[])[0])) as fs.Stats & Record<string, any>;
+      (bwFileStats as any)['filename'] = (filePath as string[])[0].replace(/^.*[\\\/]/, '');
+      (bwFileStats as any)['humansize'] = conversions.byteToHumanFileSize(bwFileStats['size'], misc.useStandardSize);
       $('#bwFileSpanInfo').text('Loading file contents...');
-      bwFileContents = await fs.promises.readFile(filePath[0]);
+      bwFileContents = await fs.promises.readFile((filePath as string[])[0]);
     }
     $('#bwFileSpanInfo').text('Getting line count...');
-    bwFileStats['linecount'] = bwFileContents.toString().split('\n').length;
+    (bwFileStats as any)['linecount'] = bwFileContents.toString().split('\n').length;
 
     if (lookup.randomize.timeBetween.randomize === true) {
-      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.randomize.timeBetween.minimum);
-      bwFileStats['maxestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * lookup.randomize.timeBetween.maximum);
+      (bwFileStats as any)['minestimate'] = conversions.msToHumanTime((bwFileStats as any)['linecount'] * lookup.randomize.timeBetween.minimum);
+      (bwFileStats as any)['maxestimate'] = conversions.msToHumanTime((bwFileStats as any)['linecount'] * lookup.randomize.timeBetween.maximum);
 
       $('#bwFileSpanTimebetweenmin').text(formatString('{0}ms ', lookup.randomize.timeBetween.minimum));
       $('#bwFileSpanTimebetweenmax').text(formatString('/ {0}ms', lookup.randomize.timeBetween.maximum));
-      $('#bwFileTdEstimate').text(formatString('{0} to {1}', bwFileStats['minestimate'], bwFileStats['maxestimate']));
+      $('#bwFileTdEstimate').text(formatString('{0} to {1}', (bwFileStats as any)['minestimate'], (bwFileStats as any)['maxestimate']));
     } else {
-      bwFileStats['minestimate'] = conversions.msToHumanTime(
-        bwFileStats['linecount'] * settings['lookup.general'].timeBetween
+      (bwFileStats as any)['minestimate'] = conversions.msToHumanTime(
+        (bwFileStats as any)['linecount'] * settings['lookup.general'].timeBetween
       );
       $('#bwFileSpanTimebetweenminmax').addClass('is-hidden');
       $('#bwFileSpanTimebetweenmin').text(
         settings['lookup.general'].timeBetween + 'ms'
       );
-      $('#bwFileTdEstimate').text(formatString('> {0}', bwFileStats['minestimate']));
+      $('#bwFileTdEstimate').text(formatString('> {0}', (bwFileStats as any)['minestimate']));
     }
 
 
 
-    bwFileStats['filepreview'] = bwFileContents.toString().substring(0, 50);
-    debug(bwFileStats['filepreview']);
+    (bwFileStats as any)['filepreview'] = bwFileContents.toString().substring(0, 50);
+    debug((bwFileStats as any)['filepreview']);
     $('#bwFileinputloading').addClass('is-hidden');
     $('#bwFileinputconfirm').removeClass('is-hidden');
 
     // stats
-    $('#bwFileTdName').text(bwFileStats['filename']);
-    $('#bwFileTdLastmodified').text(conversions.getDate(bwFileStats['mtime']));
-    $('#bwFileTdLastaccess').text(conversions.getDate(bwFileStats['atime']));
-    $('#bwFileTdFilesize').text(bwFileStats['humansize'] + formatString(' ({0} line(s))', bwFileStats['linecount']));
-    $('#bwFileTdFilepreview').text(bwFileStats['filepreview'] + '...');
+    $('#bwFileTdName').text(String((bwFileStats as any)['filename']));
+    $('#bwFileTdLastmodified').text(conversions.getDate(bwFileStats['mtime']) ?? '');
+    $('#bwFileTdLastaccess').text(conversions.getDate(bwFileStats['atime']) ?? '');
+    $('#bwFileTdFilesize').text(String((bwFileStats as any)['humansize']) + formatString(' ({0} line(s))', String((bwFileStats as any)['linecount'])));
+    $('#bwFileTdFilepreview').text(String((bwFileStats as any)['filepreview']) + '...');
     //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']);
     debug('cont:' + bwFileContents);
 
@@ -123,8 +123,13 @@ $(document).on('click', '#bwFileButtonCancel', function() {
     File Input, proceed to bulk whois
  */
 $(document).on('click', '#bwFileButtonConfirm', function() {
-  var bwDomainArray = bwFileContents.toString().split('\n').map(Function.prototype.call, String.prototype.trim);
-  var bwTldsArray = $('#bwFileInputTlds').val().toString().split(',');
+  const bwDomainArray = bwFileContents
+    .toString()
+    .split('\n')
+    .map(Function.prototype.call, String.prototype.trim);
+  const bwTldsArray = ($('#bwFileInputTlds').val() as string | number | string[] | undefined || '')
+    .toString()
+    .split(',');
 
   tableReset(bwDomainArray.length, bwTldsArray.length);
   $('#bwFileinputconfirm').addClass('is-hidden');
