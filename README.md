@@ -12,7 +12,7 @@
 
 This is a Whois database crawler, use at your own descretion for scientific or research purposes, i'm not responsible for any misuse of this tool.
 
-## Generic Information
+## Introduction
 
 ```
 Language..........: AutoIt
@@ -28,16 +28,12 @@ Lines.............: 219
 ; AutoIt Version : 3.3.12
 ; Language ......: English
 ; Description ...: Crawl whois database using a domain list
-; Author(s) .....: Eduardo Mota
+; Author(s) .....: supermarsx
 ; BIN ...........: Whois.bin from Sysinternals
 ; =============================================================
 ```
 
-### en_US
-
-#### General application options
-##### Specifications, capabilities
-
+## Features
 ```
 - Define a custom filename for domain list
 - One domain per line on the list
