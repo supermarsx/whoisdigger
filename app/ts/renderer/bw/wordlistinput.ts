@@ -5,6 +5,7 @@ import { settings } from '../../common/settings';
 
 import { ipcRenderer } from 'electron';
 import { tableReset } from './auxiliary';
+import $ from 'jquery';
 
 import { formatString } from '../../common/stringformat';
 

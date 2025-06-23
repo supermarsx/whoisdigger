@@ -9,6 +9,7 @@ const dt = datatables();
 import { settings } from '../../common/settings';
 
 import { ipcRenderer } from 'electron';
+import $ from 'jquery';
 
 import { formatString } from '../../common/stringformat';
 

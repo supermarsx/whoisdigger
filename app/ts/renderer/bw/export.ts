@@ -1,6 +1,7 @@
 
 import * as conversions from '../../common/conversions';
 import defaultExportOptions from './export.defaults';
+import $ from 'jquery';
 
 import { ipcRenderer } from 'electron';
 import { resetObject } from '../../common/resetObject';

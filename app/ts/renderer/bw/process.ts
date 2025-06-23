@@ -4,6 +4,7 @@ import parseRawData from '../../common/parser';
 const base = 10;
 
 import { ipcRenderer } from 'electron';
+import $ from 'jquery';
 
 import { formatString } from '../../common/stringformat';
 

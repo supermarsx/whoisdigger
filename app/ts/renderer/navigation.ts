@@ -1,4 +1,5 @@
 import { formatString } from '../common/stringformat';
+import $ from 'jquery';
 
 /*
   $(document).on('drop', function(...) {...});

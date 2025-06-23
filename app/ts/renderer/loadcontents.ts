@@ -1,4 +1,6 @@
 
+import $ from 'jquery';
+
 /*
   loadHtml (self-executing)
     Loads HTML files inside the renderer
