@@ -4,7 +4,7 @@
 ; AutoIt Version : 3.3.12
 ; Language ......: English
 ; Description ...: Crawl whois database using a domain list
-; Author(s) .....: Eduardo Mota
+; Author(s) .....: supermarsx
 ; BIN ...........: Whois.bin from Sysinternals
 ; ===============================================================================================================================
 
