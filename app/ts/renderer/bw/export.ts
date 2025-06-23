@@ -26,7 +26,6 @@ ipcRenderer.on('bw:result.receive', function(event, rcvResults) {
   ipcRenderer.send('app:debug', formatString('Results are ready for export {0}', rcvResults));
 
   results = rcvResults;
-  //console.log("%o", results);
 
   return;
 });

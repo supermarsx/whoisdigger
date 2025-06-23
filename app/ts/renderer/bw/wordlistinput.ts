@@ -40,10 +40,6 @@ ipcRenderer.on('bw:wordlistinput.confirmation', function() {
     }
 
     bwFileStats['filepreview'] = bwWordlistContents.toString().substring(0, 50);
-    //console.log(readLines(filePath[0]));
-    //console.log(bwFileStats['filepreview']);
-
-    //console.log(lineCount(bwFileContents));
     $('#bwWordlistloading').addClass('is-hidden');
     $('#bwWordlistconfirm').removeClass('is-hidden');
 
@@ -112,10 +108,6 @@ $(document).on('click', '#bwWordlistconfirmButtonStart', function() {
     .toString()
     .split(',');
 
-  /*
-  console.log(bwDomainArray);
-  console.log(bwTldsArray);
-  */
 
   tableReset(bwDomainArray.length, bwTldsArray.length);
   $('#bwWordlistconfirm').addClass('is-hidden');

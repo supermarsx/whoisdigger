@@ -69,7 +69,6 @@ ipcRenderer.on('sw:results', function(event, domainResults: string) {
       $('#swTdDomain').attr('url', "http://" + (domain ?? ''));
       $('#swTdDomain').text(domain ?? '');
 
-      //console.log(domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires'] || domainResultsJSON['registryExpiryDate']);
       $('#swTdUpdate').text(updateDate ?? '');
       $('#swTdRegistrar').text(registrar ?? '');
       $('#swTdCreation').text(creationDate ?? '');
