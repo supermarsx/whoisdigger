@@ -2,8 +2,12 @@ import $ from 'jquery';
 import { settings, saveSettings } from '../common/settings';
 
 function applyDarkMode(enabled: boolean): void {
-  const link = document.getElementById('dark-theme') as HTMLLinkElement | null;
-  if (link) link.disabled = !enabled;
+  const html = document.documentElement;
+  if (enabled) {
+    html.setAttribute('data-theme', 'dark');
+  } else {
+    html.setAttribute('data-theme', 'light');
+  }
 }
 
 $(document).ready(() => {
