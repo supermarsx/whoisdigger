@@ -9,6 +9,14 @@ describe('conversions', () => {
     expect(msToHumanTime(62000)).toBe('1 m 2 s');
   });
 
+  test("msToHumanTime returns '-' for zero duration", () => {
+    expect(msToHumanTime(0)).toBe('-');
+  });
+
+  test("msToHumanTime returns '-' for negative duration", () => {
+    expect(msToHumanTime(-1000)).toBe('-');
+  });
+
   test('getDate parses valid dates', () => {
     const date = new Date('2020-01-01T00:00:00Z');
     expect(getDate(date)).toBe(date.toUTCString());
