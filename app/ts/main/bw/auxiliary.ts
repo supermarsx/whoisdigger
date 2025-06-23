@@ -1,6 +1,7 @@
 
 
 import debugModule from 'debug';
+import type { IpcMainEvent } from 'electron';
 
 const debug = debugModule('main.bw.auxiliary');
 
@@ -12,18 +13,18 @@ const debug = debugModule('main.bw.auxiliary');
     event (object) - renderer object
  */
 
-function resetUiCounters(event) {
+function resetUiCounters(event: IpcMainEvent): void {
   const {
     sender
   } = event;
 
   debug("Resetting bulk whois UI counters");
 
-  const baseValues = {
+  const baseValues: { integer: number; string: string } = {
       integer: 0,
       string: '-'
     },
-    events = {
+    events: { integer: string[]; string: string[] } = {
       integer: [
         'time.current', 'time.remaining', // Timers
         'laststatus.available', 'laststatus.unavailable', 'laststatus.error' // Last domain status
@@ -37,9 +38,11 @@ function resetUiCounters(event) {
     channel = 'bw:status.update';
 
   // Loop through events and send default values
-  for (const eventType in events)
-    for (const listedEvent in events[eventType])
-      sender.send(channel, events[eventType][listedEvent], baseValues[eventType]);
+  (Object.keys(events) as Array<keyof typeof events>).forEach((eventType) => {
+    events[eventType].forEach((listedEvent) => {
+      sender.send(channel, listedEvent, baseValues[eventType]);
+    });
+  });
 
 }
 

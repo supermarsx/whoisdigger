@@ -12,7 +12,8 @@ import {
 
 import { formatString } from '../../common/stringformat';
 
-var results, options;
+let results: any;
+let options: any;
 
 /*
   ipcRenderer.on('bw:result.receive', function(...) {...});
@@ -82,7 +83,7 @@ $(document).on('click', '#bwExportButtonCancel', function() {
     ipsum
  */
 $(document).on('change', '#bwExportSelectPreset', function() {
-  var preset = $('#bwExportSelectPreset').val();
+  var preset = $('#bwExportSelectPreset').val() as string;
   setExportOptions(preset);
 
   return;
@@ -93,7 +94,7 @@ $(document).on('change', '#bwExportSelectPreset', function() {
     ipsum
  */
 $(document).on('change', '#bwExportSelectFiletype', function() {
-  var filetype = $('#bwExportSelectFiletype').val();
+  var filetype = $('#bwExportSelectFiletype').val() as string;
   setExportOptionsEx(filetype);
 
   return;
