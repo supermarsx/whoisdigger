@@ -1,5 +1,6 @@
 
 import * as whois from '../common/whoiswrapper';
+import { WhoisResult } from '../common/whoiswrapper';
 import parseRawData from '../common/parseRawData';
 
 import { getDate } from '../common/conversions';
@@ -16,11 +17,18 @@ const {
 import jquery from 'jquery';
 (window as any).$ = (window as any).jQuery = jquery;
 
-var singleWhois = {
-  'input': {
-    'domain': null
+interface SingleWhois {
+  input: {
+    domain: string | null;
+  };
+  results: unknown | null;
+}
+
+const singleWhois: SingleWhois = {
+  input: {
+    domain: null
   },
-  'results': null
+  results: null
 };
 
 /*
@@ -30,19 +38,22 @@ var singleWhois = {
     event (object) - Event object
     domainResults (object) - Domain results object
  */
-ipcRenderer.on('sw:results', function(event, domainResults) {
-  var domainName,
-    domainStatus,
-    domainResultsJSON,
-    resultFilter,
-    errorReason;
+ipcRenderer.on('sw:results', function(event, domainResults: string) {
+  let domainName: string;
+  let domainStatus: string;
+  let domainResultsJSON: Record<string, unknown>;
+  let resultFilter: WhoisResult;
+  let errorReason: string | undefined;
   //ipcRenderer.send('app:debug', "Whois domain reply:\n {0}".format(domainResults));
 
   domainResults = preStringStrip(domainResults);
-  domainResultsJSON = toJSON(domainResults);
+  domainResultsJSON = toJSON(domainResults) as Record<string, unknown>;
 
   // Check domain status
-  domainName = domainResultsJSON.domainName || domainResultsJSON.domain;
+  domainName =
+    (domainResultsJSON.domainName as string | undefined) ||
+    (domainResultsJSON.domain as string | undefined) ||
+    '';
 
   domainStatus = isDomainAvailable(domainResults);
   resultFilter = getDomainParameters(domainName, domainStatus, domainResults, domainResultsJSON);
@@ -61,15 +72,15 @@ ipcRenderer.on('sw:results', function(event, domainResults) {
       $('#swMessageUnavailable').removeClass('is-hidden');
       $('#swMessageWhoisResults').text(domainResults);
 
-      $('#swTdDomain').attr('url', "http://" + domain);
-      $('#swTdDomain').text(domain);
+      $('#swTdDomain').attr('url', "http://" + (domain ?? ''));
+      $('#swTdDomain').text(domain ?? '');
 
       //console.log(domainResultsJSON['registrarRegistrationExpirationDate'] || domainResultsJSON['expires'] || domainResultsJSON['registryExpiryDate']);
-      $('#swTdUpdate').text(updateDate);
-      $('#swTdRegistrar').text(registrar);
-      $('#swTdCreation').text(creationDate);
-      $('#swTdCompany').text(company);
-      $('#swTdExpiry').text(expiryDate);
+      $('#swTdUpdate').text(updateDate ?? '');
+      $('#swTdRegistrar').text(registrar ?? '');
+      $('#swTdCreation').text(creationDate ?? '');
+      $('#swTdCompany').text(company ?? '');
+      $('#swTdExpiry').text(expiryDate ?? '');
       $('#swTableWhoisinfo.is-hidden').removeClass('is-hidden');
       break;
 
@@ -124,7 +135,7 @@ $('#swSearchInputDomain').keyup(function(event) {
     On click: Open website for domain lookup URL in a new window
  */
 $(document).on('click', '#swTdDomain', function() {
-  var domain = $('#swTdDomain').attr('url');
+  const domain = $('#swTdDomain').attr('url') as string;
   ipcRenderer.send('sw:openlink', domain);
 
   return;
@@ -135,17 +146,13 @@ $(document).on('click', '#swTdDomain', function() {
     On click: Single whois lookup/search button
  */
 $(document).on('click', '#swSearchButtonSearch', function() {
-  var {
-    input
-  } = singleWhois;
-  var {
-    domain
-  } = input;
+  const { input } = singleWhois;
+  let { domain } = input;
 
   if ($(this).hasClass('is-loading')) return true;
   ipcRenderer.send('app:debug', "#swSearchButtonSearch was clicked");
 
-  domain = $('#swSearchInputDomain').val();
+  domain = $('#swSearchInputDomain').val() as string;
 
 ipcRenderer.send('app:debug', formatString('Looking up for {0}', domain));
 

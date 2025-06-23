@@ -8,14 +8,14 @@ import { tableReset } from './auxiliary';
 
 import { formatString } from '../../common/stringformat';
 
-var bwWordlistContents; // Global wordlist input contents
+let bwWordlistContents = ''; // Global wordlist input contents
 
 /*
   ipcRenderer.on('bw:wordlistinput.confirmation', function() {...});
     Wordlist input, contents confirmation container
  */
 ipcRenderer.on('bw:wordlistinput.confirmation', function() {
-  var bwFileStats = [];
+  const bwFileStats: Record<string, any> = {};
 
   bwWordlistContents = $('#bwWordlistTextareaDomains').val().toString();
   if (bwWordlistContents === '' || bwWordlistContents === null) {
@@ -104,8 +104,13 @@ $(document).on('click', '#bwWordlistconfirmButtonCancel', function() {
     Wordlist input, proceed to bulk whois
  */
 $(document).on('click', '#bwWordlistconfirmButtonStart', function() {
-  var bwDomainArray = bwWordlistContents.toString().split('\n').map(Function.prototype.call, String.prototype.trim),
-    bwTldsArray = $('#bwWordlistInputTlds').val().toString().split(',');
+  const bwDomainArray = bwWordlistContents
+    .toString()
+    .split('\n')
+    .map(Function.prototype.call, String.prototype.trim);
+  const bwTldsArray = ($('#bwWordlistInputTlds').val() as string | number | string[] | undefined || '')
+    .toString()
+    .split(',');
 
   /*
   console.log(bwDomainArray);

@@ -11,7 +11,7 @@ import { ipcRenderer } from 'electron';
 
 import { formatString } from '../../common/stringformat';
 
-var bwaFileContents;
+let bwaFileContents: any;
 
 /*
   ipcRenderer.on('bwa:analyser.tablegen', function() {...});
@@ -110,12 +110,13 @@ function showTable() {
     string
     threshold
  */
-function getInitials(string, threshold = 1) {
-  var initials = string.match(/\b\w/g);
+function getInitials(str: string, threshold = 1): string {
+  let initials = str.match(/\b\w/g) || [];
 
-  initials = (initials.length > threshold) ?
-    initials.join("").toString() :
-    string.substring(0, threshold + 1);
+  const result =
+    initials.length > threshold
+      ? initials.join('').toString()
+      : str.substring(0, threshold + 1);
 
-  return initials;
+  return result;
 }

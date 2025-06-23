@@ -158,3 +158,13 @@ declare module '@electron/remote/main' {
   export function initialize(): void;
   export function enable(webContents: any): void;
 }
+
+declare module 'papaparse' {
+  const Papa: any;
+  export default Papa;
+}
+
+declare module 'datatables' {
+  const datatables: any;
+  export default datatables;
+}

@@ -12,14 +12,14 @@ import { ipcRenderer } from 'electron';
 
 import { formatString } from '../../common/stringformat';
 
-var bwaFileContents;
+let bwaFileContents: any;
 
 /*
   ipcRenderer.on('bwa:fileinput.confirmation', function(...) {...});
     File input, path and information confirmation container
  */
-ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath = null, isDragDrop = false) {
-  var bwaFileStats; // File stats, size, last changed, etc
+ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath: string | string[] | null = null, isDragDrop = false) {
+  let bwaFileStats: fs.Stats & Record<string, any>; // File stats, size, last changed, etc
 
   $('#bwaFileSpanInfo').text('Waiting for file...');
 
@@ -33,31 +33,31 @@ ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath = null, is
     if (isDragDrop === true) {
       $('#bwaEntry').addClass('is-hidden');
       $('#bwaFileinputloading').removeClass('is-hidden');
-      bwaFileStats = fs.statSync(filePath);
-      bwaFileStats['filename'] = filePath.replace(/^.*[\\\/]/, '');
-      bwaFileStats['humansize'] = conversions.byteToHumanFileSize(bwaFileStats['size'], settings['lookup.misc'].useStandardSize);
+      bwaFileStats = fs.statSync(filePath as string) as fs.Stats & Record<string, any>;
+      (bwaFileStats as any)['filename'] = (filePath as string).replace(/^.*[\\\/]/, '');
+      (bwaFileStats as any)['humansize'] = conversions.byteToHumanFileSize(bwaFileStats['size'], settings['lookup.misc'].useStandardSize);
       $('#bwaFileSpanInfo').text('Loading file contents...');
-      bwaFileContents = Papa.parse(fs.readFileSync(filePath).toString(), {
+      bwaFileContents = Papa.parse(fs.readFileSync(filePath as string).toString(), {
         header: true
       });
     } else {
-      bwaFileStats = fs.statSync(filePath[0]);
-      bwaFileStats['filename'] = filePath[0].replace(/^.*[\\\/]/, '');
-      bwaFileStats['humansize'] = conversions.byteToHumanFileSize(bwaFileStats['size'], settings['lookup.misc'].useStandardSize);
+      bwaFileStats = fs.statSync((filePath as string[])[0]) as fs.Stats & Record<string, any>;
+      (bwaFileStats as any)['filename'] = (filePath as string[])[0].replace(/^.*[\\\/]/, '');
+      (bwaFileStats as any)['humansize'] = conversions.byteToHumanFileSize(bwaFileStats['size'], settings['lookup.misc'].useStandardSize);
       $('#bwaFileSpanInfo').text('Loading file contents...');
-      bwaFileContents = Papa.parse(fs.readFileSync(filePath[0]).toString(), {
+      bwaFileContents = Papa.parse(fs.readFileSync((filePath as string[])[0]).toString(), {
         header: true
       });
     }
     //console.log(bwaFileContents.data[0]);
     $('#bwaFileSpanInfo').text('Getting line count...');
-    bwaFileStats['linecount'] = bwaFileContents.data.length;
+    (bwaFileStats as any)['linecount'] = bwaFileContents.data.length;
     try {
-      bwaFileStats['filepreview'] = JSON.stringify(bwaFileContents.data[0], null, "\t").substring(0, 50);
+      (bwaFileStats as any)['filepreview'] = JSON.stringify(bwaFileContents.data[0], null, "\t").substring(0, 50);
     } catch (e) {
-      bwaFileStats['filepreview'] = '';
+      (bwaFileStats as any)['filepreview'] = '';
     }
-    bwaFileStats['errors'] = JSON.stringify(bwaFileContents.errors).slice(1, -1);
+    (bwaFileStats as any)['errors'] = JSON.stringify(bwaFileContents.errors).slice(1, -1);
     //console.log(bwaFileContents.data);
 
     //console.log(readLines(filePath[0]));
@@ -68,12 +68,12 @@ ipcRenderer.on('bwa:fileinput.confirmation', function(event, filePath = null, is
     $('#bwaFileinputconfirm').removeClass('is-hidden');
 
     // stats
-    $('#bwaFileTdFilename').text(bwaFileStats['filename']);
-    $('#bwaFileTdLastmodified').text(conversions.getDate(bwaFileStats['mtime']));
-    $('#bwaFileTdLastaccessed').text(conversions.getDate(bwaFileStats['atime']));
-    $('#bwaFileTdFilesize').text(bwaFileStats['humansize'] + formatString(' ({0} record(s))', bwaFileStats['linecount']));
-    $('#bwaFileTdFilepreview').text(bwaFileStats['filepreview'] + '...');
-    $('#bwaFileTextareaErrors').text(bwaFileStats['errors'] || "No errors");
+    $('#bwaFileTdFilename').text(String((bwaFileStats as any)['filename']));
+    $('#bwaFileTdLastmodified').text(conversions.getDate(bwaFileStats['mtime']) ?? '');
+    $('#bwaFileTdLastaccessed').text(conversions.getDate(bwaFileStats['atime']) ?? '');
+    $('#bwaFileTdFilesize').text(String((bwaFileStats as any)['humansize']) + formatString(' ({0} record(s))', String((bwaFileStats as any)['linecount'])));
+    $('#bwaFileTdFilepreview').text(String((bwaFileStats as any)['filepreview']) + '...');
+    $('#bwaFileTextareaErrors').text(String((bwaFileStats as any)['errors'] || "No errors"));
     //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']);
     //console.log('cont:'+ bwFileContents);
 
