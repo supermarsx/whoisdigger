@@ -302,10 +302,10 @@ function processDomain(domainSetup, event) {
 
     let data: any;
     stats.domains.sent++; // Add to requests sent
-    await sender.send('bw:status.update', 'domains.sent', stats.domains.sent); // Requests sent, update stats
+    sender.send('bw:status.update', 'domains.sent', stats.domains.sent); // Requests sent, update stats
 
     stats.domains.waiting++; // Waiting in queue
-    await sender.send('bw:status.update', 'domains.waiting', stats.domains.waiting); // Waiting in queue, update stats
+    sender.send('bw:status.update', 'domains.waiting', stats.domains.waiting); // Waiting in queue, update stats
 
     reqtime[domainSetup.index] = await performance.now();
 
