@@ -43,6 +43,17 @@ ipcRenderer.on('bw:export.cancel', function() {
 });
 
 /*
+  ipcRenderer.on('bw:export.error', function(...) {...});
+    Bulk whois export error
+ */
+ipcRenderer.on('bw:export.error', function(event, message) {
+  $('#bwExportErrorText').text(message);
+  $('#bwExportMessageError').removeClass('is-hidden');
+
+  return;
+});
+
+/*
   $('#bwExportButtonExport').click(function() {...});
     Bulk whois export confirm
  */
