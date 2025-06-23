@@ -2,7 +2,7 @@
 import dns from 'dns/promises';
 import psl from 'psl';
 import debugModule from 'debug';
-import { convertDomain } from './whoiswrapper';
+import { convertDomain } from './lookup';
 import { load, Settings } from './settings';
 import { DnsLookupError, Result } from './errors';
 

@@ -54,6 +54,7 @@ declare module 'electron' {
     'bw:fileinput.confirmation': [string | string[] | null, boolean?];
     'bw:result.receive': [any];
     'bw:export.cancel': [];
+    'bw:export.error': [string];
     'sw:results': [any];
     'sw:copied': [];
   }

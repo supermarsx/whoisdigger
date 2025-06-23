@@ -1,6 +1,7 @@
 
 import { load, Settings } from '../settings';
-import { toJSON, getDomainParameters, WhoisResult } from '../whoiswrapper';
+import { toJSON } from '../parser';
+import { getDomainParameters, WhoisResult } from '../availability';
 import { getDate } from '../conversions';
 
 const settings: Settings = load();

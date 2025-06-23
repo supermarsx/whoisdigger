@@ -1,5 +1,4 @@
 
-import * as whois from '../../common/whoiswrapper';
 import * as conversions from '../../common/conversions';
 import defaultExportOptions from './export.defaults';
 
@@ -38,6 +37,17 @@ ipcRenderer.on('bw:result.receive', function(event, rcvResults) {
 ipcRenderer.on('bw:export.cancel', function() {
   $('#bwExportloading').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
+
+  return;
+});
+
+/*
+  ipcRenderer.on('bw:export.error', function(...) {...});
+    Bulk whois export error
+ */
+ipcRenderer.on('bw:export.error', function(event, message) {
+  $('#bwExportErrorText').text(message);
+  $('#bwExportMessageError').removeClass('is-hidden');
 
   return;
 });

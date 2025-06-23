@@ -1,4 +1,4 @@
-import parseRawData from '../app/ts/common/parseRawData';
+import parseRawData from '../app/ts/common/parser';
 
 describe('parseRawData', () => {
   test('parses key value pairs with LF newlines', () => {

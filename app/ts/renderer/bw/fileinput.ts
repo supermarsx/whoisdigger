@@ -1,6 +1,5 @@
 /** global: appSettings */
 
-import * as whois from '../../common/whoiswrapper';
 import * as conversions from '../../common/conversions';
 import fs from 'fs';
 import debugModule from 'debug';

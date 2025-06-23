@@ -1,6 +1,6 @@
 import '../test/electronMock';
 
-import { convertDomain } from '../app/ts/common/whoiswrapper';
+import { convertDomain } from '../app/ts/common/lookup';
 import { settings } from '../app/ts/common/settings';
 
 describe('convertDomain', () => {
