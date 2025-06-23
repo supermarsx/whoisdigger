@@ -28,37 +28,35 @@ describe('bw export error handling', () => {
     requesttime: [1],
   };
 
-  test('sends error when csv write fails', async () => {
+  test('rejects when csv write fails', async () => {
     const handler = ipcMainHandlers['bw:export'];
     mockShowSaveDialogSync.mockReturnValue('/tmp/out.csv');
     jest.spyOn(fs.promises, 'writeFile').mockRejectedValueOnce(new Error('fail'));
 
-    const send = jest.fn();
-    await handler({ sender: { send } } as any, results, {
-      filetype: 'csv',
-      domains: 'available',
-      errors: 'no',
-      information: 'domain',
-      whoisreply: 'no',
-    });
-
-    expect(send).toHaveBeenCalledWith('bw:export.error', 'fail');
+    await expect(
+      handler({ sender: { send: jest.fn() } } as any, results, {
+        filetype: 'csv',
+        domains: 'available',
+        errors: 'no',
+        information: 'domain',
+        whoisreply: 'no',
+      })
+    ).rejects.toThrow('fail');
   });
 
-  test('sends error when zip write fails', async () => {
+  test('rejects when zip write fails', async () => {
     const handler = ipcMainHandlers['bw:export'];
     mockShowSaveDialogSync.mockReturnValue('/tmp/out');
     jest.spyOn(fs.promises, 'writeFile').mockRejectedValueOnce(new Error('zip fail'));
 
-    const send = jest.fn();
-    await handler({ sender: { send } } as any, results, {
-      filetype: 'txt',
-      domains: 'available',
-      errors: 'no',
-      information: 'domain',
-      whoisreply: 'yes+block',
-    });
-
-    expect(send).toHaveBeenCalledWith('bw:export.error', 'zip fail');
+    await expect(
+      handler({ sender: { send: jest.fn() } } as any, results, {
+        filetype: 'txt',
+        domains: 'available',
+        errors: 'no',
+        information: 'domain',
+        whoisreply: 'yes+block',
+      })
+    ).rejects.toThrow('zip fail');
   });
 });

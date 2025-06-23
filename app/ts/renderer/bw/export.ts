@@ -42,26 +42,21 @@ ipcRenderer.on('bw:export.cancel', function() {
   return;
 });
 
-/*
-  ipcRenderer.on('bw:export.error', function(...) {...});
-    Bulk whois export error
- */
-ipcRenderer.on('bw:export.error', function(event, message) {
-  $('#bwExportErrorText').text(message);
-  $('#bwExportMessageError').removeClass('is-hidden');
-
-  return;
-});
 
 /*
   $('#bwExportButtonExport').click(function() {...});
     Bulk whois export confirm
  */
-$(document).on('click', '#bwExportButtonExport', function() {
+$(document).on('click', '#bwExportButtonExport', async function() {
   $('#bwExport').addClass('is-hidden');
   options = getExportOptions();
-  $.when($('#bwExportloading').removeClass('is-hidden').delay(10)).done(function() {
-    ipcRenderer.send("bw:export", results, options);
+  $.when($('#bwExportloading').removeClass('is-hidden').delay(10)).done(async function() {
+    try {
+      await ipcRenderer.invoke('bw:export', results, options);
+    } catch (err) {
+      $('#bwExportErrorText').text((err as Error).message);
+      $('#bwExportMessageError').removeClass('is-hidden');
+    }
   });
 
   return;

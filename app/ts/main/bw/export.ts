@@ -28,7 +28,7 @@ const settings = loadSettings();
     results (object) - bulk whois results object
     options (object) - bulk whois export options object
  */
-ipcMain.on('bw:export', async function(event, results, options) {
+  ipcMain.handle('bw:export', async function(event, results, options) {
   const {
     'lookup.export': resExports
   } = settings;
@@ -168,7 +168,7 @@ ipcMain.on('bw:export', async function(event, results, options) {
         debug(formatString('File was saved, {0}', filePath));
       } catch (err) {
         debug(err);
-        sender.send('bw:export.error', (err as Error).message);
+        throw err;
       }
     }
 
@@ -183,7 +183,7 @@ ipcMain.on('bw:export', async function(event, results, options) {
           debug(formatString('Zip saved, {0}', filePath + zip));
         } catch (err) {
           debug(formatString('Error, {0}', err));
-          sender.send('bw:export.error', (err as Error).message);
+          throw err;
         }
         break;
     }
