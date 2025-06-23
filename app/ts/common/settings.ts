@@ -155,7 +155,10 @@ export async function save(newSettings: Settings): Promise<string | Error | unde
           getUserDataPath(),
           newSettings['custom.configuration'].filepath
         );
-      await fs.promises.writeFile(filePath, JSON.stringify(newSettings));
+      await fs.promises.writeFile(
+        filePath,
+        JSON.stringify(newSettings, null, 2)
+      );
       debug(`Saved custom configuration at ${filePath}`);
       settings = newSettings;
       return 'SAVED';
