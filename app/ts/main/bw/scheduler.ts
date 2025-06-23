@@ -14,7 +14,7 @@ const debug = debugModule('main.bw.scheduler');
 
 export function processDomain(
   bulkWhois: BulkWhois,
-  reqtime: any[],
+  reqtime: number[],
   domainSetup: DomainSetup,
   event: IpcMainEvent,
 ): void {

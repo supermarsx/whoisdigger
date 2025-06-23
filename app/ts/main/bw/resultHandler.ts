@@ -4,7 +4,7 @@ import { toJSON } from '../../common/parser';
 import { performance } from 'perf_hooks';
 import { loadSettings } from "../../common/settings";
 import { formatString } from '../../common/stringformat';
-import type { BulkWhois } from './types';
+import type { BulkWhois, ProcessedResult } from './types';
 import * as dns from '../../common/dnsLookup';
 import { Result, DnsLookupError } from '../../common/errors';
 import type { IpcMainEvent } from 'electron';
@@ -13,7 +13,7 @@ const debug = debugModule('main.bw.resultHandler');
 
 export async function processData(
   bulkWhois: BulkWhois,
-  reqtime: any[],
+  reqtime: number[],
   event: IpcMainEvent,
   domain: string,
   index: number,
@@ -27,32 +27,31 @@ export async function processData(
   const { reqtimes, status } = stats;
   let domainAvailable: string;
   let lastStatus: string | undefined;
-  let resultsJSON: any;
+  let resultsJSON: Record<string, unknown> | string;
+  reqtime[index] = parseFloat((performance.now() - reqtime[index]).toFixed(2));
 
-  reqtime[index] = Number(performance.now() - reqtime[index]).toFixed(2);
-
-  if (Number(reqtimes.minimum) > Number(reqtime[index])) {
+  if (reqtimes.minimum > reqtime[index]) {
     reqtimes.minimum = reqtime[index];
     sender.send('bw:status.update', 'reqtimes.minimum', reqtimes.minimum);
   }
-  if (Number(reqtimes.maximum) < Number(reqtime[index])) {
-    reqtimes.maximum = reqtime[index];
+  if (Number(reqtimes.maximum) < reqtime[index]) {
+    reqtimes.maximum = reqtime[index].toFixed(2);
     sender.send('bw:status.update', 'reqtimes.maximum', reqtimes.maximum);
   }
 
-  reqtimes.last = reqtime[index];
+  reqtimes.last = reqtime[index].toFixed(2);
   sender.send('bw:status.update', 'reqtimes.last', reqtimes.last);
 
   if (settings['lookup.misc'].asfOverride) {
     lastweight = Number(((stats.domains.sent - stats.domains.waiting) / stats.domains.processed).toFixed(2));
     reqtimes.average = (
       Number(reqtimes.average) * lastweight +
-      (1 - lastweight) * Number(reqtime[index])
+      (1 - lastweight) * reqtime[index]
     ).toFixed(2);
   } else {
-    reqtimes.average = reqtimes.average || reqtime[index];
+    reqtimes.average = reqtimes.average || reqtime[index].toFixed(2);
     reqtimes.average = (
-      Number(reqtime[index]) * settings['lookup.misc'].averageSmoothingFactor +
+      reqtime[index] * settings['lookup.misc'].averageSmoothingFactor +
       (1 - settings['lookup.misc'].averageSmoothingFactor) * Number(reqtimes.average)
     ).toFixed(2);
   }
@@ -100,34 +99,39 @@ export async function processData(
   stats.domains.waiting--;
   sender.send('bw:status.update', 'domains.waiting', stats.domains.waiting);
 
-  let resultFilter: any = {
-    domain: '',
-    status: '',
-    registrar: '',
-    company: '',
-    creationdate: '',
-    updatedate: '',
-    expirydate: '',
-    whoisreply: '',
-    whoisjson: '',
+  let resultFilter: ProcessedResult = {
+    id: index + 1,
+    domain: null,
+    status: null,
+    registrar: null,
+    company: null,
+    creationdate: null,
+    updatedate: null,
+    expirydate: null,
+    whoisreply: null,
+    whoisjson: null,
+    requesttime: null,
   };
 
   if (settings['lookup.general'].type == 'whois') {
     resultsJSON = toJSON(data as string);
-    resultFilter = getDomainParameters(domain, lastStatus ?? null, data as string, resultsJSON);
+    const params = getDomainParameters(domain, lastStatus ?? null, data as string, resultsJSON as Record<string, unknown>);
+    resultFilter.domain = params.domain ?? null;
+    resultFilter.status = params.status ?? null;
+    resultFilter.registrar = params.registrar ?? null;
+    resultFilter.company = params.company ?? null;
+    resultFilter.creationdate = params.creationDate ?? null;
+    resultFilter.updatedate = params.updateDate ?? null;
+    resultFilter.expirydate = params.expiryDate ?? null;
+    resultFilter.whoisreply = params.whoisreply ?? null;
+    resultFilter.whoisjson = params.whoisJson ?? null;
   } else {
     resultFilter.domain = domain;
     resultFilter.status = lastStatus ?? null;
-    resultFilter.registrar = null;
-    resultFilter.company = null;
-    resultFilter.creationdate = null;
-    resultFilter.updatedate = null;
-    resultFilter.expirydate = null;
-    resultFilter.whoisreply = null;
-    resultFilter.whoisjson = null;
   }
 
-  results.id[index] = Number(index + 1);
+  resultFilter.requesttime = reqtime[index];
+  results.id[index] = resultFilter.id;
   results.domain[index] = resultFilter.domain;
   results.status[index] = resultFilter.status;
   results.registrar[index] = resultFilter.registrar;
@@ -136,6 +140,6 @@ export async function processData(
   results.updatedate[index] = resultFilter.updatedate;
   results.expirydate[index] = resultFilter.expirydate;
   results.whoisreply[index] = resultFilter.whoisreply;
-  results.whoisjson[index] = resultFilter.whoisjson;
-  results.requesttime[index] = reqtime[index];
+  results.whoisjson[index] = resultFilter.whoisjson as any;
+  results.requesttime[index] = resultFilter.requesttime;
 }
