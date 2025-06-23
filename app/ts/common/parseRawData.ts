@@ -34,8 +34,9 @@ export function parseRawData(rawData: string): Record<string, string> {
         const result: Record<string, string> = {};
 
        rawData = stripHTMLEntities(rawData);
-	rawData = filterColonChar(rawData);
-        const lines = rawData.split('\n');
+        rawData = filterColonChar(rawData);
+        rawData = rawData.replace(/\r\n?/g, '\n');
+        const lines = rawData.split(/\r?\n/);
 
         for (let i = 0; i < lines.length; ++i) {
                 let line = lines[i].trim();
