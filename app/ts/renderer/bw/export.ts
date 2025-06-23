@@ -49,7 +49,7 @@ ipcRenderer.on('bw:export.cancel', function() {
   $('#bwExportButtonExport').click(function() {...});
     Bulk whois export confirm
  */
-$('#bwExportButtonExport').click(function() {
+$(document).on('click', '#bwExportButtonExport', function() {
   $('#bwExport').addClass('is-hidden');
   options = getExportOptions();
   $.when($('#bwExportloading').removeClass('is-hidden').delay(10)).done(function() {
@@ -63,7 +63,7 @@ $('#bwExportButtonExport').click(function() {
   $('#bwExportButtonCancel').click(function() {...});
     Export options, cancel export
  */
-$('#bwExportButtonCancel').click(function() {
+$(document).on('click', '#bwExportButtonCancel', function() {
   $('#bwExport').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 
@@ -74,7 +74,7 @@ $('#bwExportButtonCancel').click(function() {
   $('#bwExportSelectPreset').change(function() {...});
     ipsum
  */
-$('#bwExportSelectPreset').change(function() {
+$(document).on('change', '#bwExportSelectPreset', function() {
   var preset = $('#bwExportSelectPreset').val();
   setExportOptions(preset);
 
@@ -85,7 +85,7 @@ $('#bwExportSelectPreset').change(function() {
   $('#bwExportSelectFiletype').change(function() {...});
     ipsum
  */
-$('#bwExportSelectFiletype').change(function() {
+$(document).on('change', '#bwExportSelectFiletype', function() {
   var filetype = $('#bwExportSelectFiletype').val();
   setExportOptionsEx(filetype);
 

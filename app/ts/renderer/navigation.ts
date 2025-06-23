@@ -29,7 +29,7 @@ $(document).on('dragover', function(event) {
   $('#navButtonDevtools').click(function() {...});
     On click: Button toggle developer tools
  */
-$('#navButtonDevtools').click(function() {
+$(document).on('click', '#navButtonDevtools', function() {
   remote.getCurrentWindow().toggleDevTools();
   ipcRenderer.send('app:debug', "#navButtonDevtools was clicked");
 
@@ -40,7 +40,7 @@ $('#navButtonDevtools').click(function() {
   $('section.tabs ul li').click(function() {...});
     On click: Toggle between tabs
  */
-$('section.tabs ul li').click(function() {
+$(document).on('click', 'section.tabs ul li', function() {
   var tabName = $(this).attr('data-tab');
 
   if (tabName != '#') {
@@ -59,7 +59,7 @@ $('section.tabs ul li').click(function() {
   $('.delete').click(function() {...});
     On click: Delete open notifications
  */
-$('.delete').click(function() {
+$(document).on('click', '.delete', function() {
   ipcRenderer.send('app:debug', ".delete (notifications) was clicked");
   var notificationId = $(this).attr('data-notif');
 
@@ -122,7 +122,7 @@ $(document).keyup(function(event) {
   $('#navButtonExtendedmenu').click(function() {...});
     Button/Toggle special menu items
  */
-$('#navButtonExtendedmenu').click(function() {
+$(document).on('click', '#navButtonExtendedmenu', function() {
   ipcRenderer.send('app:debug', "#navButtonExtendedmenu was clicked");
   $('#navButtonExtendedmenu').toggleClass('is-active');
   $('.is-specialmenu').toggleClass('is-hidden');
@@ -134,7 +134,7 @@ $('#navButtonExtendedmenu').click(function() {
   $('#navButtonMinimize').click(function() {...});
     On click: Minimize window button
  */
-$('#navButtonMinimize').click(function() {
+$(document).on('click', '#navButtonMinimize', function() {
   ipcRenderer.send('app:debug', "#navButtonMinimize was clicked");
   remote.getCurrentWindow().minimize();
 
@@ -145,7 +145,7 @@ $('#navButtonMinimize').click(function() {
   $('#navButtonExit').click(function() {...});
     On click: Close main window button
  */
-$('#navButtonExit').click(function() {
+$(document).on('click', '#navButtonExit', function() {
   ipcRenderer.send('app:debug', "#navButtonExit was clicked");
   remote.getCurrentWindow().close();
 

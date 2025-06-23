@@ -130,7 +130,7 @@ ipcRenderer.on('bw:status.update', function(event, stat, value) {
   $('#bwProcessingButtonPause').click(function() {...});
     Bulk processing, pause/continue process
  */
-$('#bwProcessingButtonPause').click(function() {
+$(document).on('click', '#bwProcessingButtonPause', function() {
   var searchStatus = $('#bwProcessingButtonPauseSpanText').text();
   switch (searchStatus) {
     case 'Continue':
@@ -166,7 +166,7 @@ function setPauseButton() {
   $('#bwProcessingButtonStop').click(function() {...});
     Trigger Bulk whois Stop modal
  */
-$('#bwProcessingButtonStop').click(function() {
+$(document).on('click', '#bwProcessingButtonStop', function() {
   ipcRenderer.send('app:debug', "Pausing whois & opening stop modal");
   $('#bwProcessingButtonPause').text().includes('Pause') ? $('#bwProcessingButtonPause').click() : false;
   $('#bwProcessingModalStop').addClass('is-active');
@@ -178,7 +178,7 @@ $('#bwProcessingButtonStop').click(function() {
   $('#bwProcessingModalStopButtonContinue').click(function() {...});
     Close modal and allow continue
  */
-$('#bwProcessingModalStopButtonContinue').click(function() {
+$(document).on('click', '#bwProcessingModalStopButtonContinue', function() {
   ipcRenderer.send('app:debug', "Closing Stop modal & continue");
   $('#bwProcessingModalStop').removeClass('is-active');
 
@@ -189,7 +189,7 @@ $('#bwProcessingModalStopButtonContinue').click(function() {
   $('#bwProcessingModalStopButtonStop').click(function() {...});
     Stop bulk whois entirely and scrape everything
  */
-$('#bwProcessingModalStopButtonStop').click(function() {
+$(document).on('click', '#bwProcessingModalStopButtonStop', function() {
   ipcRenderer.send('app:debug', "Closing Stop modal & going back to start");
   $('#bwpStopModal').removeClass('is-active');
   $('#bwProcessing').addClass('is-hidden');
@@ -203,7 +203,7 @@ $('#bwProcessingModalStopButtonStop').click(function() {
   $('#bwProcessingModalStopButtonStopsave').click(function() {...});
     Stop bulk whois entirely and save/export
  */
-$('#bwProcessingModalStopButtonStopsave').click(function() {
+$(document).on('click', '#bwProcessingModalStopButtonStopsave', function() {
   ipcRenderer.send('app:debug', "Closing Stop modal & exporting");
   ipcRenderer.send('bw:lookup.stop');
   $('#bwProcessingModalStop').removeClass('is-active');
@@ -218,7 +218,7 @@ $('#bwProcessingModalStopButtonStopsave').click(function() {
   $('#bwProcessingButtonNext').click(function() {...});
     Bulk processing, proceed to export options
  */
-$('#bwProcessingButtonNext').click(function() {
+$(document).on('click', '#bwProcessingButtonNext', function() {
   $('#bwProcessing').addClass('is-hidden');
   $('#bwExport').removeClass('is-hidden');
 

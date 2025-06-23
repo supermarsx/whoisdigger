@@ -62,7 +62,7 @@ ipcRenderer.on('bw:wordlistinput.confirmation', function() {
   $('#bwEntryButtonWordlist').click(function() {...});
     Wordlist Input, Entry container button
  */
-$('#bwEntryButtonWordlist').click(function() {
+$(document).on('click', '#bwEntryButtonWordlist', function() {
   $('#bwEntry').addClass('is-hidden');
   $('#bwWordlistinput').removeClass('is-hidden');
 
@@ -73,7 +73,7 @@ $('#bwEntryButtonWordlist').click(function() {
   $('#bwWordlistinputButtonCancel').click(function() {...});
     Wordlist Input, cancel input
  */
-$('#bwWordlistinputButtonCancel').click(function() {
+$(document).on('click', '#bwWordlistinputButtonCancel', function() {
   $('#bwWordlistinput').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 
@@ -84,7 +84,7 @@ $('#bwWordlistinputButtonCancel').click(function() {
   $('#bwWordlistinputButtonConfirm').click(function() {...});
     Wordlist Input, go to confirm
  */
-$('#bwWordlistinputButtonConfirm').click(function() {
+$(document).on('click', '#bwWordlistinputButtonConfirm', function() {
   $('#bwWordlistinput').addClass('is-hidden');
   ipcRenderer.send("bw:input.wordlist");
 
@@ -95,7 +95,7 @@ $('#bwWordlistinputButtonConfirm').click(function() {
   $('#bwWordlistconfirmButtonCancel').click(function() {...});
      Wordlist input, cancel confirmation
  */
-$('#bwWordlistconfirmButtonCancel').click(function() {
+$(document).on('click', '#bwWordlistconfirmButtonCancel', function() {
   $('#bwWordlistconfirm').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 
@@ -106,7 +106,7 @@ $('#bwWordlistconfirmButtonCancel').click(function() {
   $('#bwWordlistconfirmButtonStart').click(function() {...});
     Wordlist input, proceed to bulk whois
  */
-$('#bwWordlistconfirmButtonStart').click(function() {
+$(document).on('click', '#bwWordlistconfirmButtonStart', function() {
   var bwDomainArray = bwWordlistContents.toString().split('\n').map(Function.prototype.call, String.prototype.trim),
     bwTldsArray = $('#bwWordlistInputTlds').val().toString().split(',');
 

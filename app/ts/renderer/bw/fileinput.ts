@@ -104,7 +104,7 @@ ipcRenderer.on('bw:fileinput.confirmation', function(event, filePath = null, isD
   $('#bwEntryButtonFile').click(function() {...});
     File Input, Entry container button
  */
-$('#bwEntryButtonFile').click(function() {
+$(document).on('click', '#bwEntryButtonFile', function() {
   $('#bwEntry').addClass('is-hidden');
   $.when($('#bwFileinputloading').removeClass('is-hidden').delay(10)).done(function() {
     ipcRenderer.send("bw:input.file");
@@ -117,7 +117,7 @@ $('#bwEntryButtonFile').click(function() {
   $('#bwFileButtonCancel').click(function() {...});
     File Input, cancel file confirmation
  */
-$('#bwFileButtonCancel').click(function() {
+$(document).on('click', '#bwFileButtonCancel', function() {
   $('#bwFileinputconfirm').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 
@@ -128,7 +128,7 @@ $('#bwFileButtonCancel').click(function() {
   $('#bwFileButtonConfirm').click(function() {...});
     File Input, proceed to bulk whois
  */
-$('#bwFileButtonConfirm').click(function() {
+$(document).on('click', '#bwFileButtonConfirm', function() {
   var bwDomainArray = bwFileContents.toString().split('\n').map(Function.prototype.call, String.prototype.trim);
   var bwTldsArray = $('#bwFileInputTlds').val().toString().split(',');
 
