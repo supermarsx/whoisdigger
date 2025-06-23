@@ -1,7 +1,4 @@
-jest.mock('electron', () => ({
-  app: undefined,
-  remote: { app: { getPath: jest.fn().mockReturnValue('') } }
-}));
+import '../test/electronMock';
 
 import { buildPatterns, checkPatterns } from '../app/ts/common/whoiswrapper/patterns';
 import { builtPatterns } from '../app/ts/common/whoiswrapper/patterns';

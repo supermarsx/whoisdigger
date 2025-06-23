@@ -1,7 +1,4 @@
-jest.mock('electron', () => ({
-  app: undefined,
-  remote: { app: { getPath: jest.fn().mockReturnValue('') } }
-}));
+import '../test/electronMock';
 
 import whois from 'whois';
 import { lookup, toJSON } from '../app/ts/common/whoiswrapper';
