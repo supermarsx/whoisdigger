@@ -1,6 +1,6 @@
 // jshint esversion: 8
 
-require('./sw');
-require('./bw');
-require('./bwa');
-require('./darkmode');
+import './sw';
+import './bw';
+import './bwa';
+import './darkmode';

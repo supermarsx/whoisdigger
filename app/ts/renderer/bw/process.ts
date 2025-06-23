@@ -1,14 +1,12 @@
 // jshint esversion: 8, -W030
 
-const whois = require('../../common/whoiswrapper'),
-  conversions = require('../../common/conversions'),
-  base = 10;
+import * as whois from '../../common/whoiswrapper';
+import * as conversions from '../../common/conversions';
+const base = 10;
 
-const {
-  ipcRenderer
-} = require('electron');
+import { ipcRenderer } from 'electron';
 
-require('../../common/stringformat');
+import '../../common/stringformat';
 
 /*
 // Receive whois lookup reply

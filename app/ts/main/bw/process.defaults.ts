@@ -78,5 +78,5 @@ const defaultBulkWhois: BulkWhoisDefaults = {
   }
 };
 
-export = defaultBulkWhois;
+export default defaultBulkWhois;
 

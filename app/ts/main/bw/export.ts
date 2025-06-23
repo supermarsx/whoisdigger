@@ -1,22 +1,23 @@
 // jshint esversion: 8
 
-const electron = require('electron'),
-  fs = require('fs'),
-  path = require('path'),
-  conversions = require('../../common/conversions'),
-  debug = require('debug')('main.bw.export'),
-  JSZip = require('jszip');
-
-const {
+import {
   app,
   BrowserWindow,
   Menu,
   ipcMain,
   dialog,
-  remote
-} = electron;
+  remote,
+} from 'electron';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as conversions from '../../common/conversions';
+import debugModule from 'debug';
+import JSZip from 'jszip';
+import { load as loadSettings } from '../../common/settings';
 
-const settings = require('../../common/settings').load();
+const debug = debugModule('main.bw.export');
+
+const settings = loadSettings();
 
 /*
   ipcMain.on('bw:export', function(...) {...});
@@ -72,10 +73,10 @@ ipcMain.on('bw:export', function(event, results, options) {
   }
 
   const filePath = dialog.showSaveDialogSync({
-    title: "Save export file",
-    buttonLabel: "Save",
-    properties: ['openFile', 'showHiddenFiles'],
-    filters: filters
+    title: 'Save export file',
+    buttonLabel: 'Save',
+    properties: ['showHiddenFiles'],
+    filters: filters,
   });
 
   if (filePath === undefined || filePath == '' || filePath === null) {

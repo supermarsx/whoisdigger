@@ -1,15 +1,15 @@
 // jshint esversion: 8
 
-const electron = require('electron'),
-  debug = require('debug')('main.bwa.analyser');
-
-const {
+import {
   app,
   BrowserWindow,
   Menu,
   ipcMain,
-  dialog
-} = electron;
+  dialog,
+} from 'electron';
+import debugModule from 'debug';
+
+const debug = debugModule('main.bwa.analyser');
 
 /*
   ipcMain.on('bwa:analyser.start', function(...) {...});

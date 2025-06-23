@@ -1,18 +1,17 @@
 // jshint esversion: 8, -W069
 /** global: appSettings */
 
-const whois = require('../../common/whoiswrapper'),
-  conversions = require('../../common/conversions'),
-  fs = require('fs'),
-  debug = require('debug')('renderer.bw.fileinput');
+import * as whois from '../../common/whoiswrapper';
+import * as conversions from '../../common/conversions';
+import * as fs from 'fs';
+import debugModule from 'debug';
 
-const {
-  ipcRenderer
-} = require('electron'), {
-  tableReset
-} = require('./auxiliary');
+import { ipcRenderer } from 'electron';
+import { tableReset } from './auxiliary';
 
-require('../../common/stringformat');
+import '../../common/stringformat';
+
+const debug = debugModule('renderer.bw.fileinput');
 
 var bwFileContents;
 

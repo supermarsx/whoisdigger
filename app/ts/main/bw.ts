@@ -1,20 +1,19 @@
 // jshint esversion: 8
 
-const electron = require('electron'),
-  debug = require('debug')('main.bw');
-
-const {
+import {
   app,
   BrowserWindow,
   Menu,
   ipcMain,
   dialog,
-  remote
-} = electron;
+  remote,
+} from 'electron';
+import debugModule from 'debug';
 
+import './bw/fileinput'; // File input
+import './bw/wordlistinput'; // Wordlist input
+import './bw/process'; // Process stage
+import './bw/export'; // Export stage
+import '../common/stringformat'; // String format
 
-require('./bw/fileinput'); // File input
-require('./bw/wordlistinput'); // Wordlist input
-require('./bw/process'); // Process stage
-require('./bw/export'); // Export stage
-require('../common/stringformat'); // String format
+const debug = debugModule('main.bw');

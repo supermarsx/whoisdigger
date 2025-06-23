@@ -1,18 +1,18 @@
 // jshint esversion: 8, -W069
 
 /** global: settings */
-const whois = require('../../common/whoiswrapper'),
-  conversions = require('../../common/conversions'),
-  fs = require('fs'),
-  Papa = require('papaparse'),
-  dt = require('datatables')();
-const { settings } = require('../../common/settings');
+import * as whois from '../../common/whoiswrapper';
+import * as conversions from '../../common/conversions';
+import * as fs from 'fs';
+import Papa from 'papaparse';
+import datatables from 'datatables';
+import { settings } from '../../common/settings';
 
-const {
-  ipcRenderer
-} = require('electron');
+import { ipcRenderer } from 'electron';
 
-require('../../common/stringformat');
+import '../../common/stringformat';
+
+const dt = datatables();
 
 var bwaFileContents;
 

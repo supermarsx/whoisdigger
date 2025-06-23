@@ -1,22 +1,23 @@
 // jshint esversion: 8, -W030
 
-const electron = require('electron'),
-  path = require('path'),
-  url = require('url'),
-  whois = require('../common/whoiswrapper'),
-  debug = require('debug')('main.sw');
-
-const {
+import {
   app,
   BrowserWindow,
   Menu,
   ipcMain,
   dialog,
   remote,
-  clipboard
-} = electron;
+  clipboard,
+} from 'electron';
+import * as path from 'path';
+import * as url from 'url';
+import * as whois from '../common/whoiswrapper';
+import debugModule from 'debug';
+import { load as loadSettings } from '../common/settings';
 
-const settings = require('../common/settings').load();
+const debug = debugModule('main.sw');
+
+const settings = loadSettings();
 
 /*
   ipcMain.on('sw:lookup', function(...) {...});

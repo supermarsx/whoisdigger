@@ -56,7 +56,7 @@ $(document).ready(function() {
   }
 
   startup();
-  require('./renderer/navigation');
+  import('./renderer/navigation');
   
   return;
 });

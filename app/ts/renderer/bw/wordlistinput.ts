@@ -1,16 +1,13 @@
 // jshint esversion: 8, -W069
 
 /** global: settings */
-const conversions = require('../../common/conversions');
-const { settings } = require('../../common/settings');
+import * as conversions from '../../common/conversions';
+import { settings } from '../../common/settings';
 
-const {
-  ipcRenderer
-} = require('electron'), {
-  tableReset
-} = require('./auxiliary');
+import { ipcRenderer } from 'electron';
+import { tableReset } from './auxiliary';
 
-require('../../common/stringformat');
+import '../../common/stringformat';
 
 var bwWordlistContents; // Global wordlist input contents
 

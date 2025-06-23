@@ -1,17 +1,18 @@
 // jshint esversion: 8
 
-const electron = require('electron'),
-  debug = require('debug')('main.bw.fileinput');
-
-const {
+import {
   app,
   BrowserWindow,
   Menu,
   ipcMain,
-  dialog
-} = electron;
+  dialog,
+} from 'electron';
+import debugModule from 'debug';
+import { load as loadSettings } from '../../common/settings';
 
-const settings = require('../../common/settings').load();
+const debug = debugModule('main.bw.fileinput');
+
+const settings = loadSettings();
 
 /*
   ipcMain.on('bw:input.file', function(...) {...});

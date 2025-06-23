@@ -1,13 +1,9 @@
 // jshint esversion: 8, -W069
 
-const whois = require('../common/whoiswrapper'),
-  parseRawData = require('../common/parseRawData');
-
-const {
-  getDate
-} = require('../common/conversions'), {
-  ipcRenderer
-} = require('electron');
+import * as whois from '../common/whoiswrapper';
+import parseRawData from '../common/parseRawData';
+import { getDate } from '../common/conversions';
+import { ipcRenderer } from 'electron';
 
 const {
   isDomainAvailable,
@@ -16,7 +12,8 @@ const {
   toJSON
 } = whois;
 
-(window as any).$ = (window as any).jQuery = require('jquery');
+import jQuery from 'jquery';
+(window as any).$ = (window as any).jQuery = jQuery;
 
 var singleWhois = {
   'input': {

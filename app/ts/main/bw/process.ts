@@ -1,31 +1,26 @@
 //jshint esversion: 8, -W030, -W083
 
-const electron = require('electron'),
-  whois = require('../../common/whoiswrapper'),
-  debug = require('debug')('main.bw.process'),
-  defaultBulkWhois = require('./process.defaults'),
-  dns = require('../../common/dnsLookup');
-
-const {
-  msToHumanTime
-} = require('../../common/conversions'), {
-  resetObject
-} = require('../../common/resetObject'), {
-  resetUiCounters
-} = require('./auxiliary'), {
-  performance
-} = require('perf_hooks');
-
-const settings = require('../../common/settings').load();
-
-const {
+import {
   app,
   BrowserWindow,
   Menu,
   ipcMain,
   dialog,
-  remote
-} = electron;
+  remote,
+} from 'electron';
+import * as whois from '../../common/whoiswrapper';
+import debugModule from 'debug';
+import defaultBulkWhois from './process.defaults';
+import dnsLookup from '../../common/dnsLookup';
+import { msToHumanTime } from '../../common/conversions';
+import { resetObject } from '../../common/resetObject';
+import { resetUiCounters } from './auxiliary';
+import { performance } from 'perf_hooks';
+import { load as loadSettings } from '../../common/settings';
+
+const debug = debugModule('main.bw.process');
+
+const settings: any = loadSettings();
 
 const defaultValue = null; // Changing this implies changing all dependant comparisons
 let bulkWhois; // BulkWhois object
@@ -316,7 +311,7 @@ function processDomain(domainSetup, event) {
         await whois.lookup(domainSetup.domain, {
           'follow': domainSetup.follow,
           'timeout': domainSetup.timeout
-        }) : await dns.hasNsServers(domainSetup.domain);
+        }) : await dnsLookup.hasNsServers(domainSetup.domain);
       processData(event, domainSetup.domain, domainSetup.index, data, false);
     } catch (e) {
       console.log(e);
@@ -403,7 +398,7 @@ function processData(event, domain, index, data = null, isError = false) {
     stats.laststatus.error = domain;
     sender.send('bw:status.update', 'laststatus.error', stats.laststatus.error);
   })() : (function() {
-    domainAvailable = (settings['lookup.general'].type == 'whois') ? whois.isDomainAvailable(data) : dns.isDomainAvailable(data);
+    domainAvailable = (settings['lookup.general'].type == 'whois') ? whois.isDomainAvailable(data) : dnsLookup.isDomainAvailable(data);
     switch (domainAvailable) {
       case 'available':
         status.available++;
@@ -440,7 +435,7 @@ function processData(event, domain, index, data = null, isError = false) {
   stats.domains.waiting--; // Waiting in queue
   sender.send('bw:status.update', 'domains.waiting', stats.domains.waiting); // Waiting in queue, update stats
 
-  let resultFilter = {
+  let resultFilter: any = {
     domain: '',
     status: '',
     registrar: '',

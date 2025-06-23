@@ -45,7 +45,7 @@ function resetUiCounters(event) {
 }
 
 
-module.exports = {
-  resetUiCounters: resetUiCounters,
-  rstUiCntrs: resetUiCounters
+export {
+  resetUiCounters,
+  resetUiCounters as rstUiCntrs,
 };

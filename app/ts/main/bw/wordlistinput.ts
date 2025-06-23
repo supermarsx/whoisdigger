@@ -1,16 +1,16 @@
 // jshint esversion: 8
 
-const electron = require('electron'),
-  debug = require('debug')('main.bw.wordlistinput');
-
-const {
+import {
   app,
   BrowserWindow,
   Menu,
   ipcMain,
   dialog,
-  remote
-} = electron;
+  remote,
+} from 'electron';
+import debugModule from 'debug';
+
+const debug = debugModule('main.bw.wordlistinput');
 
 /*
   ipcMain.on('bw:input.wordlist', function(...) {...});

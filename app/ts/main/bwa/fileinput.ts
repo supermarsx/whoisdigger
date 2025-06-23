@@ -1,15 +1,15 @@
 // jshint esversion: 8
 
-const electron = require('electron'),
-  debug = require('debug')('main.bwa.fileinput');
-
-const {
+import {
   app,
   BrowserWindow,
   Menu,
   ipcMain,
-  dialog
-} = electron;
+  dialog,
+} from 'electron';
+import debugModule from 'debug';
+
+const debug = debugModule('main.bwa.fileinput');
 
 /*
   ipcMain.on('bwa:input.file', function(...) {...});

@@ -3,14 +3,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as electron from 'electron';
-let remote: typeof import('@electron/remote') | undefined;
-try {
-  // Dynamically require to avoid issues when Electron bindings are unavailable
-  remote = require('@electron/remote');
-} catch {
-  remote = (electron as any).remote;
-}
 const { app } = electron;
+const remote = (electron as any).remote;
 import debugModule from 'debug';
 const debug = debugModule('common.settings');
 
@@ -38,13 +32,9 @@ export interface Settings {
   [key: string]: any;
 }
 
-const rawModule = fs.existsSync('./appsettings')
-  ? require('./appsettings')
-  : require('../appsettings');
-const settingsModule: { settings: Settings } = rawModule.settings
-  ? rawModule
-  : rawModule.default;
-let { settings } = settingsModule;
+import defaultAppSettings from '../appsettings';
+
+let settings = (defaultAppSettings as any).settings as Settings;
 export { settings };
 export default settings;
 
