@@ -246,3 +246,6 @@ ipcMain.on('bw:lookup.stop', function(event: IpcMainEvent) {
   sender.send('bw:status.update', 'finished');
 });
 
+// Re-export for consumers that imported from this module previously
+export { getDomainSetup } from './queue';
+
