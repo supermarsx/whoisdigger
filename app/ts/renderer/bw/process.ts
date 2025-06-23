@@ -191,7 +191,7 @@ $(document).on('click', '#bwProcessingModalStopButtonContinue', function() {
  */
 $(document).on('click', '#bwProcessingModalStopButtonStop', function() {
   ipcRenderer.send('app:debug', "Closing Stop modal & going back to start");
-  $('#bwpStopModal').removeClass('is-active');
+  $('#bwProcessingModalStop').removeClass('is-active');
   $('#bwProcessing').addClass('is-hidden');
   setPauseButton();
   $('#bwEntry').removeClass('is-hidden');
