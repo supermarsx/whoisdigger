@@ -52,7 +52,7 @@ ipcMain.on('sw:openlink', async function(event, domain) {
     'lookup.misc': misc
   } = settings;
 
-  misc.onlyCopy ? copyToClipboard(event, domain) : openUrl(event, domain, settings);
+  misc.onlyCopy ? copyToClipboard(event, domain) : openUrl(domain, settings);
 
   return;
 });
@@ -80,10 +80,10 @@ function copyToClipboard(event: IpcMainEvent, domain: string): void {
   openUrl
     Opens a URL in a new browser window (potential security risk)
   parameters
-    event
     domain
- */
-function openUrl(event: IpcMainEvent, domain: string, settings: Settings): void {
+    settings
+*/
+function openUrl(domain: string, settings: Settings): void {
   const {
     'app.window': appWindow,
   } = settings;
@@ -91,11 +91,13 @@ function openUrl(event: IpcMainEvent, domain: string, settings: Settings): void 
   let target: URL;
   try {
     target = new URL(domain);
-    if (target.protocol !== 'http:' && target.protocol !== 'https:') {
-      throw new Error('invalid protocol');
-    }
   } catch {
     console.warn(`Invalid URL: ${domain}`);
+    return;
+  }
+  const protocol = target.protocol.toLowerCase();
+  if (protocol !== 'http:' && protocol !== 'https:') {
+    console.warn(`Invalid protocol: ${target.protocol}`);
     return;
   }
 
@@ -110,7 +112,7 @@ function openUrl(event: IpcMainEvent, domain: string, settings: Settings): void 
 
   hwnd.setSkipTaskbar(true);
   hwnd.setMenu(null);
-  hwnd.loadURL(domain);
+  hwnd.loadURL(target.href);
 
   hwnd.on('closed', function() {
     hwnd = null;
