@@ -1,5 +1,6 @@
 
 import { resetObject } from '../../common/resetObject';
+import $ from 'jquery';
 
 /*
   tableReset

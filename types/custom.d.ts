@@ -12,10 +12,6 @@ declare module 'url' {
 declare module 'readline' {
   export function createInterface(options: any): any;
 }
-declare module 'jquery' {
-  const jq: any;
-  export = jq;
-}
 declare module 'electron' {
   export const app: any;
   export class BrowserWindow {

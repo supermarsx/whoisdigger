@@ -8,8 +8,8 @@ import { formatString } from '../common/stringformat';
 
 
 
-import jquery from 'jquery';
-(window as any).$ = (window as any).jQuery = jquery;
+import $ from 'jquery';
+(window as any).$ = (window as any).jQuery = $;
 
 interface SingleWhois {
   input: {

@@ -6,6 +6,7 @@ const debug = debugModule('renderer.bw.fileinput');
 
 import { ipcRenderer } from 'electron';
 import { tableReset } from './auxiliary';
+import $ from 'jquery';
 
 import { formatString } from '../../common/stringformat';
 import { settings } from '../../common/settings';
