@@ -141,7 +141,7 @@ var patterns = {
         type: 'includes',
         value: 'SaudiNIC'
       }],
-      20: 'is not valid!' // ???
+      20: 'is not valid!' // returned when the queried domain fails validation
     }
   },
 
