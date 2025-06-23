@@ -5,7 +5,7 @@ import { mockGetPath, mockIpcSend } from '../test/electronMock';
 import { loadSettings, settings } from '../app/ts/common/settings';
 
 describe('settings load error handling', () => {
-  test('sends IPC message when read fails', async () => {
+  test('fails silently when read fails', async () => {
     const tmpDir = fs.mkdtempSync(path.join(__dirname, 'config'));
     mockGetPath.mockReturnValue(tmpDir);
     settings['custom.configuration'].filepath = 'fail.json';
@@ -15,7 +15,7 @@ describe('settings load error handling', () => {
     const loaded = await loadSettings();
 
     expect(loaded).toEqual(original);
-    expect(mockIpcSend).toHaveBeenCalledWith('app:error', expect.stringContaining('fail'));
+    expect(mockIpcSend).not.toHaveBeenCalled();
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 });
