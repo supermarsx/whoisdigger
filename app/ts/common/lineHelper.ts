@@ -52,7 +52,10 @@ export function fileReadLines(filePath: string, lines = 2, startLine = 0): Promi
       resolve(linesRead);
     });
 
-    lineReader.on('error', (err: Error) => reject(err));
+    lineReader.on('error', (err: Error) => {
+      lineReader.close();
+      reject(err);
+    });
   });
 }
 
