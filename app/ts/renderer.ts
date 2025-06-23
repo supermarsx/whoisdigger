@@ -24,8 +24,18 @@ interface DebugMessage {
   message: string;
 }
 
+interface ErrorMessage {
+  channel: 'app:error';
+  message: string;
+}
+
 function sendDebug(message: string): void {
   const payload: DebugMessage = { channel: 'app:debug', message };
+  ipcRenderer.send(payload.channel, payload.message);
+}
+
+function sendError(message: string): void {
+  const payload: ErrorMessage = { channel: 'app:error', message };
   ipcRenderer.send(payload.channel, payload.message);
 }
 
@@ -49,9 +59,12 @@ $(document).ready(async function() {
   );
   if (fs.existsSync(configPath)) {
     sendDebug('Reading persistent configurations');
-    settings = JSON.parse(
-      await fs.promises.readFile(configPath, 'utf8')
-    ) as Settings;
+    try {
+      const raw = await fs.promises.readFile(configPath, 'utf8');
+      settings = JSON.parse(raw) as Settings;
+    } catch (e) {
+      sendError(`Failed to read configuration: ${e}`);
+    }
   } else {
     sendDebug('Using default configurations');
   }

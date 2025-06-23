@@ -40,17 +40,29 @@ ipcRenderer.on('bw:fileinput.confirmation', async function(event, filePath: stri
     if (isDragDrop === true) {
       $('#bwEntry').addClass('is-hidden');
       $('#bwFileinputloading').removeClass('is-hidden');
-      bwFileStats = (await fs.promises.stat(filePath as string)) as FileStats;
-      bwFileStats.filename = (filePath as string).replace(/^.*[\\\/]/, '');
-      bwFileStats.humansize = conversions.byteToHumanFileSize(bwFileStats.size, misc.useStandardSize);
-      $('#bwFileSpanInfo').text('Loading file contents...');
-      bwFileContents = await fs.promises.readFile(filePath as string);
+      try {
+        bwFileStats = (await fs.promises.stat(filePath as string)) as FileStats;
+        bwFileStats.filename = (filePath as string).replace(/^.*[\\\/]/, '');
+        bwFileStats.humansize = conversions.byteToHumanFileSize(bwFileStats.size, misc.useStandardSize);
+        $('#bwFileSpanInfo').text('Loading file contents...');
+        bwFileContents = await fs.promises.readFile(filePath as string);
+      } catch (e) {
+        ipcRenderer.send('app:error', `Failed to read file: ${e}`);
+        $('#bwFileSpanInfo').text('Failed to load file');
+        return;
+      }
     } else {
-      bwFileStats = (await fs.promises.stat((filePath as string[])[0])) as FileStats;
-      bwFileStats.filename = (filePath as string[])[0].replace(/^.*[\\\/]/, '');
-      bwFileStats.humansize = conversions.byteToHumanFileSize(bwFileStats.size, misc.useStandardSize);
-      $('#bwFileSpanInfo').text('Loading file contents...');
-      bwFileContents = await fs.promises.readFile((filePath as string[])[0]);
+      try {
+        bwFileStats = (await fs.promises.stat((filePath as string[])[0])) as FileStats;
+        bwFileStats.filename = (filePath as string[])[0].replace(/^.*[\\\/]/, '');
+        bwFileStats.humansize = conversions.byteToHumanFileSize(bwFileStats.size, misc.useStandardSize);
+        $('#bwFileSpanInfo').text('Loading file contents...');
+        bwFileContents = await fs.promises.readFile((filePath as string[])[0]);
+      } catch (e) {
+        ipcRenderer.send('app:error', `Failed to read file: ${e}`);
+        $('#bwFileSpanInfo').text('Failed to load file');
+        return;
+      }
     }
     $('#bwFileSpanInfo').text('Getting line count...');
     bwFileStats.linecount = bwFileContents.toString().split('\n').length;

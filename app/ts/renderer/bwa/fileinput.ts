@@ -33,21 +33,33 @@ ipcRenderer.on('bwa:fileinput.confirmation', async function(event, filePath: str
     if (isDragDrop === true) {
       $('#bwaEntry').addClass('is-hidden');
       $('#bwaFileinputloading').removeClass('is-hidden');
-      bwaFileStats = fs.statSync(filePath as string) as FileStats;
-      bwaFileStats.filename = (filePath as string).replace(/^.*[\\\/]/, '');
-      bwaFileStats.humansize = conversions.byteToHumanFileSize(bwaFileStats.size, settings['lookup.misc'].useStandardSize);
-      $('#bwaFileSpanInfo').text('Loading file contents...');
-      bwaFileContents = Papa.parse((await fs.promises.readFile(filePath as string)).toString(), {
-        header: true
-      });
+      try {
+        bwaFileStats = fs.statSync(filePath as string) as FileStats;
+        bwaFileStats.filename = (filePath as string).replace(/^.*[\\\/]/, '');
+        bwaFileStats.humansize = conversions.byteToHumanFileSize(bwaFileStats.size, settings['lookup.misc'].useStandardSize);
+        $('#bwaFileSpanInfo').text('Loading file contents...');
+        bwaFileContents = Papa.parse((await fs.promises.readFile(filePath as string)).toString(), {
+          header: true
+        });
+      } catch (e) {
+        ipcRenderer.send('app:error', `Failed to read file: ${e}`);
+        $('#bwaFileSpanInfo').text('Failed to load file');
+        return;
+      }
     } else {
-      bwaFileStats = fs.statSync((filePath as string[])[0]) as FileStats;
-      bwaFileStats.filename = (filePath as string[])[0].replace(/^.*[\\\/]/, '');
-      bwaFileStats.humansize = conversions.byteToHumanFileSize(bwaFileStats.size, settings['lookup.misc'].useStandardSize);
-      $('#bwaFileSpanInfo').text('Loading file contents...');
-      bwaFileContents = Papa.parse((await fs.promises.readFile((filePath as string[])[0])).toString(), {
-        header: true
-      });
+      try {
+        bwaFileStats = fs.statSync((filePath as string[])[0]) as FileStats;
+        bwaFileStats.filename = (filePath as string[])[0].replace(/^.*[\\\/]/, '');
+        bwaFileStats.humansize = conversions.byteToHumanFileSize(bwaFileStats.size, settings['lookup.misc'].useStandardSize);
+        $('#bwaFileSpanInfo').text('Loading file contents...');
+        bwaFileContents = Papa.parse((await fs.promises.readFile((filePath as string[])[0])).toString(), {
+          header: true
+        });
+      } catch (e) {
+        ipcRenderer.send('app:error', `Failed to read file: ${e}`);
+        $('#bwaFileSpanInfo').text('Failed to load file');
+        return;
+      }
     }
     //console.log(bwaFileContents.data[0]);
     $('#bwaFileSpanInfo').text('Getting line count...');
