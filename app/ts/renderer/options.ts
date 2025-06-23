@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import { settings, saveSettings } from '../common/settings';
-import appDefaults from '../appsettings';
+import appDefaults, { appSettingsDescriptions } from '../appsettings';
 
 function getValue(path: string): any {
   return path.split('.').reduce((obj: any, key: string) => (obj ? obj[key] : undefined), settings);
@@ -48,8 +48,10 @@ function buildEntries(obj: any, prefix: string, table: JQuery<HTMLElement>): voi
       } else {
         inputHtml = `<input id="${id}" class="input is-small" type="text">`;
       }
+      const desc = appSettingsDescriptions[path];
+      const descHtml = desc ? `<p class="help is-size-7">${desc}</p>` : '';
       const row = $(
-        `<tr><th>${key}</th><td class="is-expanded"><div class="field has-addons"><div class="control is-expanded">${inputHtml}</div><div class="control"><button class="button is-small reset-btn" data-path="${path}"><span class="icon is-small"><i class="fas fa-undo"></i></span></button></div><div class="control"><span class="icon result-icon"></span></div></div></td></tr>`
+        `<tr><th>${key}</th><td class="is-expanded"><div class="field has-addons"><div class="control is-expanded">${inputHtml}</div><div class="control"><button class="button is-small reset-btn" data-path="${path}"><span class="icon is-small"><i class="fas fa-undo"></i></span></button></div><div class="control"><span class="icon result-icon"></span></div></div>${descHtml}</td></tr>`
       );
       table.append(row);
     }
