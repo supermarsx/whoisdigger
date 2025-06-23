@@ -2,8 +2,8 @@
 import * as Conversions from './conversions';
 import LineHelper from './lineHelper';
 import { formatString } from './stringformat';
-import { parseRawData as ParseRawData } from './parseRawData';
-import { lookup as WhoisLookup } from './whoiswrapper';
+import { parseRawData as ParseRawData } from './parser';
+import { lookup as WhoisLookup } from './lookup';
 import DnsLookup from './dnsLookup';
 
 export {

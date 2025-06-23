@@ -2,7 +2,7 @@
 import electron from 'electron';
 import * as path from 'path';
 import * as url from 'url';
-import * as whois from '../common/whoiswrapper';
+import { lookup as whoisLookup } from '../common/lookup';
 import debugModule from 'debug';
 const debug = debugModule('main.sw');
 
@@ -30,7 +30,7 @@ ipcMain.on('sw:lookup', async function(event, domain) {
   } = event;
 
   debug('Starting whois lookup');
-  whois.lookup(domain)
+  whoisLookup(domain)
     .then(function(data) {
       debug('Sending back whois reply');
       sender.send('sw:results', data);

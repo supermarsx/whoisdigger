@@ -1,6 +1,8 @@
 
 import electron from 'electron';
-import * as whois from '../../common/whoiswrapper';
+import { lookup as whoisLookup } from '../../common/lookup';
+import { isDomainAvailable, getDomainParameters } from '../../common/availability';
+import { toJSON } from '../../common/parser';
 import debugModule from 'debug';
 const debug = debugModule('main.bw.process');
 import defaultBulkWhois from './process.defaults';
@@ -310,7 +312,7 @@ function processDomain(domainSetup, event) {
 
     try {
       data = (settings['lookup.general'].type == 'whois') ?
-        await whois.lookup(domainSetup.domain, {
+        await whoisLookup(domainSetup.domain, {
           'follow': domainSetup.follow,
           'timeout': domainSetup.timeout
         }) : await dns.hasNsServers(domainSetup.domain);
@@ -400,7 +402,7 @@ function processData(event, domain, index, data = null, isError = false) {
     stats.laststatus.error = domain;
     sender.send('bw:status.update', 'laststatus.error', stats.laststatus.error);
   })() : (function() {
-    domainAvailable = (settings['lookup.general'].type == 'whois') ? whois.isDomainAvailable(data) : dns.isDomainAvailable(data);
+    domainAvailable = (settings['lookup.general'].type == 'whois') ? isDomainAvailable(data) : dns.isDomainAvailable(data);
     switch (domainAvailable) {
       case 'available':
         status.available++;
@@ -450,8 +452,8 @@ function processData(event, domain, index, data = null, isError = false) {
   };
 
   if (settings['lookup.general'].type == 'whois') {
-    resultsJSON = whois.toJSON(data);
-    resultFilter = whois.getDomainParameters(domain, lastStatus, data, resultsJSON);
+    resultsJSON = toJSON(data);
+    resultFilter = getDomainParameters(domain, lastStatus, data, resultsJSON);
   } else {
     resultFilter.domain = domain;
     resultFilter.status = lastStatus;

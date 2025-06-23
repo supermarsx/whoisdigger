@@ -1,6 +1,6 @@
 import '../test/electronMock';
 
-import { isDomainAvailable } from '../app/ts/common/whoiswrapper';
+import { isDomainAvailable } from '../app/ts/common/availability';
 
 describe('isDomainAvailable', () => {
   test('detects available domains from no match message', () => {
