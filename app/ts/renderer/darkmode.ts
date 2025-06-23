@@ -7,13 +7,13 @@ function applyDarkMode(enabled: boolean): void {
 }
 
 $(document).ready(() => {
-  const checkbox = $('#theme\\.darkMode');
+  const select = $('#theme\\.darkMode');
   const stored = settings.theme?.darkMode ?? false;
   applyDarkMode(stored);
-  if (checkbox.length) {
-    checkbox.prop('checked', stored);
-    checkbox.on('change', () => {
-      const state = checkbox.is(':checked');
+  if (select.length) {
+    select.val(stored ? 'true' : 'false');
+    select.on('change', () => {
+      const state = select.val() === 'true';
       settings.theme = settings.theme || { darkMode: false };
       settings.theme.darkMode = state;
       void saveSettings(settings);
