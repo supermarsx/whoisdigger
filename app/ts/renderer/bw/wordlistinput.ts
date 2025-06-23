@@ -2,6 +2,7 @@
 
 /** global: settings */
 const conversions = require('../../common/conversions');
+const { settings } = require('../../common/settings');
 
 const {
   ipcRenderer
