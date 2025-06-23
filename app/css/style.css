@@ -1,5 +1,9 @@
-html {
-  overflow-y: auto
+html, body {
+  overflow-y: hidden;
+}
+
+.hero-body {
+  overflow-y: auto;
 }
 
 /* Tab contents */
