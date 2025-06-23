@@ -94,7 +94,7 @@ describe('bw auxiliary', () => {
       expect(jQuery('#bwExportSelectErrors').val()).toBe('yes');
       expect(jQuery('#bwExportSelectInformation').val()).toBe('domain+basic+debug');
       expect(jQuery('#bwExportSelectReply').val()).toBe('yes+block');
-      jQuery('select').each((_, el) => {
+      jQuery('select').each((_: number, el: HTMLElement) => {
         expect(jQuery(el).prop('disabled')).toBe(true);
       });
     });
@@ -103,7 +103,7 @@ describe('bw auxiliary', () => {
       setExportOptions('import');
       setExportOptions('none');
 
-      jQuery('select').each((_, el) => {
+      jQuery('select').each((_: number, el: HTMLElement) => {
         expect(jQuery(el).prop('disabled')).toBe(false);
       });
     });
@@ -115,7 +115,7 @@ describe('bw auxiliary', () => {
       expect(jQuery('#bwExportSelectErrors').val()).toBe('no');
       expect(jQuery('#bwExportSelectInformation').val()).toBe('domain');
       expect(jQuery('#bwExportSelectReply').val()).toBe('no');
-      jQuery('select').each((_, el) => {
+      jQuery('select').each((_: number, el: HTMLElement) => {
         expect(jQuery(el).prop('disabled')).toBe(false);
       });
     });
@@ -127,7 +127,7 @@ describe('bw auxiliary', () => {
       expect(jQuery('#bwExportSelectErrors').val()).toBe('yes');
       expect(jQuery('#bwExportSelectInformation').val()).toBe('domain+basic');
       expect(jQuery('#bwExportSelectReply').val()).toBe('no');
-      jQuery('select').each((_, el) => {
+      jQuery('select').each((_: number, el: HTMLElement) => {
         expect(jQuery(el).prop('disabled')).toBe(false);
       });
     });

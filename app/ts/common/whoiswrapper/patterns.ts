@@ -217,7 +217,7 @@ function resolvePath(path: string, context: PatternContext): unknown {
   }
   for (const part of parts) {
     if (value === undefined || value === null) return undefined;
-    value = value[part];
+    value = (value as Record<string, unknown>)[part];
   }
   return value;
 }
