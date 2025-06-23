@@ -87,6 +87,17 @@ function openUrl(event: IpcMainEvent, domain: string): void {
     'app.window': appWindow,
   } = settings;
 
+  let target: URL;
+  try {
+    target = new URL(domain);
+    if (target.protocol !== 'http:' && target.protocol !== 'https:') {
+      throw new Error('invalid protocol');
+    }
+  } catch {
+    console.warn(`Invalid URL: ${domain}`);
+    return;
+  }
+
   debug(formatString('Opening {0} on a new window', domain));
 
   let hwnd: any = new BrowserWindow({
