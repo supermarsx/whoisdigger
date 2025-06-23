@@ -29,6 +29,80 @@ export interface PatternCollections {
   error: CompiledPattern[];
 }
 
+export interface BaseConditionSpec {
+  result?: string;
+}
+
+export interface IncludesConditionSpec extends BaseConditionSpec {
+  type: 'includes';
+  value: string;
+}
+
+export interface ExcludesConditionSpec extends BaseConditionSpec {
+  type: 'excludes';
+  value: string;
+}
+
+export interface LessThanConditionSpec extends BaseConditionSpec {
+  type: 'lessthan';
+  parameters: [number];
+  value: string;
+}
+
+export interface MinusLessThanConditionSpec extends BaseConditionSpec {
+  type: 'minuslessthan';
+  parameters: [string, string, number];
+}
+
+export interface HasOwnPropertyConditionSpec extends BaseConditionSpec {
+  type: 'hasOwnProperty';
+  parameters: [string];
+}
+
+export interface MoreThanObjectKeysLengthConditionSpec extends BaseConditionSpec {
+  type: 'morethan.Object.keys.length';
+  parameters: [number];
+  value: string;
+}
+
+export interface EqualConditionSpec extends BaseConditionSpec {
+  type: 'equal';
+  value: string | null;
+}
+
+export interface IncludesExcludesConditionSpec extends BaseConditionSpec {
+  includes?: string | string[];
+  excludes?: string | string[];
+}
+
+export type ConditionSpec =
+  | IncludesConditionSpec
+  | ExcludesConditionSpec
+  | LessThanConditionSpec
+  | MinusLessThanConditionSpec
+  | HasOwnPropertyConditionSpec
+  | MoreThanObjectKeysLengthConditionSpec
+  | EqualConditionSpec
+  | IncludesExcludesConditionSpec;
+
+export type PatternSpec = string | ConditionSpec | ConditionSpec[];
+
+export interface PatternsSpec {
+  special: Record<number, PatternSpec>;
+  available: {
+    notfound: Record<number, PatternSpec>;
+    nomatch: Record<number, PatternSpec>;
+    available: Record<number, PatternSpec>;
+    unique: Record<number, PatternSpec>;
+  };
+  unavailable: Record<number, PatternSpec>;
+  error: {
+    nocontent: Record<number, PatternSpec>;
+    unauthorized: Record<number, PatternSpec>;
+    ratelimiting: Record<number, PatternSpec>;
+  };
+}
+
 export const builtPatterns: PatternCollections = {
   special: [],
   available: [],
@@ -36,7 +110,7 @@ export const builtPatterns: PatternCollections = {
   error: [],
 };
 
-const patterns = {
+const patterns: PatternsSpec = {
 
   // Special cases
   special: {
@@ -222,7 +296,7 @@ function resolvePath(path: string, context: PatternContext): unknown {
   return value;
 }
 
-function compileCondition(cond: any): PatternFunction {
+function compileCondition(cond: ConditionSpec): PatternFunction {
   if (cond.type) {
     switch (cond.type) {
       case 'includes':
@@ -276,16 +350,16 @@ function compileCondition(cond: any): PatternFunction {
   };
 }
 
-function compileSpec(spec: any, defaultResult: string): CompiledPattern {
+function compileSpec(spec: PatternSpec, defaultResult: string): CompiledPattern {
   let result = defaultResult;
   let conditions: PatternFunction[] = [];
   if (typeof spec === 'string') {
     conditions = [compileCondition({ type: 'includes', value: spec })];
   } else if (Array.isArray(spec)) {
     conditions = spec.map((c) => compileCondition(c));
-    const withResult = spec.find((c) => c.result !== undefined);
-    if (withResult) result = withResult.result;
-  } else if (typeof spec === 'object') {
+    const withResult = spec.find((c) => (c as BaseConditionSpec).result !== undefined);
+    if (withResult && (withResult as BaseConditionSpec).result !== undefined) result = (withResult as BaseConditionSpec).result as string;
+  } else {
     conditions = [compileCondition(spec)];
     if (spec.result !== undefined) result = spec.result;
   }
@@ -302,23 +376,24 @@ export function buildPatterns(): void {
   builtPatterns.unavailable = [];
   builtPatterns.error = [];
 
-  for (const key in patterns.special) {
-    const spec = (patterns.special as any)[key];
-    builtPatterns.special.push(compileSpec(spec, spec.result || ''));
+  for (const spec of Object.values(patterns.special)) {
+    const res =
+      typeof spec !== 'string' && !Array.isArray(spec) && spec.result !== undefined
+        ? spec.result
+        : '';
+    builtPatterns.special.push(compileSpec(spec, res));
   }
 
   const avail = patterns.available;
   for (const cat of ['notfound', 'nomatch', 'available', 'unique'] as const) {
-    const group = (avail as any)[cat];
-    for (const k in group) {
-      const spec = group[k];
+    const group = avail[cat];
+    for (const spec of Object.values(group)) {
       builtPatterns.available.push(compileSpec(spec, 'available'));
     }
   }
 
   const unav = patterns.unavailable;
-  for (const k in unav) {
-    const spec = (unav as any)[k];
+  for (const spec of Object.values(unav)) {
     builtPatterns.unavailable.push(compileSpec(spec, 'unavailable'));
   }
 
@@ -329,10 +404,9 @@ export function buildPatterns(): void {
     ratelimiting: 'error:ratelimiting',
   };
   for (const groupKey in err) {
-    const group = (err as any)[groupKey];
+    const group = err[groupKey as keyof typeof err];
     const res = errMap[groupKey];
-    for (const k in group) {
-      const spec = group[k];
+    for (const spec of Object.values(group)) {
       builtPatterns.error.push(compileSpec(spec, res));
     }
   }
