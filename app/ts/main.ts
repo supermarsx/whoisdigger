@@ -94,9 +94,13 @@ app.on('ready', async function() {
   const configPath = path.join(app.getPath('userData'), configuration.filepath);
   if (fs.existsSync(configPath)) {
     debug("Reading persistent configurations");
-    settings = JSON.parse(
-      await fs.promises.readFile(configPath, 'utf8')
-    ) as MainSettings;
+    try {
+      const raw = await fs.promises.readFile(configPath, 'utf8');
+      settings = JSON.parse(raw) as MainSettings;
+    } catch (e) {
+      debug(`Failed to read persistent configurations: ${e}`);
+      dialog.showErrorBox('Error', String(e));
+    }
   } else {
     debug("Using default configurations");
   }
@@ -222,6 +226,17 @@ ipcMain.on('app:minimize', function() {
  */
 ipcMain.on('app:debug', function(event: IpcMainEvent, message: any) {
   debugb(message);
+
+  return;
+});
+
+/*
+  ipcMain.on('app:error', function(...) {...});
+    Application error event
+ */
+ipcMain.on('app:error', function(event: IpcMainEvent, message: any) {
+  debug(`Error: ${message}`);
+  dialog.showErrorBox('Error', String(message));
 
   return;
 });

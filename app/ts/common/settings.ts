@@ -9,7 +9,7 @@ try {
 } catch {
   remote = (electron as any).remote;
 }
-const { app } = electron;
+const { app, ipcRenderer } = electron as any;
 import debugModule from 'debug';
 const debug = debugModule('common.settings');
 
@@ -105,6 +105,9 @@ export async function load(): Promise<Settings> {
       }
     } catch (e) {
       debug(`Failed to load custom configuration with error: ${e}`);
+      if (!isMainProcess && ipcRenderer) {
+        ipcRenderer.send('app:error', `Failed to load configuration: ${e}`);
+      }
     }
   }
 
