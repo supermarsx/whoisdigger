@@ -296,34 +296,56 @@ function resolvePath(path: string, context: PatternContext): unknown {
 }
 
 function compileCondition(cond: ConditionSpec): PatternFunction {
-  if (cond.type) {
+  if ('type' in cond) {
     switch (cond.type) {
       case 'includes':
-        return (ctx) => ctx.resultsText.includes(cond.value);
+        if ('value' in cond) {
+          return (ctx) => ctx.resultsText.includes(cond.value);
+        }
+        break;
       case 'excludes':
-        return (ctx) => !ctx.resultsText.includes(cond.value);
+        if ('value' in cond) {
+          return (ctx) => !ctx.resultsText.includes(cond.value);
+        }
+        break;
       case 'lessthan':
-        return (ctx) => {
-          const v = resolvePath(cond.value, ctx);
-          return Number(v) < cond.parameters[0];
-        };
+        if ('parameters' in cond && 'value' in cond) {
+          return (ctx) => {
+            const v = resolvePath(cond.value, ctx);
+            return Number(v) < cond.parameters[0];
+          };
+        }
+        break;
       case 'minuslessthan':
-        return (ctx) => {
-          const v1 = resolvePath(cond.parameters[0], ctx);
-          const v2 = resolvePath(cond.parameters[1], ctx);
-          const diff = Date.parse(v1 as string) - Date.parse(v2 as string);
-          return diff < cond.parameters[2];
-        };
+        if ('parameters' in cond) {
+          return (ctx) => {
+            const v1 = resolvePath(cond.parameters[0], ctx);
+            const v2 = resolvePath(cond.parameters[1], ctx);
+            const diff = Date.parse(v1 as string) - Date.parse(v2 as string);
+            return diff < cond.parameters[2];
+          };
+        }
+        break;
       case 'hasOwnProperty':
-        return (ctx) =>
-          ctx.resultsJSON && Object.prototype.hasOwnProperty.call(ctx.resultsJSON, cond.parameters[0]);
-        case 'morethan.Object.keys.length':
+        if ('parameters' in cond) {
+          return (ctx) =>
+            ctx.resultsJSON &&
+            Object.prototype.hasOwnProperty.call(ctx.resultsJSON, cond.parameters[0]);
+        }
+        break;
+      case 'morethan.Object.keys.length':
+        if ('value' in cond && 'parameters' in cond) {
           return (ctx) => {
             const obj = resolvePath(cond.value, ctx) as Record<string, unknown> | undefined;
             return !!obj && Object.keys(obj).length > cond.parameters[0];
           };
+        }
+        break;
       case 'equal':
-        return (ctx) => ctx.resultsText === cond.value;
+        if ('value' in cond) {
+          return (ctx) => ctx.resultsText === cond.value;
+        }
+        break;
       default:
         return () => false;
     }
@@ -331,14 +353,14 @@ function compileCondition(cond: ConditionSpec): PatternFunction {
 
   return (ctx) => {
     let ok = true;
-    if (cond.includes) {
+    if ('includes' in cond && cond.includes) {
       if (Array.isArray(cond.includes)) {
         ok = cond.includes.every((s: string) => ctx.resultsText.includes(s));
       } else {
         ok = ctx.resultsText.includes(cond.includes);
       }
     }
-    if (ok && cond.excludes) {
+    if (ok && 'excludes' in cond && cond.excludes) {
       if (Array.isArray(cond.excludes)) {
         ok = !cond.excludes.some((s: string) => ctx.resultsText.includes(s));
       } else {
