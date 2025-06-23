@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import { settings, saveSettings } from '../common/settings';
+import appDefaults from '../appsettings';
 
 function getValue(path: string): any {
   return path.split('.').reduce((obj: any, key: string) => (obj ? obj[key] : undefined), settings);
@@ -23,27 +24,83 @@ function parseValue(val: string): any {
   return val;
 }
 
-function showSaved(): void {
-  const indicator = $('#opSavedIndicator');
-  indicator.removeClass('is-hidden');
-  setTimeout(() => indicator.addClass('is-hidden'), 1500);
+
+function getDefault(path: string): any {
+  return path
+    .split('.')
+    .reduce((obj: any, key: string) => (obj ? obj[key] : undefined), appDefaults.settings);
+}
+
+function buildEntries(obj: any, prefix: string, table: JQuery<HTMLElement>): void {
+  Object.entries(obj).forEach(([key, value]) => {
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      table.append(
+        `<tr><th colspan="2"><h4 class="title is-5">${key}</h4></th></tr>`
+      );
+      buildEntries(value, prefix ? `${prefix}.${key}` : key, table);
+    } else {
+      const path = prefix ? `${prefix}.${key}` : key;
+      const id = `appSettings.${path}`;
+      let inputHtml = '';
+      if (typeof value === 'boolean') {
+        inputHtml =
+          `<div class="select is-small"><select id="${id}"><option value="true">true</option><option value="false">false</option></select></div>`;
+      } else {
+        inputHtml = `<input id="${id}" class="input is-small" type="text">`;
+      }
+      const row = $(
+        `<tr><th>${key}</th><td class="is-expanded"><div class="field has-addons"><div class="control is-expanded">${inputHtml}</div><div class="control"><button class="button is-small reset-btn" data-path="${path}"><span class="icon is-small"><i class="fas fa-undo"></i></span></button></div><div class="control"><span class="icon result-icon"></span></div></div></td></tr>`
+      );
+      table.append(row);
+    }
+  });
+}
+
+function populateInputs(): void {
+  $('#opTable')
+    .find('input[id], select[id]')
+    .each((_, el) => {
+      const $el = $(el);
+      const id = $el.attr('id');
+      if (!id) return;
+      const path = id.replace(/^appSettings\./, 'app.');
+      const val = getValue(path);
+      if (val !== undefined) {
+        if ($el.is('select')) {
+          $el.val(String(val));
+        } else {
+          $el.val(String(val));
+        }
+      }
+    });
+}
+
+function saveEntry(path: string, $input: JQuery<HTMLElement>, val: any): void {
+  setValue(path, val);
+  void saveSettings(settings).then(result => {
+    const icon = $input.closest('.field').find('.result-icon');
+    if (result === 'SAVED' || result === undefined) {
+      icon.html('<i class="fas fa-check has-text-success"></i>');
+    } else {
+      icon.html('<i class="fas fa-times has-text-danger"></i>');
+    }
+    setTimeout(() => icon.empty(), 1500);
+  });
 }
 
 $(document).ready(() => {
   const container = $('#opEntry');
-  container.find('input[id], select[id]').each((_, el) => {
-    const $el = $(el);
-    const id = $el.attr('id');
-    if (!id) return;
-    const path = id.replace(/^appSettings\./, 'app.');
-    const val = getValue(path);
-    if (val !== undefined) {
-      if ($el.is(':checkbox')) {
-        $el.prop('checked', Boolean(val));
-      } else {
-        $el.val(String(val));
-      }
-    }
+  const table = $('#opTable');
+  buildEntries(appDefaults.settings, '', table);
+  populateInputs();
+
+  if (sessionStorage.getItem('settingsLoaded') !== 'true') {
+    $('#settings-not-loaded').removeClass('is-hidden');
+  }
+
+  window.addEventListener('settings-loaded', () => {
+    $('#settings-not-loaded').addClass('is-hidden');
+    populateInputs();
   });
 
   container.on('change', 'input[id], select[id]', function () {
@@ -51,9 +108,21 @@ $(document).ready(() => {
     const id = $el.attr('id');
     if (!id) return;
     const path = id.replace(/^appSettings\./, 'app.');
-    const raw = $el.is(':checkbox') ? $el.prop('checked') : $el.val();
+    const raw = $el.is('select') ? $el.val() : $el.val();
     const val = typeof raw === 'string' ? parseValue(raw) : raw;
-    setValue(path, val);
-    void saveSettings(settings).then(showSaved);
+    saveEntry(path, $el, val);
+  });
+
+  container.on('click', '.reset-btn', function () {
+    const path = $(this).data('path') as string;
+    const def = getDefault(path);
+    const id = `appSettings.${path}`.replace(/\./g, '\\.');
+    const $input = $('#' + id);
+    if ($input.is('select')) {
+      $input.val(String(def));
+    } else {
+      $input.val(String(def));
+    }
+    saveEntry(path, $input, def);
   });
 });

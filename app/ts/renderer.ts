@@ -42,6 +42,8 @@ function sendError(message: string): void {
  */
 $(document).ready(async function() {
   await loadSettings();
+  sessionStorage.setItem('settingsLoaded', 'true');
+  window.dispatchEvent(new Event('settings-loaded'));
   sendDebug('Document is ready');
 
   startup();
