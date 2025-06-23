@@ -183,7 +183,7 @@ You can use assumptions (`lookup.assumptions` settings section) to make more rel
 
 Whoisdigger uses a small build step before packaging. Each packaging command
 compiles the application into the `dist` folder and then invokes
-`electron-packager`.
+`@electron/packager`.
 
 MacOS
 
