@@ -11,7 +11,6 @@ import { processData } from './resultHandler';
 import type { IpcMainEvent } from 'electron';
 
 const debug = debugModule('main.bw.scheduler');
-const settings = loadSettings();
 
 export function processDomain(
   bulkWhois: BulkWhois,
@@ -43,6 +42,7 @@ export function processDomain(
     debug(formatString('Looking up domain: {0}', domainSetup.domain));
 
     try {
+      const settings = await loadSettings();
       data =
         settings['lookup.general'].type == 'whois'
           ? await whoisLookup(domainSetup.domain!, {
@@ -50,7 +50,7 @@ export function processDomain(
               timeout: domainSetup.timeout,
             })
           : await dns.hasNsServers(domainSetup.domain!);
-      processData(bulkWhois, reqtime, event, domainSetup.domain!, domainSetup.index!, data, false);
+      await processData(bulkWhois, reqtime, event, domainSetup.domain!, domainSetup.index!, data, false);
     } catch (e) {
       console.log(e);
       console.trace();

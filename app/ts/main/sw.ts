@@ -18,8 +18,8 @@ const {
 } = electron;
 import { formatString } from '../common/stringformat';
 
-import { loadSettings } from '../common/settings';
-const settings = loadSettings();
+import { loadSettings, Settings } from '../common/settings';
+
 
 /*
   ipcMain.on('sw:lookup', function(...) {...});
@@ -46,12 +46,13 @@ ipcMain.on('sw:lookup', async function(event, domain) {
   ipcMain.on('sw:openlink', function(...) {...});
     Open link or copy to clipboard
  */
-ipcMain.on('sw:openlink', function(event, domain) {
+ipcMain.on('sw:openlink', async function(event, domain) {
+  const settings = await loadSettings();
   const {
     'lookup.misc': misc
   } = settings;
 
-  misc.onlyCopy ? copyToClipboard(event, domain) : openUrl(event, domain);
+  misc.onlyCopy ? copyToClipboard(event, domain) : openUrl(event, domain, settings);
 
   return;
 });
@@ -82,7 +83,7 @@ function copyToClipboard(event: IpcMainEvent, domain: string): void {
     event
     domain
  */
-function openUrl(event: IpcMainEvent, domain: string): void {
+function openUrl(event: IpcMainEvent, domain: string, settings: Settings): void {
   const {
     'app.window': appWindow,
   } = settings;

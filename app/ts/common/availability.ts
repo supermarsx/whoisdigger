@@ -1,10 +1,10 @@
 import debugModule from 'debug';
 import { getDate } from './conversions';
 import { toJSON } from './parser';
-import { load, Settings } from './settings';
+import { settings as appSettings, Settings } from './settings';
 
 const debug = debugModule('common.whoisWrapper');
-let settings: Settings = load();
+let settings: Settings = appSettings;
 
 export interface WhoisResult {
   domain?: string;

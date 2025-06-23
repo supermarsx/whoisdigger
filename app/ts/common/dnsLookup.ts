@@ -3,13 +3,13 @@ import dns from 'dns/promises';
 import psl from 'psl';
 import debugModule from 'debug';
 import { convertDomain } from './lookup';
-import { loadSettings, Settings } from './settings';
+import { settings, Settings } from './settings';
 import { DnsLookupError, Result } from './errors';
 
 const debug = debugModule('common.dnsLookup');
 
 function getSettings(): Settings {
-  return loadSettings();
+  return settings;
 }
 
 

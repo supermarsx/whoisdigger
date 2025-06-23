@@ -30,20 +30,20 @@ describe('openUrl', () => {
     loadURLMock.mockClear();
   });
 
-  test('opens new window for valid http url', () => {
+  test('opens new window for valid http url', async () => {
     settings['lookup.misc'].onlyCopy = false;
     const handler = ipcMainHandlers['sw:openlink'];
-    handler({ sender: { send: jest.fn() } } as any, 'https://example.com');
+    await handler({ sender: { send: jest.fn() } } as any, 'https://example.com');
 
     expect(BrowserWindowMock).toHaveBeenCalled();
     expect(loadURLMock).toHaveBeenCalledWith('https://example.com');
   });
 
-  test('rejects invalid url', () => {
+  test('rejects invalid url', async () => {
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     settings['lookup.misc'].onlyCopy = false;
     const handler = ipcMainHandlers['sw:openlink'];
-    handler({ sender: { send: jest.fn() } } as any, 'ftp://example.com');
+    await handler({ sender: { send: jest.fn() } } as any, 'ftp://example.com');
 
     expect(BrowserWindowMock).not.toHaveBeenCalled();
     expect(warnSpy).toHaveBeenCalled();

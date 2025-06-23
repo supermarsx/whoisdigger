@@ -6,7 +6,7 @@ import { loadSettings, settings } from '../app/ts/common/settings';
 
 
 describe('settings load', () => {
-  test('falls back to defaults when config is corrupt', () => {
+  test('falls back to defaults when config is corrupt', async () => {
     const tmpDir = fs.mkdtempSync(path.join(__dirname, 'config')); 
     mockGetPath.mockReturnValue(tmpDir);
 
@@ -15,7 +15,7 @@ describe('settings load', () => {
     settings['custom.configuration'].filepath = configName;
     fs.writeFileSync(path.join(tmpDir, 'bad.json'), '{ invalid json');
 
-    const loaded = loadSettings();
+    const loaded = await loadSettings();
 
     original['custom.configuration'].filepath = configName;
     expect(loaded).toEqual(original);

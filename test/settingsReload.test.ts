@@ -9,16 +9,16 @@ import { nsLookup } from '../app/ts/common/dnsLookup';
 import { loadSettings, saveSettings, settings } from '../app/ts/common/settings';
 
 describe('settings reload', () => {
-  test('convertDomain reflects saved settings', () => {
+  test('convertDomain reflects saved settings', async () => {
     const tmpDir = fs.mkdtempSync(path.join(__dirname, 'config'));
     mockGetPath.mockReturnValue(tmpDir);
     const originalAlg = settings['lookup.conversion'].algorithm;
     const configName = 'reload.json';
     settings['custom.configuration'].filepath = configName;
 
-    const cfg = loadSettings();
+    const cfg = await loadSettings();
     cfg['lookup.conversion'].algorithm = 'ascii';
-    saveSettings(cfg);
+    await saveSettings(cfg);
 
     const result = convertDomain('t\u00E4st.de');
     expect(result).toBe('tst.de');
@@ -35,9 +35,9 @@ describe('settings reload', () => {
     const configName = 'dns.json';
     settings['custom.configuration'].filepath = configName;
 
-    const cfg = loadSettings();
+    const cfg = await loadSettings();
     cfg['lookup.general'].psl = false;
-    saveSettings(cfg);
+    await saveSettings(cfg);
 
     const resolveMock = jest.spyOn(dns, 'resolve').mockResolvedValue([]);
     await nsLookup('sub.example.com');

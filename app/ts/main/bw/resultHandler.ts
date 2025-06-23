@@ -10,9 +10,8 @@ import { Result, DnsLookupError } from '../../common/errors';
 import type { IpcMainEvent } from 'electron';
 
 const debug = debugModule('main.bw.resultHandler');
-const settings = loadSettings();
 
-export function processData(
+export async function processData(
   bulkWhois: BulkWhois,
   reqtime: any[],
   event: IpcMainEvent,
@@ -20,7 +19,8 @@ export function processData(
   index: number,
   data: string | Result<boolean, DnsLookupError> | null = null,
   isError = false,
-): void {
+): Promise<void> {
+  const settings = await loadSettings();
   let lastweight: number;
   const { sender } = event;
   const { results, stats } = bulkWhois;

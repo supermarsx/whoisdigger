@@ -3,12 +3,12 @@ import puny from 'punycode';
 import uts46 from 'idna-uts46';
 import whois from 'whois';
 import debugModule from 'debug';
-import { loadSettings, Settings } from './settings';
+import { settings, Settings } from './settings';
 
 const debug = debugModule('common.whoisWrapper');
 
 function getSettings(): Settings {
-  return loadSettings();
+  return settings;
 }
 
 const lookupPromise = (...args: unknown[]): Promise<string> => {
