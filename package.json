@@ -15,7 +15,7 @@
     "postbuild": "node postbuild.js",
     "watch": "cross-env DEBUG=* tsc -w",
     "watch-assets": "node watch-assets.js",
-    "dev": "concurrently \"npm:watch\" \"npm:watch-assets\" \"electronmon .\"",
+    "dev": "npm run build && npm run postbuild && concurrently \"npm:watch\" \"npm:watch-assets\" \"electronmon .\"",
     "lint": "eslint \"app/**/*.ts\" \"test/**/*.ts\"",
     "test": "jest",
     "prebuild": "node prebuild.js"

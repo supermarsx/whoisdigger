@@ -21,7 +21,6 @@ import { formatString } from '../common/stringformat';
 import { settings } from '../common/settings';
 import type { Settings } from '../common/settings';
 
-
 /*
   ipcMain.on('sw:lookup', function(...) {...});
     Single whois lookup

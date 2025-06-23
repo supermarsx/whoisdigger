@@ -13,6 +13,8 @@ const { app, ipcRenderer } = electron as any;
 import debugModule from 'debug';
 const debug = debugModule('common.settings');
 
+let watcher: fs.FSWatcher | undefined;
+
 
 export interface Settings {
   'lookup.conversion': { enabled: boolean; algorithm: string };
@@ -73,12 +75,34 @@ const userDataPath = isMainProcess
 function getUserDataPath(): string {
   return userDataPath;
 }
-const filePath = isMainProcess
-  ? path.join(app.getPath('userData'), settings['custom.configuration'].filepath)
-  : path.join(
-      remote?.app?.getPath('userData') ?? '',
-      settings['custom.configuration'].filepath
-    );
+
+function getConfigFile(): string {
+  return path.join(
+    getUserDataPath(),
+    settings['custom.configuration'].filepath
+  );
+}
+
+function watchConfig(): void {
+  if (watcher) {
+    watcher.close();
+  }
+  const cfg = getConfigFile();
+  if (!fs.existsSync(cfg)) {
+    return;
+  }
+  watcher = fs.watch(cfg, { persistent: false }, async event => {
+    if (event !== 'change') return;
+    try {
+      const raw = await fs.promises.readFile(cfg, 'utf8');
+      settings = JSON.parse(raw) as Settings;
+      debug(`Reloaded custom configuration at ${cfg}`);
+    } catch (e) {
+      debug(`Failed to reload configuration with error: ${e}`);
+      // Silently ignore reload errors
+    }
+  });
+}
 
 /*
   load
@@ -105,12 +129,11 @@ export async function load(): Promise<Settings> {
       }
     } catch (e) {
       debug(`Failed to load custom configuration with error: ${e}`);
-      if (!isMainProcess && ipcRenderer) {
-        ipcRenderer.send('app:error', `Failed to load configuration: ${e}`);
-      }
+      // Silently ignore loading errors
     }
   }
 
+  watchConfig();
   return settings;
 }
 
