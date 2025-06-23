@@ -125,7 +125,7 @@ $('#swSearchInputDomain').keyup(function(event) {
   $('#swTdDomain').click(function() {...});
     On click: Open website for domain lookup URL in a new window
  */
-$('#swTdDomain').click(function() {
+$(document).on('click', '#swTdDomain', function() {
   var domain = $('#swTdDomain').attr('url');
   ipcRenderer.send('sw:openlink', domain);
 
@@ -136,7 +136,7 @@ $('#swTdDomain').click(function() {
   $('#swSearchButtonSearch').click(function() {...});
     On click: Single whois lookup/search button
  */
-$('#swSearchButtonSearch').click(function() {
+$(document).on('click', '#swSearchButtonSearch', function() {
   var {
     input
   } = singleWhois;
@@ -164,7 +164,7 @@ $('#swSearchButtonSearch').click(function() {
   $('.swMessageWhoisOpen').click(function() {...});
     On click: Single whois lookup modal open click
  */
-$('.swMessageWhoisOpen').click(function() {
+$(document).on('click', '.swMessageWhoisOpen', function() {
   ipcRenderer.send('app:debug', "Opening whois reply");
   $('#swMessageWhois').addClass('is-active');
 
@@ -175,7 +175,7 @@ $('.swMessageWhoisOpen').click(function() {
   $('#swMessageWhoisClose').click(function() {...});
     On click: Single whois lookup modal close click
  */
-$('#swMessageWhoisClose').click(function() {
+$(document).on('click', '#swMessageWhoisClose', function() {
   ipcRenderer.send('app:debug', "Closing whois reply");
   $('#swMessageWhois').removeClass('is-active');
 
@@ -186,7 +186,7 @@ $('#swMessageWhoisClose').click(function() {
   $('#swDomainCopiedClose').click(function() {...});
     On click: Domain copied close click
  */
-$('#swDomainCopiedClose').click(function() {
+$(document).on('click', '#swDomainCopiedClose', function() {
   ipcRenderer.send('app:debug', "Closing domain copied");
   $('#swDomainCopied').removeClass('is-active');
 
