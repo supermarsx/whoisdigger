@@ -3,7 +3,8 @@
 
 const whois = require('../../common/whoiswrapper'),
   conversions = require('../../common/conversions'),
-  fs = require('fs');
+  fs = require('fs'),
+  debug = require('debug')('renderer.bw.fileinput');
 
 const {
   ipcRenderer
@@ -32,9 +33,9 @@ ipcRenderer.on('bw:fileinput.confirmation', function(event, filePath = null, isD
     }
   };
 
-  //console.log(filePath);
+  debug(filePath);
   if (filePath === undefined || filePath == '' || filePath === null) {
-    //console.log(filePath);
+    debug(filePath);
     $('#bwFileinputloading').addClass('is-hidden');
     $('#bwEntry').removeClass('is-hidden');
   } else {
@@ -78,10 +79,7 @@ ipcRenderer.on('bw:fileinput.confirmation', function(event, filePath = null, isD
 
 
     bwFileStats['filepreview'] = bwFileContents.toString().substring(0, 50);
-    //console.log(readLines(filePath[0]));
-    //console.log(bwFileStats['filepreview']);
-
-    //console.log(lineCount(bwFileContents));
+    debug(bwFileStats['filepreview']);
     $('#bwFileinputloading').addClass('is-hidden');
     $('#bwFileinputconfirm').removeClass('is-hidden');
 
@@ -92,9 +90,9 @@ ipcRenderer.on('bw:fileinput.confirmation', function(event, filePath = null, isD
     $('#bwFileTdFilesize').text(bwFileStats['humansize'] + ' ({0} line(s))'.format(bwFileStats['linecount']));
     $('#bwFileTdFilepreview').text(bwFileStats['filepreview'] + '...');
     //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']);
-    //console.log('cont:'+ bwFileContents);
+    debug('cont:' + bwFileContents);
 
-    //console.log(bwFileStats['linecount']);
+    debug(bwFileStats['linecount']);
   }
 
   return;
@@ -136,10 +134,8 @@ $('#bwFileButtonConfirm').click(function() {
   $('#bwFileinputconfirm').addClass('is-hidden');
   $('#bwProcessing').removeClass('is-hidden');
 
-  /*
-  console.log(bwDomainArray);
-  console.log(bwTldsArray);
-  */
+  debug(bwDomainArray);
+  debug(bwTldsArray);
 
   ipcRenderer.send("bw:lookup", bwDomainArray, bwTldsArray);
 });
@@ -173,24 +169,6 @@ $('#bwFileButtonConfirm').click(function() {
   };
 })();
 
-/*
-$("html").on("dragover", function(event) {
-    event.preventDefault();
-    event.stopPropagation();
-  console.log('dragging');
-});
-
-$("html").on("dragleave", function(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    console.log('dragging');
-});
-
-$("html").on("drop", function(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    alert("Dropped!");
-});*/
 
 /*
   $('#bwMainContainer').on('drop', function(...) {...});
