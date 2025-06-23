@@ -1,6 +1,6 @@
 
 import { load, Settings } from '../settings';
-import { toJSON, getDomainParameters } from '../whoiswrapper';
+import { toJSON, getDomainParameters, WhoisResult } from '../whoiswrapper';
 import { getDate } from '../conversions';
 
 const settings: Settings = load();
@@ -11,8 +11,8 @@ export interface PatternFunction {
 
 export interface PatternContext {
   resultsText: string;
-  resultsJSON: any;
-  domainParams: any;
+  resultsJSON: Record<string, unknown>;
+  domainParams: WhoisResult;
   controlDate: string | undefined;
 }
 
@@ -195,9 +195,9 @@ const patterns = {
   }
 };
 
-function resolvePath(path: string, context: PatternContext): any {
+function resolvePath(path: string, context: PatternContext): unknown {
   const parts = path.split('.');
-  let value: any;
+  let value: unknown;
   switch (parts.shift()) {
     case 'domainParams':
       value = context.domainParams;
@@ -237,7 +237,7 @@ function compileCondition(cond: any): PatternFunction {
         return (ctx) => {
           const v1 = resolvePath(cond.parameters[0], ctx);
           const v2 = resolvePath(cond.parameters[1], ctx);
-          const diff = Date.parse(v1) - Date.parse(v2);
+          const diff = Date.parse(v1 as string) - Date.parse(v2 as string);
           return diff < cond.parameters[2];
         };
       case 'hasOwnProperty':
@@ -337,10 +337,13 @@ export function buildPatterns(): void {
   }
 }
 
-export function checkPatterns(resultsText: string, resultsJSON?: any): string {
+export function checkPatterns(
+  resultsText: string,
+  resultsJSON?: Record<string, unknown>
+): string {
   if (!builtPatterns.available.length) buildPatterns();
 
-  resultsJSON = resultsJSON || toJSON(resultsText);
+  resultsJSON = resultsJSON ?? (toJSON(resultsText) as Record<string, unknown>);
   const domainParams = getDomainParameters(
     null,
     null,

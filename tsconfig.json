@@ -2,19 +2,32 @@
   "compilerOptions": {
     "target": "ES2019",
     "module": "commonjs",
-
     "moduleResolution": "node",
     "allowJs": true,
     "noEmit": false,
     "rootDir": "app/ts",
     "outDir": "dist/app/ts",
     "esModuleInterop": true,
-    "strict": false,
+    "strict": true,
     "skipLibCheck": true,
     "moduleDetection": "force",
-    "types": ["node", "jest"],
-    "typeRoots": ["./node_modules/@types", "./types"]
+    "types": [
+      "node",
+      "jest"
+    ],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./types"
+    ],
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "noImplicitThis": false
   },
-  "include": ["app/ts/**/*.ts", "**/*.d.ts"],
-  "exclude": ["test"]
+  "include": [
+    "app/ts/**/*.ts",
+    "**/*.d.ts"
+  ],
+  "exclude": [
+    "test"
+  ]
 }
