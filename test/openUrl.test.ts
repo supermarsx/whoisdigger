@@ -50,6 +50,17 @@ describe('openUrl', () => {
     warnSpy.mockRestore();
   });
 
+  test('rejects malformed url string', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    settings['lookup.misc'].onlyCopy = false;
+    const handler = ipcMainHandlers['sw:openlink'];
+    await handler({ sender: { send: jest.fn() } } as any, 'http://');
+
+    expect(BrowserWindowMock).not.toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
+
   test('rejects url without http protocol', async () => {
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     settings['lookup.misc'].onlyCopy = false;

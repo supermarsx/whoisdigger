@@ -1,6 +1,6 @@
 
 import electron from 'electron';
-import type { IpcMainEvent } from 'electron';
+import type { IpcMainEvent, BrowserWindow as ElectronBrowserWindow } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
 import { lookup as whoisLookup } from '../common/lookup';
@@ -102,7 +102,7 @@ function openUrl(domain: string, settings: Settings): void {
 
   debug(formatString('Opening {0} on a new window', domain));
 
-  let hwnd: any = new BrowserWindow({
+  let hwnd: ElectronBrowserWindow | null = new BrowserWindow({
     frame: true,
     height: appWindow.height,
     width: appWindow.width,
