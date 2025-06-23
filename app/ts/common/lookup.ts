@@ -3,10 +3,13 @@ import puny from 'punycode';
 import uts46 from 'idna-uts46';
 import whois from 'whois';
 import debugModule from 'debug';
-import { load, Settings } from './settings';
+import { loadSettings, Settings } from './settings';
 
 const debug = debugModule('common.whoisWrapper');
-let settings: Settings = load();
+
+function getSettings(): Settings {
+  return loadSettings();
+}
 
 const lookupPromise = (...args: unknown[]): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -22,7 +25,7 @@ export async function lookup(domain: string, options = getWhoisOptions()): Promi
   const {
     'lookup.conversion': conversion,
     'lookup.general': general,
-  } = settings;
+  } = getSettings();
   let domainResults: string;
 
   try {
@@ -44,7 +47,7 @@ export async function lookup(domain: string, options = getWhoisOptions()): Promi
 export function convertDomain(domain: string, mode?: string): string {
   const {
     'lookup.conversion': conversion,
-  } = settings;
+  } = getSettings();
 
   mode = mode || conversion.algorithm;
 
@@ -67,7 +70,7 @@ export function convertDomain(domain: string, mode?: string): string {
 export function getWhoisOptions(): Record<string, unknown> {
   const {
     'lookup.general': general,
-  } = settings;
+  } = getSettings();
 
   const options: Record<string, unknown> = {},
     follow = 'follow',
@@ -87,7 +90,7 @@ function getWhoisParameters(parameter: string): number | undefined {
     'lookup.randomize.timeout': timeout,
     'lookup.randomize.timeBetween': timeBetween,
     'lookup.general': general,
-  } = settings;
+  } = getSettings();
 
   switch (parameter) {
     case 'follow':
