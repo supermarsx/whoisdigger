@@ -168,6 +168,7 @@ ipcMain.on('bw:export', async function(event, results, options) {
         debug(formatString('File was saved, {0}', filePath));
       } catch (err) {
         debug(err);
+        sender.send('bw:export.error', (err as Error).message);
       }
     }
 
@@ -182,6 +183,7 @@ ipcMain.on('bw:export', async function(event, results, options) {
           debug(formatString('Zip saved, {0}', filePath + zip));
         } catch (err) {
           debug(formatString('Error, {0}', err));
+          sender.send('bw:export.error', (err as Error).message);
         }
         break;
     }
