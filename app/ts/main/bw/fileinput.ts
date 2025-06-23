@@ -11,7 +11,7 @@ const {
   dialog
 } = electron;
 
-var settings = require('../../common/settings').load();
+const settings = require('../../common/settings').load();
 
 /*
   ipcMain.on('bw:input.file', function(...) {...});
@@ -21,13 +21,13 @@ var settings = require('../../common/settings').load();
  */
 ipcMain.on('bw:input.file', function(event) {
   debug("Waiting for file selection");
-  var filePath = dialog.showOpenDialogSync({
+  const filePath = dialog.showOpenDialogSync({
     title: "Select wordlist file",
     buttonLabel: "Open",
     properties: ['openFile', 'showHiddenFiles']
   });
 
-  var {
+  const {
     sender
   } = event;
 
@@ -47,7 +47,7 @@ ipcMain.on('ondragstart', function(event, filePath) {
     'app.window': appWindow
   } = settings;
 
-  var {
+  const {
     sender
   } = event;
 

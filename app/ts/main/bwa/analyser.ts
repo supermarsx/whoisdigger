@@ -19,7 +19,7 @@ const {
     contents (object) - bulk whois lookup results object
  */
 ipcMain.on('bwa:analyser.start', function(event, contents) {
-  var {
+  const {
     sender
   } = event;
 

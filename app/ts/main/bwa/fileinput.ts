@@ -18,12 +18,12 @@ const {
     event
  */
 ipcMain.on('bwa:input.file', function(event) {
-  var {
+  const {
     sender
   } = event;
 
   debug("Waiting for file selection");
-  var filePath = dialog.showOpenDialogSync({
+  const filePath = dialog.showOpenDialogSync({
     title: "Select wordlist file",
     buttonLabel: "Open",
     properties: ['openFile', 'showHiddenFiles']

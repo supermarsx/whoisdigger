@@ -19,7 +19,7 @@ const {
     event (object) - renderer object
  */
 ipcMain.on('bw:input.wordlist', function(event) {
-  var {
+  const {
     sender
   } = event;
 

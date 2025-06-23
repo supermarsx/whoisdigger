@@ -19,8 +19,8 @@ let settings: Settings = load();
     result (boolean) - Returns array if has nameservers, error string on error
  */
 export async function nsLookup(host: string): Promise<string[] | 'error'> {
-  var result;
-  var {
+  let result;
+  const {
     'lookup.conversion': conversion,
     'lookup.general': general
   } = settings;
@@ -52,8 +52,8 @@ export async function nsLookup(host: string): Promise<string[] | 'error'> {
     result (boolean) - True if has nameservers, false if not
  */
 export async function hasNsServers(host: string): Promise<boolean> {
-  var result;
-  var {
+  let result;
+  const {
     'lookup.conversion': conversion,
     'lookup.general': general
   } = settings;
@@ -90,7 +90,7 @@ export async function hasNsServers(host: string): Promise<boolean> {
     result (string) - Availability status
  */
 export function isDomainAvailable(data: boolean | string): string {
-  var result: string;
+  let result: string;
 
   if (data === true) {
     result = 'unavailable';

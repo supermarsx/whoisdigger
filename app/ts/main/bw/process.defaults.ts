@@ -1,5 +1,5 @@
 
-var defaultFirstValue = null, // Default that is equivalent or similar to null value: null, undefined, false..
+const defaultFirstValue = null, // Default that is equivalent or similar to null value: null, undefined, false..
   defaultSecondValue = 0, // Default numeric starting value
   defaultThirdValue = '-',
   defaultForthValue = '.',
