@@ -18,7 +18,7 @@ describe('getDomainSetup', () => {
     settings['lookup.randomize.timeout'].minimum = 10;
     settings['lookup.randomize.timeout'].maximum = 20;
 
-    const result = getDomainSetup({
+    const result = getDomainSetup(settings, {
       timeBetween: true,
       followDepth: true,
       timeout: true,
