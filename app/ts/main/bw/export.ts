@@ -26,7 +26,7 @@ const settings = require('../../common/settings').load();
     results (object) - bulk whois results object
     options (object) - bulk whois export options object
  */
-ipcMain.on('bw:export', function(event, results, options) {
+ipcMain.on('bw:export', async function(event, results, options) {
   const {
     'lookup.export': resExports
   } = settings;
@@ -162,44 +162,25 @@ ipcMain.on('bw:export', function(event, results, options) {
       }
 
       contentsCompile = contentsHeader + contentsExport;
-      fs.writeFile(filePath, contentsCompile, function(err) {
-        if (err) {
-          return debug(err);
-        }
+      try {
+        await fs.promises.writeFile(filePath, contentsCompile);
         debug("File was saved, {0}".format(filePath));
-      });
+      } catch (err) {
+        debug(err);
+      }
     }
 
     switch (true) {
       case (options.whoisreply == 'yes+inlineseparate' && options.filetype == 'csv'):
       case (options.whoisreply == 'yes+block' && options.filetype == 'csv'):
       case (options.filetype == 'txt'):
-        if (JSZip.support.uint8array) {
-          contentZip.generateAsync({
-            type: "uint8array"
-          }).then(function(content) {
-            fs.writeFile(filePath + zip, content, function(err) {
-              if (err) {
-                return debug(err);
-              }
-            });
-            debug("Zip saved, {0}".format(filePath + zip));
-          }).catch(function(err) {
-            debug("Error, {0}".format(err));
-          });
-        } else {
-          contentZip.generateAsync({
-            type: "string"
-          }).then(function(content) {
-            fs.writeFile(filePath + zip, content, function(err) {
-              if (err) {
-                return debug(err);
-              }
-            });
-            debug("Zip saved, {0}".format(filePath + zip));
-          }).catch(function(err) {
-            debug("Error, {0}".format(err));
-          });
+        try {
+          const genType = JSZip.support.uint8array ? 'uint8array' : 'string';
+          const content = await contentZip.generateAsync({ type: genType });
+          await fs.promises.writeFile(filePath + zip, content);
+          debug("Zip saved, {0}".format(filePath + zip));
+        } catch (err) {
+          debug("Error, {0}".format(err));
         }
         break;
     }
