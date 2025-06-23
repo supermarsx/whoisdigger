@@ -10,15 +10,10 @@ import * as fs from 'fs';
     newLineChar (string) - new line character
  */
 export function lineCount(text: string, newLineChar = '\n'): number { // '\n' unix; '\r' macos; '\r\n' windows
-  let lines = 0;
-  for (let char = 0; char <= text.length - newLineChar.length; char++) {
-    if (text.substring(char, char + newLineChar.length) === newLineChar) {
-      lines++;
-      char += newLineChar.length - 1;
-    }
+  if (newLineChar === '') {
+    return 0;
   }
-
-  return lines;
+  return text.split(newLineChar).length - 1;
 }
 
 /*
