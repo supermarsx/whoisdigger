@@ -7,6 +7,9 @@ jest.mock('electron', () => ({
   app: undefined,
   remote: { app: { getPath: mockGetPath } }
 }));
+jest.mock('@electron/remote', () => ({
+  app: { getPath: mockGetPath }
+}));
 
 import { loadSettings, settings } from '../app/ts/common/settings';
 

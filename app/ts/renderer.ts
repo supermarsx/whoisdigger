@@ -43,7 +43,7 @@ $(document).ready(function() {
   // Load custom configuration at startup
 
   const configPath = path.join(
-    remote.app.getPath('userData'),
+    remote && remote.app ? remote.app.getPath('userData') : '',
     configuration.filepath
   );
   if (fs.existsSync(configPath)) {
