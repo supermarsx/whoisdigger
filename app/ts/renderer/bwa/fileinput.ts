@@ -23,9 +23,7 @@ ipcRenderer.on('bwa:fileinput.confirmation', async function(event, filePath: str
 
   $('#bwaFileSpanInfo').text('Waiting for file...');
 
-  //console.log(filePath);
   if (filePath === undefined || filePath == '' || filePath === null) {
-    //console.log(filePath);
     $('#bwaFileinputloading').addClass('is-hidden');
     $('#bwaEntry').removeClass('is-hidden');
   } else {
@@ -49,7 +47,6 @@ ipcRenderer.on('bwa:fileinput.confirmation', async function(event, filePath: str
         header: true
       });
     }
-    //console.log(bwaFileContents.data[0]);
     $('#bwaFileSpanInfo').text('Getting line count...');
     bwaFileStats.linecount = bwaFileContents.data.length;
     try {
@@ -58,12 +55,6 @@ ipcRenderer.on('bwa:fileinput.confirmation', async function(event, filePath: str
       bwaFileStats.filepreview = '';
     }
     bwaFileStats.errors = JSON.stringify(bwaFileContents.errors).slice(1, -1);
-    //console.log(bwaFileContents.data);
-
-    //console.log(readLines(filePath[0]));
-    //console.log(bwFileStats['filepreview']);
-
-    //console.log(lineCount(bwFileContents));
     $('#bwaFileinputloading').addClass('is-hidden');
     $('#bwaFileinputconfirm').removeClass('is-hidden');
 
@@ -75,9 +66,6 @@ ipcRenderer.on('bwa:fileinput.confirmation', async function(event, filePath: str
     $('#bwaFileTdFilepreview').text(String(bwaFileStats.filepreview) + '...');
     $('#bwaFileTextareaErrors').text(String(bwaFileStats.errors || "No errors"));
     //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']);
-    //console.log('cont:'+ bwFileContents);
-
-    //console.log(bwFileStats['linecount']);
   }
 
   return;
