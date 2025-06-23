@@ -36,7 +36,7 @@ describe('openUrl', () => {
     await handler({ sender: { send: jest.fn() } } as any, 'https://example.com');
 
     expect(BrowserWindowMock).toHaveBeenCalled();
-    expect(loadURLMock).toHaveBeenCalledWith('https://example.com');
+    expect(loadURLMock).toHaveBeenCalledWith('https://example.com/');
   });
 
   test('rejects invalid url', async () => {
@@ -44,6 +44,17 @@ describe('openUrl', () => {
     settings['lookup.misc'].onlyCopy = false;
     const handler = ipcMainHandlers['sw:openlink'];
     await handler({ sender: { send: jest.fn() } } as any, 'ftp://example.com');
+
+    expect(BrowserWindowMock).not.toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
+
+  test('rejects url without http protocol', async () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    settings['lookup.misc'].onlyCopy = false;
+    const handler = ipcMainHandlers['sw:openlink'];
+    await handler({ sender: { send: jest.fn() } } as any, 'example.com');
 
     expect(BrowserWindowMock).not.toHaveBeenCalled();
     expect(warnSpy).toHaveBeenCalled();
