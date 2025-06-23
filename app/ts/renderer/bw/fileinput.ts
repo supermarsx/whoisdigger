@@ -24,7 +24,7 @@ var bwFileContents;
     filePath
     isDragDrop
  */
-ipcRenderer.on('bw:fileinput.confirmation', function(event, filePath = null, isDragDrop = false) {
+ipcRenderer.on('bw:fileinput.confirmation', async function(event, filePath = null, isDragDrop = false) {
   var bwFileStats; // File stats, size, last changed, etc
   const misc = settings['lookup.misc'];
   const lookup = {
@@ -43,17 +43,17 @@ ipcRenderer.on('bw:fileinput.confirmation', function(event, filePath = null, isD
     if (isDragDrop === true) {
       $('#bwEntry').addClass('is-hidden');
       $('#bwFileinputloading').removeClass('is-hidden');
-      bwFileStats = fs.statSync(filePath);
+      bwFileStats = await fs.promises.stat(filePath);
       bwFileStats['filename'] = filePath.replace(/^.*[\\\/]/, '');
       bwFileStats['humansize'] = conversions.byteToHumanFileSize(bwFileStats['size'], misc.useStandardSize);
       $('#bwFileSpanInfo').text('Loading file contents...');
-      bwFileContents = fs.readFileSync(filePath);
+      bwFileContents = await fs.promises.readFile(filePath);
     } else {
-      bwFileStats = fs.statSync(filePath[0]);
+      bwFileStats = await fs.promises.stat(filePath[0]);
       bwFileStats['filename'] = filePath[0].replace(/^.*[\\\/]/, '');
       bwFileStats['humansize'] = conversions.byteToHumanFileSize(bwFileStats['size'], misc.useStandardSize);
       $('#bwFileSpanInfo').text('Loading file contents...');
-      bwFileContents = fs.readFileSync(filePath[0]);
+      bwFileContents = await fs.promises.readFile(filePath[0]);
     }
     $('#bwFileSpanInfo').text('Getting line count...');
     bwFileStats['linecount'] = bwFileContents.toString().split('\n').length;
