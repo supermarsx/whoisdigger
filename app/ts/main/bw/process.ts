@@ -83,7 +83,7 @@ ipcMain.on('bw:lookup', async function(event: IpcMainEvent, domains: string[], t
   domainsPending.push(...compileQueue(input.domains, input.tlds, tldSeparator));
 
   // Process compiled domains into future requests
-  for (let domain in domainsPending) {
+  for (const [index, domain] of domainsPending.entries()) {
 
     domainSetup = getDomainSetup(settings, {
       timeBetween: settings['lookup.randomize.timeBetween'].randomize,
@@ -91,14 +91,14 @@ ipcMain.on('bw:lookup', async function(event: IpcMainEvent, domains: string[], t
       timeout: settings['lookup.randomize.timeout'].randomize
     });
     domainSetup.timebetween = settings['lookup.general'].useDnsTimeBetweenOverride ? settings['lookup.general'].dnsTimeBetween : domainSetup.timebetween;
-    domainSetup.domain = domainsPending[domain];
-    domainSetup.index = Number(domain);
+    domainSetup.domain = domain;
+    domainSetup.index = index;
 
     debug(formatString('Using timebetween, {0}, follow, {1}, timeout, {2}', domainSetup.timebetween, domainSetup.follow, domainSetup.timeout));
 
     processDomain(bulkWhois, reqtime, domainSetup, event);
 
-    stats.domains.processed = Number(domainSetup.index) + 1;
+    stats.domains.processed = domainSetup.index + 1;
     sender.send('bw:status.update', 'domains.processed', stats.domains.processed);
 
   } // End processing for loop
