@@ -34,6 +34,7 @@ export interface Settings {
   'lookup.randomize.timeBetween': { randomize: boolean; minimum: number; maximum: number };
   'lookup.assumptions': { uniregistry: boolean; ratelimit: boolean; unparsable: boolean; dnsFailureUnavailable: boolean };
   'custom.configuration': { filepath: string; load: boolean; save: boolean };
+  theme: { darkMode: boolean };
   [key: string]: any;
 }
 

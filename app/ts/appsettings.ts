@@ -39,6 +39,9 @@ const appSettings = {
     'startup': { // Application startup
       'developerTools': false, // Enable/Show developer tools at startup (default: false)
     },
+    'theme': { // Application theme settings
+      'darkMode': false // Enable dark mode theme (default: false)
+    },
     'app.window.url': { // Window URL
       'pathname': path.join(__dirname, '../html/mainPanel.html'), // Main html file location
       'protocol': 'file:', // Path protocol (default: file:)
