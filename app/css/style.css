@@ -1,5 +1,11 @@
-html, body {
+html,
+body {
   overflow-y: hidden;
+  height: 100vh;
+}
+
+#app {
+  height: 100vh;
 }
 
 .hero-body {
@@ -88,7 +94,8 @@ html, body {
     display: block;
   }
 
-  .navbar-item, .navbar-brand {
+  .navbar-item,
+  .navbar-brand {
     align-items: center;
     display: flex;
   }
@@ -107,7 +114,11 @@ input {
 }
 
 @media screen and (min-width: 1088px) {
-  .navbar, .navbar-end, .navbar-menu, .navbar-start {
+
+  .navbar,
+  .navbar-end,
+  .navbar-menu,
+  .navbar-start {
     align-items: normal;
     display: block;
   }
@@ -121,10 +132,17 @@ input {
   .navbar-burger {
     display: block;
   }
+
   .navbar-brand {
     width: 100%;
   }
+
   #navTop {
     width: 100%;
   }
+}
+
+body.has-navbar-fixed-top,
+html.has-navbar-fixed-top {
+  padding-top: 0 !important;
 }
