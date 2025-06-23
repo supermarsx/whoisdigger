@@ -148,3 +148,8 @@ body.has-navbar-fixed-top,
 html.has-navbar-fixed-top {
   padding-top: 0 !important;
 }
+
+#swSearchButtonSearch {
+  height: 100%;
+  border-radius: 0;
+}
