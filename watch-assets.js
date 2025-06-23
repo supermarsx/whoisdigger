@@ -22,6 +22,13 @@ for (const folder of folders) {
   copyRecursiveSync(src, dest);
 }
 
+// Also copy Bulma CSS from node_modules so style.css can import it.
+const bulmaSrc = path.join(__dirname, 'node_modules', 'bulma', 'css');
+const bulmaDest = path.join(distDir, 'css', 'bulma', 'css');
+if (fs.existsSync(bulmaSrc)) {
+  copyRecursiveSync(bulmaSrc, bulmaDest);
+}
+
 const patterns = folders.map(f => `app/${f}/**/*`);
 const watcher = watchboy(patterns, { cwd: __dirname });
 
