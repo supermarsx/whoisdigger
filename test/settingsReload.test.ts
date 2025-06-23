@@ -32,7 +32,7 @@ describe('settings reload', () => {
     mockGetPath.mockReturnValue(tmpDir);
     const originalPsl = settings['lookup.general'].psl;
     const originalPath = settings['custom.configuration'].filepath;
-    const configName = 'dns.json';
+    const configName = 'settings.json';
     settings['custom.configuration'].filepath = configName;
 
     await loadSettings();

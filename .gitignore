@@ -2,6 +2,6 @@ release_builds/
 node_modules/
 dist/
 
-dns.json
+settings.json
 reload.json
 .DS_Store
