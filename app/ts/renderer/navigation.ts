@@ -152,3 +152,15 @@ $(document).on('click', '#navButtonExit', function() {
 
   return;
 });
+
+/*
+  $('.modal').click(function(event) {...});
+    Close modals when clicking outside the lightbox
+*/
+$(document).on('click', '.modal', function(event) {
+  if ($(event.target).is('.modal') || $(event.target).is('.modal-background')) {
+    $(this).removeClass('is-active');
+  }
+
+  return;
+});
