@@ -1,4 +1,3 @@
-// jshint esversion: 8
 
 import * as changeCase from 'change-case';
 import { XmlEntities } from 'html-entities';

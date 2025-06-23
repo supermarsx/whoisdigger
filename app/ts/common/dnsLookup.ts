@@ -1,4 +1,3 @@
-// jshint esversion: 8
 
 import dns from 'dns/promises';
 import psl from 'psl';

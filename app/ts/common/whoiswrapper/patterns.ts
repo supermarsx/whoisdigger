@@ -1,4 +1,3 @@
-// jshint esversion: 8, -W069
 
 import { load, Settings } from '../settings';
 import { toJSON, getDomainParameters } from '../whoiswrapper';

@@ -1,4 +1,3 @@
-// jshint esversion: 8, -W069
 
 const whois = require('../common/whoiswrapper'),
   parseRawData = require('../common/parseRawData');

@@ -1,4 +1,3 @@
-// jshint esversion: 8
 
 /*
   formatString Helper

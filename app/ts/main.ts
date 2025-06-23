@@ -1,4 +1,3 @@
-// jshint esversion: 8, -W104, -W069
 
 import {
   app,

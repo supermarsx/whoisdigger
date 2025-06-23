@@ -1,4 +1,3 @@
-// jshint esversion: 8
 
 import * as Conversions from './conversions';
 import LineHelper from './lineHelper';
