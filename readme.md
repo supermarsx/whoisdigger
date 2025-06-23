@@ -17,6 +17,7 @@ If you clone this repo please patch `node_modules\whois\index.js` and remove the
 - [Features](#features)
 - [Important notice](#important-notice)
 - [Quick start](#quick-start)
+- [Setup](#setup)
 - [Development setup](#development-setup)
 - [Building](#building)
 - [Built with](#built-with)
@@ -154,11 +155,18 @@ Exporting as text will only export raw replies for each domain in a zip file, as
 
 Errors during bulk lookups are pretty common due to sheer request volume, this means that you'll have requests periodically getting blocked, rejected, throttled or delayed (might result in false negatives, false positives in rare cases or errors). Errors may and usually signal that a domain is already registered, at times you can assume that but take into account the domain name, tld and probability of it being registered. Whoisdigger includes assumptions settings that you can tweak for specific scenarios, see assumptions below for more.
 
+## Setup
+
+Run `npm ci` before testing or linting to install the exact dependency versions
+listed in `package-lock.json`.
+If `node_modules` is missing, `npm run prebuild` will automatically fetch
+dependencies before building.
+
 ## Development setup
 
-Run `npm install` before testing to download all runtime and development dependencies.
+Run `npm ci` before testing or linting to install dependencies exactly as locked.
 After installing, execute `npm test` to run the project's unit tests.
-Development packages such as `@types/node` and `@types/jest` are required for TypeScript compilation and running tests. A `prebuild` script in `package.json` checks for `node_modules` and aborts if dependencies are missing.
+Development packages such as `@types/node` and `@types/jest` are required for TypeScript compilation and running tests. The `prebuild` script will auto-install dependencies if `node_modules` is missing.
 Use `npm run dev` to watch source files and automatically reload the application during development. Static assets such as stylesheets are synced to `dist` while this command runs, so CSS changes are picked up without rebuilding.
 
 
