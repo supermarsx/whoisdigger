@@ -98,8 +98,12 @@ function compileString(parsedTime: ParsedTime): string {
  */
 export function getDate(date: string | Date | undefined | null | boolean): string | undefined {
   if (date === null || date === '' || date === false || date === undefined) return undefined;
-  const parsed = new Date(Date.parse(date as string)).toUTCString();
-  if (parsed == 'Invalid Date') return date as unknown as string;
+
+  const timestamp = Date.parse(date as string);
+  if (Number.isNaN(timestamp)) return undefined;
+
+  const parsed = new Date(timestamp).toUTCString();
+  if (parsed === 'Invalid Date') return undefined;
 
   return parsed;
 }

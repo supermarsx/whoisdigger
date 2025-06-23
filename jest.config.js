@@ -4,5 +4,10 @@ module.exports = {
   testMatch: ['**/test/**/*.test.ts'],
   transform: {
     '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.json' }]
+  },
+  globals: {
+    'ts-jest': {
+      diagnostics: false
+    }
   }
 };

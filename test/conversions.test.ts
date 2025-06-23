@@ -14,7 +14,15 @@ describe('conversions', () => {
     expect(getDate(date)).toBe(date.toUTCString());
   });
 
-  test('getDate returns input for invalid dates', () => {
-    expect(getDate('invalid')).toBe('invalid');
+  test('getDate returns undefined for invalid dates', () => {
+    expect(getDate('invalid')).toBeUndefined();
+  });
+
+  test('getDate returns undefined for empty input', () => {
+    expect(getDate('')).toBeUndefined();
+  });
+
+  test('getDate returns undefined for null', () => {
+    expect(getDate(null)).toBeUndefined();
   });
 });
