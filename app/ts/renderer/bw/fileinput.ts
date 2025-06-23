@@ -1,5 +1,3 @@
-/** global: appSettings */
-
 import * as conversions from '../../common/conversions';
 import fs from 'fs';
 import type { FileStats } from '../../common/fileStats';
@@ -10,6 +8,7 @@ import { ipcRenderer } from 'electron';
 import { tableReset } from './auxiliary';
 
 import { formatString } from '../../common/stringformat';
+import { settings } from '../../common/settings';
 
 let bwFileContents: Buffer;
 

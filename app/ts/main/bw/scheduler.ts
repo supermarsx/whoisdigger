@@ -5,7 +5,7 @@ import * as dns from '../../common/dnsLookup';
 import { Result, DnsLookupError } from '../../common/errors';
 import { formatString } from '../../common/stringformat';
 import { msToHumanTime } from '../../common/conversions';
-import { loadSettings } from "../../common/settings";
+import { settings } from "../../common/settings";
 import type { BulkWhois, DomainSetup } from './types';
 import { processData } from './resultHandler';
 import type { IpcMainEvent } from 'electron';
@@ -42,7 +42,6 @@ export function processDomain(
     debug(formatString('Looking up domain: {0}', domainSetup.domain));
 
     try {
-      const settings = await loadSettings();
       data =
         settings['lookup.general'].type == 'whois'
           ? await whoisLookup(domainSetup.domain!, {

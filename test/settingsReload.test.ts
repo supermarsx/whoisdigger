@@ -16,9 +16,9 @@ describe('settings reload', () => {
     const configName = 'reload.json';
     settings['custom.configuration'].filepath = configName;
 
-    const cfg = await loadSettings();
-    cfg['lookup.conversion'].algorithm = 'ascii';
-    await saveSettings(cfg);
+    await loadSettings();
+    settings['lookup.conversion'].algorithm = 'ascii';
+    await saveSettings(settings);
 
     const result = convertDomain('t\u00E4st.de');
     expect(result).toBe('tst.de');
@@ -35,9 +35,9 @@ describe('settings reload', () => {
     const configName = 'dns.json';
     settings['custom.configuration'].filepath = configName;
 
-    const cfg = await loadSettings();
-    cfg['lookup.general'].psl = false;
-    await saveSettings(cfg);
+    await loadSettings();
+    settings['lookup.general'].psl = false;
+    await saveSettings(settings);
 
     const resolveMock = jest.spyOn(dns, 'resolve').mockResolvedValue([]);
     await nsLookup('sub.example.com');

@@ -18,7 +18,8 @@ const {
 } = electron;
 import { formatString } from '../common/stringformat';
 
-import { loadSettings, Settings } from '../common/settings';
+import { settings } from '../common/settings';
+import type { Settings } from '../common/settings';
 
 
 /*
@@ -46,8 +47,7 @@ ipcMain.on('sw:lookup', async function(event, domain) {
   ipcMain.on('sw:openlink', function(...) {...});
     Open link or copy to clipboard
  */
-ipcMain.on('sw:openlink', async function(event, domain) {
-  const settings = await loadSettings();
+ipcMain.on('sw:openlink', function(event, domain) {
   const {
     'lookup.misc': misc
   } = settings;

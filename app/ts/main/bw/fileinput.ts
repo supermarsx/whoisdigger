@@ -12,7 +12,7 @@ const {
 } = electron;
 import { formatString } from '../../common/stringformat';
 
-import { loadSettings } from '../../common/settings';
+import { settings } from '../../common/settings';
 
 /*
   ipcMain.on('bw:input.file', function(...) {...});
@@ -43,8 +43,7 @@ ipcMain.on('bw:input.file', function(event) {
     event (object) - renderer object
     filePath (string) - dropped file path
  */
-ipcMain.on('ondragstart', async function(event, filePath) {
-  const settings = await loadSettings();
+ipcMain.on('ondragstart', function(event, filePath) {
   const {
     'app.window': appWindow
   } = settings;

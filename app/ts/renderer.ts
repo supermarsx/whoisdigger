@@ -3,12 +3,10 @@
 import { ipcRenderer, dialog } from 'electron';
 import * as remote from '@electron/remote';
 import type { IpcRendererEvent } from 'electron';
-import * as fs from 'fs';
-import * as path from 'path';
 import $ from 'jquery';
 
 import './renderer/index';
-import { loadSettings, Settings } from './common/settings';
+import { loadSettings, settings } from './common/settings';
 import { formatString } from './common/stringformat';
 
 (window as any).$ = $;
@@ -17,7 +15,6 @@ import { formatString } from './common/stringformat';
 (window as any).dialog = dialog;
 (window as any).remote = remote;
 
-let settings: Settings;
 
 interface DebugMessage {
   channel: 'app:debug';
@@ -44,34 +41,12 @@ function sendError(message: string): void {
     When document is ready
  */
 $(document).ready(async function() {
-  settings = await loadSettings();
-  const {
-    'custom.configuration': configuration
-  } = settings;
-
+  await loadSettings();
   sendDebug('Document is ready');
-
-  // Load custom configuration at startup
-
-  const configPath = path.join(
-    remote.app.getPath('userData'),
-    configuration.filepath
-  );
-  if (fs.existsSync(configPath)) {
-    sendDebug('Reading persistent configurations');
-    try {
-      const raw = await fs.promises.readFile(configPath, 'utf8');
-      settings = JSON.parse(raw) as Settings;
-    } catch (e) {
-      sendError(`Failed to read configuration: ${e}`);
-    }
-  } else {
-    sendDebug('Using default configurations');
-  }
 
   startup();
   void import('./renderer/navigation');
-  
+
   return;
 });
 
