@@ -1,4 +1,3 @@
-// jshint esversion: 8, -W069
 
 import * as fs from 'fs';
 import * as path from 'path';

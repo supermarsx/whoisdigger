@@ -1,4 +1,3 @@
-// jshint esversion: 8, -W030
 
 const electron = require('electron'),
   path = require('path'),

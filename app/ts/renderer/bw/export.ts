@@ -1,4 +1,3 @@
-// jshint esversion: 8
 
 const whois = require('../../common/whoiswrapper'),
   conversions = require('../../common/conversions'),

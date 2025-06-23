@@ -1,4 +1,3 @@
-//jshint esversion: 8, -W030, -W083
 
 const electron = require('electron'),
   whois = require('../../common/whoiswrapper'),

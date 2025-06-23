@@ -1,4 +1,3 @@
-// jshint esversion: 8, -W069
 
 /** global: settings */
 const conversions = require('../../common/conversions');

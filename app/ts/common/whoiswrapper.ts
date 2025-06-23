@@ -1,4 +1,3 @@
-// jshint esversion: 8, -W069
 /** global: conversion, general, assumptions, timeout, follow, timeBetween */
 
 import psl from 'psl';

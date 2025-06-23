@@ -1,4 +1,3 @@
-// jshint esversion: 8
 
 /* Bulk whois handling */
 require('./bw/wordlistinput'); // Bulk whois by wordlist input

@@ -1,4 +1,3 @@
-// jshint esversion: 8, -W069
 
 /** global: settings */
 const whois = require('../../common/whoiswrapper'),
