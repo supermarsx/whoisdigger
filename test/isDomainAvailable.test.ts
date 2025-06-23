@@ -1,7 +1,4 @@
-jest.mock('electron', () => ({
-  app: undefined,
-  remote: { app: { getPath: jest.fn().mockReturnValue('') } }
-}));
+import '../test/electronMock';
 
 import { isDomainAvailable } from '../app/ts/common/whoiswrapper';
 
