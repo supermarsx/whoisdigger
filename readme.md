@@ -105,6 +105,12 @@ which will compile the source to `dist` and launch the application.
 
 ### Debug
 
+Run with debugging enabled:
+
+```
+npm run debug
+```
+
 Windows Powershell
 
 ```
