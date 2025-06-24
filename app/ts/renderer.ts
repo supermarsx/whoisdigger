@@ -1,6 +1,5 @@
 // Base path --> assets/html
 import { ipcRenderer, dialog } from 'electron';
-import * as remote from '@electron/remote';
 import type { IpcRendererEvent } from 'electron';
 import $ from 'jquery';
 
