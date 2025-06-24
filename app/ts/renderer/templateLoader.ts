@@ -6,7 +6,9 @@ export async function loadTemplate(
   template: string,
   context: any = {}
 ): Promise<void> {
-  const module = await import(`../compiled-templates/${template.replace(/\\.hbs$/, '.js')}`);
+  const module = await import(
+    `../../compiled-templates/${template.replace(/\.hbs$/, '.js')}`
+  );
   const compiled = Handlebars.template(module.default);
   const html = compiled(context);
   $(selector).html(html);
