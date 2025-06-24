@@ -41,26 +41,18 @@ export interface ParsedTime {
 }
 
 export function msToHumanTime(duration = 0): string {
-  const BASE = 10;
-
-  if (parseInt(String(duration), BASE) <= 0 || isNaN(parseInt(String(duration), BASE))) return '-';
+  if (!Number.isFinite(duration) || duration <= 0) return '-';
 
   const parsedTime: ParsedTime = {
-    milliseconds: parseInt((duration % 1000).toString(), BASE),
-    seconds: parseInt((duration / 1000).toFixed(6) as unknown as string, BASE) % 60,
-    minutes: parseInt((duration / (1000 * 60)).toFixed(6) as unknown as string, BASE) % 60,
-    hours: parseInt((duration / (1000 * 60 * 60)).toFixed(6) as unknown as string, BASE) % 24,
-    days: parseInt((duration / (1000 * 60 * 60 * 24)).toFixed(6) as unknown as string, BASE) % 7,
-    weeks:
-      parseInt((duration / (1000 * 60 * 60 * 24 * 7)).toFixed(6) as unknown as string, BASE) % 4,
-    months:
-      parseInt((duration / (1000 * 60 * 60 * 24 * 7 * 4)).toFixed(6) as unknown as string, BASE) %
-      12,
+    milliseconds: Math.floor(duration % 1000),
+    seconds: Math.floor(duration / 1000) % 60,
+    minutes: Math.floor(duration / (1000 * 60)) % 60,
+    hours: Math.floor(duration / (1000 * 60 * 60)) % 24,
+    days: Math.floor(duration / (1000 * 60 * 60 * 24)) % 7,
+    weeks: Math.floor(duration / (1000 * 60 * 60 * 24 * 7)) % 4,
+    months: Math.floor(duration / (1000 * 60 * 60 * 24 * 7 * 4)) % 12,
     years:
-      parseInt(
-        (duration / (1000 * 60 * 60 * 24 * 7 * 4 * 12)).toFixed(6) as unknown as string,
-        BASE
-      ) % 10
+      Math.floor(duration / (1000 * 60 * 60 * 24 * 7 * 4 * 12)) % 10
   };
   let time = '';
 
