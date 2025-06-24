@@ -3,29 +3,19 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"
+    />
 
     <title>whoisdigger</title>
 
-    <script type="text/javascript">
-      if (typeof module === 'object') {
-        window.module = module;
-        module = undefined;
-      }
-    </script>
 
     <link href="../css/cousine.css" rel="stylesheet" />
     <link href="../css/style.css" rel="stylesheet" />
     <link href="../css/tables.css" rel="stylesheet" />
     <!--<link href="../css/fontawesome/all.min.css" rel="stylesheet">-->
-    <script>
-      require('../ts/common/fontawesome.js');
-    </script>
-
-    <script>
-      window.$ = window.jQuery = require('jquery');
-      if (window.module) module = window.module;
-    </script>
+    <script src="../ts/mainPanel.js"></script>
   </head>
 
   <body>
@@ -110,12 +100,8 @@
     </div>
   </body>
   <footer>
-    <script>
-      require('../ts/renderer/loadcontents.js');
-    </script>
-    <script defer>
-      require('../ts/renderer.js');
-    </script>
+    <script src="../ts/renderer/loadcontents.js"></script>
+    <script src="../ts/renderer.js" defer></script>
     <!--<script defer src="../js/renderer/singlewhois.js"></script>-->
   </footer>
 </html>
