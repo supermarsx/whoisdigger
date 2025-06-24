@@ -39,6 +39,16 @@ describe('openUrl', () => {
     expect(loadURLMock).toHaveBeenCalledWith('https://example.com/');
   });
 
+  test('copies url to clipboard when onlyCopy is true', async () => {
+    const { clipboard } = require('electron');
+    settings.lookupMisc.onlyCopy = true;
+    const handler = ipcMainHandlers['singlewhois:openlink'];
+    await handler({ sender: { send: jest.fn() } } as any, 'https://example.com');
+
+    expect(BrowserWindowMock).not.toHaveBeenCalled();
+    expect(clipboard.writeText).toHaveBeenCalledWith('https://example.com');
+  });
+
   test('rejects invalid url', async () => {
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     settings.lookupMisc.onlyCopy = false;
