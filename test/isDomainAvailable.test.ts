@@ -18,6 +18,11 @@ describe('isDomainAvailable', () => {
     expect(isDomainAvailable(reply)).toBe('error:ratelimiting');
   });
 
+  test('handles not found messages', () => {
+    const reply = 'NOT FOUND';
+    expect(isDomainAvailable(reply)).toBe('available');
+  });
+
   test('returns error for empty replies', () => {
     expect(isDomainAvailable('')).toBe('error:nocontent');
   });
