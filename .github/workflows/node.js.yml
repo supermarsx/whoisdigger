@@ -117,3 +117,59 @@ jobs:
         with:
           name: linux-package-${{ matrix.node-version }}
           path: release_builds-${{ matrix.node-version }}
+
+  package-windows:
+    needs: e2e
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x, 23.x, 24.x]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - name: Cache Electron
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/electron
+            ~/.cache/electron-builder
+          key: ${{ runner.os }}-electron-${{ hashFiles('package-lock.json') }}
+      - name: Install dependencies
+        run: npm install
+      - run: npm run package-win
+      - run: mv release_builds release_builds-${{ matrix.node-version }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-package-${{ matrix.node-version }}
+          path: release_builds-${{ matrix.node-version }}
+
+  package-macos:
+    needs: e2e
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x, 23.x, 24.x]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - name: Cache Electron
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/electron
+            ~/.cache/electron-builder
+          key: ${{ runner.os }}-electron-${{ hashFiles('package-lock.json') }}
+      - name: Install dependencies
+        run: npm install
+      - run: npm run package-mac
+      - run: mv release_builds release_builds-${{ matrix.node-version }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-package-${{ matrix.node-version }}
+          path: release_builds-${{ matrix.node-version }}
