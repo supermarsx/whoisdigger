@@ -93,12 +93,12 @@ export function counter(bulkWhois: BulkWhois, event: IpcMainEvent, start = true)
       sender.send('bw:status.update', 'time.current', stats.time.current);
       sender.send('bw:status.update', 'time.remaining', stats.time.remaining);
       if (stats.domains.total == stats.domains.sent && stats.domains.waiting === 0) {
-        clearTimeout(stats.time.counter!);
+        clearInterval(stats.time.counter!);
         sender.send('bw:result.receive', results);
         sender.send('bw:status.update', 'finished');
       }
     }, 1000);
   } else {
-    clearTimeout(stats.time.counter!);
+    clearInterval(stats.time.counter!);
   }
 }
