@@ -24,4 +24,10 @@ $(document).ready(() => {
       applyDarkMode(state);
     });
   }
+
+  window.addEventListener('settings-loaded', () => {
+    const current = settings.theme?.darkMode ?? false;
+    applyDarkMode(current);
+    if (select.length) select.val(current ? 'true' : 'false');
+  });
 });

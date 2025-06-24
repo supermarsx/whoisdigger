@@ -5,7 +5,7 @@ import type { IpcRendererEvent } from 'electron';
 import $ from 'jquery';
 
 import './renderer/index';
-import { loadSettings, settings } from './common/settings';
+import { loadSettings, settings, customSettingsLoaded } from './common/settings';
 import { formatString } from './common/stringformat';
 
 (window as any).$ = $;
@@ -41,6 +41,7 @@ function sendError(message: string): void {
 $(document).ready(async function () {
   await loadSettings();
   sessionStorage.setItem('settingsLoaded', 'true');
+  sessionStorage.setItem('customSettingsLoaded', customSettingsLoaded ? 'true' : 'false');
   window.dispatchEvent(new Event('settings-loaded'));
   sendDebug('Document is ready');
 
