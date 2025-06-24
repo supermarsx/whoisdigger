@@ -205,8 +205,8 @@ You can use assumptions (`lookup.assumptions` settings section) to make more rel
 Whoisdigger uses a small build step before packaging. Each packaging command
 compiles the application into the `dist` folder and then invokes
 `@electron/packager`.
-Running `npm run build` automatically executes the `prebuild` script. `prebuild.js` installs dependencies using `npm install` if `node_modules` is missing.
-`postbuild.js` then bundles CSS using PostCSS by calling `npm run build:css`,
+Running `npm run build` automatically executes the `prebuild` script. `scripts/prebuild.js` installs dependencies using `npm install` if `node_modules` is missing.
+`scripts/postbuild.js` then bundles CSS using PostCSS by calling `npm run build:css`,
 which minifies files from `app/css` into `dist/app/css`.
 
 MacOS

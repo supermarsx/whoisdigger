@@ -1,12 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 const watchboy = require('watchboy');
-const { copyRecursiveSync } = require('./scripts/copyRecursive');
+const { copyRecursiveSync } = require('./copyRecursive');
+const { precompileTemplates } = require('./precompileTemplates');
 const debug = require('debug')('watch-assets');
 
 const folders = ['html', 'html/templates', 'css', 'fonts', 'icons', 'compiled-templates'];
-const appDir = path.join(__dirname, 'app');
-const distDir = path.join(__dirname, 'dist', 'app');
+const rootDir = path.join(__dirname, '..');
+const appDir = path.join(rootDir, 'app');
+const distDir = path.join(rootDir, 'dist', 'app');
 
 function copyFile(src) {
   const rel = path.relative(appDir, src);
@@ -23,17 +25,31 @@ for (const folder of folders) {
   copyRecursiveSync(src, dest);
 }
 
+// Precompile templates initially so dist starts with up-to-date files
+precompileTemplates();
+
 // Also copy Bulma CSS from node_modules so style.css can import it.
-const bulmaSrc = path.join(__dirname, 'node_modules', 'bulma', 'css');
+const bulmaSrc = path.join(rootDir, 'node_modules', 'bulma', 'css');
 const bulmaDest = path.join(distDir, 'css', 'bulma', 'css');
 if (fs.existsSync(bulmaSrc)) {
   copyRecursiveSync(bulmaSrc, bulmaDest);
 }
 
 const patterns = folders.map((f) => `app/${f}/**/*`);
-const watcher = watchboy(patterns, { cwd: __dirname });
+const watcher = watchboy(patterns, { cwd: rootDir });
 
-watcher.on('add', ({ path: p }) => copyFile(p));
-watcher.on('change', ({ path: p }) => copyFile(p));
+watcher.on('add', ({ path: p }) => {
+  copyFile(p);
+  if (p.startsWith(path.join(appDir, 'html', 'templates'))) {
+    precompileTemplates();
+  }
+});
+
+watcher.on('change', ({ path: p }) => {
+  copyFile(p);
+  if (p.startsWith(path.join(appDir, 'html', 'templates'))) {
+    precompileTemplates();
+  }
+});
 
 watcher.on('ready', () => debug('watching assets...'));

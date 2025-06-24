@@ -5,6 +5,7 @@ const emitter = new EventEmitter();
 
 const mkdirMock = jest.fn();
 const copyFileMock = jest.fn();
+const precompileMock = jest.fn();
 
 jest.mock('watchboy', () => {
   return jest.fn(() => emitter);
@@ -20,15 +21,20 @@ jest.mock('../scripts/copyRecursive', () => ({
   copyRecursiveSync: jest.fn()
 }));
 
+jest.mock('../scripts/precompileTemplates', () => ({
+  precompileTemplates: jest.fn((...args: any[]) => precompileMock(...args))
+}));
+
 describe('watch-assets', () => {
   beforeEach(() => {
     mkdirMock.mockClear();
     copyFileMock.mockClear();
+    precompileMock.mockClear();
   });
 
   test('copies changed files into dist/app', () => {
     jest.isolateModules(() => {
-      require('../watch-assets');
+      require('../scripts/watch-assets');
     });
 
     const src = path.join(__dirname, '..', 'app', 'html', 'index.html');
@@ -40,5 +46,18 @@ describe('watch-assets', () => {
 
     expect(mkdirMock).toHaveBeenCalledWith(path.dirname(dest), { recursive: true });
     expect(copyFileMock).toHaveBeenCalledWith(src, dest);
+  });
+
+  test('precompiles templates when a template changes', () => {
+    jest.isolateModules(() => {
+      require('../scripts/watch-assets');
+    });
+
+    const src = path.join(__dirname, '..', 'app', 'html', 'templates', 'test.hbs');
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    emitter.emit('change', { path: src });
+    logSpy.mockRestore();
+
+    expect(precompileMock).toHaveBeenCalled();
   });
 });
