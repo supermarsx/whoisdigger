@@ -162,3 +162,14 @@ html[data-theme='dark'] #toTable .button {
 :root {
   scrollbar-width: thin;
 }
+
+/* Scrollable hero body container */
+#contents-container.hero-body {
+  display: block;
+  overflow-y: auto;
+  height: calc(100vh - var(--bulma-navbar-height));
+}
+
+.hero-head {
+  z-index: 1;
+}
