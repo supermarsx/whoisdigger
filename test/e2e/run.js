@@ -1,41 +1,62 @@
 const path = require('path');
 const assert = require('assert');
-const { Application } = require('spectron');
+const { spawn } = require('child_process');
+const { remote } = require('webdriverio');
 
 (async () => {
   const electronPath = require('electron');
   const appPath = path.join(__dirname, '..', '..', 'dist', 'app', 'ts', 'main.js');
 
-  const app = new Application({
-    path: electronPath,
-    args: [appPath, '--no-sandbox', '--disable-dev-shm-usage'],
-    startTimeout: 10000,
-    waitTimeout: 10000,
-    env: { ELECTRON_ENABLE_LOGGING: 'true' }
+  const chromedriverPath = path.join(
+    __dirname,
+    '..',
+    '..',
+    'node_modules',
+    '.bin',
+    'chromedriver'
+  );
+  const chromedriver = spawn(chromedriverPath, ['--port=9515'], {
+    stdio: 'inherit'
   });
+  await new Promise((r) => setTimeout(r, 1000));
 
   try {
-    await app.start();
-    await app.client.waitUntilWindowLoaded();
+    const browser = await remote({
+      logLevel: 'error',
+      path: '/',
+      port: 9515,
+      capabilities: {
+        browserName: 'chrome',
+        'goog:chromeOptions': {
+          binary: electronPath,
+          args: [appPath, '--no-sandbox', '--disable-dev-shm-usage']
+        }
+      }
+    });
 
-    const count = await app.client.getWindowCount();
-    assert.ok(count > 0, 'No windows were created');
+    await browser.pause(2000);
 
-    await app.client.execute(() => {
+    const handles = await browser.getWindowHandles();
+    assert.ok(handles.length > 0, 'No windows were created');
+
+    await browser.execute(() => {
       const { ipcRenderer } = require('electron');
       ipcRenderer.send('app:minimize');
     });
-    await new Promise((r) => setTimeout(r, 500));
-    const minimized = await app.browserWindow.isMinimized();
+    await browser.pause(500);
+
+    const minimized = await browser.execute(() => {
+      const remote = require('@electron/remote');
+      return remote.BrowserWindow.getFocusedWindow().isMinimized();
+    });
     assert.ok(minimized, 'Window did not minimize via IPC');
 
     console.log('E2E tests passed');
+    await browser.deleteSession();
   } catch (err) {
     console.error(err);
     process.exit(1);
   } finally {
-    if (app && app.isRunning()) {
-      await app.stop();
-    }
+    chromedriver.kill();
   }
 })();
