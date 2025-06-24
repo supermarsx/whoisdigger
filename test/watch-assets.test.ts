@@ -37,8 +37,8 @@ describe('watch-assets', () => {
       require('../scripts/watch-assets');
     });
 
-    const src = path.join(__dirname, '..', 'app', 'html', 'index.html');
-    const dest = path.join(__dirname, '..', 'dist', 'app', 'html', 'index.html');
+    const src = path.join(__dirname, '..', 'app', 'html', 'mainPanel.html');
+    const dest = path.join(__dirname, '..', 'dist', 'app', 'html', 'mainPanel.html');
 
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
     emitter.emit('change', { path: src });
