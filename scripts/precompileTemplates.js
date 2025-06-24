@@ -25,7 +25,7 @@ function precompileTemplates(outputDir = path.join(__dirname, '..', 'app', 'comp
     }
     const compiled = result.stdout.trim();
     const outPath = path.join(outputDir, file.replace(/\.hbs$/, '.js'));
-    fs.writeFileSync(outPath, `export default ${compiled};\n`);
+    fs.writeFileSync(outPath, `module.exports = ${compiled};\n`);
   }
 }
 
