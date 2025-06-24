@@ -29,6 +29,14 @@
   "engines": {
     "node": ">=18"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/supermarsx/whoisdigger.git"
+  },
+  "bugs": {
+    "url": "https://github.com/supermarsx/whoisdigger/issues"
+  },
+  "homepage": "https://github.com/supermarsx/whoisdigger#readme",
   "dependencies": {
     "@electron/packager": "^18.3.6",
     "@electron/remote": "^2.1.2",
