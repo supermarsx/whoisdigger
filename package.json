@@ -17,6 +17,7 @@
     "watch-assets": "node watch-assets.js",
     "dev": "npm run build && npm run postbuild && concurrently \"npm:watch\" \"npm:watch-assets\" \"electronmon .\"",
     "lint": "eslint \"app/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --ignore-path .prettierignore .",
     "test": "jest",
     "prebuild": "node prebuild.js"
   },
