@@ -24,6 +24,9 @@
   },
   "author": "supermarsx",
   "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "@electron/packager": "^18.3.6",
     "@electron/remote": "^2.1.2",
