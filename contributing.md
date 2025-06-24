@@ -15,3 +15,11 @@ Dependabot or other automated tools may open pull requests to update project dep
 3. Check the changelog or release notes of updated packages for breaking changes.
 
 If the tests pass and no breaking changes are found, the update can be merged.
+
+## Automatic formatting
+
+A pre-commit hook runs `npm run format -- --write` to automatically format staged files. You can also run the formatter manually:
+
+```bash
+npm run format -- --write
+```
