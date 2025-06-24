@@ -2,3 +2,4 @@ node_modules/
 dist/
 release_builds/
 package-lock.json
+app/html/templates/mainPanel.hbs
