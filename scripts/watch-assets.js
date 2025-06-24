@@ -22,11 +22,16 @@ function copyFile(src) {
 for (const folder of folders) {
   const src = path.join(appDir, folder);
   const dest = path.join(distDir, folder);
-  copyRecursiveSync(src, dest);
+  if (fs.existsSync(src)) {
+    copyRecursiveSync(src, dest);
+  }
 }
 
-// Precompile templates initially so dist starts with up-to-date files
-precompileTemplates();
+// Only precompile templates if they have not been generated yet
+const compiledDir = path.join(appDir, 'compiled-templates');
+if (!fs.existsSync(compiledDir)) {
+  precompileTemplates();
+}
 
 // Also copy Bulma CSS from node_modules so style.css can import it.
 const bulmaSrc = path.join(rootDir, 'node_modules', 'bulma', 'css');
