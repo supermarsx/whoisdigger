@@ -1,12 +1,12 @@
 import electron from 'electron';
-import type { IpcMainEvent, BrowserWindow as ElectronBrowserWindow } from 'electron';
+import type { IpcMainEvent } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
 import { lookup as whoisLookup } from '../common/lookup';
 import debugModule from 'debug';
 const debug = debugModule('main.singlewhois');
 
-const { app, BrowserWindow, Menu, ipcMain, dialog, remote, clipboard } = electron;
+const { app, Menu, ipcMain, dialog, remote, clipboard, shell } = electron;
 import { formatString } from '../common/stringformat';
 
 import { settings } from '../common/settings';
@@ -62,13 +62,12 @@ function copyToClipboard(event: IpcMainEvent, domain: string): void {
 
 /*
   openUrl
-    Opens a URL in a new browser window (potential security risk)
+    Opens a URL in the user's default browser
   parameters
     domain
     settings
 */
 function openUrl(domain: string, settings: Settings): void {
-  const { appWindow } = settings;
 
   let target: URL;
   try {
@@ -83,22 +82,8 @@ function openUrl(domain: string, settings: Settings): void {
     return;
   }
 
-  debug(formatString('Opening {0} on a new window', domain));
-
-  let hwnd: ElectronBrowserWindow | null = new BrowserWindow({
-    frame: true,
-    height: appWindow.height,
-    width: appWindow.width,
-    icon: appWindow.icon
-  });
-
-  hwnd.setSkipTaskbar(true);
-  hwnd.setMenu(null);
-  hwnd.loadURL(target.href);
-
-  hwnd.on('closed', function () {
-    hwnd = null;
-  });
+  debug(formatString('Opening {0}', domain));
+  shell.openExternal(target.href);
 
   return;
 }
