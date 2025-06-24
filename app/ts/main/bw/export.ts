@@ -1,4 +1,3 @@
-
 import electron from 'electron';
 import fs from 'fs';
 import path from 'path';
@@ -8,14 +7,7 @@ const debug = debugModule('main.bw.export');
 import JSZip from 'jszip';
 import { formatString } from '../../common/stringformat';
 
-const {
-  app,
-  BrowserWindow,
-  Menu,
-  ipcMain,
-  dialog,
-  remote
-} = electron;
+const { app, BrowserWindow, Menu, ipcMain, dialog, remote } = electron;
 
 import { settings } from '../../common/settings';
 
@@ -27,14 +19,10 @@ import { settings } from '../../common/settings';
     results (object) - bulk whois results object
     options (object) - bulk whois export options object
  */
-  ipcMain.handle('bw:export', async function(event, results, options) {
-  const {
-    lookupExport: resExports
-  } = settings;
+ipcMain.handle('bw:export', async function (event, results, options) {
+  const { lookupExport: resExports } = settings;
 
-  const {
-    sender
-  } = event;
+  const { sender } = event;
 
   const s = resExports.separator, // Field separation char
     e = resExports.enclosure, // Field enclosing char
@@ -49,7 +37,8 @@ import { settings } from '../../common/settings';
 
   switch (options.filetype) {
     case 'txt':
-      filters = [{
+      filters = [
+        {
           name: 'All files',
           extensions: ['*']
         },
@@ -60,7 +49,8 @@ import { settings } from '../../common/settings';
       ];
       break;
     case 'csv':
-      filters = [{
+      filters = [
+        {
           name: 'All files',
           extensions: ['*']
         },
@@ -75,32 +65,32 @@ import { settings } from '../../common/settings';
   const filePath = dialog.showSaveDialogSync({
     title: 'Save export file',
     buttonLabel: 'Save',
-    filters,
+    filters
   });
 
   if (filePath === undefined || filePath == '' || filePath === null) {
     debug(formatString('Using selected file at {0}', filePath));
     sender.send('bw:export.cancel');
   } else {
-    let contentsExport = "",
-      contentsHeader = "",
+    let contentsExport = '',
+      contentsHeader = '',
       contentsCompile;
     const toProcess = [];
 
     // Add domains to queue
     for (let i = 0; i < results.id.length; i++) {
       switch (options.domains) {
-        case ('available'):
+        case 'available':
           if (results.status[i] == 'available') {
             toProcess.push(i);
           }
           break;
-        case ('unavailable'):
+        case 'unavailable':
           if (results.status[i] == 'unavailable') {
             toProcess.push(i);
           }
           break;
-        case ('both'):
+        case 'both':
           if (results.status[i] == 'available' || results.status[i] == 'unavailable') {
             toProcess.push(i);
           }
@@ -122,12 +112,15 @@ import { settings } from '../../common/settings';
     if (options.filetype == 'txt') {
       for (let i = 0; i < toProcess.length; i++)
         contentZip.file(results.domain[toProcess[i]] + txt, results.whoisreply[toProcess[i]]);
-
     } else {
       // Make contentsHeader
       contentsHeader += formatString('{0}Domain{0}{1}{0}Status{0}', e, s);
       if (options.information.includes('basic') === true) {
-        contentsHeader += formatString('{1}{0}Registrar{0}{1}{0}Company{0}{1}{0}Creation Date{0}{1}{0}Update Date{0}{1}{0}Expiry Date{0}', e, s);
+        contentsHeader += formatString(
+          '{1}{0}Registrar{0}{1}{0}Company{0}{1}{0}Creation Date{0}{1}{0}Update Date{0}{1}{0}Expiry Date{0}',
+          e,
+          s
+        );
       }
       if (options.information.includes('debug') === true) {
         contentsHeader += formatString('{1}{0}ID{0}{1}{0}Request Time{0}', e, s);
@@ -137,25 +130,45 @@ import { settings } from '../../common/settings';
       }
       // Process information for CSV
       for (let i = 0; i < toProcess.length; i++) {
-        contentsExport += formatString('{2}{0}{3}{0}{1}{0}{4}{0}', e, s, l, results.domain[toProcess[i]], results.status[toProcess[i]]);
+        contentsExport += formatString(
+          '{2}{0}{3}{0}{1}{0}{4}{0}',
+          e,
+          s,
+          l,
+          results.domain[toProcess[i]],
+          results.status[toProcess[i]]
+        );
 
         if (options.information.includes('basic') === true) {
-          contentsExport += formatString('{1}{0}{2}{0}{1}{0}{3}{0}{1}{0}{4}{0}{1}{0}{5}{0}{1}{0}{6}{0}', e, s,
-            results.registrar[toProcess[i]], results.company[toProcess[i]], results.creationdate[toProcess[i]], results.updatedate[toProcess[i]], results.expirydate[toProcess[i]]
+          contentsExport += formatString(
+            '{1}{0}{2}{0}{1}{0}{3}{0}{1}{0}{4}{0}{1}{0}{5}{0}{1}{0}{6}{0}',
+            e,
+            s,
+            results.registrar[toProcess[i]],
+            results.company[toProcess[i]],
+            results.creationdate[toProcess[i]],
+            results.updatedate[toProcess[i]],
+            results.expirydate[toProcess[i]]
           );
         }
 
         if (options.information.includes('debug') === true)
-          contentsExport += formatString('{1}{0}{2}{0}{1}{0}{3}{0}', e, s, results.id[toProcess[i]], results.requesttime[toProcess[i]]);
+          contentsExport += formatString(
+            '{1}{0}{2}{0}{1}{0}{3}{0}',
+            e,
+            s,
+            results.id[toProcess[i]],
+            results.requesttime[toProcess[i]]
+          );
 
         switch (options.whoisreply) {
-          case ('yes+inline'):
+          case 'yes+inline':
             contentsExport += formatString('{1}{0}{2}{0}', e, s, results.whoisreply[toProcess[i]]);
             break;
-          case ('yes+inlineseparate'):
+          case 'yes+inlineseparate':
             contentZip.file(results.domain[toProcess[i]] + csv, results.whoisjson[toProcess[i]]);
             break;
-          case ('yes+block'):
+          case 'yes+block':
             contentZip.file(results.domain[toProcess[i]] + txt, results.whoisreply[toProcess[i]]);
             break;
         }
@@ -172,9 +185,9 @@ import { settings } from '../../common/settings';
     }
 
     switch (true) {
-      case (options.whoisreply == 'yes+inlineseparate' && options.filetype == 'csv'):
-      case (options.whoisreply == 'yes+block' && options.filetype == 'csv'):
-      case (options.filetype == 'txt'):
+      case options.whoisreply == 'yes+inlineseparate' && options.filetype == 'csv':
+      case options.whoisreply == 'yes+block' && options.filetype == 'csv':
+      case options.filetype == 'txt':
         try {
           const genType = JSZip.support.uint8array ? 'uint8array' : 'string';
           const content = await contentZip.generateAsync({ type: genType });
@@ -188,5 +201,4 @@ import { settings } from '../../common/settings';
     }
   }
   sender.send('bw:export.cancel');
-
 });

@@ -1,12 +1,4 @@
-
-import {
-  app,
-  BrowserWindow,
-  Menu,
-  ipcMain,
-  dialog,
-  
-} from 'electron';
+import { app, BrowserWindow, Menu, ipcMain, dialog } from 'electron';
 import * as url from 'url';
 import debugModule from 'debug';
 import { loadSettings, settings as store } from './common/settings';
@@ -78,18 +70,14 @@ let mainWindow: BrowserWindow;
   app.on('ready', function() {...}
     When application is ready
  */
-app.on('ready', async function() {
+app.on('ready', async function () {
   initializeRemote();
   await loadSettings();
   settings = store as MainSettings;
-  const {
-    appWindow,
-    appWindowWebPreferences: webPreferences,
-    appWindowUrl: appUrl
-  } = settings;
+  const { appWindow, appWindowWebPreferences: webPreferences, appWindowUrl: appUrl } = settings;
 
   // Some application start debugging messages
-  debug("App is starting");
+  debug('App is starting');
   debug(formatString("'appWindow.frame': {0}", appWindow.frame));
   debug(formatString("'appWindow.height': {0}", appWindow.height));
   debug(formatString("'appWindow.width': {0}", appWindow.width));
@@ -128,11 +116,13 @@ app.on('ready', async function() {
   enableRemote(mainWindow.webContents);
 
   // mainWindow, Main window URL load
-  mainWindow.loadURL(url.format({
-    pathname: appUrl.pathname,
-    protocol: appUrl.protocol,
-    slashes: appUrl.slashes
-  }));
+  mainWindow.loadURL(
+    url.format({
+      pathname: appUrl.pathname,
+      protocol: appUrl.protocol,
+      slashes: appUrl.slashes
+    })
+  );
 
   // Some more debugging messages
   debug(formatString("'settings.url.protocol': {0}", appUrl.protocol));
@@ -143,7 +133,7 @@ app.on('ready', async function() {
     mainWindow.once('ready-to-show', function() {...});
       Show main window when everything is ready
    */
-  mainWindow.once('ready-to-show', function() {
+  mainWindow.once('ready-to-show', function () {
     startup();
     debug('Showing main window');
     mainWindow.show();
@@ -155,7 +145,7 @@ app.on('ready', async function() {
     mainWindow.on('closed', function() {...});
       Quit application when main window is closed
    */
-  mainWindow.on('closed', function() {
+  mainWindow.on('closed', function () {
     const { appWindow } = settings;
 
     if (appWindow.closable) {
@@ -174,9 +164,7 @@ app.on('ready', async function() {
     Main thread startup checks
  */
 function startup() {
-  const {
-    'startup': startup
-  } = settings;
+  const { startup: startup } = settings;
 
   debug('Doing startup checks');
   debug(formatString("'settings.startup.developerTools': {0}", startup.developerTools));
@@ -189,10 +177,10 @@ function startup() {
   ipcMain.on('app:minimize', function() {...});
     Application minimize event
  */
-ipcMain.on('app:minimize', function() {
+ipcMain.on('app:minimize', function () {
   const { appWindow } = settings;
   if (appWindow.minimizable) {
-    debug("App minimized");
+    debug('App minimized');
     mainWindow.minimize();
   }
 
@@ -203,7 +191,7 @@ ipcMain.on('app:minimize', function() {
   ipcMain.on('app:debug', function(...) {...});
     Application debug event
  */
-ipcMain.on('app:debug', function(event: IpcMainEvent, message: any) {
+ipcMain.on('app:debug', function (event: IpcMainEvent, message: any) {
   debugb(message);
 
   return;
@@ -213,7 +201,7 @@ ipcMain.on('app:debug', function(event: IpcMainEvent, message: any) {
   ipcMain.on('app:error', function(...) {...});
     Application error event
  */
-ipcMain.on('app:error', function(event: IpcMainEvent, message: any) {
+ipcMain.on('app:error', function (event: IpcMainEvent, message: any) {
   debug(`Error: ${message}`);
   dialog.showErrorBox('Error', String(message));
 

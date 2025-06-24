@@ -1,10 +1,7 @@
-
-
 import debugModule from 'debug';
 import type { IpcMainEvent } from 'electron';
 
 const debug = debugModule('main.bw.auxiliary');
-
 
 /*
   resetUiCounters
@@ -14,11 +11,9 @@ const debug = debugModule('main.bw.auxiliary');
  */
 
 function resetUiCounters(event: IpcMainEvent): void {
-  const {
-    sender
-  } = event;
+  const { sender } = event;
 
-  debug("Resetting bulk whois UI counters");
+  debug('Resetting bulk whois UI counters');
 
   const baseValues: { integer: number; string: string } = {
       integer: 0,
@@ -26,13 +21,24 @@ function resetUiCounters(event: IpcMainEvent): void {
     },
     events: { integer: string[]; string: string[] } = {
       integer: [
-        'time.current', 'time.remaining', // Timers
-        'laststatus.available', 'laststatus.unavailable', 'laststatus.error' // Last domain status
+        'time.current',
+        'time.remaining', // Timers
+        'laststatus.available',
+        'laststatus.unavailable',
+        'laststatus.error' // Last domain status
       ],
       string: [
-        'domains.total', 'domains.waiting', 'domains.sent', 'domains.processed', // Domains
-        'reqtimes.maximum', 'reqtimes.minimum', 'reqtimes.last', 'reqtimes.average', // Request times
-        'status.available', 'status.unavailable', 'status.error' // Number stats
+        'domains.total',
+        'domains.waiting',
+        'domains.sent',
+        'domains.processed', // Domains
+        'reqtimes.maximum',
+        'reqtimes.minimum',
+        'reqtimes.last',
+        'reqtimes.average', // Request times
+        'status.available',
+        'status.unavailable',
+        'status.error' // Number stats
       ]
     },
     channel = 'bw:status.update';
@@ -43,11 +49,6 @@ function resetUiCounters(event: IpcMainEvent): void {
       sender.send(channel, listedEvent, baseValues[eventType]);
     });
   });
-
 }
 
-
-export {
-  resetUiCounters,
-  resetUiCounters as rstUiCntrs,
-};
+export { resetUiCounters, resetUiCounters as rstUiCntrs };

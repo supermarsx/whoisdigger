@@ -2,7 +2,7 @@
 
 <hr>
 
-![Whoisdigger app](https://github.com/whois-team/website/raw/master/images/projects/whoisdigger.gif)  
+![Whoisdigger app](https://github.com/whois-team/website/raw/master/images/projects/whoisdigger.gif)
 
 This application is in **alpha stage**, you may encounter false positives and/or negatives.
 
@@ -98,6 +98,7 @@ After clone, run using
 ```
 npm start
 ```
+
 which will compile the source to `dist` and launch the application.
 
 ### Debug
@@ -119,6 +120,7 @@ npm run debug-cmd
 You can use wordlists by either using a file wordlist in text format or manually input using the text area option. Wordlists should follow sanitization requirements below for the best results although they're not mandatory. Not following the requirements will result in adverse or unwanted results.
 
 Wordlist requirements:
+
 - Deduplicated
 - No spaces
 - No subdomains
@@ -171,7 +173,6 @@ Use `npm run dev` to watch source files and automatically reload the application
 
 Run `npm run format -- --write` before committing to apply Prettier formatting. CI will verify formatting with `npm run format -- --check`.
 
-
 ## Settings
 
 Whoisdigger uses a settings file that rules how the application behaves overall, this can be achieved by either using the preload settings file or change the `appsettings.ts` inside `js`.
@@ -182,7 +183,7 @@ You can use assumptions (`lookup.assumptions` settings section) to make more rel
 
 `uniregistry`, Assume a domain is unavailable when uniregistry query limit is reached, default: true.
 
-​	Note: Uniregistry whois has a very low threshold on whois requests, a few requests with relative small timings in between will result in a sure temporary block, by assuming a rate limiting reply from uniregistry as a taken domain, you ensure that you're not getting a false/undetermined reply error.
+​ Note: Uniregistry whois has a very low threshold on whois requests, a few requests with relative small timings in between will result in a sure temporary block, by assuming a rate limiting reply from uniregistry as a taken domain, you ensure that you're not getting a false/undetermined reply error.
 
 `ratelimit`, Assume a domain is unavailable when getting rate limit reply, default: false
 

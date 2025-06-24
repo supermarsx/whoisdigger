@@ -1,4 +1,3 @@
-
 import * as conversions from '../../common/conversions';
 import { settings } from '../../common/settings';
 
@@ -14,7 +13,7 @@ let bwWordlistContents = ''; // Global wordlist input contents
   ipcRenderer.on('bw:wordlistinput.confirmation', function() {...});
     Wordlist input, contents confirmation container
  */
-ipcRenderer.on('bw:wordlistinput.confirmation', function() {
+ipcRenderer.on('bw:wordlistinput.confirmation', function () {
   const bwFileStats: Record<string, any> = {};
 
   bwWordlistContents = String($('#bwWordlistTextareaDomains').val() ?? '');
@@ -27,13 +26,25 @@ ipcRenderer.on('bw:wordlistinput.confirmation', function() {
     bwFileStats['linecount'] = bwWordlistContents.toString().split('\n').length;
 
     if (settings['lookup.randomize.timeBetween'].randomize === true) {
-      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * settings['lookup.randomize.timeBetween'].minimum);
-      bwFileStats['maxestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * settings['lookup.randomize.timeBetween'].maximum);
-      $('#bwWordlistSpanTimebetweenmin').text(formatString('{0}ms ', settings['lookup.randomize.timeBetween'].minimum));
-      $('#bwWordlistSpanTimebetweenmax').text(formatString('/ {0}ms', settings['lookup.randomize.timeBetween'].maximum));
-      $('#bwWordlistTdEstimate').text(formatString('{0} to {1}', bwFileStats['minestimate'], bwFileStats['maxestimate']));
+      bwFileStats['minestimate'] = conversions.msToHumanTime(
+        bwFileStats['linecount'] * settings['lookup.randomize.timeBetween'].minimum
+      );
+      bwFileStats['maxestimate'] = conversions.msToHumanTime(
+        bwFileStats['linecount'] * settings['lookup.randomize.timeBetween'].maximum
+      );
+      $('#bwWordlistSpanTimebetweenmin').text(
+        formatString('{0}ms ', settings['lookup.randomize.timeBetween'].minimum)
+      );
+      $('#bwWordlistSpanTimebetweenmax').text(
+        formatString('/ {0}ms', settings['lookup.randomize.timeBetween'].maximum)
+      );
+      $('#bwWordlistTdEstimate').text(
+        formatString('{0} to {1}', bwFileStats['minestimate'], bwFileStats['maxestimate'])
+      );
     } else {
-      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * settings.lookupGeneral.timeBetween);
+      bwFileStats['minestimate'] = conversions.msToHumanTime(
+        bwFileStats['linecount'] * settings.lookupGeneral.timeBetween
+      );
       $('#bwWordlistSpanTimebetweenminmax').addClass('is-hidden');
       $('#bwWordlistSpanTimebetweenmin').text(settings.lookupGeneral.timeBetween + 'ms');
       $('#bwWordlistTdEstimate').text(formatString('> {0}', bwFileStats['minestimate']));
@@ -55,7 +66,7 @@ ipcRenderer.on('bw:wordlistinput.confirmation', function() {
   $('#bwEntryButtonWordlist').click(function() {...});
     Wordlist Input, Entry container button
  */
-$(document).on('click', '#bwEntryButtonWordlist', function() {
+$(document).on('click', '#bwEntryButtonWordlist', function () {
   $('#bwEntry').addClass('is-hidden');
   $('#bwWordlistinput').removeClass('is-hidden');
 
@@ -66,7 +77,7 @@ $(document).on('click', '#bwEntryButtonWordlist', function() {
   $('#bwWordlistinputButtonCancel').click(function() {...});
     Wordlist Input, cancel input
  */
-$(document).on('click', '#bwWordlistinputButtonCancel', function() {
+$(document).on('click', '#bwWordlistinputButtonCancel', function () {
   $('#bwWordlistinput').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 
@@ -77,9 +88,9 @@ $(document).on('click', '#bwWordlistinputButtonCancel', function() {
   $('#bwWordlistinputButtonConfirm').click(function() {...});
     Wordlist Input, go to confirm
  */
-$(document).on('click', '#bwWordlistinputButtonConfirm', function() {
+$(document).on('click', '#bwWordlistinputButtonConfirm', function () {
   $('#bwWordlistinput').addClass('is-hidden');
-  ipcRenderer.send("bw:input.wordlist");
+  ipcRenderer.send('bw:input.wordlist');
 
   return;
 });
@@ -88,7 +99,7 @@ $(document).on('click', '#bwWordlistinputButtonConfirm', function() {
   $('#bwWordlistconfirmButtonCancel').click(function() {...});
      Wordlist input, cancel confirmation
  */
-$(document).on('click', '#bwWordlistconfirmButtonCancel', function() {
+$(document).on('click', '#bwWordlistconfirmButtonCancel', function () {
   $('#bwWordlistconfirm').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 
@@ -99,21 +110,22 @@ $(document).on('click', '#bwWordlistconfirmButtonCancel', function() {
   $('#bwWordlistconfirmButtonStart').click(function() {...});
     Wordlist input, proceed to bulk whois
  */
-$(document).on('click', '#bwWordlistconfirmButtonStart', function() {
+$(document).on('click', '#bwWordlistconfirmButtonStart', function () {
   const bwDomainArray = bwWordlistContents
     .toString()
     .split('\n')
     .map(Function.prototype.call, String.prototype.trim);
-  const bwTldsArray = ($('#bwWordlistInputTlds').val() as string | number | string[] | undefined || '')
+  const bwTldsArray = (
+    ($('#bwWordlistInputTlds').val() as string | number | string[] | undefined) || ''
+  )
     .toString()
     .split(',');
-
 
   tableReset(bwDomainArray.length, bwTldsArray.length);
   $('#bwWordlistconfirm').addClass('is-hidden');
   $('#bwProcessing').removeClass('is-hidden');
 
-  ipcRenderer.send("bw:lookup", bwDomainArray, bwTldsArray);
+  ipcRenderer.send('bw:lookup', bwDomainArray, bwTldsArray);
 
   return;
 });
@@ -122,7 +134,7 @@ $(document).on('click', '#bwWordlistconfirmButtonStart', function() {
   $('#bwWordlistInputTlds').keyup(function(...) {...});
     ipsum
  */
-$('#bwWordlistInputTlds').keyup(function(event) {
+$('#bwWordlistInputTlds').keyup(function (event) {
   // Cancel the default action, if needed
   event.preventDefault();
   // Number 13 is the "Enter" key on the keyboard

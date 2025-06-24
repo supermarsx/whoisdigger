@@ -2,7 +2,7 @@ import debugModule from 'debug';
 import { isDomainAvailable, getDomainParameters } from '../../common/availability';
 import { toJSON } from '../../common/parser';
 import { performance } from 'perf_hooks';
-import { settings } from "../../common/settings";
+import { settings } from '../../common/settings';
 import { formatString } from '../../common/stringformat';
 import type { BulkWhois, ProcessedResult } from './types';
 import * as dns from '../../common/dnsLookup';
@@ -18,7 +18,7 @@ export async function processData(
   domain: string,
   index: number,
   data: string | Result<boolean, DnsLookupError> | null = null,
-  isError = false,
+  isError = false
 ): Promise<void> {
   let lastweight: number;
   const { sender } = event;
@@ -42,7 +42,9 @@ export async function processData(
   sender.send('bw:status.update', 'reqtimes.last', reqtimes.last);
 
   if (settings['lookup.misc'].asfOverride) {
-    lastweight = Number(((stats.domains.sent - stats.domains.waiting) / stats.domains.processed).toFixed(2));
+    lastweight = Number(
+      ((stats.domains.sent - stats.domains.waiting) / stats.domains.processed).toFixed(2)
+    );
     reqtimes.average = (
       Number(reqtimes.average) * lastweight +
       (1 - lastweight) * reqtime[index]
@@ -109,12 +111,17 @@ export async function processData(
     expirydate: null,
     whoisreply: null,
     whoisjson: null,
-    requesttime: null,
+    requesttime: null
   };
 
   if (settings.lookupGeneral.type == 'whois') {
     resultsJSON = toJSON(data as string);
-    const params = getDomainParameters(domain, lastStatus ?? null, data as string, resultsJSON as Record<string, unknown>);
+    const params = getDomainParameters(
+      domain,
+      lastStatus ?? null,
+      data as string,
+      resultsJSON as Record<string, unknown>
+    );
     resultFilter.domain = params.domain ?? null;
     resultFilter.status = params.status ?? null;
     resultFilter.registrar = params.registrar ?? null;

@@ -1,4 +1,3 @@
-
 import * as Conversions from './conversions';
 import LineHelper from './lineHelper';
 import { formatString } from './stringformat';

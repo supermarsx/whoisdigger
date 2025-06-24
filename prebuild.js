@@ -16,4 +16,3 @@ if (!fs.existsSync(modulesPath)) {
 
   console.log('\nDependencies installed successfully. Continuing build...');
 }
-

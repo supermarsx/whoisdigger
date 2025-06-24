@@ -5,7 +5,7 @@ import * as dns from '../../common/dnsLookup';
 import { Result, DnsLookupError } from '../../common/errors';
 import { formatString } from '../../common/stringformat';
 import { msToHumanTime } from '../../common/conversions';
-import { settings } from "../../common/settings";
+import { settings } from '../../common/settings';
 import type { BulkWhois, DomainSetup } from './types';
 import { processData } from './resultHandler';
 import type { IpcMainEvent } from 'electron';
@@ -16,59 +16,66 @@ export function processDomain(
   bulkWhois: BulkWhois,
   reqtime: number[],
   domainSetup: DomainSetup,
-  event: IpcMainEvent,
+  event: IpcMainEvent
 ): void {
   debug(
     formatString(
       'Domain: {0}, id/index: {1}, timebetween: {2}',
       domainSetup.domain,
       domainSetup.index,
-      domainSetup.timebetween,
-    ),
+      domainSetup.timebetween
+    )
   );
 
   const { stats, processingIDs } = bulkWhois;
   const { sender } = event;
 
-  processingIDs[domainSetup.index!] = setTimeout(async () => {
-    let data: any;
-    stats.domains.sent++;
-    sender.send('bw:status.update', 'domains.sent', stats.domains.sent);
-    stats.domains.waiting++;
-    sender.send('bw:status.update', 'domains.waiting', stats.domains.waiting);
+  processingIDs[domainSetup.index!] = setTimeout(
+    async () => {
+      let data: any;
+      stats.domains.sent++;
+      sender.send('bw:status.update', 'domains.sent', stats.domains.sent);
+      stats.domains.waiting++;
+      sender.send('bw:status.update', 'domains.waiting', stats.domains.waiting);
 
-    reqtime[domainSetup.index!] = await performance.now();
+      reqtime[domainSetup.index!] = await performance.now();
 
-    debug(formatString('Looking up domain: {0}', domainSetup.domain));
+      debug(formatString('Looking up domain: {0}', domainSetup.domain));
 
-    try {
-      data =
-        settings.lookupGeneral.type == 'whois'
-          ? await whoisLookup(domainSetup.domain!, {
-              follow: domainSetup.follow,
-              timeout: domainSetup.timeout,
-            })
-          : await dns.hasNsServers(domainSetup.domain!);
-      await processData(bulkWhois, reqtime, event, domainSetup.domain!, domainSetup.index!, data, false);
-    } catch (e) {
-      console.log(e);
-      console.trace();
-    }
-  }, domainSetup.timebetween * (domainSetup.index! - stats.domains.sent + 1));
+      try {
+        data =
+          settings.lookupGeneral.type == 'whois'
+            ? await whoisLookup(domainSetup.domain!, {
+                follow: domainSetup.follow,
+                timeout: domainSetup.timeout
+              })
+            : await dns.hasNsServers(domainSetup.domain!);
+        await processData(
+          bulkWhois,
+          reqtime,
+          event,
+          domainSetup.domain!,
+          domainSetup.index!,
+          data,
+          false
+        );
+      } catch (e) {
+        console.log(e);
+        console.trace();
+      }
+    },
+    domainSetup.timebetween * (domainSetup.index! - stats.domains.sent + 1)
+  );
 
   debug(
     formatString(
       'Timebetween: {0}',
-      domainSetup.timebetween * (domainSetup.index! - stats.domains.sent + 1),
-    ),
+      domainSetup.timebetween * (domainSetup.index! - stats.domains.sent + 1)
+    )
   );
 }
 
-export function counter(
-  bulkWhois: BulkWhois,
-  event: IpcMainEvent,
-  start = true,
-): void {
+export function counter(bulkWhois: BulkWhois, event: IpcMainEvent, start = true): void {
   const { results, stats } = bulkWhois;
   const { sender } = event;
 
@@ -85,10 +92,7 @@ export function counter(
       stats.time.current = msToHumanTime(stats.time.currentcounter);
       sender.send('bw:status.update', 'time.current', stats.time.current);
       sender.send('bw:status.update', 'time.remaining', stats.time.remaining);
-      if (
-        stats.domains.total == stats.domains.sent &&
-        stats.domains.waiting === 0
-      ) {
+      if (stats.domains.total == stats.domains.sent && stats.domains.waiting === 0) {
         clearTimeout(stats.time.counter!);
         sender.send('bw:result.receive', results);
         sender.send('bw:status.update', 'finished');

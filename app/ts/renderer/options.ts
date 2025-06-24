@@ -24,7 +24,6 @@ function parseValue(val: string): any {
   return val;
 }
 
-
 function getDefault(path: string): any {
   return path
     .split('.')
@@ -34,17 +33,14 @@ function getDefault(path: string): any {
 function buildEntries(obj: any, prefix: string, table: JQuery<HTMLElement>): void {
   Object.entries(obj).forEach(([key, value]) => {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
-      table.append(
-        `<tr><th colspan="2"><h4 class="title is-5">${key}</h4></th></tr>`
-      );
+      table.append(`<tr><th colspan="2"><h4 class="title is-5">${key}</h4></th></tr>`);
       buildEntries(value, prefix ? `${prefix}.${key}` : key, table);
     } else {
       const path = prefix ? `${prefix}.${key}` : key;
       const id = `appSettings.${path}`;
       let inputHtml = '';
       if (typeof value === 'boolean') {
-        inputHtml =
-          `<div class="select is-small"><select id="${id}"><option value="true">true</option><option value="false">false</option></select></div>`;
+        inputHtml = `<div class="select is-small"><select id="${id}"><option value="true">true</option><option value="false">false</option></select></div>`;
       } else {
         inputHtml = `<input id="${id}" class="input is-small" type="text">`;
       }
@@ -80,7 +76,7 @@ function populateInputs(): void {
 
 function saveEntry(path: string, $input: JQuery<HTMLElement>, val: any): void {
   setValue(path, val);
-  void saveSettings(settings).then(result => {
+  void saveSettings(settings).then((result) => {
     const icon = $input.closest('.field').find('.result-icon');
     if (result === 'SAVED' || result === undefined) {
       icon.html('<i class="fas fa-check has-text-success"></i>');

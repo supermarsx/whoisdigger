@@ -24,9 +24,7 @@ describe('lineHelper', () => {
     const fsStream = new EventEmitter() as any;
 
     const fsSpy = jest.spyOn(fs, 'createReadStream').mockReturnValue(fsStream);
-    const rlSpy = jest
-      .spyOn(readline, 'createInterface')
-      .mockReturnValue(lineEmitter);
+    const rlSpy = jest.spyOn(readline, 'createInterface').mockReturnValue(lineEmitter);
 
     const promise = fileReadLines('dummy');
     lineEmitter.emit('error', new Error('fail'));

@@ -1,4 +1,3 @@
-
 import * as conversions from '../../common/conversions';
 import fs from 'fs';
 import Papa from 'papaparse';
@@ -19,7 +18,7 @@ let bwaFileContents: any;
     event
     contents
  */
-ipcRenderer.on('bwa:analyser.tablegen', function(event, contents) {
+ipcRenderer.on('bwa:analyser.tablegen', function (event, contents) {
   bwaFileContents = contents;
   showTable();
 
@@ -30,7 +29,7 @@ ipcRenderer.on('bwa:analyser.tablegen', function(event, contents) {
   $('#bwaAnalyserButtonClose').click(function() {...});
     Bulk whois analyser close button
  */
-$('#bwaAnalyserButtonClose').click(function() {
+$('#bwaAnalyserButtonClose').click(function () {
   ipcRenderer.send('app:debug', '#bwaAnalyserButtonClose clicked');
   $('#bwaAnalyserModalClose').addClass('is-active');
 
@@ -41,7 +40,7 @@ $('#bwaAnalyserButtonClose').click(function() {
   $('#bwaAnalyserModalCloseButtonYes').click(function() {...});
     bwa, close dialog confirm/yes
  */
-$('#bwaAnalyserModalCloseButtonYes').click(function() {
+$('#bwaAnalyserModalCloseButtonYes').click(function () {
   $('#bwaAnalyser').addClass('is-hidden');
   $('#bwaAnalyserModalClose').removeClass('is-active');
   $('#bwaEntry').removeClass('is-hidden');
@@ -53,7 +52,7 @@ $('#bwaAnalyserModalCloseButtonYes').click(function() {
   $('#bwaAnalyserModalCloseButtonNo').click(function() {...});
     Bulk whois analyser close dialog cancel/no button
  */
-$('#bwaAnalyserModalCloseButtonNo').click(function() {
+$('#bwaAnalyserModalCloseButtonNo').click(function () {
   $('#bwaAnalyserModalClose').removeClass('is-active');
 
   return;
@@ -72,7 +71,11 @@ function showTable() {
   // Generate header column content
   header.content = '<tr>\n';
   for (const column of header.columns) {
-    header.content += formatString('\t<th><abbr title="{0}">{1}</abbr></th>\n', column, getInitials(column));
+    header.content += formatString(
+      '\t<th><abbr title="{0}">{1}</abbr></th>\n',
+      column,
+      getInitials(column)
+    );
   }
   header.content += '</tr>';
 
@@ -91,9 +94,8 @@ function showTable() {
   $('#bwaAnalyserTableTbody').html(body.content);
 
   body.table = ($('#bwaAnalyserTable') as any).dataTable({
-    'destroy': true
+    destroy: true
   });
-
 
   $('#bwaFileinputconfirm').addClass('is-hidden');
   $('#bwaAnalyser').removeClass('is-hidden');
@@ -113,9 +115,7 @@ function getInitials(str: string, threshold = 1): string {
   let initials = str.match(/\b\w/g) || [];
 
   const result =
-    initials.length > threshold
-      ? initials.join('').toString()
-      : str.substring(0, threshold + 1);
+    initials.length > threshold ? initials.join('').toString() : str.substring(0, threshold + 1);
 
   return result;
 }

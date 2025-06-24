@@ -23,5 +23,5 @@ jest.mock('electron', () => ({
   Menu,
   ipcMain,
   dialog: { showSaveDialogSync: mockShowSaveDialogSync },
-  remote,
+  remote
 }));

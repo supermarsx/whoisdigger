@@ -1,4 +1,3 @@
-
 /*
   byteToHumanFileSize
     Convert bytes size to human readable format
@@ -11,7 +10,9 @@ export function byteToHumanFileSize(bytes: number, si = true): string {
 
   if (Math.abs(bytes) < thresh) return bytes + ' B';
 
-  const units = si ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'] : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+  const units = si
+    ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+    : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
   let u = -1;
 
   do {
@@ -45,15 +46,22 @@ export function msToHumanTime(duration = 0): string {
   if (parseInt(String(duration), BASE) <= 0 || isNaN(parseInt(String(duration), BASE))) return '-';
 
   const parsedTime: ParsedTime = {
-      milliseconds: parseInt((duration % 1000).toString(), BASE),
-      seconds: parseInt(((duration / 1000).toFixed(6) as unknown) as string, BASE) % 60,
-      minutes: parseInt(((duration / (1000 * 60)).toFixed(6) as unknown) as string, BASE) % 60,
-      hours: parseInt(((duration / (1000 * 60 * 60)).toFixed(6) as unknown) as string, BASE) % 24,
-      days: parseInt(((duration / (1000 * 60 * 60 * 24)).toFixed(6) as unknown) as string, BASE) % 7,
-      weeks: parseInt(((duration / (1000 * 60 * 60 * 24 * 7)).toFixed(6) as unknown) as string, BASE) % 4,
-      months: parseInt(((duration / (1000 * 60 * 60 * 24 * 7 * 4)).toFixed(6) as unknown) as string, BASE) % 12,
-    years: parseInt(((duration / (1000 * 60 * 60 * 24 * 7 * 4 * 12)).toFixed(6) as unknown) as string, BASE) % 10
-    };
+    milliseconds: parseInt((duration % 1000).toString(), BASE),
+    seconds: parseInt((duration / 1000).toFixed(6) as unknown as string, BASE) % 60,
+    minutes: parseInt((duration / (1000 * 60)).toFixed(6) as unknown as string, BASE) % 60,
+    hours: parseInt((duration / (1000 * 60 * 60)).toFixed(6) as unknown as string, BASE) % 24,
+    days: parseInt((duration / (1000 * 60 * 60 * 24)).toFixed(6) as unknown as string, BASE) % 7,
+    weeks:
+      parseInt((duration / (1000 * 60 * 60 * 24 * 7)).toFixed(6) as unknown as string, BASE) % 4,
+    months:
+      parseInt((duration / (1000 * 60 * 60 * 24 * 7 * 4)).toFixed(6) as unknown as string, BASE) %
+      12,
+    years:
+      parseInt(
+        (duration / (1000 * 60 * 60 * 24 * 7 * 4 * 12)).toFixed(6) as unknown as string,
+        BASE
+      ) % 10
+  };
   let time = '';
 
   time = compileString(parsedTime);
@@ -70,22 +78,22 @@ export function msToHumanTime(duration = 0): string {
 function compileString(parsedTime: ParsedTime): string {
   let compiledString = '';
   const suffixes: Record<keyof ParsedTime, string> = {
-      milliseconds: 'ms',
-      seconds: 's',
-      minutes: 'm',
-      hours: 'h',
-      days: 'd',
-      weeks: 'w',
-      months: 'M',
-      years: 'Y'
-    };
+    milliseconds: 'ms',
+    seconds: 's',
+    minutes: 'm',
+    hours: 'h',
+    days: 'd',
+    weeks: 'w',
+    months: 'M',
+    years: 'Y'
+  };
   const orderedSuffixes: Array<keyof ParsedTime> = [];
 
-  for (const unorderedParcel in parsedTime) orderedSuffixes.unshift(unorderedParcel as keyof ParsedTime);
+  for (const unorderedParcel in parsedTime)
+    orderedSuffixes.unshift(unorderedParcel as keyof ParsedTime);
 
   for (const parcel of orderedSuffixes)
-    if (parsedTime[parcel] > 0)
-      compiledString += `${parsedTime[parcel]} ${suffixes[parcel]} `;
+    if (parsedTime[parcel] > 0) compiledString += `${parsedTime[parcel]} ${suffixes[parcel]} `;
 
   return compiledString.trim();
 }
@@ -107,5 +115,3 @@ export function getDate(date: string | Date | undefined | null | boolean): strin
 
   return parsed;
 }
-
-

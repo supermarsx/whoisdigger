@@ -1,4 +1,3 @@
-
 import * as conversions from '../../common/conversions';
 import parseRawData from '../../common/parser';
 const base = 10;
@@ -47,7 +46,7 @@ ipcRenderer.on('bulkwhois:resultreceive', function(event, results) {
     stat
     value
  */
-ipcRenderer.on('bw:status.update', function(event, stat, value) {
+ipcRenderer.on('bw:status.update', function (event, stat, value) {
   ipcRenderer.send('app:debug', formatString('{0}, value update to {1}', stat, value)); // status update
   let percent;
   switch (stat) {
@@ -59,15 +58,24 @@ ipcRenderer.on('bw:status.update', function(event, stat, value) {
       }
       break;
     case 'domains.processed': // processed domains
-      percent = parseFloat((value / parseInt($('#bwProcessingSpanTotal').text(), base) * 100).toFixed(1)) || 0;
+      percent =
+        parseFloat(
+          ((value / parseInt($('#bwProcessingSpanTotal').text(), base)) * 100).toFixed(1)
+        ) || 0;
       $('#bwProcessingSpanProcessed').text(formatString('{0} ({1}%)', value, percent));
       break;
     case 'domains.waiting': // whois requests waiting reply
-      percent = parseFloat((value / parseInt($('#bwProcessingSpanSent').text(), base) * 100).toFixed(1)) || 0;
+      percent =
+        parseFloat(
+          ((value / parseInt($('#bwProcessingSpanSent').text(), base)) * 100).toFixed(1)
+        ) || 0;
       $('#bwProcessingSpanWaiting').text(formatString('{0} ({1}%)', value, percent));
       break;
     case 'domains.sent': // sent whois requests
-      percent = parseFloat((value / parseInt($('#bwProcessingSpanTotal').text(), base) * 100).toFixed(1)) || 0;
+      percent =
+        parseFloat(
+          ((value / parseInt($('#bwProcessingSpanTotal').text(), base)) * 100).toFixed(1)
+        ) || 0;
       $('#bwProcessingSpanSent').text(formatString('{0} ({1}%)', value, percent));
       break;
     case 'domains.total': // total domains
@@ -92,15 +100,24 @@ ipcRenderer.on('bw:status.update', function(event, stat, value) {
       $('#bwProcessingSpanReqtimeavg').text(formatString('{0}ms', value));
       break;
     case 'status.available': // Domains available
-      percent = parseFloat((value / parseInt($('#bwProcessingSpanTotal').text(), base) * 100).toFixed(1)) || 0;
+      percent =
+        parseFloat(
+          ((value / parseInt($('#bwProcessingSpanTotal').text(), base)) * 100).toFixed(1)
+        ) || 0;
       $('#bwProcessingSpanStatusavailable').text(formatString('{0} ({1}%)', value, percent));
       break;
     case 'status.unavailable': // Domains unavailable
-      percent = parseFloat((value / parseInt($('#bwProcessingSpanTotal').text(), base) * 100).toFixed(1)) || 0;
+      percent =
+        parseFloat(
+          ((value / parseInt($('#bwProcessingSpanTotal').text(), base)) * 100).toFixed(1)
+        ) || 0;
       $('#bwProcessingSpanStatusunavailable').text(formatString('{0} ({1}%)', value, percent));
       break;
     case 'status.error': // Domains error
-      percent = parseFloat((value / parseInt($('#bwProcessingSpanTotal').text(), base) * 100).toFixed(1)) || 0;
+      percent =
+        parseFloat(
+          ((value / parseInt($('#bwProcessingSpanTotal').text(), base)) * 100).toFixed(1)
+        ) || 0;
       $('#bwProcessingSpanStatuserror').text(formatString('{0} ({1}%)', value, percent));
       break;
     case 'laststatus.available': // Last available domain
@@ -128,7 +145,7 @@ ipcRenderer.on('bw:status.update', function(event, stat, value) {
   $('#bwProcessingButtonPause').click(function() {...});
     Bulk processing, pause/continue process
  */
-$(document).on('click', '#bwProcessingButtonPause', function() {
+$(document).on('click', '#bwProcessingButtonPause', function () {
   const searchStatus = $('#bwProcessingButtonPauseSpanText').text();
   switch (searchStatus) {
     case 'Continue':
@@ -164,9 +181,11 @@ function setPauseButton() {
   $('#bwProcessingButtonStop').click(function() {...});
     Trigger Bulk whois Stop modal
  */
-$(document).on('click', '#bwProcessingButtonStop', function() {
-  ipcRenderer.send('app:debug', "Pausing whois & opening stop modal");
-  $('#bwProcessingButtonPause').text().includes('Pause') ? $('#bwProcessingButtonPause').click() : false;
+$(document).on('click', '#bwProcessingButtonStop', function () {
+  ipcRenderer.send('app:debug', 'Pausing whois & opening stop modal');
+  $('#bwProcessingButtonPause').text().includes('Pause')
+    ? $('#bwProcessingButtonPause').click()
+    : false;
   $('#bwProcessingModalStop').addClass('is-active');
 
   return;
@@ -176,8 +195,8 @@ $(document).on('click', '#bwProcessingButtonStop', function() {
   $('#bwProcessingModalStopButtonContinue').click(function() {...});
     Close modal and allow continue
  */
-$(document).on('click', '#bwProcessingModalStopButtonContinue', function() {
-  ipcRenderer.send('app:debug', "Closing Stop modal & continue");
+$(document).on('click', '#bwProcessingModalStopButtonContinue', function () {
+  ipcRenderer.send('app:debug', 'Closing Stop modal & continue');
   $('#bwProcessingModalStop').removeClass('is-active');
 
   return;
@@ -187,8 +206,8 @@ $(document).on('click', '#bwProcessingModalStopButtonContinue', function() {
   $('#bwProcessingModalStopButtonStop').click(function() {...});
     Stop bulk whois entirely and scrape everything
  */
-$(document).on('click', '#bwProcessingModalStopButtonStop', function() {
-  ipcRenderer.send('app:debug', "Closing Stop modal & going back to start");
+$(document).on('click', '#bwProcessingModalStopButtonStop', function () {
+  ipcRenderer.send('app:debug', 'Closing Stop modal & going back to start');
   $('#bwProcessingModalStop').removeClass('is-active');
   $('#bwProcessing').addClass('is-hidden');
   setPauseButton();
@@ -201,8 +220,8 @@ $(document).on('click', '#bwProcessingModalStopButtonStop', function() {
   $('#bwProcessingModalStopButtonStopsave').click(function() {...});
     Stop bulk whois entirely and save/export
  */
-$(document).on('click', '#bwProcessingModalStopButtonStopsave', function() {
-  ipcRenderer.send('app:debug', "Closing Stop modal & exporting");
+$(document).on('click', '#bwProcessingModalStopButtonStopsave', function () {
+  ipcRenderer.send('app:debug', 'Closing Stop modal & exporting');
   ipcRenderer.send('bw:lookup.stop');
   $('#bwProcessingModalStop').removeClass('is-active');
   $('#bwProcessing').addClass('is-hidden');
@@ -216,7 +235,7 @@ $(document).on('click', '#bwProcessingModalStopButtonStopsave', function() {
   $('#bwProcessingButtonNext').click(function() {...});
     Bulk processing, proceed to export options
  */
-$(document).on('click', '#bwProcessingButtonNext', function() {
+$(document).on('click', '#bwProcessingButtonNext', function () {
   $('#bwProcessing').addClass('is-hidden');
   $('#bwExport').removeClass('is-hidden');
 

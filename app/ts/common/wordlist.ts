@@ -159,7 +159,7 @@ const leetMap: Record<string, string> = {
   i: '1',
   o: '0',
   s: '5',
-  t: '7',
+  t: '7'
 };
 
 export function toLeetSpeakLines(lines: string[]): string[] {
@@ -209,7 +209,7 @@ const WordlistTools = {
   toLeetSpeakLines,
   toUtf8Lines,
   replaceString,
-  replaceRegex,
+  replaceRegex
 };
 
 export default WordlistTools;

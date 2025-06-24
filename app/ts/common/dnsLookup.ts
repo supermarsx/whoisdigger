@@ -1,4 +1,3 @@
-
 import dns from 'dns/promises';
 import psl from 'psl';
 import debugModule from 'debug';
@@ -12,7 +11,6 @@ function getSettings(): Settings {
   return settings;
 }
 
-
 /*
   nsLookup
     Lookup for host nameservers
@@ -24,10 +22,7 @@ function getSettings(): Settings {
  */
 export async function nsLookup(host: string): Promise<string[]> {
   let result;
-  const {
-    'lookup.conversion': conversion,
-    'lookup.general': general
-  } = getSettings();
+  const { 'lookup.conversion': conversion, 'lookup.general': general } = getSettings();
 
   host = conversion.enabled ? convertDomain(host) : host;
   if (general.psl) {
@@ -59,10 +54,7 @@ export async function nsLookup(host: string): Promise<string[]> {
  */
 export async function hasNsServers(host: string): Promise<Result<boolean, DnsLookupError>> {
   let result;
-  const {
-    'lookup.conversion': conversion,
-    'lookup.general': general
-  } = getSettings();
+  const { 'lookup.conversion': conversion, 'lookup.general': general } = getSettings();
 
   host = conversion.enabled ? convertDomain(host) : host;
   if (general.psl) {
@@ -105,7 +97,7 @@ export function isDomainAvailable(data: Result<boolean, DnsLookupError>): string
 const DnsLookup = {
   nsLookup,
   hasNsServers,
-  isDomainAvailable,
+  isDomainAvailable
 };
 
 export default DnsLookup;

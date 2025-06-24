@@ -8,12 +8,10 @@ describe('whoiswrapper', () => {
   let lookupMock: jest.SpyInstance;
 
   beforeAll(() => {
-    lookupMock = jest
-      .spyOn(whois, 'lookup')
-      .mockImplementation((...args: any[]) => {
-        const cb = args[args.length - 1] as Function;
-        cb(new Error('lookup failed'));
-      });
+    lookupMock = jest.spyOn(whois, 'lookup').mockImplementation((...args: any[]) => {
+      const cb = args[args.length - 1] as Function;
+      cb(new Error('lookup failed'));
+    });
   });
 
   afterAll(() => {

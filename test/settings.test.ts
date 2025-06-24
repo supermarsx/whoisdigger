@@ -4,10 +4,9 @@ import { mockGetPath } from '../test/electronMock';
 
 import { loadSettings, settings } from '../app/ts/common/settings';
 
-
 describe('settings load', () => {
   test('falls back to defaults when config is corrupt', async () => {
-    const tmpDir = fs.mkdtempSync(path.join(__dirname, 'config')); 
+    const tmpDir = fs.mkdtempSync(path.join(__dirname, 'config'));
     mockGetPath.mockReturnValue(tmpDir);
 
     const original = JSON.parse(JSON.stringify(settings));

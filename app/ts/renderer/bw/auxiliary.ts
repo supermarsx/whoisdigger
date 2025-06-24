@@ -1,4 +1,3 @@
-
 import { resetObject } from '../../common/resetObject';
 import $ from 'jquery';
 
@@ -27,11 +26,11 @@ function tableReset(dLength = 0, tLength = 0) {
  */
 function getExportOptions() {
   return {
-    'filetype': $('#bwExportSelectFiletype').val(),
-    'domains': $('#bwExportSelectDomains').val(),
-    'errors': $('#bwExportSelectErrors').val(),
-    'information': $('#bwExportSelectInformation').val(),
-    'whoisreply': $('#bwExportSelectReply').val()
+    filetype: $('#bwExportSelectFiletype').val(),
+    domains: $('#bwExportSelectDomains').val(),
+    errors: $('#bwExportSelectErrors').val(),
+    information: $('#bwExportSelectInformation').val(),
+    whoisreply: $('#bwExportSelectReply').val()
   };
 }
 
@@ -43,11 +42,11 @@ function getExportOptions() {
  */
 function setExportOptions(preset: string): void {
   switch (preset) {
-    case ('none'):
+    case 'none':
       unlockFields();
       break;
     // Export available only
-    case ('availableonly'):
+    case 'availableonly':
       unlockFields();
       //$('#bweSelectFiletype').val('csv');
       $('#bwExportSelectDomains').val('available');
@@ -56,7 +55,7 @@ function setExportOptions(preset: string): void {
       $('#bwExportSelectReply').val('no');
       break;
     // All results but no reply nor debug
-    case ('allbutnoreply'):
+    case 'allbutnoreply':
       unlockFields();
       //$('#bweSelectFiletype').val('csv');
       $('#bwExportSelectDomains').val('both');
@@ -65,7 +64,7 @@ function setExportOptions(preset: string): void {
       $('#bwExportSelectReply').val('no');
       break;
     // Bulk whois analyser import optimized
-    case ('import'):
+    case 'import':
       lockFields();
       $('#bwExportSelectFiletype').val('csv');
       $('#bwExportSelectDomains').val('both');
@@ -105,13 +104,13 @@ function setExportOptionsEx(filetype: string): void {
  */
 function lockFields(isTxt = false) {
   if (isTxt === false) {
-    $('#bwExportSelectFiletype').prop("disabled", true);
-    $('#bwExportSelectDomains').prop("disabled", true);
-    $('#bwExportSelectErrors').prop("disabled", true);
+    $('#bwExportSelectFiletype').prop('disabled', true);
+    $('#bwExportSelectDomains').prop('disabled', true);
+    $('#bwExportSelectErrors').prop('disabled', true);
   }
-  if ($('#bwExportSelectReply').prop("disabled") === false) {
-    $('#bwExportSelectInformation').prop("disabled", true);
-    $('#bwExportSelectReply').prop("disabled", true);
+  if ($('#bwExportSelectReply').prop('disabled') === false) {
+    $('#bwExportSelectInformation').prop('disabled', true);
+    $('#bwExportSelectReply').prop('disabled', true);
   }
 
   return;
@@ -125,14 +124,17 @@ function lockFields(isTxt = false) {
  */
 function unlockFields(isTxt = false) {
   if (isTxt === true) {
-    $('#bwExportSelectFiletype').prop("disabled", false);
+    $('#bwExportSelectFiletype').prop('disabled', false);
   }
-  if ($('#bwExportSelectReply').prop("disabled") === true && $('#bwExportSelectFiletype').val() == 'csv') {
-    $('#bwExportSelectFiletype').prop("disabled", false);
-    $('#bwExportSelectDomains').prop("disabled", false);
-    $('#bwExportSelectErrors').prop("disabled", false);
-    $('#bwExportSelectInformation').prop("disabled", false);
-    $('#bwExportSelectReply').prop("disabled", false);
+  if (
+    $('#bwExportSelectReply').prop('disabled') === true &&
+    $('#bwExportSelectFiletype').val() == 'csv'
+  ) {
+    $('#bwExportSelectFiletype').prop('disabled', false);
+    $('#bwExportSelectDomains').prop('disabled', false);
+    $('#bwExportSelectErrors').prop('disabled', false);
+    $('#bwExportSelectInformation').prop('disabled', false);
+    $('#bwExportSelectReply').prop('disabled', false);
   }
 
   return;
@@ -145,5 +147,5 @@ export {
   getExportOptions as getExprtOptns,
   setExportOptions,
   setExportOptions as setExprtOptns,
-  setExportOptionsEx,
+  setExportOptionsEx
 };

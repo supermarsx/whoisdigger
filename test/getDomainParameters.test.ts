@@ -7,7 +7,7 @@ describe('getDomainParameters', () => {
       registrantOrganization: 'Example Org',
       creationDate: '2000-01-01',
       updatedDate: '2020-01-01',
-      registryExpiryDate: '2030-01-01',
+      registryExpiryDate: '2030-01-01'
     };
     const reply = 'Domain: example.com';
     const result = getDomainParameters('example.com', 'registered', reply, resultsJSON);
@@ -20,7 +20,7 @@ describe('getDomainParameters', () => {
       updateDate: new Date('2020-01-01').toUTCString(),
       expiryDate: new Date('2030-01-01').toUTCString(),
       whoisreply: reply,
-      whoisJson: resultsJSON,
+      whoisJson: resultsJSON
     });
   });
 
@@ -36,7 +36,7 @@ describe('getDomainParameters', () => {
       updateDate: undefined,
       expiryDate: undefined,
       whoisreply: undefined,
-      whoisJson: resultsJSON,
+      whoisJson: resultsJSON
     });
   });
 });

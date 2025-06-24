@@ -22,10 +22,7 @@ const lookupPromise = (...args: unknown[]): Promise<string> => {
 };
 
 export async function lookup(domain: string, options = getWhoisOptions()): Promise<string> {
-  const {
-    'lookup.conversion': conversion,
-    'lookup.general': general,
-  } = getSettings();
+  const { 'lookup.conversion': conversion, 'lookup.general': general } = getSettings();
   let domainResults: string;
 
   try {
@@ -45,9 +42,7 @@ export async function lookup(domain: string, options = getWhoisOptions()): Promi
 }
 
 export function convertDomain(domain: string, mode?: string): string {
-  const {
-    'lookup.conversion': conversion,
-  } = getSettings();
+  const { 'lookup.conversion': conversion } = getSettings();
 
   mode = mode || conversion.algorithm;
 
@@ -58,19 +53,17 @@ export function convertDomain(domain: string, mode?: string): string {
       return uts46.toAscii(domain);
     case 'uts46-transitional':
       return uts46.toAscii(domain, {
-        transitional: true,
+        transitional: true
       });
     case 'ascii':
-      return domain.replace(/[^\x00-\x7F]/g, "");
+      return domain.replace(/[^\x00-\x7F]/g, '');
     default:
       return domain;
   }
 }
 
 export function getWhoisOptions(): Record<string, unknown> {
-  const {
-    'lookup.general': general,
-  } = getSettings();
+  const { 'lookup.general': general } = getSettings();
 
   const options: Record<string, unknown> = {},
     follow = 'follow',
@@ -89,19 +82,29 @@ function getWhoisParameters(parameter: string): number | undefined {
     'lookup.randomize.follow': follow,
     'lookup.randomize.timeout': timeout,
     'lookup.randomize.timeBetween': timeBetween,
-    'lookup.general': general,
+    'lookup.general': general
   } = getSettings();
 
   switch (parameter) {
     case 'follow':
-      debug(`Follow depth, 'random': ${follow.randomize}, 'maximum': ${follow.maximumDepth}, 'minimum': ${follow.minimumDepth}, 'default': ${general.follow}`);
-      return (follow.randomize ? getRandomInt(follow.minimumDepth, follow.maximumDepth) : general.follow);
+      debug(
+        `Follow depth, 'random': ${follow.randomize}, 'maximum': ${follow.maximumDepth}, 'minimum': ${follow.minimumDepth}, 'default': ${general.follow}`
+      );
+      return follow.randomize
+        ? getRandomInt(follow.minimumDepth, follow.maximumDepth)
+        : general.follow;
     case 'timeout':
-      debug(`Timeout, 'random': ${timeout.randomize}, 'maximum': ${timeout.maximum}, 'minimum': ${timeout.minimum}, 'default': ${general.timeout}`);
-      return (timeout.randomize ? getRandomInt(timeout.minimum, timeout.maximum) : general.timeout);
+      debug(
+        `Timeout, 'random': ${timeout.randomize}, 'maximum': ${timeout.maximum}, 'minimum': ${timeout.minimum}, 'default': ${general.timeout}`
+      );
+      return timeout.randomize ? getRandomInt(timeout.minimum, timeout.maximum) : general.timeout;
     case 'timebetween':
-      debug(`Timebetween, 'random': ${timeBetween.randomize}, 'maximum': ${timeBetween.maximum}, 'minimum': ${timeBetween.minimum}, 'default': ${general.timeBetween}`);
-      return (timeBetween.randomize ? getRandomInt(timeBetween.minimum, timeBetween.maximum) : general.timeBetween);
+      debug(
+        `Timebetween, 'random': ${timeBetween.randomize}, 'maximum': ${timeBetween.maximum}, 'minimum': ${timeBetween.minimum}, 'default': ${general.timeBetween}`
+      );
+      return timeBetween.randomize
+        ? getRandomInt(timeBetween.minimum, timeBetween.maximum)
+        : general.timeBetween;
     default:
       return undefined;
   }
@@ -117,5 +120,5 @@ function getRandomInt(min: number, max: number): number {
 export default {
   lookup,
   convertDomain,
-  getWhoisOptions,
+  getWhoisOptions
 };

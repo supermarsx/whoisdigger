@@ -41,7 +41,7 @@ declare module 'electron' {
     'bw:export': [any, any];
     'bw:input.file': [];
     'bw:input.wordlist': [];
-    'ondragstart': [string];
+    ondragstart: [string];
     'singlewhois:lookup': [string];
     'singlewhois:openlink': [string];
   }
@@ -63,18 +63,12 @@ declare module 'electron' {
     ): void;
     handle<C extends keyof RendererToMainIpc>(
       channel: C,
-      listener: (
-        event: IpcMainInvokeEvent,
-        ...args: RendererToMainIpc[C]
-      ) => any
+      listener: (event: IpcMainInvokeEvent, ...args: RendererToMainIpc[C]) => any
     ): void;
   }
 
   export interface IpcRenderer {
-    send<C extends keyof RendererToMainIpc>(
-      channel: C,
-      ...args: RendererToMainIpc[C]
-    ): void;
+    send<C extends keyof RendererToMainIpc>(channel: C, ...args: RendererToMainIpc[C]): void;
     on<C extends keyof MainToRendererIpc>(
       channel: C,
       listener: (event: IpcRendererEvent, ...args: MainToRendererIpc[C]) => void
@@ -108,7 +102,11 @@ declare module 'idna-uts46' {
   export default uts46;
 }
 declare module 'whois' {
-  export function lookup(domain: string, options: any, callback: (err: any, data: any) => void): void;
+  export function lookup(
+    domain: string,
+    options: any,
+    callback: (err: any, data: any) => void
+  ): void;
   export function lookup(domain: string, callback: (err: any, data: any) => void): void;
 }
 declare module 'app/ts/common/parseRawData' {
@@ -141,7 +139,6 @@ declare module 'html-entities' {
     decode(input: string): string;
   }
 }
-
 
 declare const $: any;
 declare const ipcRenderer: any;

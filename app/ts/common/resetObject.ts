@@ -1,4 +1,3 @@
-
 // Default object
 const defaultValue = {};
 

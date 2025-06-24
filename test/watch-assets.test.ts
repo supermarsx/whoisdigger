@@ -13,11 +13,11 @@ jest.mock('watchboy', () => {
 jest.mock('fs', () => ({
   ...jest.requireActual('fs'),
   mkdirSync: jest.fn((...args: any[]) => mkdirMock(...args)),
-  copyFileSync: jest.fn((...args: any[]) => copyFileMock(...args)),
+  copyFileSync: jest.fn((...args: any[]) => copyFileMock(...args))
 }));
 
 jest.mock('../scripts/copyRecursive', () => ({
-  copyRecursiveSync: jest.fn(),
+  copyRecursiveSync: jest.fn()
 }));
 
 describe('watch-assets', () => {

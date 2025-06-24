@@ -1,4 +1,3 @@
-
 /* Bulk whois handling */
 import './bw/wordlistinput'; // Bulk whois by wordlist input
 import './bw/fileinput'; // Bulk whois by file input

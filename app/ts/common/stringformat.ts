@@ -1,4 +1,3 @@
-
 /*
   formatString Helper
     formats a given string with input parameters
@@ -14,4 +13,3 @@ export function formatString(str: string, ...args: unknown[]): string {
   }
   return result;
 }
-

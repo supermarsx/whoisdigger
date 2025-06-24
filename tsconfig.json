@@ -11,24 +11,12 @@
     "strict": true,
     "skipLibCheck": true,
     "moduleDetection": "force",
-    "types": [
-      "node",
-      "jest"
-    ],
-    "typeRoots": [
-      "./node_modules/@types",
-      "./types",
-      "./types/fontawesome-free.d.ts"
-    ],
+    "types": ["node", "jest"],
+    "typeRoots": ["./node_modules/@types", "./types", "./types/fontawesome-free.d.ts"],
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noImplicitThis": true
   },
-  "include": [
-    "app/ts/**/*.ts",
-    "**/*.d.ts"
-  ],
-  "exclude": [
-    "test"
-  ]
+  "include": ["app/ts/**/*.ts", "**/*.d.ts"],
+  "exclude": ["test"]
 }
