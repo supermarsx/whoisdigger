@@ -2,6 +2,7 @@ const path = require('path');
 const assert = require('assert');
 const { spawn } = require('child_process');
 const { remote } = require('webdriverio');
+const debug = require('debug')('test:e2e');
 
 (async () => {
   const electronPath = require('electron');
@@ -51,7 +52,7 @@ const { remote } = require('webdriverio');
     });
     assert.ok(minimized, 'Window did not minimize via IPC');
 
-    console.log('E2E tests passed');
+    debug('E2E tests passed');
     await browser.deleteSession();
   } catch (err) {
     console.error(err);

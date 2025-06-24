@@ -60,8 +60,7 @@ export function processDomain(
           false
         );
       } catch (e) {
-        console.log(e);
-        console.trace();
+        debug(e);
       }
     },
     domainSetup.timebetween * (domainSetup.index! - stats.domains.sent + 1)

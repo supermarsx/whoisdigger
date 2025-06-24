@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const watchboy = require('watchboy');
 const { copyRecursiveSync } = require('./scripts/copyRecursive');
+const debug = require('debug')('watch-assets');
 
 const folders = ['html', 'css', 'fonts', 'icons'];
 const appDir = path.join(__dirname, 'app');
@@ -13,7 +14,7 @@ function copyFile(src) {
   const dest = path.join(distDir, rel);
   fs.mkdirSync(path.dirname(dest), { recursive: true });
   fs.copyFileSync(src, dest);
-  console.log(`[watch-assets] copied ${rel}`);
+  debug(`copied ${rel}`);
 }
 
 for (const folder of folders) {
@@ -35,4 +36,4 @@ const watcher = watchboy(patterns, { cwd: __dirname });
 watcher.on('add', ({ path: p }) => copyFile(p));
 watcher.on('change', ({ path: p }) => copyFile(p));
 
-watcher.on('ready', () => console.log('[watch-assets] watching assets...'));
+watcher.on('ready', () => debug('watching assets...'));

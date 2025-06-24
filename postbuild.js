@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const { copyRecursiveSync } = require('./scripts/copyRecursive');
+const debug = require('debug')('postbuild');
 
 const folders = ['html', 'fonts', 'icons'];
 const appDir = path.join(__dirname, 'app');
@@ -14,7 +15,7 @@ for (const folder of folders) {
 }
 
 // Bundle and minify CSS from app/css into dist/app/css
-console.log('Bundling CSS...');
+debug('Bundling CSS...');
 const result = spawnSync('npm', ['run', 'build:css'], { stdio: 'inherit', shell: true });
 if (result.error || result.status !== 0) {
   console.error('CSS bundling failed.');
