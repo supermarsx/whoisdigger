@@ -47,9 +47,7 @@ ipcMain.on('singlewhois:lookup', async function(event, domain) {
     Open link or copy to clipboard
  */
 ipcMain.on('singlewhois:openlink', function(event, domain) {
-  const {
-    lookupMisc: misc
-  } = settings;
+  const misc = settings.lookupMisc;
 
   misc.onlyCopy ? copyToClipboard(event, domain) : openUrl(domain, settings);
 
