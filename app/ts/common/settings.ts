@@ -47,6 +47,7 @@ const rawModule = fs.existsSync('./appsettings')
   : require('../appsettings');
 const settingsModule: { settings: Settings } = rawModule.settings ? rawModule : rawModule.default;
 let { settings } = settingsModule;
+const defaultSettings: Settings = JSON.parse(JSON.stringify(settings));
 const defaultCustomConfiguration = settings.customConfiguration;
 export { settings };
 export default settings;
@@ -81,6 +82,34 @@ function getConfigFile(): string {
   return path.join(getUserDataPath(), filepath);
 }
 
+export function mergeDefaults(partial: Partial<Settings>): Settings {
+  function merge(target: any, source: any, path: string[] = []): void {
+    for (const key of Object.keys(source)) {
+      const src = (source as any)[key];
+      if (src === undefined) continue;
+      const tgt = target[key];
+      if (src && typeof src === 'object' && !Array.isArray(src)) {
+        if (tgt !== undefined && typeof tgt !== 'object') {
+          throw new TypeError(`Invalid type at ${[...path, key].join('.')}`);
+        }
+        if (tgt === undefined) target[key] = {};
+        merge(target[key], src, [...path, key]);
+      } else {
+        if (tgt !== undefined && typeof src !== typeof tgt) {
+          throw new TypeError(`Invalid type at ${[...path, key].join('.')}`);
+        }
+        target[key] = src;
+      }
+    }
+  }
+
+  const clone = JSON.parse(JSON.stringify(defaultSettings));
+  merge(clone, partial);
+  return clone as Settings;
+}
+
+export const validateSettings = mergeDefaults;
+
 function watchConfig(): void {
   if (watcher) {
     watcher.close();
@@ -93,8 +122,14 @@ function watchConfig(): void {
     if (event !== 'change') return;
     try {
       const raw = await fs.promises.readFile(cfg, 'utf8');
-      settings = JSON.parse(raw) as Settings;
-      debug(`Reloaded custom configuration at ${cfg}`);
+      const parsed = JSON.parse(raw) as Partial<Settings>;
+      try {
+        settings = mergeDefaults(parsed);
+        debug(`Reloaded custom configuration at ${cfg}`);
+      } catch (mergeError) {
+        settings = JSON.parse(JSON.stringify(defaultSettings));
+        debug(`Failed to merge configuration with error: ${mergeError}`);
+      }
     } catch (e) {
       debug(`Failed to reload configuration with error: ${e}`);
       // Silently ignore reload errors
@@ -114,8 +149,14 @@ export async function load(): Promise<Settings> {
       const filePath = path.join(getUserDataPath(), configuration.filepath);
       const raw = await fs.promises.readFile(filePath, 'utf8');
       try {
-        settings = JSON.parse(raw) as Settings;
-        debug(`Loaded custom configuration at ${filePath}`);
+        const parsed = JSON.parse(raw) as Partial<Settings>;
+        try {
+          settings = mergeDefaults(parsed);
+          debug(`Loaded custom configuration at ${filePath}`);
+        } catch (mergeError) {
+          settings = JSON.parse(JSON.stringify(defaultSettings));
+          debug(`Failed to merge custom configuration with error: ${mergeError}`);
+        }
       } catch (parseError) {
         debug(`Failed to parse custom configuration with error: ${parseError}`);
       }
