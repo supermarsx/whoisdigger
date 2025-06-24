@@ -6,7 +6,14 @@ function precompileTemplates(outputDir = path.join(__dirname, '..', 'app', 'comp
   const templatesDir = path.join(__dirname, '..', 'app', 'html', 'templates');
   fs.mkdirSync(outputDir, { recursive: true });
 
-  const handlebarBin = path.join(__dirname, '..', 'node_modules', 'handlebars', 'bin', 'handlebars');
+  const handlebarBin = path.join(
+    __dirname,
+    '..',
+    'node_modules',
+    'handlebars',
+    'bin',
+    'handlebars'
+  );
 
   for (const file of fs.readdirSync(templatesDir)) {
     if (path.extname(file) !== '.hbs') continue;
@@ -18,7 +25,7 @@ function precompileTemplates(outputDir = path.join(__dirname, '..', 'app', 'comp
     }
     const compiled = result.stdout.trim();
     const outPath = path.join(outputDir, file.replace(/\.hbs$/, '.js'));
-    fs.writeFileSync(outPath, `module.exports = ${compiled};\n`);
+    fs.writeFileSync(outPath, `export default ${compiled};\n`);
   }
 }
 
