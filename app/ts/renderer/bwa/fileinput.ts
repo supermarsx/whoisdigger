@@ -1,4 +1,3 @@
-
 import * as conversions from '../../common/conversions';
 import fs from 'fs';
 import type { FileStats } from '../../common/fileStats';
@@ -18,90 +17,110 @@ let bwaFileContents: any;
   ipcRenderer.on('bwa:fileinput.confirmation', function(...) {...});
     File input, path and information confirmation container
  */
-ipcRenderer.on('bwa:fileinput.confirmation', async function(event, filePath: string | string[] | null = null, isDragDrop = false) {
-  let bwaFileStats: FileStats; // File stats, size, last changed, etc
+ipcRenderer.on(
+  'bwa:fileinput.confirmation',
+  async function (event, filePath: string | string[] | null = null, isDragDrop = false) {
+    let bwaFileStats: FileStats; // File stats, size, last changed, etc
 
-  $('#bwaFileSpanInfo').text('Waiting for file...');
+    $('#bwaFileSpanInfo').text('Waiting for file...');
 
-  if (filePath === undefined || filePath == '' || filePath === null) {
-    $('#bwaFileinputloading').addClass('is-hidden');
-    $('#bwaEntry').removeClass('is-hidden');
-  } else {
-    $('#bwaFileSpanInfo').text('Loading file stats...');
-    if (isDragDrop === true) {
-      $('#bwaEntry').addClass('is-hidden');
-      $('#bwaFileinputloading').removeClass('is-hidden');
-      try {
-        bwaFileStats = fs.statSync(filePath as string) as FileStats;
-        bwaFileStats.filename = (filePath as string).replace(/^.*[\\\/]/, '');
-        bwaFileStats.humansize = conversions.byteToHumanFileSize(bwaFileStats.size, settings.lookupMisc.useStandardSize);
-        $('#bwaFileSpanInfo').text('Loading file contents...');
-        bwaFileContents = Papa.parse((await fs.promises.readFile(filePath as string)).toString(), {
-          header: true
-        });
-      } catch (e) {
-        ipcRenderer.send('app:error', `Failed to read file: ${e}`);
-        $('#bwaFileSpanInfo').text('Failed to load file');
-        return;
-      }
+    if (filePath === undefined || filePath == '' || filePath === null) {
+      $('#bwaFileinputloading').addClass('is-hidden');
+      $('#bwaEntry').removeClass('is-hidden');
     } else {
-      try {
-        bwaFileStats = fs.statSync((filePath as string[])[0]) as FileStats;
-        bwaFileStats.filename = (filePath as string[])[0].replace(/^.*[\\\/]/, '');
-        bwaFileStats.humansize = conversions.byteToHumanFileSize(bwaFileStats.size, settings.lookupMisc.useStandardSize);
-        $('#bwaFileSpanInfo').text('Loading file contents...');
-        bwaFileContents = Papa.parse((await fs.promises.readFile((filePath as string[])[0])).toString(), {
-          header: true
-        });
-      } catch (e) {
-        ipcRenderer.send('app:error', `Failed to read file: ${e}`);
-        $('#bwaFileSpanInfo').text('Failed to load file');
-        return;
+      $('#bwaFileSpanInfo').text('Loading file stats...');
+      if (isDragDrop === true) {
+        $('#bwaEntry').addClass('is-hidden');
+        $('#bwaFileinputloading').removeClass('is-hidden');
+        try {
+          bwaFileStats = fs.statSync(filePath as string) as FileStats;
+          bwaFileStats.filename = (filePath as string).replace(/^.*[\\\/]/, '');
+          bwaFileStats.humansize = conversions.byteToHumanFileSize(
+            bwaFileStats.size,
+            settings.lookupMisc.useStandardSize
+          );
+          $('#bwaFileSpanInfo').text('Loading file contents...');
+          bwaFileContents = Papa.parse(
+            (await fs.promises.readFile(filePath as string)).toString(),
+            {
+              header: true
+            }
+          );
+        } catch (e) {
+          ipcRenderer.send('app:error', `Failed to read file: ${e}`);
+          $('#bwaFileSpanInfo').text('Failed to load file');
+          return;
+        }
+      } else {
+        try {
+          bwaFileStats = fs.statSync((filePath as string[])[0]) as FileStats;
+          bwaFileStats.filename = (filePath as string[])[0].replace(/^.*[\\\/]/, '');
+          bwaFileStats.humansize = conversions.byteToHumanFileSize(
+            bwaFileStats.size,
+            settings.lookupMisc.useStandardSize
+          );
+          $('#bwaFileSpanInfo').text('Loading file contents...');
+          bwaFileContents = Papa.parse(
+            (await fs.promises.readFile((filePath as string[])[0])).toString(),
+            {
+              header: true
+            }
+          );
+        } catch (e) {
+          ipcRenderer.send('app:error', `Failed to read file: ${e}`);
+          $('#bwaFileSpanInfo').text('Failed to load file');
+          return;
+        }
       }
-    }
-    $('#bwaFileSpanInfo').text('Getting line count...');
-    bwaFileStats.linecount = bwaFileContents.data.length;
-    try {
-      bwaFileStats.filepreview = JSON.stringify(bwaFileContents.data[0], null, "\t").substring(0, 50);
-    } catch (e) {
-      bwaFileStats.filepreview = '';
-    }
-    bwaFileStats.errors = JSON.stringify(bwaFileContents.errors).slice(1, -1);
-    $('#bwaFileinputloading').addClass('is-hidden');
-    $('#bwaFileinputconfirm').removeClass('is-hidden');
+      $('#bwaFileSpanInfo').text('Getting line count...');
+      bwaFileStats.linecount = bwaFileContents.data.length;
+      try {
+        bwaFileStats.filepreview = JSON.stringify(bwaFileContents.data[0], null, '\t').substring(
+          0,
+          50
+        );
+      } catch (e) {
+        bwaFileStats.filepreview = '';
+      }
+      bwaFileStats.errors = JSON.stringify(bwaFileContents.errors).slice(1, -1);
+      $('#bwaFileinputloading').addClass('is-hidden');
+      $('#bwaFileinputconfirm').removeClass('is-hidden');
 
-    // stats
-    $('#bwaFileTdFilename').text(String(bwaFileStats.filename));
-    $('#bwaFileTdLastmodified').text(conversions.getDate(bwaFileStats.mtime) ?? '');
-    $('#bwaFileTdLastaccessed').text(conversions.getDate(bwaFileStats.atime) ?? '');
-    $('#bwaFileTdFilesize').text(String(bwaFileStats.humansize) + formatString(' ({0} record(s))', String(bwaFileStats.linecount)));
-    $('#bwaFileTdFilepreview').text(String(bwaFileStats.filepreview) + '...');
-    $('#bwaFileTextareaErrors').text(String(bwaFileStats.errors || "No errors"));
-    //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']);
+      // stats
+      $('#bwaFileTdFilename').text(String(bwaFileStats.filename));
+      $('#bwaFileTdLastmodified').text(conversions.getDate(bwaFileStats.mtime) ?? '');
+      $('#bwaFileTdLastaccessed').text(conversions.getDate(bwaFileStats.atime) ?? '');
+      $('#bwaFileTdFilesize').text(
+        String(bwaFileStats.humansize) +
+          formatString(' ({0} record(s))', String(bwaFileStats.linecount))
+      );
+      $('#bwaFileTdFilepreview').text(String(bwaFileStats.filepreview) + '...');
+      $('#bwaFileTextareaErrors').text(String(bwaFileStats.errors || 'No errors'));
+      //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']);
+    }
+
+    return;
   }
-
-  return;
-});
+);
 
 /*
   $('#bwaEntryButtonOpen').click(function() {...});
     Bulk whois, file input, entry container button
  */
-$(document).on('click', '#bwaEntryButtonOpen', function() {
+$(document).on('click', '#bwaEntryButtonOpen', function () {
   $('#bwaEntry').addClass('is-hidden');
-  $.when($('#bwaFileinputloading').removeClass('is-hidden').delay(10)).done(function() {
-    ipcRenderer.send("bwa:input.file");
+  $.when($('#bwaFileinputloading').removeClass('is-hidden').delay(10)).done(function () {
+    ipcRenderer.send('bwa:input.file');
   });
 
   return;
 });
 
-
 /*
   $('#bwaFileinputconfirmButtonCancel').click(function() {...});
     Bulk whois, file input, cancel button, file confirmation
  */
-$('#bwaFileinputconfirmButtonCancel').click(function() {
+$('#bwaFileinputconfirmButtonCancel').click(function () {
   $('#bwaFileinputconfirm').addClass('is-hidden');
   $('#bwaEntry').removeClass('is-hidden');
 
@@ -112,8 +131,8 @@ $('#bwaFileinputconfirmButtonCancel').click(function() {
   $('#bwaFileinputconfirmButtonStart').click(function() {...});
     Bulk whois, file input, start button, file confirmation
  */
-$('#bwaFileinputconfirmButtonStart').click(function() {
-  ipcRenderer.send("bwa:analyser.start", bwaFileContents);
+$('#bwaFileinputconfirmButtonStart').click(function () {
+  ipcRenderer.send('bwa:analyser.start', bwaFileContents);
   /*
   $('#bwaFileinputconfirm').addClass('is-hidden');
   $.when($('#bwaProcess').removeClass('is-hidden').delay(10)).done(function() {

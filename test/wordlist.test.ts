@@ -11,7 +11,7 @@ import {
   dedupeLines,
   replaceString,
   replaceRegex,
-  toLowerCaseLines,
+  toLowerCaseLines
 } from '../app/ts/common/wordlist';
 
 describe('wordlist tools', () => {
@@ -30,7 +30,10 @@ describe('wordlist tools', () => {
     const p = path.join(__dirname, 'f3.txt');
     fs.writeFileSync(p, 'a\nb\nc\nd');
     const parts = splitFiles({ files: [p], maxLines: 2 });
-    expect(parts).toEqual([['a', 'b'], ['c', 'd']]);
+    expect(parts).toEqual([
+      ['a', 'b'],
+      ['c', 'd']
+    ]);
     fs.unlinkSync(p);
   });
 

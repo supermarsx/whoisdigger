@@ -1,15 +1,8 @@
-
 import electron from 'electron';
 import debugModule from 'debug';
 const debug = debugModule('main.bwa.fileinput');
 
-const {
-  app,
-  BrowserWindow,
-  Menu,
-  ipcMain,
-  dialog
-} = electron;
+const { app, BrowserWindow, Menu, ipcMain, dialog } = electron;
 import { formatString } from '../../common/stringformat';
 
 /*
@@ -18,15 +11,13 @@ import { formatString } from '../../common/stringformat';
   parameters
     event
  */
-ipcMain.on('bwa:input.file', function(event) {
-  const {
-    sender
-  } = event;
+ipcMain.on('bwa:input.file', function (event) {
+  const { sender } = event;
 
-  debug("Waiting for file selection");
+  debug('Waiting for file selection');
   const filePath = dialog.showOpenDialogSync({
-    title: "Select wordlist file",
-    buttonLabel: "Open",
+    title: 'Select wordlist file',
+    buttonLabel: 'Open',
     properties: ['openFile', 'showHiddenFiles']
   });
   debug(formatString('Using selected file at {0}', filePath));

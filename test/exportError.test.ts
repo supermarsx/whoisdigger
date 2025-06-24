@@ -5,7 +5,7 @@ jest.mock('jszip', () => {
   const generateAsync = jest.fn().mockResolvedValue('zip');
   const JSZipMock: any = jest.fn().mockImplementation(() => ({
     file: jest.fn(),
-    generateAsync,
+    generateAsync
   }));
   JSZipMock.support = { uint8array: false };
   return { __esModule: true, default: JSZipMock };
@@ -25,7 +25,7 @@ describe('bw export error handling', () => {
     expirydate: ['e'],
     whoisreply: ['reply'],
     whoisjson: ['json'],
-    requesttime: [1],
+    requesttime: [1]
   };
 
   test('rejects when csv write fails', async () => {
@@ -39,7 +39,7 @@ describe('bw export error handling', () => {
         domains: 'available',
         errors: 'no',
         information: 'domain',
-        whoisreply: 'no',
+        whoisreply: 'no'
       })
     ).rejects.toThrow('fail');
   });
@@ -55,7 +55,7 @@ describe('bw export error handling', () => {
         domains: 'available',
         errors: 'no',
         information: 'domain',
-        whoisreply: 'yes+block',
+        whoisreply: 'yes+block'
       })
     ).rejects.toThrow('zip fail');
   });

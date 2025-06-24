@@ -5,12 +5,12 @@ jest.mock('electron', () => ({
   ipcMain: {
     on: (channel: string, listener: (...args: any[]) => void) => {
       ipcMainHandlers[channel] = listener;
-    },
+    }
   },
   dialog: { showOpenDialogSync: mockShowOpenDialogSync },
   app: undefined,
   BrowserWindow: class {},
-  Menu: {},
+  Menu: {}
 }));
 
 import '../app/ts/main/bwa/fileinput';
@@ -30,7 +30,7 @@ describe('bwa fileinput handler', () => {
     expect(mockShowOpenDialogSync).toHaveBeenCalledWith({
       title: 'Select wordlist file',
       buttonLabel: 'Open',
-      properties: ['openFile', 'showHiddenFiles'],
+      properties: ['openFile', 'showHiddenFiles']
     });
     expect(send).toHaveBeenCalledWith('bwa:fileinput.confirmation', '/tmp/test.txt');
   });

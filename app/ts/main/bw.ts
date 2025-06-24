@@ -1,17 +1,8 @@
-
 import electron from 'electron';
 import debugModule from 'debug';
 const debug = debugModule('main.bw');
 
-const {
-  app,
-  BrowserWindow,
-  Menu,
-  ipcMain,
-  dialog,
-  remote
-} = electron;
-
+const { app, BrowserWindow, Menu, ipcMain, dialog, remote } = electron;
 
 import './bw/fileinput'; // File input
 import './bw/wordlistinput'; // Wordlist input

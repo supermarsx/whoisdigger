@@ -1,4 +1,3 @@
-
 import electron from 'electron';
 import type { IpcMainEvent } from 'electron';
 import debugModule from 'debug';
@@ -13,19 +12,11 @@ import { resetUiCounters } from './auxiliary';
 
 import { settings } from '../../common/settings';
 
-const {
-  app,
-  BrowserWindow,
-  Menu,
-  ipcMain,
-  dialog,
-  remote
-} = electron;
+const { app, BrowserWindow, Menu, ipcMain, dialog, remote } = electron;
 import { formatString } from '../../common/stringformat';
 
 let bulkWhois: BulkWhois; // BulkWhois object
 let reqtime: number[] = [];
-
 
 /*
   ipcMain.on('bw:lookup', function(...) {...});
@@ -35,18 +26,13 @@ let reqtime: number[] = [];
     domains (array) - domains to request whois for
     tlds (array) - tlds to look for
  */
-ipcMain.on('bw:lookup', function(event: IpcMainEvent, domains: string[], tlds: string[]) {
+ipcMain.on('bw:lookup', function (event: IpcMainEvent, domains: string[], tlds: string[]) {
   resetUiCounters(event); // Reset UI counters, pass window param
   bulkWhois = resetObject(defaultBulkWhois); // Resets the bulkWhois object to default
   reqtime = [];
 
   // bulkWhois section
-  const {
-    results,
-    input,
-    stats,
-    processingIDs
-  } = bulkWhois;
+  const { results, input, stats, processingIDs } = bulkWhois;
 
   const {
     domainsPending, // Domains pending processing/requests
@@ -58,9 +44,7 @@ ipcMain.on('bw:lookup', function(event: IpcMainEvent, domains: string[], tlds: s
     status // request
   } = stats;
 
-  const {
-    sender
-  } = event;
+  const { sender } = event;
 
   let domainSetup;
 
@@ -83,35 +67,42 @@ ipcMain.on('bw:lookup', function(event: IpcMainEvent, domains: string[], tlds: s
 
   // Process compiled domains into future requests
   for (const [index, domain] of domainsPending.entries()) {
-
     domainSetup = getDomainSetup(settings, {
       timeBetween: settings['lookup.randomize.timeBetween'].randomize,
       followDepth: settings['lookup.randomize.follow'].randomize,
       timeout: settings['lookup.randomize.timeout'].randomize
     });
-    domainSetup.timebetween = settings.lookupGeneral.useDnsTimeBetweenOverride ? settings.lookupGeneral.dnsTimeBetween : domainSetup.timebetween;
+    domainSetup.timebetween = settings.lookupGeneral.useDnsTimeBetweenOverride
+      ? settings.lookupGeneral.dnsTimeBetween
+      : domainSetup.timebetween;
     domainSetup.domain = domain;
     domainSetup.index = index;
 
-    debug(formatString('Using timebetween, {0}, follow, {1}, timeout, {2}', domainSetup.timebetween, domainSetup.follow, domainSetup.timeout));
+    debug(
+      formatString(
+        'Using timebetween, {0}, follow, {1}, timeout, {2}',
+        domainSetup.timebetween,
+        domainSetup.follow,
+        domainSetup.timeout
+      )
+    );
 
     processDomain(bulkWhois, reqtime, domainSetup, event);
 
     stats.domains.processed = domainSetup.index + 1;
     sender.send('bw:status.update', 'domains.processed', stats.domains.processed);
-
   } // End processing for loop
 
-  settings.lookupRandomizeTimeBetween.randomize ? // Counter total time
-    (stats.time.remainingcounter = stats.domains.total * settings.lookupRandomizeTimeBetween.maximum) :
-    (stats.time.remainingcounter = stats.domains.total * settings.lookupGeneral.timeBetween);
+  settings.lookupRandomizeTimeBetween.randomize // Counter total time
+    ? (stats.time.remainingcounter =
+        stats.domains.total * settings.lookupRandomizeTimeBetween.maximum)
+    : (stats.time.remainingcounter = stats.domains.total * settings.lookupGeneral.timeBetween);
 
-  settings.lookupRandomizeTimeout.randomize ? // Counter add timeout
-    (stats.time.remainingcounter += settings.lookupRandomizeTimeout.maximum) :
-    (stats.time.remainingcounter += settings.lookupGeneral.timeout);
+  settings.lookupRandomizeTimeout.randomize // Counter add timeout
+    ? (stats.time.remainingcounter += settings.lookupRandomizeTimeout.maximum)
+    : (stats.time.remainingcounter += settings.lookupGeneral.timeout);
 
   counter(bulkWhois, event);
-
 });
 
 /*
@@ -120,15 +111,9 @@ ipcMain.on('bw:lookup', function(event: IpcMainEvent, domains: string[], tlds: s
   parameters
     event (object) - renderer event
  */
-ipcMain.on('bw:lookup.pause', function(event: IpcMainEvent) {
-
+ipcMain.on('bw:lookup.pause', function (event: IpcMainEvent) {
   // bulkWhois section
-  const {
-    results,
-    input,
-    stats,
-    processingIDs
-  } = bulkWhois;
+  const { results, input, stats, processingIDs } = bulkWhois;
 
   const {
     domainsPending, // Domains pending processing/requests
@@ -151,7 +136,7 @@ ipcMain.on('bw:lookup.pause', function(event: IpcMainEvent) {
   parameters
     event (object) - renderer object
  */
-ipcMain.on('bw:lookup.continue', function(event: IpcMainEvent) {
+ipcMain.on('bw:lookup.continue', function (event: IpcMainEvent) {
   debug('Continuing bulk whois requests');
 
   // Go through the remaining domains and queue them again using setTimeouts
@@ -159,12 +144,7 @@ ipcMain.on('bw:lookup.continue', function(event: IpcMainEvent) {
   let domainSetup;
 
   // bulkWhois section
-  const {
-    results,
-    input,
-    stats,
-    processingIDs
-  } = bulkWhois;
+  const { results, input, stats, processingIDs } = bulkWhois;
 
   const {
     domainsPending, // Domains pending processing/requests
@@ -185,13 +165,14 @@ ipcMain.on('bw:lookup.continue', function(event: IpcMainEvent) {
 
   // Do domain setup
   for (let domain = stats.domains.sent; domain < domainsPending.length; domain++) {
-
     domainSetup = getDomainSetup(settings, {
       timeBetween: settings.lookupRandomizeTimeBetween.randomize,
       followDepth: settings.lookupRandomizeFollow.randomize,
       timeout: settings.lookupRandomizeTimeout.randomize
     });
-    domainSetup.timebetween = settings.lookupGeneral.useDnsTimeBetweenOverride ? settings.lookupGeneral.dnsTimeBetween : domainSetup.timebetween;
+    domainSetup.timebetween = settings.lookupGeneral.useDnsTimeBetweenOverride
+      ? settings.lookupGeneral.dnsTimeBetween
+      : domainSetup.timebetween;
     domainSetup.domain = domainsPending[domain];
     domainSetup.index = Number(domain);
 
@@ -210,18 +191,17 @@ ipcMain.on('bw:lookup.continue', function(event: IpcMainEvent) {
     sender.send('bw:status.update', 'domains.processed', stats.domains.processed);
   } // End processing for loop
 
-  stats.time.remainingcounter = settings.lookupGeneral.useDnsTimeBetweenOverride ?
-    settings.lookupRandomizeTimeBetween.randomize ? // Counter total time
-    (stats.domains.total * settings.lookupRandomizeTimeBetween.maximum) :
-    (stats.domains.total * settings.lookupGeneral.timeBetween) :
-    settings.lookupGeneral.dnsTimeBetween;
+  stats.time.remainingcounter = settings.lookupGeneral.useDnsTimeBetweenOverride
+    ? settings.lookupRandomizeTimeBetween.randomize // Counter total time
+      ? stats.domains.total * settings.lookupRandomizeTimeBetween.maximum
+      : stats.domains.total * settings.lookupGeneral.timeBetween
+    : settings.lookupGeneral.dnsTimeBetween;
 
-  stats.time.remainingcounter += settings.lookupRandomizeTimeout.randomize ? // Counter add timeout
-    settings.lookupRandomizeTimeout.maximum :
-    settings.lookupGeneral.timeout;
+  stats.time.remainingcounter += settings.lookupRandomizeTimeout.randomize // Counter add timeout
+    ? settings.lookupRandomizeTimeout.maximum
+    : settings.lookupGeneral.timeout;
 
   counter(bulkWhois, event); // Start counter/timer
-
 });
 
 /*
@@ -230,15 +210,10 @@ ipcMain.on('bw:lookup.continue', function(event: IpcMainEvent) {
   parameters
     event (object) - Current renderer object
  */
-ipcMain.on('bw:lookup.stop', function(event: IpcMainEvent) {
-  const {
-    results,
-    stats
-  } = bulkWhois;
+ipcMain.on('bw:lookup.stop', function (event: IpcMainEvent) {
+  const { results, stats } = bulkWhois;
 
-  const {
-    sender
-  } = event;
+  const { sender } = event;
 
   clearTimeout(stats.time.counter!);
   sender.send('bw:result.receive', results);
@@ -247,4 +222,3 @@ ipcMain.on('bw:lookup.stop', function(event: IpcMainEvent) {
 
 // Re-export for consumers that imported from this module previously
 export { getDomainSetup } from './queue';
-

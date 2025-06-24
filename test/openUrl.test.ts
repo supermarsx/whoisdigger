@@ -4,21 +4,21 @@ const BrowserWindowMock = jest.fn().mockImplementation(() => ({
   setSkipTaskbar: jest.fn(),
   setMenu: jest.fn(),
   loadURL: loadURLMock,
-  on: jest.fn(),
+  on: jest.fn()
 }));
 
 jest.mock('electron', () => ({
   ipcMain: {
     on: (channel: string, listener: (...args: any[]) => void) => {
       ipcMainHandlers[channel] = listener;
-    },
+    }
   },
   BrowserWindow: BrowserWindowMock,
   app: undefined,
   Menu: {},
   dialog: { showSaveDialogSync: jest.fn() },
   remote: {},
-  clipboard: { writeText: jest.fn() },
+  clipboard: { writeText: jest.fn() }
 }));
 
 import { settings } from '../app/ts/common/settings';

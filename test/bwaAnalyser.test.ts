@@ -4,12 +4,12 @@ jest.mock('electron', () => ({
   ipcMain: {
     on: (channel: string, listener: (...args: any[]) => void) => {
       ipcMainHandlers[channel] = listener;
-    },
+    }
   },
   dialog: {},
   app: undefined,
   BrowserWindow: class {},
-  Menu: {},
+  Menu: {}
 }));
 
 import '../app/ts/main/bwa/analyser';

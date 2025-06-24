@@ -2,7 +2,7 @@ import * as changeCase from 'change-case';
 import { XmlEntities } from 'html-entities';
 
 export function preStringStrip(str: string): string {
-  return str.toString().replace(/\:\t{1,2}/g, ": ");
+  return str.toString().replace(/\:\t{1,2}/g, ': ');
 }
 
 function stripHTMLEntities(rawData: string): string {
@@ -46,15 +46,13 @@ export function parseRawData(rawData: string): Record<string, string> {
 export function toJSON(
   resultsText: string | Record<string, unknown> | Array<{ data: string }>
 ): Record<string, unknown> | string {
-  if (typeof resultsText === 'string' && resultsText.includes("lookup: timeout")) return "timeout";
+  if (typeof resultsText === 'string' && resultsText.includes('lookup: timeout')) return 'timeout';
 
   if (typeof resultsText === 'object') {
-    (resultsText as Array<{ data: string | Record<string, string> }>).map(
-      function (data) {
-        data.data = parseRawData(data.data as string);
-        return data;
-      }
-    );
+    (resultsText as Array<{ data: string | Record<string, string> }>).map(function (data) {
+      data.data = parseRawData(data.data as string);
+      return data;
+    });
     return resultsText as Record<string, unknown>;
   } else {
     return parseRawData(preStringStrip(resultsText));

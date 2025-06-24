@@ -1,4 +1,3 @@
-
 import * as fs from 'fs';
 import * as path from 'path';
 import * as electron from 'electron';
@@ -14,7 +13,6 @@ import debugModule from 'debug';
 const debug = debugModule('common.settings');
 
 let watcher: fs.FSWatcher | undefined;
-
 
 export interface Settings {
   lookupConversion: { enabled: boolean; algorithm: string };
@@ -47,9 +45,7 @@ export interface Settings {
 const rawModule = fs.existsSync('./appsettings')
   ? require('./appsettings')
   : require('../appsettings');
-const settingsModule: { settings: Settings } = rawModule.settings
-  ? rawModule
-  : rawModule.default;
+const settingsModule: { settings: Settings } = rawModule.settings ? rawModule : rawModule.default;
 let { settings } = settingsModule;
 const defaultCustomConfiguration = settings.customConfiguration;
 export { settings };
@@ -68,10 +64,9 @@ const isMainProcess = ((): boolean => {
   }
 })();
 
-
 const userDataPath = isMainProcess
   ? app.getPath('userData')
-  : remote?.app?.getPath('userData') ?? '';
+  : (remote?.app?.getPath('userData') ?? '');
 
 function getUserDataPath(): string {
   return userDataPath;
@@ -94,7 +89,7 @@ function watchConfig(): void {
   if (!fs.existsSync(cfg)) {
     return;
   }
-  watcher = fs.watch(cfg, { persistent: false }, async event => {
+  watcher = fs.watch(cfg, { persistent: false }, async (event) => {
     if (event !== 'change') return;
     try {
       const raw = await fs.promises.readFile(cfg, 'utf8');
@@ -116,11 +111,7 @@ export async function load(): Promise<Settings> {
 
   if (configuration && configuration.load) {
     try {
-      const filePath =
-        path.join(
-          getUserDataPath(),
-          configuration.filepath
-        );
+      const filePath = path.join(getUserDataPath(), configuration.filepath);
       const raw = await fs.promises.readFile(filePath, 'utf8');
       try {
         settings = JSON.parse(raw) as Settings;
@@ -149,15 +140,8 @@ export async function save(newSettings: Settings): Promise<string | Error | unde
 
   if (configuration && configuration.save) {
     try {
-      const filePath =
-        path.join(
-          getUserDataPath(),
-          configuration.filepath
-        );
-      await fs.promises.writeFile(
-        filePath,
-        JSON.stringify(newSettings, null, 2)
-      );
+      const filePath = path.join(getUserDataPath(), configuration.filepath);
+      await fs.promises.writeFile(filePath, JSON.stringify(newSettings, null, 2));
       debug(`Saved custom configuration at ${filePath}`);
       settings = newSettings;
       return 'SAVED';
@@ -171,5 +155,3 @@ export async function save(newSettings: Settings): Promise<string | Error | unde
 
 export const loadSettings = load;
 export const saveSettings = save;
-
-

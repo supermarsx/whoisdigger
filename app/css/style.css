@@ -78,7 +78,7 @@ body {
   -o-transform: scaleX(-1);
   transform: scaleX(-1);
   filter: FlipH;
-  -ms-filter: "FlipH";
+  -ms-filter: 'FlipH';
 }
 
 .box-shadow-5 {
@@ -103,11 +103,11 @@ body {
   }
 }
 
-input:not(:checked)+div {
+input:not(:checked) + div {
   background-color: hsla(348, 100%, 96%, 8);
 }
 
-input:checked+div {
+input:checked + div {
   background-color: hsla(141, 75%, 96%, 8);
 }
 
@@ -116,7 +116,6 @@ input {
 }
 
 @media screen and (min-width: 1088px) {
-
   .navbar,
   .navbar-end,
   .navbar-menu,

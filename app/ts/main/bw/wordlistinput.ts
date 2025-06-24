@@ -1,16 +1,8 @@
-
 import electron from 'electron';
 import debugModule from 'debug';
 const debug = debugModule('main.bw.wordlistinput');
 
-const {
-  app,
-  BrowserWindow,
-  Menu,
-  ipcMain,
-  dialog,
-  remote
-} = electron;
+const { app, BrowserWindow, Menu, ipcMain, dialog, remote } = electron;
 
 /*
   ipcMain.on('bw:input.wordlist', function(...) {...});
@@ -18,11 +10,9 @@ const {
   parameters
     event (object) - renderer object
  */
-ipcMain.on('bw:input.wordlist', function(event) {
-  const {
-    sender
-  } = event;
+ipcMain.on('bw:input.wordlist', function (event) {
+  const { sender } = event;
 
-  debug("Using wordlist input");
+  debug('Using wordlist input');
   sender.send('bw:wordlistinput.confirmation');
 });

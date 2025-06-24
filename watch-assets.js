@@ -29,7 +29,7 @@ if (fs.existsSync(bulmaSrc)) {
   copyRecursiveSync(bulmaSrc, bulmaDest);
 }
 
-const patterns = folders.map(f => `app/${f}/**/*`);
+const patterns = folders.map((f) => `app/${f}/**/*`);
 const watcher = watchboy(patterns, { cwd: __dirname });
 
 watcher.on('add', ({ path: p }) => copyFile(p));

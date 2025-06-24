@@ -47,14 +47,9 @@ Tab Single Whois
 
 Tab Bulk Whois
 
- - Bulk Whois Entry, `#bwEntry`, `tabs\bw\bwEntry.html`
-    - [If file wordlist is chosen], File loading,
-      	- [If file is selected], file input confirm
-      	- [If confirmed, go to processing]
-    - [If manual wordlist is chosen], Wordlist Input,
-      	- [If wordlist is confirmed], Wordlist loading, 
-      	- [after loading], wordlist confirm
-      	- [If confirmed, go to processing]
+- Bulk Whois Entry, `#bwEntry`, `tabs\bw\bwEntry.html`
+  - [If file wordlist is chosen], File loading, - [If file is selected], file input confirm - [If confirmed, go to processing]
+  - [If manual wordlist is chosen], Wordlist Input, - [If wordlist is confirmed], Wordlist loading, - [after loading], wordlist confirm - [If confirmed, go to processing]
 - Bulk whois processing,
   - [If processing is complete], Export
   - [If export is selected], export loading

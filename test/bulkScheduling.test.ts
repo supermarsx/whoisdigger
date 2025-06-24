@@ -55,7 +55,7 @@ describe('bulk scheduling', () => {
       const setup = getDomainSetup(settings, {
         timeBetween: true,
         followDepth: true,
-        timeout: true,
+        timeout: true
       });
       expect(setup.timebetween).toBeGreaterThanOrEqual(10);
       expect(setup.timebetween).toBeLessThan(30);
@@ -65,7 +65,7 @@ describe('bulk scheduling', () => {
     });
 
     expect(timerSpy).toHaveBeenCalledTimes(4);
-    expect(timerSpy.mock.calls.map(c => c[1])).toEqual([10, 20, 30, 40]);
+    expect(timerSpy.mock.calls.map((c) => c[1])).toEqual([10, 20, 30, 40]);
 
     jest.runAllTimers();
     await Promise.resolve();

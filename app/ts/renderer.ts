@@ -1,4 +1,3 @@
-
 // Base path --> assets/html
 import { ipcRenderer, dialog } from 'electron';
 import * as remote from '@electron/remote';
@@ -14,7 +13,6 @@ import { formatString } from './common/stringformat';
 (window as any).ipcRenderer = ipcRenderer;
 (window as any).dialog = dialog;
 (window as any).remote = remote;
-
 
 interface DebugMessage {
   channel: 'app:debug';
@@ -40,7 +38,7 @@ function sendError(message: string): void {
   $(document).ready(function() {...});
     When document is ready
  */
-$(document).ready(async function() {
+$(document).ready(async function () {
   await loadSettings();
   sessionStorage.setItem('settingsLoaded', 'true');
   window.dispatchEvent(new Event('settings-loaded'));
@@ -62,7 +60,9 @@ function startup() {
   sendDebug(formatString("'navigation.developerTools': {0}", String(navigation.developerTools)));
   if (navigation.developerTools) $('#navTabDevtools').removeClass('is-force-hidden');
 
-  sendDebug(formatString("'navigation.extendedcollapsed': {0}", String(navigation.extendedCollapsed)));
+  sendDebug(
+    formatString("'navigation.extendedcollapsed': {0}", String(navigation.extendedCollapsed))
+  );
   if (navigation.extendedCollapsed) {
     $('#navButtonExpandedmenu').toggleClass('is-active');
     $('.is-specialmenu').toggleClass('is-hidden');

@@ -1,4 +1,3 @@
-
 import * as readline from 'readline';
 import * as fs from 'fs';
 
@@ -9,7 +8,8 @@ import * as fs from 'fs';
     text (string) - string to count lines from
     newLineChar (string) - new line character
  */
-export function lineCount(text: string, newLineChar = '\n'): number { // '\n' unix; '\r' macos; '\r\n' windows
+export function lineCount(text: string, newLineChar = '\n'): number {
+  // '\n' unix; '\r' macos; '\r\n' windows
   if (newLineChar === '') {
     return 0;
   }
@@ -29,7 +29,7 @@ export function fileReadLines(filePath: string, lines = 2, startLine = 0): Promi
     let lineCounter = 0;
     const linesRead: string[] = [];
     const lineReader = readline.createInterface({
-      input: fs.createReadStream(filePath),
+      input: fs.createReadStream(filePath)
     });
 
     lineReader.on('line', (line: string) => {
@@ -56,7 +56,7 @@ export function fileReadLines(filePath: string, lines = 2, startLine = 0): Promi
 
 const LineHelper = {
   lineCount,
-  fileReadLines,
+  fileReadLines
 };
 
 export default LineHelper;

@@ -1,9 +1,7 @@
-
 import { settings as appSettings, Settings } from '../settings';
 import { toJSON } from '../parser';
 import { getDomainParameters, WhoisResult } from '../availability';
 import { getDate } from '../conversions';
-
 
 export interface PatternFunction {
   (context: PatternContext): boolean;
@@ -106,23 +104,22 @@ export const builtPatterns: PatternCollections = {
   special: [],
   available: [],
   unavailable: [],
-  error: [],
+  error: []
 };
 
 const patterns: PatternsSpec = {
-
   // Special cases
   special: {
     1: {
       includes: ['Uniregistry', 'Query limit exceeded'],
-      result: appSettings['lookup.assumptions']['uniregistry'] ?
-        'unavailable' : 'error:ratelimiting'
+      result: appSettings['lookup.assumptions']['uniregistry']
+        ? 'unavailable'
+        : 'error:ratelimiting'
     }
   },
 
   // Available cases
   available: {
-
     // Not found messages
     notfound: {
       //X: 'ERROR:101: no entries found',
@@ -167,17 +164,20 @@ const patterns: PatternsSpec = {
 
     // Unique cases
     unique: {
-      1: [{
-        type: 'minuslessthan',
-        parameters: ['domainParams.expiryDate', 'controlDate', 0],
-        result: appSettings['lookup.assumptions']['expired'] ? 'expired' : 'available'
-      }],
+      1: [
+        {
+          type: 'minuslessthan',
+          parameters: ['domainParams.expiryDate', 'controlDate', 0],
+          result: appSettings['lookup.assumptions']['expired'] ? 'expired' : 'available'
+        }
+      ],
       2: 'This domain name has not been registered',
       3: 'The domain has not been registered',
       4: 'This query returned 0 objects',
-      5: [{
+      5: [
+        {
           type: 'includes',
-          value: ' is free',
+          value: ' is free'
         },
         {
           type: 'lessthan',
@@ -187,7 +187,8 @@ const patterns: PatternsSpec = {
       ],
       6: 'domain name not known in',
       7: 'registration status: available',
-      8: [{
+      8: [
+        {
           type: 'includes',
           value: 'whois.nic.bo'
         },
@@ -207,49 +208,59 @@ const patterns: PatternsSpec = {
       16: 'No_Se_Encontro_El_Objeto',
       17: 'Domain unknown',
       18: 'No information available about domain name',
-      19: [{
-        type: 'includes',
-        value: 'Error.'
-      }, {
-        type: 'includes',
-        value: 'SaudiNIC'
-      }],
+      19: [
+        {
+          type: 'includes',
+          value: 'Error.'
+        },
+        {
+          type: 'includes',
+          value: 'SaudiNIC'
+        }
+      ],
       20: 'is not valid!' // returned when the queried domain fails validation
     }
   },
 
   // Unavailable domain
   unavailable: {
-    1: [{
-      type: 'hasOwnProperty',
-      parameters: ['domainName']
-    }],
+    1: [
+      {
+        type: 'hasOwnProperty',
+        parameters: ['domainName']
+      }
+    ],
     2: 'Domain Status:ok',
     3: 'Expiration Date:',
     4: 'Expiry Date:',
     5: 'Status: connect',
     6: 'Changed:',
-    7: [{
-      type: 'morethan.Object.keys.length',
-      parameters: [5],
-      value: 'resultsJSON'
-    }],
+    7: [
+      {
+        type: 'morethan.Object.keys.length',
+        parameters: [5],
+        value: 'resultsJSON'
+      }
+    ],
     8: 'organisation: Internet Assigned Numbers Authority'
   },
 
   // Error domain
   error: {
-
     // Null or no content
     nocontent: {
-      1: [{
-        type: 'equal',
-        value: null
-      }],
-      2: [{
-        type: 'equal',
-        value: ''
-      }]
+      1: [
+        {
+          type: 'equal',
+          value: null
+        }
+      ],
+      2: [
+        {
+          type: 'equal',
+          value: ''
+        }
+      ]
     },
 
     // Unauthorized
@@ -265,7 +276,6 @@ const patterns: PatternsSpec = {
       4: 'Your query is too often.',
       5: 'Your connection limit exceeded.'
     }
-
   }
 };
 
@@ -379,7 +389,8 @@ function compileSpec(spec: PatternSpec, defaultResult: string): CompiledPattern 
   } else if (Array.isArray(spec)) {
     conditions = spec.map((c) => compileCondition(c));
     const withResult = spec.find((c) => (c as BaseConditionSpec).result !== undefined);
-    if (withResult && (withResult as BaseConditionSpec).result !== undefined) result = (withResult as BaseConditionSpec).result as string;
+    if (withResult && (withResult as BaseConditionSpec).result !== undefined)
+      result = (withResult as BaseConditionSpec).result as string;
   } else {
     conditions = [compileCondition(spec)];
     if (spec.result !== undefined) result = spec.result;
@@ -387,7 +398,7 @@ function compileSpec(spec: PatternSpec, defaultResult: string): CompiledPattern 
 
   return {
     fn: (ctx) => conditions.every((f) => f(ctx)),
-    result,
+    result
   };
 }
 
@@ -422,7 +433,7 @@ export function buildPatterns(): void {
   const errMap: { [key: string]: string } = {
     nocontent: 'error:nocontent',
     unauthorized: 'error:unauthorized',
-    ratelimiting: 'error:ratelimiting',
+    ratelimiting: 'error:ratelimiting'
   };
   for (const groupKey in err) {
     const group = err[groupKey as keyof typeof err];
@@ -433,26 +444,17 @@ export function buildPatterns(): void {
   }
 }
 
-export function checkPatterns(
-  resultsText: string,
-  resultsJSON?: Record<string, unknown>
-): string {
+export function checkPatterns(resultsText: string, resultsJSON?: Record<string, unknown>): string {
   if (!builtPatterns.available.length) buildPatterns();
 
   resultsJSON = resultsJSON ?? (toJSON(resultsText) as Record<string, unknown>);
-  const domainParams = getDomainParameters(
-    null,
-    null,
-    resultsText,
-    resultsJSON,
-    true
-  );
+  const domainParams = getDomainParameters(null, null, resultsText, resultsJSON, true);
   const controlDate = getDate(new Date());
   const ctx: PatternContext = {
     resultsText,
     resultsJSON,
     domainParams,
-    controlDate,
+    controlDate
   };
 
   for (const p of builtPatterns.special) if (p.fn(ctx)) return p.result;
@@ -467,7 +469,7 @@ const exported = {
   buildPatterns,
   build: buildPatterns,
   checkPatterns,
-  check: checkPatterns,
+  check: checkPatterns
 };
 
 export default patterns;

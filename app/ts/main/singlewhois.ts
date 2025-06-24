@@ -1,4 +1,3 @@
-
 import electron from 'electron';
 import type { IpcMainEvent, BrowserWindow as ElectronBrowserWindow } from 'electron';
 import * as path from 'path';
@@ -7,15 +6,7 @@ import { lookup as whoisLookup } from '../common/lookup';
 import debugModule from 'debug';
 const debug = debugModule('main.singlewhois');
 
-const {
-  app,
-  BrowserWindow,
-  Menu,
-  ipcMain,
-  dialog,
-  remote,
-  clipboard
-} = electron;
+const { app, BrowserWindow, Menu, ipcMain, dialog, remote, clipboard } = electron;
 import { formatString } from '../common/stringformat';
 
 import { settings } from '../common/settings';
@@ -25,18 +16,16 @@ import type { Settings } from '../common/settings';
   ipcMain.on('singlewhois:lookup', function(...) {...});
     Single whois lookup
  */
-ipcMain.on('singlewhois:lookup', async function(event, domain) {
-  const {
-    sender
-  } = event;
+ipcMain.on('singlewhois:lookup', async function (event, domain) {
+  const { sender } = event;
 
   debug('Starting whois lookup');
   whoisLookup(domain)
-    .then(function(data) {
+    .then(function (data) {
       debug('Sending back whois reply');
       sender.send('singlewhois:results', data);
     })
-    .catch(function(err) {
+    .catch(function (err) {
       debug('Whois lookup threw an error');
       sender.send('singlewhois:results', err);
     });
@@ -46,7 +35,7 @@ ipcMain.on('singlewhois:lookup', async function(event, domain) {
   ipcMain.on('singlewhois:openlink', function(...) {...});
     Open link or copy to clipboard
  */
-ipcMain.on('singlewhois:openlink', function(event, domain) {
+ipcMain.on('singlewhois:openlink', function (event, domain) {
   const misc = settings.lookupMisc;
 
   misc.onlyCopy ? copyToClipboard(event, domain) : openUrl(domain, settings);
@@ -62,9 +51,7 @@ ipcMain.on('singlewhois:openlink', function(event, domain) {
     domain
  */
 function copyToClipboard(event: IpcMainEvent, domain: string): void {
-  const {
-    sender
-  } = event;
+  const { sender } = event;
 
   debug(formatString('Copied {0} to clipboard', domain));
   clipboard.writeText(domain);
@@ -109,9 +96,9 @@ function openUrl(domain: string, settings: Settings): void {
   hwnd.setMenu(null);
   hwnd.loadURL(target.href);
 
-  hwnd.on('closed', function() {
+  hwnd.on('closed', function () {
     hwnd = null;
   });
-  
+
   return;
 }

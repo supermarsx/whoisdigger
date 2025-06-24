@@ -21,44 +21,26 @@ describe('getDomainSetup', () => {
     const result = getDomainSetup(settings, {
       timeBetween: true,
       followDepth: true,
-      timeout: true,
+      timeout: true
     });
 
-    expect(result.timebetween).toBeGreaterThanOrEqual(
-      settings.lookupRandomizeTimeBetween.minimum,
-    );
+    expect(result.timebetween).toBeGreaterThanOrEqual(settings.lookupRandomizeTimeBetween.minimum);
     expect(result.timebetween).toBeLessThan(
-      settings.lookupRandomizeTimeBetween.minimum +
-        settings.lookupRandomizeTimeBetween.maximum,
+      settings.lookupRandomizeTimeBetween.minimum + settings.lookupRandomizeTimeBetween.maximum
     );
 
-    expect(result.follow).toBeGreaterThanOrEqual(
-      settings.lookupRandomizeFollow.minimumDepth,
-    );
+    expect(result.follow).toBeGreaterThanOrEqual(settings.lookupRandomizeFollow.minimumDepth);
     expect(result.follow).toBeLessThan(
-      settings.lookupRandomizeFollow.minimumDepth +
-        settings.lookupRandomizeFollow.maximumDepth,
+      settings.lookupRandomizeFollow.minimumDepth + settings.lookupRandomizeFollow.maximumDepth
     );
 
-    expect(result.timeout).toBeGreaterThanOrEqual(
-      settings.lookupRandomizeTimeout.minimum,
-    );
+    expect(result.timeout).toBeGreaterThanOrEqual(settings.lookupRandomizeTimeout.minimum);
     expect(result.timeout).toBeLessThan(
-      settings.lookupRandomizeTimeout.minimum +
-        settings.lookupRandomizeTimeout.maximum,
+      settings.lookupRandomizeTimeout.minimum + settings.lookupRandomizeTimeout.maximum
     );
 
-    Object.assign(
-      settings.lookupRandomizeTimeBetween,
-      backup.lookupRandomizeTimeBetween,
-    );
-    Object.assign(
-      settings.lookupRandomizeFollow,
-      backup.lookupRandomizeFollow,
-    );
-    Object.assign(
-      settings.lookupRandomizeTimeout,
-      backup.lookupRandomizeTimeout,
-    );
+    Object.assign(settings.lookupRandomizeTimeBetween, backup.lookupRandomizeTimeBetween);
+    Object.assign(settings.lookupRandomizeFollow, backup.lookupRandomizeFollow);
+    Object.assign(settings.lookupRandomizeTimeout, backup.lookupRandomizeTimeout);
   });
 });
