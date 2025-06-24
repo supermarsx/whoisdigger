@@ -114,7 +114,7 @@ $(document).ready(() => {
   const container = $('#opEntry');
   const table = $('#opTable');
   buildEntries(appDefaults.settings, '', table);
-  populateInputs();
+  // Wait for the final settings to load before populating fields
 
   const status = $('#custom-settings-status');
   const customLoaded = sessionStorage.getItem('customSettingsLoaded') === 'true';
