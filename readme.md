@@ -83,7 +83,7 @@ Check out and download the latest release for your architecture/OS.
 
 ### Latest changes
 
-Basic whoisdigger requirements are Node.js (tested with v20 or later), `npm` and `git`.
+Basic whoisdigger requirements are Node.js v18 or later (tested with v20), `npm` and `git`.
 
 Clone whoisdigger code and install dependencies
 
