@@ -77,6 +77,28 @@ jobs:
           name: coverage-${{ matrix.os }}-${{ matrix.node-version }}
           path: coverage/
 
+  merge-coverage:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-*
+          path: coverage-files
+          merge-multiple: true
+      - name: Merge coverage
+        run: |
+          npx istanbul-merge coverage-files/**/coverage-final.json > coverage-final.json
+          mkdir -p .nyc_output
+          cp coverage-final.json .nyc_output/out.json
+      - name: Check coverage
+        run: npx nyc check-coverage --lines=70
+      - uses: actions/upload-artifact@v4
+        with:
+          name: merged-coverage
+          path: coverage-final.json
+
   e2e:
     needs: build
     runs-on: ubuntu-latest
