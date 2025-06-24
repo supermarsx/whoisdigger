@@ -4,7 +4,7 @@ import debugModule from 'debug';
 import { loadSettings, settings as store } from './common/settings';
 import type { Settings as BaseSettings } from './common/settings';
 import { formatString } from './common/stringformat';
-import { initialize as initializeRemote } from '@electron/remote/main';
+import { initialize as initializeRemote, enable as enableRemote } from '@electron/remote/main';
 import type { IpcMainEvent } from 'electron';
 
 const debug = debugModule('main');
@@ -110,9 +110,11 @@ app.on('ready', async function () {
       experimentalFeatures: webPreferences.experimentalFeatures, // Enable Chromium experimental features
       backgroundThrottling: webPreferences.backgroundThrottling, // Whether to throttle animations and timers when the page becomes background
       offscreen: webPreferences.offscreen, // enable offscreen rendering for the browser window
-      spellcheck: webPreferences.spellcheck // Enable builtin spellchecker
+    spellcheck: webPreferences.spellcheck // Enable builtin spellchecker
     }
   });
+
+  enableRemote(mainWindow.webContents);
 
   // mainWindow, Main window URL load
   const loadPath = path.isAbsolute(appUrl.pathname)
