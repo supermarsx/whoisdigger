@@ -35,4 +35,17 @@ describe('proxy helper', () => {
     expect(second).toEqual({ ipaddress: '2.2.2.2', port: 8080, type: 5 });
     expect(third).toEqual({ ipaddress: '1.1.1.1', port: 8080, type: 5 });
   });
+
+  test('rotates proxies ascending with wraparound', () => {
+    settings.lookupProxy.enable = true;
+    settings.lookupProxy.mode = 'multi';
+    settings.lookupProxy.list = ['3.3.3.3:9090', '4.4.4.4:9090'];
+    settings.lookupProxy.multimode = 'ascending';
+    const first = getProxy();
+    const second = getProxy();
+    const third = getProxy();
+    expect(first).toEqual({ ipaddress: '3.3.3.3', port: 9090, type: 5 });
+    expect(second).toEqual({ ipaddress: '4.4.4.4', port: 9090, type: 5 });
+    expect(third).toEqual({ ipaddress: '3.3.3.3', port: 9090, type: 5 });
+  });
 });
