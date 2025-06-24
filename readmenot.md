@@ -14,9 +14,10 @@ Folders or single files correspond to different tabs across the app:
 
 `singlewhois.js`: single whois lookup
 
-`bw`: bulk whois lookup
 
-`bwa`: bulk whois analyzer
+`bulkwhois`: bulk whois lookup
+
+`bulkwhoisanalyser`: bulk whois analyzer
 
 `to`: tools
 
@@ -47,7 +48,7 @@ Tab Single Whois
 
 Tab Bulk Whois
 
- - Bulk Whois Entry, `#bwEntry`, `tabs\bw\bwEntry.html`
+ - Bulk Whois Entry, `#bwEntry`, `tabs\bulkwhois\bulkwhoisEntry.html`
     - [If file wordlist is chosen], File loading,
       	- [If file is selected], file input confirm
       	- [If confirmed, go to processing]

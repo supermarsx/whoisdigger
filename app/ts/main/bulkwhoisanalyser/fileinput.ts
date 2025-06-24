@@ -1,7 +1,7 @@
 
 import electron from 'electron';
 import debugModule from 'debug';
-const debug = debugModule('main.bwa.fileinput');
+const debug = debugModule('main.bulkwhoisanalyser.fileinput');
 
 const {
   app,
@@ -13,12 +13,12 @@ const {
 import { formatString } from '../../common/stringformat';
 
 /*
-  ipcMain.on('bwa:input.file', function(...) {...});
+  ipcMain.on('bulkwhoisanalyser:input.file', function(...) {...});
     File input, select file dialog
   parameters
     event
  */
-ipcMain.on('bwa:input.file', function(event) {
+ipcMain.on('bulkwhoisanalyser:input.file', function(event) {
   const {
     sender
   } = event;
@@ -30,7 +30,7 @@ ipcMain.on('bwa:input.file', function(event) {
     properties: ['openFile', 'showHiddenFiles']
   });
   debug(formatString('Using selected file at {0}', filePath));
-  sender.send('bwa:fileinput.confirmation', filePath);
+  sender.send('bulkwhoisanalyser:fileinput.confirmation', filePath);
 });
 
 /*
@@ -41,6 +41,6 @@ ipcMain.on('ondragstart', function(event, filePath) {
     icon: appSettings.window.icon
   });
   debug(formatString('File drag filepath: {0}', filePath));
-  event.sender.send('bwa:fileinput.confirmation', filePath, true);
+  event.sender.send('bulkwhoisanalyser:fileinput.confirmation', filePath, true);
 });
 */

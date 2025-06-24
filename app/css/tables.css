@@ -1,27 +1,27 @@
-#bwaAnalyserTable_length {
+#bulkwhoisanalyserAnalyserTable_length {
   display: inline-block;
   padding: 15px 15px;
 }
 
-#bwaAnalyserTable_filter {
+#bulkwhoisanalyserAnalyserTable_filter {
   display: inline;
   padding: 0 5px;
 }
 
-#bwaAnalyserTable_filter input {
+#bulkwhoisanalyserAnalyserTable_filter input {
   display: inline;
   margin: 0 5px;
 }
 
-#bwaAnalyserTable_paginate {
+#bulkwhoisanalyserAnalyserTable_paginate {
   padding: 5px 5px;
 }
 
-#bwaAnalyserTable_previous {
+#bulkwhoisanalyserAnalyserTable_previous {
   padding: 0 5px;
 }
 
-#bwaAnalyserTable_next {
+#bulkwhoisanalyserAnalyserTable_next {
   padding: 0 5px;
 }
 

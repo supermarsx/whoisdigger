@@ -3,7 +3,7 @@ import { formatString } from '../../common/stringformat';
 import type { Settings } from '../../common/settings';
 import type { DomainSetup } from './types';
 
-const debug = debugModule('main.bw.queue');
+const debug = debugModule('main.bulkwhois.queue');
 
 export function compileQueue(domains: string[], tlds: string[], separator: string): string[] {
   const queue: string[] = [];

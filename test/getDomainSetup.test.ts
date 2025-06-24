@@ -1,5 +1,5 @@
 import './electronMainMock';
-import { getDomainSetup } from '../app/ts/main/bw/process';
+import { getDomainSetup } from '../app/ts/main/bulkwhois/process';
 import { settings } from '../app/ts/common/settings';
 
 describe('getDomainSetup', () => {

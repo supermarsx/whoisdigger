@@ -3,7 +3,7 @@
 import debugModule from 'debug';
 import type { IpcMainEvent } from 'electron';
 
-const debug = debugModule('main.bw.auxiliary');
+const debug = debugModule('main.bulkwhois.auxiliary');
 
 
 /*
@@ -35,7 +35,7 @@ function resetUiCounters(event: IpcMainEvent): void {
         'status.available', 'status.unavailable', 'status.error' // Number stats
       ]
     },
-    channel = 'bw:status.update';
+    channel = 'bulkwhois:status.update';
 
   // Loop through events and send default values
   (Object.keys(events) as Array<keyof typeof events>).forEach((eventType) => {

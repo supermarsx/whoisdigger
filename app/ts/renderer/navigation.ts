@@ -104,7 +104,7 @@ $(document).keyup(function(event) {
         break;
 
         // Bulk whois tab is active
-      case ($('#navButtonBw').hasClass('is-active')):
+      case ($('#navButtonBulkwhois').hasClass('is-active')):
         ipcRenderer.send('app:debug', "Hotkey, Bulk whois tab is active");
         switch (true) {
           // Bulk whois, is Stop dialog open

@@ -12,16 +12,16 @@ jest.mock('electron', () => ({
   Menu: {},
 }));
 
-import '../app/ts/main/bwa/analyser';
+import '../app/ts/main/bulkwhoisanalyser/analyser';
 
-describe('bwa analyser handler', () => {
+describe('bulkwhoisanalyser analyser handler', () => {
   test('forwards results to renderer', () => {
-    const handler = ipcMainHandlers['bwa:analyser.start'];
+    const handler = ipcMainHandlers['bulkwhoisanalyser:analyser.start'];
     const send = jest.fn();
     const contents = { id: [1], domain: ['example.com'] } as any;
 
     handler({ sender: { send } } as any, contents);
 
-    expect(send).toHaveBeenCalledWith('bwa:analyser.tablegen', contents);
+    expect(send).toHaveBeenCalledWith('bulkwhoisanalyser:analyser.tablegen', contents);
   });
 });

@@ -1,7 +1,7 @@
 
 import electron from 'electron';
 import debugModule from 'debug';
-const debug = debugModule('main.bw.wordlistinput');
+const debug = debugModule('main.bulkwhois.wordlistinput');
 
 const {
   app,
@@ -13,16 +13,16 @@ const {
 } = electron;
 
 /*
-  ipcMain.on('bw:input.wordlist', function(...) {...});
+  ipcMain.on('bulkwhois:input.wordlist', function(...) {...});
     On event: Bulk domain, wordlist input
   parameters
     event (object) - renderer object
  */
-ipcMain.on('bw:input.wordlist', function(event) {
+ipcMain.on('bulkwhois:input.wordlist', function(event) {
   const {
     sender
   } = event;
 
   debug("Using wordlist input");
-  sender.send('bw:wordlistinput.confirmation');
+  sender.send('bulkwhois:wordlistinput.confirmation');
 });

@@ -1,7 +1,7 @@
 
 import electron from 'electron';
 import debugModule from 'debug';
-const debug = debugModule('main.bw.fileinput');
+const debug = debugModule('main.bulkwhois.fileinput');
 
 const {
   app,
@@ -15,12 +15,12 @@ import { formatString } from '../../common/stringformat';
 import { settings } from '../../common/settings';
 
 /*
-  ipcMain.on('bw:input.file', function(...) {...});
+  ipcMain.on('bulkwhois:input.file', function(...) {...});
     On event: Bulk whois input file, select file dialog
   parameters
     event (object) - renderer object
  */
-ipcMain.on('bw:input.file', function(event) {
+ipcMain.on('bulkwhois:input.file', function(event) {
   debug("Waiting for file selection");
   const filePath = dialog.showOpenDialogSync({
     title: "Select wordlist file",
@@ -33,7 +33,7 @@ ipcMain.on('bw:input.file', function(event) {
   } = event;
 
   debug(formatString('Using selected file at {0}', filePath));
-  sender.send('bw:fileinput.confirmation', filePath);
+  sender.send('bulkwhois:fileinput.confirmation', filePath);
 });
 
 /*
@@ -56,5 +56,5 @@ ipcMain.on('ondragstart', function(event, filePath) {
   });
   
   debug(formatString('File drag filepath: {0}', filePath));
-  sender.send('bw:fileinput.confirmation', filePath, true);
+  sender.send('bulkwhois:fileinput.confirmation', filePath, true);
 });

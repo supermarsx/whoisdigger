@@ -15,10 +15,10 @@ import { formatString } from '../../common/stringformat';
 let bwaFileContents: any;
 
 /*
-  ipcRenderer.on('bwa:fileinput.confirmation', function(...) {...});
+  ipcRenderer.on('bulkwhoisanalyser:fileinput.confirmation', function(...) {...});
     File input, path and information confirmation container
  */
-ipcRenderer.on('bwa:fileinput.confirmation', async function(event, filePath: string | string[] | null = null, isDragDrop = false) {
+ipcRenderer.on('bulkwhoisanalyser:fileinput.confirmation', async function(event, filePath: string | string[] | null = null, isDragDrop = false) {
   let bwaFileStats: FileStats; // File stats, size, last changed, etc
 
   $('#bwaFileSpanInfo').text('Waiting for file...');
@@ -90,7 +90,7 @@ ipcRenderer.on('bwa:fileinput.confirmation', async function(event, filePath: str
 $(document).on('click', '#bwaEntryButtonOpen', function() {
   $('#bwaEntry').addClass('is-hidden');
   $.when($('#bwaFileinputloading').removeClass('is-hidden').delay(10)).done(function() {
-    ipcRenderer.send("bwa:input.file");
+    ipcRenderer.send("bulkwhoisanalyser:input.file");
   });
 
   return;
@@ -113,7 +113,7 @@ $('#bwaFileinputconfirmButtonCancel').click(function() {
     Bulk whois, file input, start button, file confirmation
  */
 $('#bwaFileinputconfirmButtonStart').click(function() {
-  ipcRenderer.send("bwa:analyser.start", bwaFileContents);
+  ipcRenderer.send("bulkwhoisanalyser:analyser.start", bwaFileContents);
   /*
   $('#bwaFileinputconfirm').addClass('is-hidden');
   $.when($('#bwaProcess').removeClass('is-hidden').delay(10)).done(function() {
@@ -137,7 +137,7 @@ $('#bwafButtonConfirm').click(function() {
 
 // Bulk whois file input by drag and drop
 (function() {
-  const holder = document.getElementById('bwaMainContainer');
+  const holder = document.getElementById('bulkwhoisanalyserMainContainer');
   holder.ondragover = function() {
     return false;
   };

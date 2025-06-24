@@ -13,15 +13,15 @@ jest.mock('electron', () => ({
   Menu: {},
 }));
 
-import '../app/ts/main/bwa/fileinput';
+import '../app/ts/main/bulkwhoisanalyser/fileinput';
 
-describe('bwa fileinput handler', () => {
+describe('bulkwhoisanalyser fileinput handler', () => {
   beforeEach(() => {
     mockShowOpenDialogSync.mockReset();
   });
 
   test('sends selected file path to renderer', () => {
-    const handler = ipcMainHandlers['bwa:input.file'];
+    const handler = ipcMainHandlers['bulkwhoisanalyser:input.file'];
     mockShowOpenDialogSync.mockReturnValue('/tmp/test.txt');
     const send = jest.fn();
 
@@ -32,16 +32,16 @@ describe('bwa fileinput handler', () => {
       buttonLabel: 'Open',
       properties: ['openFile', 'showHiddenFiles'],
     });
-    expect(send).toHaveBeenCalledWith('bwa:fileinput.confirmation', '/tmp/test.txt');
+    expect(send).toHaveBeenCalledWith('bulkwhoisanalyser:fileinput.confirmation', '/tmp/test.txt');
   });
 
   test('forwards undefined when no file selected', () => {
-    const handler = ipcMainHandlers['bwa:input.file'];
+    const handler = ipcMainHandlers['bulkwhoisanalyser:input.file'];
     mockShowOpenDialogSync.mockReturnValue(undefined);
     const send = jest.fn();
 
     handler({ sender: { send } } as any);
 
-    expect(send).toHaveBeenCalledWith('bwa:fileinput.confirmation', undefined);
+    expect(send).toHaveBeenCalledWith('bulkwhoisanalyser:fileinput.confirmation', undefined);
   });
 });

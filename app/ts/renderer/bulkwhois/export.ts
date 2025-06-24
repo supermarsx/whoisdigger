@@ -17,13 +17,13 @@ let results: any;
 let options: any;
 
 /*
-  ipcRenderer.on('bw:result.receive', function(...) {...});
+  ipcRenderer.on('bulkwhois:result.receive', function(...) {...});
     ipsum
   parameters
     event
     rcvResults
  */
-ipcRenderer.on('bw:result.receive', function(event, rcvResults) {
+ipcRenderer.on('bulkwhois:result.receive', function(event, rcvResults) {
   ipcRenderer.send('app:debug', formatString('Results are ready for export {0}', rcvResults));
 
   results = rcvResults;
@@ -32,10 +32,10 @@ ipcRenderer.on('bw:result.receive', function(event, rcvResults) {
 });
 
 /*
-  ipcRenderer.on('bw:export.cancel', function() {...});
+  ipcRenderer.on('bulkwhois:export.cancel', function() {...});
     Bulk whois export cancel
  */
-ipcRenderer.on('bw:export.cancel', function() {
+ipcRenderer.on('bulkwhois:export.cancel', function() {
   $('#bwExportloading').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 
@@ -52,7 +52,7 @@ $(document).on('click', '#bwExportButtonExport', async function() {
   options = getExportOptions();
   $.when($('#bwExportloading').removeClass('is-hidden').delay(10)).done(async function() {
     try {
-      await ipcRenderer.invoke('bw:export', results, options);
+      await ipcRenderer.invoke('bulkwhois:export', results, options);
     } catch (err) {
       $('#bwExportErrorText').text((err as Error).message);
       $('#bwExportMessageError').removeClass('is-hidden');

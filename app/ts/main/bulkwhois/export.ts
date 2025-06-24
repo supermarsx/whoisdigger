@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import * as conversions from '../../common/conversions';
 import debugModule from 'debug';
-const debug = debugModule('main.bw.export');
+const debug = debugModule('main.bulkwhois.export');
 import JSZip from 'jszip';
 import { formatString } from '../../common/stringformat';
 
@@ -20,14 +20,14 @@ const {
 import { settings } from '../../common/settings';
 
 /*
-  ipcMain.on('bw:export', function(...) {...});
+  ipcMain.on('bulkwhois:export', function(...) {...});
     On event: bulk whois export event
   parameters
     event (object) - renderer object
     results (object) - bulk whois results object
     options (object) - bulk whois export options object
  */
-  ipcMain.handle('bw:export', async function(event, results, options) {
+  ipcMain.handle('bulkwhois:export', async function(event, results, options) {
   const {
     lookupExport: resExports
   } = settings;
@@ -80,7 +80,7 @@ import { settings } from '../../common/settings';
 
   if (filePath === undefined || filePath == '' || filePath === null) {
     debug(formatString('Using selected file at {0}', filePath));
-    sender.send('bw:export.cancel');
+    sender.send('bulkwhois:export.cancel');
   } else {
     let contentsExport = "",
       contentsHeader = "",
@@ -187,6 +187,6 @@ import { settings } from '../../common/settings';
         break;
     }
   }
-  sender.send('bw:export.cancel');
+  sender.send('bulkwhois:export.cancel');
 
 });

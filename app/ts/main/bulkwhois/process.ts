@@ -2,7 +2,7 @@
 import electron from 'electron';
 import type { IpcMainEvent } from 'electron';
 import debugModule from 'debug';
-const debug = debugModule('main.bw.process');
+const debug = debugModule('main.bulkwhois.process');
 import defaultBulkWhois from './process.defaults';
 
 import type { BulkWhois, DomainSetup } from './types';
@@ -28,14 +28,14 @@ let reqtime: number[] = [];
 
 
 /*
-  ipcMain.on('bw:lookup', function(...) {...});
+  ipcMain.on('bulkwhois:lookup', function(...) {...});
     On event: bulk whois lookup startup
   parameters
     event (object) - renderer event
     domains (array) - domains to request whois for
     tlds (array) - tlds to look for
  */
-ipcMain.on('bw:lookup', function(event: IpcMainEvent, domains: string[], tlds: string[]) {
+ipcMain.on('bulkwhois:lookup', function(event: IpcMainEvent, domains: string[], tlds: string[]) {
   resetUiCounters(event); // Reset UI counters, pass window param
   bulkWhois = resetObject(defaultBulkWhois); // Resets the bulkWhois object to default
   reqtime = [];
@@ -76,7 +76,7 @@ ipcMain.on('bw:lookup', function(event: IpcMainEvent, domains: string[], tlds: s
   input.tlds = tlds; // TLDs array
 
   stats.domains.total = input.tlds.length * input.domains.length; // Domain quantity times tld quantity
-  sender.send('bw:status.update', 'domains.total', stats.domains.total); // Display total amount of domains
+  sender.send('bulkwhois:status.update', 'domains.total', stats.domains.total); // Display total amount of domains
 
   // Compile domains to process
   domainsPending.push(...compileQueue(input.domains, input.tlds, tldSeparator));
@@ -98,7 +98,7 @@ ipcMain.on('bw:lookup', function(event: IpcMainEvent, domains: string[], tlds: s
     processDomain(bulkWhois, reqtime, domainSetup, event);
 
     stats.domains.processed = domainSetup.index + 1;
-    sender.send('bw:status.update', 'domains.processed', stats.domains.processed);
+    sender.send('bulkwhois:status.update', 'domains.processed', stats.domains.processed);
 
   } // End processing for loop
 
@@ -115,12 +115,12 @@ ipcMain.on('bw:lookup', function(event: IpcMainEvent, domains: string[], tlds: s
 });
 
 /*
-  ipcMain.on('bw:lookup.pause', function(...) {...});
+  ipcMain.on('bulkwhois:lookup.pause', function(...) {...});
     On event: bulk whois lookup pause
   parameters
     event (object) - renderer event
  */
-ipcMain.on('bw:lookup.pause', function(event: IpcMainEvent) {
+ipcMain.on('bulkwhois:lookup.pause', function(event: IpcMainEvent) {
 
   // bulkWhois section
   const {
@@ -146,12 +146,12 @@ ipcMain.on('bw:lookup.pause', function(event: IpcMainEvent) {
 });
 
 /*
-  ipcMain.on('bw:lookup.continue', function(...) {...});
+  ipcMain.on('bulkwhois:lookup.continue', function(...) {...});
     On event: bulk whois lookup continue
   parameters
     event (object) - renderer object
  */
-ipcMain.on('bw:lookup.continue', function(event: IpcMainEvent) {
+ipcMain.on('bulkwhois:lookup.continue', function(event: IpcMainEvent) {
   debug('Continuing bulk whois requests');
 
   // Go through the remaining domains and queue them again using setTimeouts
@@ -207,7 +207,7 @@ ipcMain.on('bw:lookup.continue', function(event: IpcMainEvent) {
     processDomain(bulkWhois, reqtime, domainSetup, event);
 
     stats.domains.processed = Number(domainSetup.index) + 1;
-    sender.send('bw:status.update', 'domains.processed', stats.domains.processed);
+    sender.send('bulkwhois:status.update', 'domains.processed', stats.domains.processed);
   } // End processing for loop
 
   stats.time.remainingcounter = settings.lookupGeneral.useDnsTimeBetweenOverride ?
@@ -225,12 +225,12 @@ ipcMain.on('bw:lookup.continue', function(event: IpcMainEvent) {
 });
 
 /*
-  ipcMain.on('bw:lookup.stop', function(...) {...});
+  ipcMain.on('bulkwhois:lookup.stop', function(...) {...});
     On event: stop bulk whois lookup process
   parameters
     event (object) - Current renderer object
  */
-ipcMain.on('bw:lookup.stop', function(event: IpcMainEvent) {
+ipcMain.on('bulkwhois:lookup.stop', function(event: IpcMainEvent) {
   const {
     results,
     stats
@@ -241,8 +241,8 @@ ipcMain.on('bw:lookup.stop', function(event: IpcMainEvent) {
   } = event;
 
   clearTimeout(stats.time.counter!);
-  sender.send('bw:result.receive', results);
-  sender.send('bw:status.update', 'finished');
+  sender.send('bulkwhois:result.receive', results);
+  sender.send('bulkwhois:status.update', 'finished');
 });
 
 // Re-export for consumers that imported from this module previously

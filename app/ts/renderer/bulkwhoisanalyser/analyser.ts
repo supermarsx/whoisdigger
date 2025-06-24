@@ -13,13 +13,13 @@ import { formatString } from '../../common/stringformat';
 let bwaFileContents: any;
 
 /*
-  ipcRenderer.on('bwa:analyser.tablegen', function() {...});
+  ipcRenderer.on('bulkwhoisanalyser:analyser.tablegen', function() {...});
     Generate analyser content table
   parameters
     event
     contents
  */
-ipcRenderer.on('bwa:analyser.tablegen', function(event, contents) {
+ipcRenderer.on('bulkwhoisanalyser:analyser.tablegen', function(event, contents) {
   bwaFileContents = contents;
   showTable();
 
@@ -27,34 +27,34 @@ ipcRenderer.on('bwa:analyser.tablegen', function(event, contents) {
 });
 
 /*
-  $('#bwaAnalyserButtonClose').click(function() {...});
+  $('#bulkwhoisanalyserAnalyserButtonClose').click(function() {...});
     Bulk whois analyser close button
  */
-$('#bwaAnalyserButtonClose').click(function() {
-  ipcRenderer.send('app:debug', '#bwaAnalyserButtonClose clicked');
-  $('#bwaAnalyserModalClose').addClass('is-active');
+$('#bulkwhoisanalyserAnalyserButtonClose').click(function() {
+  ipcRenderer.send('app:debug', '#bulkwhoisanalyserAnalyserButtonClose clicked');
+  $('#bulkwhoisanalyserAnalyserModalClose').addClass('is-active');
 
   return;
 });
 
 /*
-  $('#bwaAnalyserModalCloseButtonYes').click(function() {...});
-    bwa, close dialog confirm/yes
+  $('#bulkwhoisanalyserAnalyserModalCloseButtonYes').click(function() {...});
+    bulkwhoisanalyser close dialog confirm/yes
  */
-$('#bwaAnalyserModalCloseButtonYes').click(function() {
-  $('#bwaAnalyser').addClass('is-hidden');
-  $('#bwaAnalyserModalClose').removeClass('is-active');
+$('#bulkwhoisanalyserAnalyserModalCloseButtonYes').click(function() {
+  $('#bulkwhoisanalyser').addClass('is-hidden');
+  $('#bulkwhoisanalyserAnalyserModalClose').removeClass('is-active');
   $('#bwaEntry').removeClass('is-hidden');
 
   return;
 });
 
 /*
-  $('#bwaAnalyserModalCloseButtonNo').click(function() {...});
+  $('#bulkwhoisanalyserAnalyserModalCloseButtonNo').click(function() {...});
     Bulk whois analyser close dialog cancel/no button
  */
-$('#bwaAnalyserModalCloseButtonNo').click(function() {
-  $('#bwaAnalyserModalClose').removeClass('is-active');
+$('#bulkwhoisanalyserAnalyserModalCloseButtonNo').click(function() {
+  $('#bulkwhoisanalyserAnalyserModalClose').removeClass('is-active');
 
   return;
 });
@@ -76,7 +76,7 @@ function showTable() {
   }
   header.content += '</tr>';
 
-  $('#bwaAnalyserTableThead').html(header.content);
+  $('#bulkwhoisanalyserAnalyserTableThead').html(header.content);
 
   // Generate record fields
   body.content = '';
@@ -88,15 +88,15 @@ function showTable() {
     }
     body.content += '</tr>\n';
   }
-  $('#bwaAnalyserTableTbody').html(body.content);
+  $('#bulkwhoisanalyserAnalyserTableTbody').html(body.content);
 
-  body.table = ($('#bwaAnalyserTable') as any).dataTable({
+  body.table = ($('#bulkwhoisanalyserAnalyserTable') as any).dataTable({
     'destroy': true
   });
 
 
   $('#bwaFileinputconfirm').addClass('is-hidden');
-  $('#bwaAnalyser').removeClass('is-hidden');
+  $('#bulkwhoisanalyser').removeClass('is-hidden');
   //body.content.destroy();
 
   return;

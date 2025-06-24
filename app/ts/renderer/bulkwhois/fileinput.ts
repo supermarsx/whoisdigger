@@ -2,7 +2,7 @@ import * as conversions from '../../common/conversions';
 import fs from 'fs';
 import type { FileStats } from '../../common/fileStats';
 import debugModule from 'debug';
-const debug = debugModule('renderer.bw.fileinput');
+const debug = debugModule('renderer.bulkwhois.fileinput');
 
 import { ipcRenderer } from 'electron';
 import { tableReset } from './auxiliary';
@@ -14,14 +14,14 @@ import { settings } from '../../common/settings';
 let bwFileContents: Buffer;
 
 /*
-  ipcRenderer.on('bw:fileinput.confirmation', function(...) {...});
+  ipcRenderer.on('bulkwhois:fileinput.confirmation', function(...) {...});
     // File input, path and information confirmation container
   parameters
     event
     filePath
     isDragDrop
  */
-ipcRenderer.on('bw:fileinput.confirmation', async function(event, filePath: string | string[] | null = null, isDragDrop = false) {
+ipcRenderer.on('bulkwhois:fileinput.confirmation', async function(event, filePath: string | string[] | null = null, isDragDrop = false) {
   let bwFileStats: FileStats; // File stats, size, last changed, etc
   const misc = settings['lookup.misc'];
   const lookup = {
@@ -114,7 +114,7 @@ ipcRenderer.on('bw:fileinput.confirmation', async function(event, filePath: stri
 $(document).on('click', '#bwEntryButtonFile', function() {
   $('#bwEntry').addClass('is-hidden');
   $.when($('#bwFileinputloading').removeClass('is-hidden').delay(10)).done(function() {
-    ipcRenderer.send("bw:input.file");
+    ipcRenderer.send("bulkwhois:input.file");
   });
 
   return;
@@ -151,7 +151,7 @@ $(document).on('click', '#bwFileButtonConfirm', function() {
   debug(bwDomainArray);
   debug(bwTldsArray);
 
-  ipcRenderer.send("bw:lookup", bwDomainArray, bwTldsArray);
+  ipcRenderer.send("bulkwhois:lookup", bwDomainArray, bwTldsArray);
 });
 
 /*
@@ -159,7 +159,7 @@ $(document).on('click', '#bwFileButtonConfirm', function() {
     Bulk whois file input by drag and drop
  */
 (function dragDropInitialization() {
-  const holder = document.getElementById('bwMainContainer') as HTMLElement;
+  const holder = document.getElementById('bulkwhoisMainContainer') as HTMLElement;
   holder.ondragover = function() {
     return false;
   };
@@ -185,10 +185,10 @@ $(document).on('click', '#bwFileButtonConfirm', function() {
 
 
 /*
-  $('#bwMainContainer').on('drop', function(...) {...});
+  $('#bulkwhoisMainContainer').on('drop', function(...) {...});
     On Drop ipsum
  */
-$('#bwMainContainer').on('drop', function(event) {
+$('#bulkwhoisMainContainer').on('drop', function(event) {
   event.preventDefault();
   for (const f of Array.from((event as any).originalEvent.dataTransfer.files)) {
     const file = f as any;

@@ -12,21 +12,21 @@ import $ from 'jquery';
     tab: htmlpath + "tabs/",
   };
   const additionalPaths: Record<string, string> = {
-    bw: htmlpath + path.tab + "bw/",
-    bwa: htmlpath + path.tab + "bwa/",
+    bw: htmlpath + path.tab + "bulkwhois/",
+    bwa: htmlpath + path.tab + "bulkwhoisanalyser/",
     bwm: htmlpath + path.tab + "bwm/",
     to: htmlpath + path.tab + "to/",
-    op: htmlpath + path.tab + "op/"
+    op: htmlpath + path.tab + "options/"
   };
 
   Object.assign(path, additionalPaths);
 
   const {
-    bw,
-    bwa,
+    bw: bulkwhois,
+    bwa: bulkwhoisanalyser,
     bwm,
     to,
-    op,
+    op: options,
     nav,
     tab
   } = path;
@@ -39,34 +39,34 @@ import $ from 'jquery';
   $('#singlewhoisMainContainer').load(tab + "singlewhois.html");
 
   // Bulk whois lookup tab/steps
-  $('#bwEntry').load(bw + "bwEntry.html");
+  $('#bwEntry').load(bulkwhois + "bulkwhoisEntry.html");
 
   // Bulk whois file input
-  $('#bwFileinputloading').load(bw + "bwFileinputloading.html");
-  $('#bwFileinputconfirm').load(bw + "bwFileinputconfirm.html");
+  $('#bwFileinputloading').load(bulkwhois + "bulkwhoisFileInputLoading.html");
+  $('#bwFileinputconfirm').load(bulkwhois + "bulkwhoisFileInputConfirm.html");
 
   // Bulk whois wordlist input
-  $('#bwWordlistinput').load(bw + "bwWordlistinput.html");
-  $('#bwWordlistloading').load(bw + "bwWordlistloading.html");
-  $('#bwWordlistconfirm').load(bw + "bwWordlistconfirm.html");
+  $('#bwWordlistinput').load(bulkwhois + "bulkwhoisWordlistInput.html");
+  $('#bwWordlistloading').load(bulkwhois + "bulkwhoisWordlistLoading.html");
+  $('#bwWordlistconfirm').load(bulkwhois + "bulkwhoisWordlistConfirm.html");
 
   // Bulk whois processing
-  $('#bwProcessing').load(bw + "bwProcessing.html");
-  $('#bwExport').load(bw + "bwExport.html");
-  $('#bwExportloading').load(bw + "bwExportloading.html");
+  $('#bwProcessing').load(bulkwhois + "bulkwhoisProcessing.html");
+  $('#bwExport').load(bulkwhois + "bulkwhoisExport.html");
+  $('#bwExportloading').load(bulkwhois + "bulkwhoisExportLoading.html");
 
   // Bulk whois analyser containers
-  $('#bwaEntry').load(bwa + "bwaEntry.html");
-  $('#bwaFileinputloading').load(bwa + "bwaFileinputloading.html");
-  $('#bwaFileinputconfirm').load(bwa + "bwaFileinputconfirm.html");
-  $('#bwaProcess').load(bwa + "bwaProcess.html");
-  $('#bwaAnalyser').load(bwa + "bwaAnalyser.html");
+  $('#bwaEntry').load(bulkwhoisanalyser + "bulkwhoisanalyserEntry.html");
+  $('#bwaFileinputloading').load(bulkwhoisanalyser + "bulkwhoisanalyserFileInputLoading.html");
+  $('#bwaFileinputconfirm').load(bulkwhoisanalyser + "bulkwhoisanalyserFileinputconfirm.html");
+  $('#bwaProcess').load(bulkwhoisanalyser + "bulkwhoisanalyserProcess.html");
+  $('#bulkwhoisanalyser').load(bulkwhoisanalyser + "bulkwhoisanalyserAnalyser.html");
 
   // Wordlist tools containers
   $('#toEntry').load(to + "toEntry.html");
 
   // Options container
-  $('#opEntry').load(op + "opEntry.html");
+  $('#opEntry').load(options + "optionsEntry.html");
 
   // Help container
   $('#heMainContainer').load(tab + "he.html");

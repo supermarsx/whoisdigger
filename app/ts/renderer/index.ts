@@ -1,6 +1,6 @@
 
 import './singlewhois';
-import './bw';
-import './bwa';
+import './bulkwhois';
+import './bulkwhoisanalyser';
 import './darkmode';
 import './options';

@@ -11,10 +11,10 @@ import { formatString } from '../../common/stringformat';
 let bwWordlistContents = ''; // Global wordlist input contents
 
 /*
-  ipcRenderer.on('bw:wordlistinput.confirmation', function() {...});
+  ipcRenderer.on('bulkwhois:wordlistinput.confirmation', function() {...});
     Wordlist input, contents confirmation container
  */
-ipcRenderer.on('bw:wordlistinput.confirmation', function() {
+ipcRenderer.on('bulkwhois:wordlistinput.confirmation', function() {
   const bwFileStats: Record<string, any> = {};
 
   bwWordlistContents = String($('#bwWordlistTextareaDomains').val() ?? '');
@@ -79,7 +79,7 @@ $(document).on('click', '#bwWordlistinputButtonCancel', function() {
  */
 $(document).on('click', '#bwWordlistinputButtonConfirm', function() {
   $('#bwWordlistinput').addClass('is-hidden');
-  ipcRenderer.send("bw:input.wordlist");
+  ipcRenderer.send("bulkwhois:input.wordlist");
 
   return;
 });
@@ -113,7 +113,7 @@ $(document).on('click', '#bwWordlistconfirmButtonStart', function() {
   $('#bwWordlistconfirm').addClass('is-hidden');
   $('#bwProcessing').removeClass('is-hidden');
 
-  ipcRenderer.send("bw:lookup", bwDomainArray, bwTldsArray);
+  ipcRenderer.send("bulkwhois:lookup", bwDomainArray, bwTldsArray);
 
   return;
 });

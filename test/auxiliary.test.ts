@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import jQuery from 'jquery';
-const auxiliary = require('../app/ts/renderer/bw/auxiliary');
+const auxiliary = require('../app/ts/renderer/bulkwhois/auxiliary');
 const { tableReset, getExportOptions, setExportOptions } = auxiliary;
 
 beforeAll(() => {
