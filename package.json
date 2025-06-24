@@ -22,7 +22,8 @@
     "format": "prettier --ignore-path .prettierignore .",
     "test": "jest",
     "test:e2e": "xvfb-run -a node test/e2e/run.js",
-    "prebuild": "node prebuild.js"
+    "prebuild": "node prebuild.js",
+    "prepare": "husky install"
   },
   "author": "supermarsx",
   "license": "MIT",
@@ -66,6 +67,7 @@
     "electronmon": "^2.0.3",
     "eslint": "^9.29.0",
     "eslint-config-prettier": "^8.10.0",
+    "husky": "^8.0.0",
     "jest": "^30.0.2",
     "jest-environment-jsdom": "^30.0.2",
     "postcss": "^8.4.38",
