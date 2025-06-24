@@ -1,5 +1,4 @@
 import { ipcRenderer } from 'electron';
-import * as remote from '@electron/remote';
 import { formatString } from '../common/stringformat';
 import $ from 'jquery';
 
@@ -33,7 +32,7 @@ $(document).on('dragover', function (event) {
     On click: Button toggle developer tools
  */
 $(document).on('click', '#navButtonDevtools', function () {
-  remote.getCurrentWindow().toggleDevTools();
+  void ipcRenderer.invoke('app:toggleDevtools');
   ipcRenderer.send('app:debug', '#navButtonDevtools was clicked');
 
   return;
@@ -138,7 +137,7 @@ $(document).on('click', '#navButtonExtendedmenu', function () {
  */
 $(document).on('click', '#navButtonMinimize', function () {
   ipcRenderer.send('app:debug', '#navButtonMinimize was clicked');
-  remote.getCurrentWindow().minimize();
+  void ipcRenderer.invoke('app:minimize');
 
   return;
 });
@@ -149,7 +148,7 @@ $(document).on('click', '#navButtonMinimize', function () {
  */
 $(document).on('click', '#navButtonExit', function () {
   ipcRenderer.send('app:debug', '#navButtonExit was clicked');
-  remote.getCurrentWindow().close();
+  void ipcRenderer.invoke('app:close');
 
   return;
 });

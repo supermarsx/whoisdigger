@@ -4,7 +4,7 @@ import debugModule from 'debug';
 import { loadSettings, settings as store } from './common/settings';
 import type { Settings as BaseSettings } from './common/settings';
 import { formatString } from './common/stringformat';
-import { initialize as initializeRemote, enable as enableRemote } from '@electron/remote/main';
+import { initialize as initializeRemote } from '@electron/remote/main';
 import type { IpcMainEvent } from 'electron';
 
 const debug = debugModule('main');
@@ -113,7 +113,6 @@ app.on('ready', async function () {
       spellcheck: webPreferences.spellcheck // Enable builtin spellchecker
     }
   });
-  enableRemote(mainWindow.webContents);
 
   // mainWindow, Main window URL load
   const loadPath = path.isAbsolute(appUrl.pathname)
@@ -171,17 +170,34 @@ function startup() {
 }
 
 /*
-  ipcMain.on('app:minimize', function() {...});
+  ipcMain.handle('app:toggleDevtools', function() {...});
+    Toggle developer tools
+ */
+ipcMain.handle('app:toggleDevtools', function () {
+  mainWindow.webContents.toggleDevTools();
+});
+
+/*
+  ipcMain.handle('app:minimize', function() {...});
     Application minimize event
  */
-ipcMain.on('app:minimize', function () {
+ipcMain.handle('app:minimize', function () {
   const { appWindow } = settings;
   if (appWindow.minimizable) {
     debug('App minimized');
     mainWindow.minimize();
   }
+});
 
-  return;
+/*
+  ipcMain.handle('app:close', function() {...});
+    Close the application window
+ */
+ipcMain.handle('app:close', function () {
+  const { appWindow } = settings;
+  if (appWindow.closable) {
+    mainWindow.close();
+  }
 });
 
 /*
