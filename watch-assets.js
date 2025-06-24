@@ -4,7 +4,7 @@ const watchboy = require('watchboy');
 const { copyRecursiveSync } = require('./scripts/copyRecursive');
 const debug = require('debug')('watch-assets');
 
-const folders = ['html', 'html/templates', 'css', 'fonts', 'icons'];
+const folders = ['html', 'html/templates', 'css', 'fonts', 'icons', 'compiled-templates'];
 const appDir = path.join(__dirname, 'app');
 const distDir = path.join(__dirname, 'dist', 'app');
 
