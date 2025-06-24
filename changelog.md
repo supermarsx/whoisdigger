@@ -15,16 +15,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Continuous integration workflows with Node.js matrix builds.
 - WebdriverIO and Jest test suites with coverage reporting.
 - Settings persistence with automatic saves and live updates.
+- Additional unit test coverage for core features.
 
 ### Changed
 - Codebase migrated to TypeScript and integrated with Prettier.
 - Updated major libraries such as better-sqlite3 and TypeScript ESLint.
 - Enhanced content security policies and build scripts.
+- README documentation updated.
+
+### Removed
+- Legacy HTML files removed.
 
 ### Fixed
 - Runtime script loading and main window path resolution issues.
 - Addressed missing module errors causing console noise.
 - Resolved export and open link failures in the renderer.
+- Fixed proxy rotation bug causing repeated proxy usage.
 
 ## [0.0.4] - 2019-11-18
 ### Changed
