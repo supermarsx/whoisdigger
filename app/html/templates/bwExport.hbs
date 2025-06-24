@@ -1,0 +1,93 @@
+<!-- Export options -->
+<h4 class="title is-4 has-text-centered">Export options</h4>
+<hr />
+<div class="columns">
+  <div class="column is-two-fifths has-text-right">
+    <div class="field">
+      <span style="line-height: 2.25em; margin-right: 10px">Preset</span>
+    </div>
+    <div class="field">
+      <span style="line-height: 2.25em; margin-right: 10px">File Type</span>
+    </div>
+    <div class="field">
+      <span style="line-height: 2.25em; margin-right: 10px">Domains</span>
+    </div>
+    <div class="field">
+      <span style="line-height: 2.25em; margin-right: 10px">Errors</span>
+    </div>
+    <div class="field">
+      <span style="line-height: 2.25em; margin-right: 10px">Information</span>
+    </div>
+    <div class="field">
+      <span style="line-height: 2.25em; margin-right: 10px">Include Whois reply</span>
+    </div>
+  </div>
+  <div class="column has-text-left">
+    <div class="field">
+      <div class="select">
+        <select id="bwExportSelectPreset">
+          <option value="none">None</option>
+          <option value="availableonly">Only Available</option>
+          <option value="allbutnoreply">All but no Whois reply</option>
+          <option value="import">Analyser export/import</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <div class="select">
+        <select id="bwExportSelectFiletype">
+          <option value="csv">.csv (Comma-separated values)</option>
+          <option value="txt">.txt (Text file, individualized)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <div class="select">
+        <select id="bwExportSelectDomains">
+          <option value="available">Available</option>
+          <option value="unavailable">Unavailable</option>
+          <option value="both">Available + Unavailable</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <div class="select">
+        <select id="bwExportSelectErrors">
+          <option value="no">No</option>
+          <option value="yes">Yes</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <div class="select">
+        <select id="bwExportSelectInformation">
+          <option value="domain">Domain</option>
+          <option value="domain+basic">Domain + Basic Information</option>
+          <option value="domain+basic+debug">Domain + Basic Info. + Debug</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <div class="select">
+        <select id="bwExportSelectReply">
+          <option value="no">No</option>
+          <option value="yes+inline">Yes, inline as field (.csv)</option>
+          <option value="yes+inlineseparate">Yes, inline as field in separate file (.csv)</option>
+          <option value="yes+block">Yes, as block, individualized (.txt)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+<a id="bwExportButtonExport" class="button is-medium is-success">
+  <span class="icon is-small">
+    <i class="fas fa-check"></i>
+  </span>
+  <span>Export</span>
+</a>
+<a id="bwExportButtonCancel" class="button is-medium is-danger">
+  <span class="icon is-small">
+    <i class="fas fa-undo"></i>
+  </span>
+  <span>Cancel</span>
+</a>
