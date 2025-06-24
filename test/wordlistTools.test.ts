@@ -5,8 +5,8 @@ import { splitFiles, shuffleLines, dedupeLines } from '../app/ts/common/wordlist
 describe('wordlist tools advanced', () => {
   const sample = path.join(__dirname, '..', 'sample_lists', '3letter_alpha.list');
 
-  test('splitFiles divides sample list by maxLines', () => {
-    const parts = splitFiles({ files: [sample], maxLines: 5 });
+  test('splitFiles divides sample list by maxLines', async () => {
+    const parts = await splitFiles({ files: [sample], maxLines: 5 });
     expect(parts).toEqual([
       ['aaq', 'bha', 'dyv', 'fed', 'gxp'],
       ['irq', 'jee', 'nvi', 'onr', 'xgh'],
@@ -14,10 +14,10 @@ describe('wordlist tools advanced', () => {
     ]);
   });
 
-  test('splitFiles respects pattern option', () => {
+  test('splitFiles respects pattern option', async () => {
     const p = path.join(__dirname, 'pattern.txt');
     fs.writeFileSync(p, 'a\n---\nb\nc\n---\nd');
-    const parts = splitFiles({ files: [p], pattern: /^---$/ });
+    const parts = await splitFiles({ files: [p], pattern: /^---$/ });
     expect(parts).toEqual([
       ['a'],
       ['b', 'c'],
@@ -26,10 +26,10 @@ describe('wordlist tools advanced', () => {
     fs.unlinkSync(p);
   });
 
-  test('splitFiles splits by maxSize bytes', () => {
+  test('splitFiles splits by maxSize bytes', async () => {
     const p = path.join(__dirname, 'size.txt');
     fs.writeFileSync(p, 'a\nbb\nccc');
-    const parts = splitFiles({ files: [p], maxSize: 4 });
+    const parts = await splitFiles({ files: [p], maxSize: 4 });
     expect(parts).toEqual([
       ['a'],
       ['bb'],
@@ -38,10 +38,10 @@ describe('wordlist tools advanced', () => {
     fs.unlinkSync(p);
   });
 
-  test('splitFiles uses maxLines over maxSize when both set', () => {
+  test('splitFiles uses maxLines over maxSize when both set', async () => {
     const p = path.join(__dirname, 'pref.txt');
     fs.writeFileSync(p, '1\n2\n3\n4\n5\n6');
-    const parts = splitFiles({ files: [p], maxLines: 2, maxSize: 100 });
+    const parts = await splitFiles({ files: [p], maxLines: 2, maxSize: 100 });
     expect(parts).toEqual([
       ['1', '2'],
       ['3', '4'],
@@ -50,8 +50,8 @@ describe('wordlist tools advanced', () => {
     fs.unlinkSync(p);
   });
 
-  test('splitFiles with no files returns empty array', () => {
-    expect(splitFiles({ files: [] })).toEqual([[]]);
+  test('splitFiles with no files returns empty array', async () => {
+    expect(await splitFiles({ files: [] })).toEqual([[]]);
   });
 
   test('shuffleLines deterministic order with mocked random', () => {
