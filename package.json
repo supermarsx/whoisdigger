@@ -63,10 +63,12 @@
     "electron": "^36.5.0",
     "electronmon": "^2.0.3",
     "eslint": "^9.29.0",
+    "eslint-config-prettier": "^8.10.0",
     "jest": "^30.0.2",
     "jest-environment-jsdom": "^30.0.2",
     "postcss": "^8.4.38",
     "postcss-cli": "^10.1.0",
+    "prettier": "^2.8.8",
     "spectron": "^19.0.0",
     "ts-jest": "^29.4.0",
     "typescript": "^5.8.3"
