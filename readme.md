@@ -80,6 +80,7 @@ Check out and download the latest release for your architecture/OS.
 
 ![Latest tag](https://img.shields.io/github/tag/whois-team/whoisdigger.svg?label=Latest%20tag&style=flat)
 [![Check out releases](https://img.shields.io/badge/Checkout%20releases-%20-orange.svg)](https://github.com/whois-team/whoisdigger/releases)
+[![Coverage](https://img.shields.io/badge/coverage-generated%20in%20CI-blue.svg)](https://github.com/whois-team/whoisdigger/actions/workflows/node.js.yml)
 
 ### Latest changes
 
@@ -168,6 +169,7 @@ dependencies before building. This script runs whenever you execute `npm run bui
 
 Run `npm ci` before testing or linting to install dependencies exactly as locked.
 After installing, execute `npm test` to run the project's unit tests.
+Running tests also generates a coverage report in the `coverage/` directory.
 Development packages such as `@types/node` and `@types/jest` are required for TypeScript compilation and running tests. The `prebuild` script will auto-install dependencies if `node_modules` is missing.
 Use `npm run dev` to watch source files and automatically reload the application during development. Static assets such as stylesheets are synced to `dist` while this command runs, so CSS changes are picked up without rebuilding.
 

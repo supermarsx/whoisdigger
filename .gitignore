@@ -2,6 +2,8 @@ release_builds/
 node_modules/
 dist/
 
+coverage/
+
 settings.json
 reload.json
 .DS_Store

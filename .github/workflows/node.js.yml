@@ -61,6 +61,11 @@ jobs:
       - name: Install dependencies
         run: npm install
       - run: npm test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-${{ matrix.os }}-${{ matrix.node-version }}
+          path: coverage/
 
   package:
     needs: build
