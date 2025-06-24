@@ -1,3 +1,5 @@
+import { ipcRenderer } from 'electron';
+import * as remote from '@electron/remote';
 import { formatString } from '../common/stringformat';
 import $ from 'jquery';
 
