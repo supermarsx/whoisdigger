@@ -35,3 +35,23 @@ if (fs.existsSync(bulmaSrc)) {
 
 // Precompile Handlebars templates into dist/app/compiled-templates
 precompileTemplates(path.join(distDir, 'compiled-templates'));
+
+// After precompilation, register the partials with Handlebars and render
+// the mainPanel template to static HTML.
+const Handlebars = require('handlebars');
+const compiledDir = path.join(distDir, 'compiled-templates');
+
+for (const file of fs.readdirSync(compiledDir)) {
+  if (!file.endsWith('.js') || file === 'mainPanel.js') continue;
+  const name = path.basename(file, '.js');
+  // require returns the template specification object produced by handlebars
+  const spec = require(path.join(compiledDir, file));
+  Handlebars.registerPartial(name, Handlebars.template(spec));
+}
+
+const mainSpec = require(path.join(compiledDir, 'mainPanel.js'));
+const mainTemplate = Handlebars.template(mainSpec);
+const htmlOut = mainTemplate({});
+
+const outPath = path.join(distDir, 'html', 'mainPanel.html');
+fs.writeFileSync(outPath, htmlOut);
