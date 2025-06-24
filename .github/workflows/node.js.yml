@@ -67,8 +67,27 @@ jobs:
           name: coverage-${{ matrix.os }}-${{ matrix.node-version }}
           path: coverage/
 
-  package:
+  e2e:
     needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Run e2e tests
+        run: xvfb-run -a npm run test:e2e
+
+  package:
+    needs: e2e
     runs-on: ubuntu-latest
     strategy:
       matrix:
