@@ -1,4 +1,5 @@
 import Database from 'better-sqlite3';
+import type { Database as DatabaseType } from 'better-sqlite3';
 import fs from 'fs';
 import path from 'path';
 import { settings, getUserDataPath } from './settings';
@@ -6,9 +7,9 @@ import debugModule from 'debug';
 
 const debug = debugModule('common.requestCache');
 
-let db: Database | undefined;
+let db: DatabaseType | undefined;
 
-function init(): Database | undefined {
+function init(): DatabaseType | undefined {
   const { requestCache } = settings;
   if (!requestCache || !requestCache.enabled) return undefined;
   if (db) return db;
