@@ -11,9 +11,10 @@ on:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
         node-version: [18.x, 20.x, 22.x, 23.x, 24.x]
     steps:
       - uses: actions/checkout@v4
@@ -28,10 +29,11 @@ jobs:
       - run: npm run lint
 
   type-check:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     needs: lint
     strategy:
       matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
         node-version: [18.x, 20.x, 22.x, 23.x, 24.x]
     steps:
       - uses: actions/checkout@v4
@@ -44,10 +46,11 @@ jobs:
       - run: npx tsc --noEmit
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     needs: type-check
     strategy:
       matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
         node-version: [18.x, 20.x, 22.x, 23.x, 24.x]
     steps:
       - uses: actions/checkout@v4
