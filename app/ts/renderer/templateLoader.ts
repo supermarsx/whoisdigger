@@ -9,7 +9,8 @@ export async function loadTemplate(
   const module = await import(
     `../../compiled-templates/${template.replace(/\.hbs$/, '.js')}`
   );
-  const compiled = Handlebars.template(module.default);
+  const precompiled = module.default || module;
+  const compiled = Handlebars.template(precompiled);
   const html = compiled(context);
   $(selector).html(html);
 }
