@@ -172,3 +172,23 @@ html[data-theme='dark'] #toTable .button {
 .hero-head {
   z-index: 1;
 }
+
+/* Toast notifications */
+.toast {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  color: #fff;
+  z-index: 1000;
+  opacity: 0.95;
+}
+
+.toast.is-success {
+  background-color: #48c774;
+}
+
+.toast.is-danger {
+  background-color: #f14668;
+}

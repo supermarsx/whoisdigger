@@ -80,9 +80,7 @@ const isMainProcess = ((): boolean => {
   }
 })();
 
-const userDataPath = isMainProcess
-  ? app.getPath('userData')
-  : (remote?.app?.getPath('userData') ?? '');
+const userDataPath = path.join(__dirname, '..', '..', 'data');
 
 export function getUserDataPath(): string {
   return userDataPath;

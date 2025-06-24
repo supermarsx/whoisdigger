@@ -1,5 +1,13 @@
 import $ from 'jquery';
-import { settings, saveSettings, validateSettings } from '../common/settings';
+import fs from 'fs';
+import path from 'path';
+import {
+  settings,
+  saveSettings,
+  validateSettings,
+  loadSettings,
+  getUserDataPath
+} from '../common/settings';
 import appDefaults, { appSettingsDescriptions } from '../appsettings';
 
 function getValue(path: string): any {
@@ -110,6 +118,16 @@ function saveEntry(path: string, $input: JQuery<HTMLElement>, val: any): void {
   });
 }
 
+function showToast(message: string, success: boolean): void {
+  const toast = $(
+    `<div class="toast ${success ? 'is-success' : 'is-danger'}">${message}</div>`
+  );
+  $('body').append(toast);
+  setTimeout(() => {
+    toast.fadeOut(400, () => toast.remove());
+  }, 3000);
+}
+
 $(document).ready(() => {
   const container = $('#opEntry');
   const table = $('#opTable');
@@ -155,9 +173,60 @@ $(document).ready(() => {
   });
 
   $('#restoreDefaults').on('click', () => {
+    $('#restoreDefaultsModal').addClass('is-active');
+  });
+
+  $('#restoreDefaultsYes').on('click', () => {
     const defaults = validateSettings({});
     Object.assign(settings, defaults);
     populateInputs();
-    void saveSettings(settings);
+    void saveSettings(settings).then((r) => {
+      showToast(
+        r === 'SAVED' || r === undefined
+          ? 'Defaults restored'
+          : 'Failed to restore defaults',
+        r === 'SAVED' || r === undefined
+      );
+    });
+    $('#restoreDefaultsModal').removeClass('is-active');
+  });
+
+  $('#restoreDefaultsNo, #restoreDefaultsModal .delete').on('click', () => {
+    $('#restoreDefaultsModal').removeClass('is-active');
+  });
+
+  $('#reloadSettings').on('click', async () => {
+    await loadSettings();
+    populateInputs();
+  });
+
+  $('#saveConfig').on('click', async () => {
+    const res = await saveSettings(settings);
+    showToast(
+      res === 'SAVED' || res === undefined
+        ? 'Configuration saved'
+        : 'Failed to save configuration',
+      res === 'SAVED' || res === undefined
+    );
+  });
+
+  $('#deleteConfig').on('click', () => {
+    $('#deleteConfigModal').addClass('is-active');
+  });
+
+  $('#deleteConfigYes').on('click', () => {
+    const filePath = path.join(getUserDataPath(), settings.customConfiguration.filepath);
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        showToast('Failed to delete configuration', false);
+      } else {
+        showToast('Configuration deleted', true);
+      }
+    });
+    $('#deleteConfigModal').removeClass('is-active');
+  });
+
+  $('#deleteConfigNo, #deleteConfigModal .delete').on('click', () => {
+    $('#deleteConfigModal').removeClass('is-active');
   });
 });
