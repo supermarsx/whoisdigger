@@ -1,5 +1,4 @@
 import { app, BrowserWindow, Menu, ipcMain, dialog } from 'electron';
-import * as url from 'url';
 import * as path from 'path';
 import debugModule from 'debug';
 import { loadSettings, settings as store } from './common/settings';
@@ -117,13 +116,7 @@ app.on('ready', async function () {
   enableRemote(mainWindow.webContents);
 
   // mainWindow, Main window URL load
-  mainWindow.loadURL(
-    url.format({
-      pathname: path.join(__dirname, appUrl.pathname),
-      protocol: appUrl.protocol,
-      slashes: appUrl.slashes
-    })
-  );
+  mainWindow.loadFile(path.join(__dirname, appUrl.pathname));
 
   // Some more debugging messages
   debug(formatString("'settings.url.protocol': {0}", appUrl.protocol));
