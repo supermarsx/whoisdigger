@@ -1,5 +1,5 @@
 import '../test/electronMock';
-import { settings } from '../app/ts/common/settings';
+import { settings, getUserDataPath } from '../app/ts/common/settings';
 import { getCached, setCached } from '../app/ts/common/requestCache';
 import fs from 'fs';
 import path from 'path';
@@ -14,9 +14,20 @@ describe('requestCache', () => {
   });
 
   afterAll(() => {
-    const dbPath = path.join(path.resolve('.'), dbFile);
+    const dbPath = path.resolve(getUserDataPath(), dbFile);
     if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
+    const evilPath = path.resolve(getUserDataPath(), '../evil.sqlite');
+    if (fs.existsSync(evilPath)) fs.unlinkSync(evilPath);
     settings.requestCache.enabled = false;
+  });
+
+  test('rejects paths outside user data directory', () => {
+    const original = settings.requestCache.database;
+    settings.requestCache.database = '../evil.sqlite';
+    const evilPath = path.resolve(getUserDataPath(), '../evil.sqlite');
+    setCached('whois', 'evil.com', 'bad');
+    expect(fs.existsSync(evilPath)).toBe(false);
+    settings.requestCache.database = original;
   });
 
   test('stores and retrieves cached value', () => {
