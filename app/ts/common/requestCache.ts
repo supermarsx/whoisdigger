@@ -13,7 +13,12 @@ function init(): DatabaseType | undefined {
   const { requestCache } = settings;
   if (!requestCache || !requestCache.enabled) return undefined;
   if (db) return db;
-  const dbPath = path.join(getUserDataPath(), requestCache.database);
+  const baseDir = path.resolve(getUserDataPath());
+  const dbPath = path.resolve(baseDir, requestCache.database);
+  if (dbPath !== baseDir && !dbPath.startsWith(baseDir + path.sep)) {
+    debug(`Invalid cache database path: ${requestCache.database}`);
+    return undefined;
+  }
   fs.mkdirSync(path.dirname(dbPath), { recursive: true });
   db = new Database(dbPath);
   db.exec(
