@@ -13,6 +13,7 @@
     "package-all": "npm run build && npm run postbuild && @electron/packager . --all --overwrite --asar --icon=app/icons/app.png --prune=true --out=release_builds",
     "build": "tsc",
     "postbuild": "node postbuild.js",
+    "build:css": "postcss app/css/*.css -d dist/app/css --no-map",
     "watch": "cross-env DEBUG=* tsc -w",
     "watch-assets": "node watch-assets.js",
     "dev": "npm run build && npm run postbuild && concurrently \"npm:watch\" \"npm:watch-assets\" \"electronmon .\"",
@@ -58,6 +59,9 @@
     "jest": "^30.0.2",
     "jest-environment-jsdom": "^30.0.2",
     "ts-jest": "^29.4.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "postcss": "^8.4.38",
+    "postcss-cli": "^10.1.0",
+    "cssnano": "^7.0.7"
   }
 }
