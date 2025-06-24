@@ -1,5 +1,6 @@
 import * as conversions from '../../common/conversions';
 import fs from 'fs';
+import path from 'path';
 import type { FileStats } from '../../common/fileStats';
 import debugModule from 'debug';
 const debug = debugModule('renderer.bw.fileinput');
@@ -44,7 +45,7 @@ ipcRenderer.on(
         $('#bwFileinputloading').removeClass('is-hidden');
         try {
           bwFileStats = (await fs.promises.stat(filePath as string)) as FileStats;
-          bwFileStats.filename = (filePath as string).replace(/^.*[\\\/]/, '');
+          bwFileStats.filename = path.basename(filePath as string);
           bwFileStats.humansize = conversions.byteToHumanFileSize(
             bwFileStats.size,
             misc.useStandardSize
@@ -59,7 +60,7 @@ ipcRenderer.on(
       } else {
         try {
           bwFileStats = (await fs.promises.stat((filePath as string[])[0])) as FileStats;
-          bwFileStats.filename = (filePath as string[])[0].replace(/^.*[\\\/]/, '');
+          bwFileStats.filename = path.basename((filePath as string[])[0]);
           bwFileStats.humansize = conversions.byteToHumanFileSize(
             bwFileStats.size,
             misc.useStandardSize

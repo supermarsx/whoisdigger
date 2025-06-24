@@ -4,6 +4,7 @@ import type { FileStats } from '../../common/fileStats';
 import Papa from 'papaparse';
 import datatables from 'datatables';
 const dt = datatables();
+import path from 'path';
 import { settings } from '../../common/settings';
 
 import { ipcRenderer } from 'electron';
@@ -34,7 +35,7 @@ ipcRenderer.on(
         $('#bwaFileinputloading').removeClass('is-hidden');
         try {
           bwaFileStats = fs.statSync(filePath as string) as FileStats;
-          bwaFileStats.filename = (filePath as string).replace(/^.*[\\\/]/, '');
+          bwaFileStats.filename = path.basename(filePath as string);
           bwaFileStats.humansize = conversions.byteToHumanFileSize(
             bwaFileStats.size,
             settings.lookupMisc.useStandardSize
@@ -54,7 +55,7 @@ ipcRenderer.on(
       } else {
         try {
           bwaFileStats = fs.statSync((filePath as string[])[0]) as FileStats;
-          bwaFileStats.filename = (filePath as string[])[0].replace(/^.*[\\\/]/, '');
+          bwaFileStats.filename = path.basename((filePath as string[])[0]);
           bwaFileStats.humansize = conversions.byteToHumanFileSize(
             bwaFileStats.size,
             settings.lookupMisc.useStandardSize
