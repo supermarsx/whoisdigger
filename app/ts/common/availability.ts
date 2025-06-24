@@ -22,7 +22,7 @@ export function isDomainAvailable(
   resultsText: string,
   resultsJSON?: Record<string, unknown>
 ): string {
-  const { 'lookup.assumptions': assumptions } = settings;
+  const { lookupAssumptions: assumptions } = settings;
 
   if (!resultsJSON) resultsJSON = toJSON(resultsText) as Record<string, unknown>;
 
