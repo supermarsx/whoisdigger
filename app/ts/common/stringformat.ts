@@ -8,8 +8,8 @@
 
 export function formatString(str: string, ...args: unknown[]): string {
   let result = str;
-  for (const k in args) {
-    result = result.replace(new RegExp(`\\{${k}\\}`, 'g'), String(args[k]));
-  }
+  args.forEach((arg, i) => {
+    result = result.replace(new RegExp(`\\{${i}\\}`, 'g'), String(arg));
+  });
   return result;
 }
