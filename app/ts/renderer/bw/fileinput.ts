@@ -25,10 +25,10 @@ ipcRenderer.on(
   'bw:fileinput.confirmation',
   async function (event, filePath: string | string[] | null = null, isDragDrop = false) {
     let bwFileStats: FileStats; // File stats, size, last changed, etc
-    const misc = settings['lookup.misc'];
-    const lookup = {
+  const misc = settings.lookupMisc;
+  const lookup = {
       randomize: {
-        timeBetween: settings['lookup.randomize.timeBetween']
+        timeBetween: settings.lookupRandomizeTimeBetween
       }
     };
 

@@ -112,7 +112,7 @@ const patterns: PatternsSpec = {
   special: {
     1: {
       includes: ['Uniregistry', 'Query limit exceeded'],
-      result: appSettings['lookup.assumptions']['uniregistry']
+      result: appSettings.lookupAssumptions.uniregistry
         ? 'unavailable'
         : 'error:ratelimiting'
     }
@@ -168,7 +168,7 @@ const patterns: PatternsSpec = {
         {
           type: 'minuslessthan',
           parameters: ['domainParams.expiryDate', 'controlDate', 0],
-          result: appSettings['lookup.assumptions']['expired'] ? 'expired' : 'available'
+          result: appSettings.lookupAssumptions.expired ? 'expired' : 'available'
         }
       ],
       2: 'This domain name has not been registered',
@@ -462,7 +462,7 @@ export function checkPatterns(resultsText: string, resultsJSON?: Record<string, 
   for (const p of builtPatterns.unavailable) if (p.fn(ctx)) return p.result;
   for (const p of builtPatterns.error) if (p.fn(ctx)) return p.result;
 
-  return appSettings['lookup.assumptions'].unparsable ? 'available' : 'error:unparsable';
+  return appSettings.lookupAssumptions.unparsable ? 'available' : 'error:unparsable';
 }
 
 const exported = {

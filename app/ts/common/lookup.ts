@@ -22,7 +22,7 @@ const lookupPromise = (...args: unknown[]): Promise<string> => {
 };
 
 export async function lookup(domain: string, options = getWhoisOptions()): Promise<string> {
-  const { 'lookup.conversion': conversion, 'lookup.general': general } = getSettings();
+  const { lookupConversion: conversion, lookupGeneral: general } = getSettings();
   let domainResults: string;
 
   try {
@@ -42,7 +42,7 @@ export async function lookup(domain: string, options = getWhoisOptions()): Promi
 }
 
 export function convertDomain(domain: string, mode?: string): string {
-  const { 'lookup.conversion': conversion } = getSettings();
+  const { lookupConversion: conversion } = getSettings();
 
   mode = mode || conversion.algorithm;
 
@@ -63,7 +63,7 @@ export function convertDomain(domain: string, mode?: string): string {
 }
 
 export function getWhoisOptions(): Record<string, unknown> {
-  const { 'lookup.general': general } = getSettings();
+  const { lookupGeneral: general } = getSettings();
 
   const options: Record<string, unknown> = {},
     follow = 'follow',
@@ -79,10 +79,10 @@ export function getWhoisOptions(): Record<string, unknown> {
 
 function getWhoisParameters(parameter: string): number | undefined {
   const {
-    'lookup.randomize.follow': follow,
-    'lookup.randomize.timeout': timeout,
-    'lookup.randomize.timeBetween': timeBetween,
-    'lookup.general': general
+    lookupRandomizeFollow: follow,
+    lookupRandomizeTimeout: timeout,
+    lookupRandomizeTimeBetween: timeBetween,
+    lookupGeneral: general
   } = getSettings();
 
   switch (parameter) {
