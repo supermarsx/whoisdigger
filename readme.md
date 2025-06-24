@@ -30,12 +30,15 @@ If you clone this repo please patch `node_modules\whois\index.js` and remove the
 - Raw text whois replies
 - Bulk whois lookup
 - Bulk DNS sweep lookup
-- Optional request caching with SQLite backend
+- Optional request caching with configurable SQLite backend
+- Proxy support for outgoing requests
 - Wordlist capabilities with drag n' drop
 - IDNA 2003/2008 (UTS46), Punycode, non-ASCII character filter support
 - Public Suffix List (PSL) and wildcard filtering
 - Basic bulk whois result analyser (csv import)
-- Persistent settings through json file preload
+- Persistent settings through JSON file preload with live updates
+- Redesigned options interface with auto-save
+- Dark mode toggle
 
 ### Planned features
 
@@ -43,7 +46,6 @@ If you clone this repo please patch `node_modules\whois\index.js` and remove the
 - Misc tools
 - Options
 - Help page
-- Proxy integration
 
 ### Features QA
 
@@ -227,6 +229,12 @@ Linux
 
 ```
 npm run package-linux
+```
+
+For convenience a single command builds packages for all platforms:
+
+```
+npm run package-all
 ```
 
 ## Built with
