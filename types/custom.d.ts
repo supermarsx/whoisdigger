@@ -151,8 +151,6 @@ declare module 'html-entities' {
 }
 
 declare const $: any;
-declare const ipcRenderer: any;
-declare const remote: any;
 declare const settings: any;
 
 declare global {

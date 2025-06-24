@@ -10,9 +10,6 @@ import { formatString } from './common/stringformat';
 
 (window as any).$ = $;
 (window as any).jQuery = $;
-(window as any).ipcRenderer = ipcRenderer;
-(window as any).dialog = dialog;
-(window as any).remote = remote;
 
 interface DebugMessage {
   channel: 'app:debug';
