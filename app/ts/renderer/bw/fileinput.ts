@@ -76,11 +76,11 @@ ipcRenderer.on('bw:fileinput.confirmation', async function(event, filePath: stri
       $('#bwFileTdEstimate').text(formatString('{0} to {1}', bwFileStats.minestimate, bwFileStats.maxestimate));
     } else {
       bwFileStats.minestimate = conversions.msToHumanTime(
-        bwFileStats.linecount! * settings['lookup.general'].timeBetween
+        bwFileStats.linecount! * settings.lookupGeneral.timeBetween
       );
       $('#bwFileSpanTimebetweenminmax').addClass('is-hidden');
       $('#bwFileSpanTimebetweenmin').text(
-        settings['lookup.general'].timeBetween + 'ms'
+        settings.lookupGeneral.timeBetween + 'ms'
       );
       $('#bwFileTdEstimate').text(formatString('> {0}', bwFileStats.minestimate));
     }

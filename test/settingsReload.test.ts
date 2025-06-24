@@ -14,7 +14,7 @@ describe('settings reload', () => {
     mockGetPath.mockReturnValue(tmpDir);
     const originalAlg = settings['lookup.conversion'].algorithm;
     const configName = 'reload.json';
-    settings['custom.configuration'].filepath = configName;
+    settings.customConfiguration.filepath = configName;
 
     await loadSettings();
     settings['lookup.conversion'].algorithm = 'ascii';
@@ -30,13 +30,13 @@ describe('settings reload', () => {
   test('nsLookup uses updated settings from file', async () => {
     const tmpDir = fs.mkdtempSync(path.join(__dirname, 'config'));
     mockGetPath.mockReturnValue(tmpDir);
-    const originalPsl = settings['lookup.general'].psl;
-    const originalPath = settings['custom.configuration'].filepath;
+    const originalPsl = settings.lookupGeneral.psl;
+    const originalPath = settings.customConfiguration.filepath;
     const configName = 'settings.json';
-    settings['custom.configuration'].filepath = configName;
+    settings.customConfiguration.filepath = configName;
 
     await loadSettings();
-    settings['lookup.general'].psl = false;
+    settings.lookupGeneral.psl = false;
     await saveSettings(settings);
 
     const resolveMock = jest.spyOn(dns, 'resolve').mockResolvedValue([]);
@@ -44,8 +44,8 @@ describe('settings reload', () => {
     expect(resolveMock).toHaveBeenCalledWith('sub.example.com', 'NS');
     resolveMock.mockRestore();
 
-    settings['lookup.general'].psl = originalPsl;
-    settings['custom.configuration'].filepath = originalPath;
+    settings.lookupGeneral.psl = originalPsl;
+    settings.customConfiguration.filepath = originalPath;
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 });

@@ -43,7 +43,7 @@ export function processDomain(
 
     try {
       data =
-        settings['lookup.general'].type == 'whois'
+        settings.lookupGeneral.type == 'whois'
           ? await whoisLookup(domainSetup.domain!, {
               follow: domainSetup.follow,
               timeout: domainSetup.timeout,

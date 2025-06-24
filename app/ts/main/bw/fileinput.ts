@@ -44,9 +44,7 @@ ipcMain.on('bw:input.file', function(event) {
     filePath (string) - dropped file path
  */
 ipcMain.on('ondragstart', function(event, filePath) {
-  const {
-    'app.window': appWindow
-  } = settings;
+  const { appWindow } = settings;
 
   const {
     sender

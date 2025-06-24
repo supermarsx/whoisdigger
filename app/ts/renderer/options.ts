@@ -50,8 +50,9 @@ function buildEntries(obj: any, prefix: string, table: JQuery<HTMLElement>): voi
       }
       const desc = appSettingsDescriptions[path];
       const descHtml = desc ? `<p class="help is-size-7">${desc}</p>` : '';
+      const thHtml = `${key}${descHtml}`;
       const row = $(
-        `<tr><th>${key}</th><td class="is-expanded"><div class="field has-addons"><div class="control is-expanded">${inputHtml}</div><div class="control"><button class="button is-small reset-btn" data-path="${path}"><span class="icon is-small"><i class="fas fa-undo"></i></span></button></div><div class="control"><span class="icon result-icon"></span></div></div>${descHtml}</td></tr>`
+        `<tr><th>${thHtml}</th><td class="is-expanded"><div class="field has-addons"><div class="control is-expanded">${inputHtml}</div><div class="control"><button class="button is-small reset-btn" data-path="${path}"><span class="icon is-small"><i class="fas fa-undo"></i></span></button></div><div class="control"><span class="icon result-icon"></span></div></div></td></tr>`
       );
       table.append(row);
     }

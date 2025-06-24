@@ -62,7 +62,7 @@ export async function processData(
     sender.send('bw:status.update', 'laststatus.error', stats.laststatus.error);
   } else {
     domainAvailable =
-      settings['lookup.general'].type == 'whois'
+      settings.lookupGeneral.type == 'whois'
         ? isDomainAvailable(data as string)
         : dns.isDomainAvailable(data as Result<boolean, DnsLookupError>);
     switch (domainAvailable) {
@@ -112,7 +112,7 @@ export async function processData(
     requesttime: null,
   };
 
-  if (settings['lookup.general'].type == 'whois') {
+  if (settings.lookupGeneral.type == 'whois') {
     resultsJSON = toJSON(data as string);
     const params = getDomainParameters(domain, lastStatus ?? null, data as string, resultsJSON as Record<string, unknown>);
     resultFilter.domain = params.domain ?? null;

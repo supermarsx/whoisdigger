@@ -29,7 +29,7 @@ import { settings } from '../../common/settings';
  */
   ipcMain.handle('bw:export', async function(event, results, options) {
   const {
-    'lookup.export': resExports
+    lookupExport: resExports
   } = settings;
 
   const {

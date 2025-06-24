@@ -48,7 +48,7 @@ ipcMain.on('singlewhois:lookup', async function(event, domain) {
  */
 ipcMain.on('singlewhois:openlink', function(event, domain) {
   const {
-    'lookup.misc': misc
+    lookupMisc': misc
   } = settings;
 
   misc.onlyCopy ? copyToClipboard(event, domain) : openUrl(domain, settings);
@@ -83,9 +83,7 @@ function copyToClipboard(event: IpcMainEvent, domain: string): void {
     settings
 */
 function openUrl(domain: string, settings: Settings): void {
-  const {
-    'app.window': appWindow,
-  } = settings;
+  const { appWindow } = settings;
 
   let target: URL;
   try {
