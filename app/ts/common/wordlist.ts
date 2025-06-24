@@ -1,9 +1,9 @@
-import fs from 'fs';
+import { promises as fs } from 'fs';
 
-export function concatFiles(...files: string[]): string[] {
+export async function concatFiles(...files: string[]): Promise<string[]> {
   const lines: string[] = [];
   for (const file of files) {
-    const data = fs.readFileSync(file, 'utf8');
+    const data = await fs.readFile(file, 'utf8');
     lines.push(...data.split(/\r?\n/));
   }
   return lines;
@@ -16,8 +16,8 @@ export interface SplitOptions {
   pattern?: RegExp;
 }
 
-export function splitFiles(options: SplitOptions): string[][] {
-  const lines = concatFiles(...options.files);
+export async function splitFiles(options: SplitOptions): Promise<string[][]> {
+  const lines = await concatFiles(...options.files);
   const result: string[][] = [];
 
   if (options.pattern) {
