@@ -45,16 +45,10 @@ const watcher = watchboy(patterns, { cwd: rootDir });
 
 watcher.on('add', ({ path: p }) => {
   copyFile(p);
-  if (p.startsWith(path.join(appDir, 'html', 'templates'))) {
-    precompileTemplates();
-  }
 });
 
 watcher.on('change', ({ path: p }) => {
   copyFile(p);
-  if (p.startsWith(path.join(appDir, 'html', 'templates'))) {
-    precompileTemplates();
-  }
 });
 
 watcher.on('ready', () => debug('watching assets...'));
