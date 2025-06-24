@@ -3,6 +3,7 @@ import psl from 'psl';
 import debugModule from 'debug';
 import { convertDomain } from './lookup';
 import { settings, Settings } from './settings';
+import { getCached, setCached } from './requestCache';
 import { DnsLookupError, Result } from './errors';
 
 const debug = debugModule('common.dnsLookup');
@@ -30,8 +31,14 @@ export async function nsLookup(host: string): Promise<string[]> {
     host = clean ? clean.replace(/((\*\.)*)/g, '') : host;
   }
 
+  const cached = getCached('dns', host);
+  if (cached !== undefined) {
+    return JSON.parse(cached) as string[];
+  }
+
   try {
     result = await dns.resolve(host, 'NS');
+    setCached('dns', host, JSON.stringify(result));
   } catch (e) {
     debug(`Lookup failed with error ${e}`);
     throw new DnsLookupError((e as Error).message);
@@ -53,20 +60,11 @@ export async function nsLookup(host: string): Promise<string[]> {
       ok false -> lookup failed
  */
 export async function hasNsServers(host: string): Promise<Result<boolean, DnsLookupError>> {
-  let result;
-  const { lookupConversion: conversion, lookupGeneral: general } = getSettings();
-
-  host = conversion.enabled ? convertDomain(host) : host;
-  if (general.psl) {
-    const clean = psl.get(host);
-    host = clean ? clean.replace(/((\*\.)*)/g, '') : host;
-  }
-
   try {
-    result = await dns.resolve(host, 'NS');
-    result = Array.isArray(result) ? true : false;
-    debug(`Looked up for ${host} with result ${result}`);
-    return { ok: true, value: result };
+    const servers = await nsLookup(host);
+    const has = Array.isArray(servers) && servers.length > 0;
+    debug(`Looked up for ${host} with result ${has}`);
+    return { ok: true, value: has };
   } catch (e) {
     debug(`Lookup failed with error ${e}`);
     return { ok: false, error: new DnsLookupError((e as Error).message) };

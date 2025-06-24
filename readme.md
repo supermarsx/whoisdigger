@@ -30,6 +30,7 @@ If you clone this repo please patch `node_modules\whois\index.js` and remove the
 - Raw text whois replies
 - Bulk whois lookup
 - Bulk DNS sweep lookup
+- Optional request caching with SQLite backend
 - Wordlist capabilities with drag n' drop
 - IDNA 2003/2008 (UTS46), Punycode, non-ASCII character filter support
 - Public Suffix List (PSL) and wildcard filtering

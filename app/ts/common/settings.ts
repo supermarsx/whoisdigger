@@ -37,6 +37,11 @@ export interface Settings {
     dnsFailureUnavailable: boolean;
     expired?: boolean;
   };
+  requestCache: {
+    enabled: boolean;
+    database: string;
+    ttl: number;
+  };
   customConfiguration: { filepath: string; load: boolean; save: boolean };
   theme: { darkMode: boolean };
   [key: string]: any;
@@ -69,7 +74,7 @@ const userDataPath = isMainProcess
   ? app.getPath('userData')
   : (remote?.app?.getPath('userData') ?? '');
 
-function getUserDataPath(): string {
+export function getUserDataPath(): string {
   return userDataPath;
 }
 
