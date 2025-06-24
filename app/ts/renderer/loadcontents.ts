@@ -1,66 +1,51 @@
 import $ from 'jquery';
+import { loadTemplate } from './templateLoader';
 
 /*
   loadHtml (self-executing)
     Loads HTML files inside the renderer
  */
 (async function loadHtml() {
-  const htmlpath = './';
-  const path: Record<string, string> = {
-    nav: htmlpath + 'navigation/',
-    tab: htmlpath + 'tabs/'
-  };
-  const additionalPaths: Record<string, string> = {
-    bw: htmlpath + path.tab + 'bw/',
-    bwa: htmlpath + path.tab + 'bwa/',
-    bwm: htmlpath + path.tab + 'bwm/',
-    to: htmlpath + path.tab + 'to/',
-    op: htmlpath + path.tab + 'op/'
-  };
-
-  Object.assign(path, additionalPaths);
-
-  const { bw, bwa, bwm, to, op, nav, tab } = path;
 
   // Navigation bar
-  $('#navTop').load(nav + 'navTop.html');
-  $('#navBottom').load(nav + 'navBottom.html');
+  await loadTemplate('#navTop', 'navTop.hbs');
+  await loadTemplate('#navBottom', 'navBottom.hbs');
 
   // Single whois
-  $('#singlewhoisMainContainer').load(tab + 'singlewhois.html');
+  await loadTemplate('#singlewhoisMainContainer', 'singlewhois.hbs');
 
   // Bulk whois lookup tab/steps
-  $('#bwEntry').load(bw + 'bwEntry.html');
+  await loadTemplate('#bwEntry', 'bwEntry.hbs');
 
   // Bulk whois file input
-  $('#bwFileinputloading').load(bw + 'bwFileinputloading.html');
-  $('#bwFileinputconfirm').load(bw + 'bwFileinputconfirm.html');
+  await loadTemplate('#bwFileinputloading', 'bwFileInputLoading.hbs');
+  await loadTemplate('#bwFileinputconfirm', 'bwFileInputConfirm.hbs');
 
   // Bulk whois wordlist input
-  $('#bwWordlistinput').load(bw + 'bwWordlistinput.html');
-  $('#bwWordlistloading').load(bw + 'bwWordlistloading.html');
-  $('#bwWordlistconfirm').load(bw + 'bwWordlistconfirm.html');
+  await loadTemplate('#bwWordlistinput', 'bwWordlistInput.hbs');
+  await loadTemplate('#bwWordlistloading', 'bwWordlistLoading.hbs');
+  await loadTemplate('#bwWordlistconfirm', 'bwWordlistConfirm.hbs');
 
   // Bulk whois processing
-  $('#bwProcessing').load(bw + 'bwProcessing.html');
-  $('#bwExport').load(bw + 'bwExport.html');
-  $('#bwExportloading').load(bw + 'bwExportloading.html');
+  await loadTemplate('#bwProcessing', 'bwProcessing.hbs');
+  await loadTemplate('#bwExport', 'bwExport.hbs');
+  await loadTemplate('#bwExportloading', 'bwExportLoading.hbs');
 
   // Bulk whois analyser containers
-  $('#bwaEntry').load(bwa + 'bwaEntry.html');
-  $('#bwaFileinputloading').load(bwa + 'bwaFileinputloading.html');
-  $('#bwaFileinputconfirm').load(bwa + 'bwaFileinputconfirm.html');
-  $('#bwaProcess').load(bwa + 'bwaProcess.html');
-  $('#bwaAnalyser').load(bwa + 'bwaAnalyser.html');
+  await loadTemplate('#bwaEntry', 'bwaEntry.hbs');
+  await loadTemplate('#bwaFileinputloading', 'bwaFileInputLoading.hbs');
+  await loadTemplate('#bwaFileinputconfirm', 'bwaFileinputconfirm.hbs');
+  await loadTemplate('#bwaProcess', 'bwaProcess.hbs');
+  await loadTemplate('#bwaAnalyser', 'bwaAnalyser.hbs');
 
   // Wordlist tools containers
-  $('#toEntry').load(to + 'toEntry.html');
+  await loadTemplate('#toEntry', 'toEntry.hbs');
 
   // Options container
-  $('#opEntry').load(op + 'opEntry.html');
+  await loadTemplate('#opEntry', 'opEntry.hbs');
 
   // Help container
-  $('#heMainContainer').load(tab + 'he.html');
+  await loadTemplate('#heMainContainer', 'he.hbs');
 
   return;
 })();

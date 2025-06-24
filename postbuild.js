@@ -4,7 +4,7 @@ const { spawnSync } = require('child_process');
 const { copyRecursiveSync } = require('./scripts/copyRecursive');
 const debug = require('debug')('postbuild');
 
-const folders = ['html', 'fonts', 'icons'];
+const folders = ['html', 'html/templates', 'fonts', 'icons'];
 const appDir = path.join(__dirname, 'app');
 const distDir = path.join(__dirname, 'dist', 'app');
 

@@ -1,0 +1,125 @@
+<h4 class="title is-4 has-text-centered">Wordlist Tools</h4>
+<h5>Select your preferred process options and start processing your wordlist</h5>
+<hr />
+<table id="toTable" class="table is-striped is-hoverable is-fullwidth has-text-left">
+  <tr>
+    <th>File manipulation</th>
+    <td id="#" class="is-expanded">
+      <label>
+        <input type="checkbox" value="to_concatenate" />
+        <div class="button is-small">Concatenate</div>
+      </label>
+      <label>
+        <input type="checkbox" value="to_split" />
+        <div class="button is-small">Split</div>
+      </label>
+    </td>
+  </tr>
+  <tr>
+    <th>Add to wordlist</th>
+    <td id="#" class="is-expanded">
+      <label>
+        <input type="checkbox" value="to_suffix" />
+        <div class="button is-small">Prefix</div>
+      </label>
+      <label>
+        <input type="checkbox" value="to_suffix" />
+        <div class="button is-small">Suffix</div>
+      </label>
+      <label>
+        <input type="checkbox" value="to_prefixsuffix" />
+        <div class="button is-small">Prefix & Suffix</div>
+      </label>
+    </td>
+  </tr>
+  <tr>
+    <th>Sorting wordlist</th>
+    <td id="#" class="is-expanded">
+      <label>
+        <input type="checkbox" name="sort" value="1" />
+        <div class="button is-small">Alphanumeric</div>
+      </label>
+      <label>
+        <input type="checkbox" name="sort" value="1" />
+        <div class="button is-small">Alphanumeric (reverse)</div>
+      </label>
+      <label>
+        <input type="checkbox" name="sort" value="1" />
+        <div class="button is-small">Randomize</div>
+      </label>
+    </td>
+  </tr>
+  <tr>
+    <th>Trim/Delete</th>
+    <td id="#" class="is-expanded">
+      <label>
+        <input type="checkbox" value="1" />
+        <div class="button is-small">Spaces</div>
+      </label>
+      <label>
+        <input type="checkbox" value="1" />
+        <div class="button is-small">Blank lines</div>
+      </label>
+      <label>
+        <input type="checkbox" value="1" />
+        <div class="button is-small">Non alphanumeric</div>
+      </label>
+      <label>
+        <input type="checkbox" value="1" />
+        <div class="button is-small">Duplicates</div>
+      </label>
+      <label>
+        <input type="checkbox" value="1" />
+        <div class="button is-small">Regex</div>
+      </label>
+      <label>
+        <input type="checkbox" value="1" />
+        <div class="button is-small">String</div>
+      </label>
+    </td>
+  </tr>
+  <tr>
+    <th>Convert to</th>
+    <td id="#" class="is-expanded">
+      <label>
+        <input type="checkbox" value="1" />
+        <div class="button is-small">Lowercase</div>
+      </label>
+      <label>
+        <input type="checkbox" value="1" />
+        <div class="button is-small">Uppercase</div>
+      </label>
+      <label>
+        <input type="checkbox" value="1" />
+        <div class="button is-small">ROT13</div>
+      </label>
+      <label>
+        <input type="checkbox" value="1" />
+        <div class="button is-small">L33t</div>
+      </label>
+      <label>
+        <input type="checkbox" value="1" />
+        <div class="button is-small">UTF-8</div>
+      </label>
+    </td>
+  </tr>
+  <tr>
+    <th>Replace in wordlist</th>
+    <td id="#" class="is-expanded">
+      <label>
+        <input type="checkbox" name="sort" value="1" />
+        <div class="button is-small">String</div>
+      </label>
+      <label>
+        <input type="checkbox" name="sort" value="1" />
+        <div class="button is-small">Regex</div>
+      </label>
+    </td>
+  </tr>
+</table>
+<a id="#" class="button is-medium is-success">
+  <span class="icon is-small">
+    <i class="fas fa-draw-polygon"></i>
+  </span>
+  <span>Start process</span>
+</a>
