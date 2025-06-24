@@ -116,7 +116,10 @@ app.on('ready', async function () {
   enableRemote(mainWindow.webContents);
 
   // mainWindow, Main window URL load
-  mainWindow.loadFile(path.join(__dirname, appUrl.pathname));
+  const loadPath = path.isAbsolute(appUrl.pathname)
+    ? path.normalize(appUrl.pathname)
+    : path.join(__dirname, appUrl.pathname);
+  mainWindow.loadFile(loadPath);
 
   // Some more debugging messages
   debug(formatString("'settings.url.protocol': {0}", appUrl.protocol));
