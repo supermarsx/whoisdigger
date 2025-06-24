@@ -12,9 +12,5 @@ jest.mock('change-case', () => ({
 }));
 
 jest.mock('html-entities', () => ({
-  XmlEntities: class {
-    decode(input: string): string {
-      return input;
-    }
-  }
+  decode: (input: string) => input,
 }));
