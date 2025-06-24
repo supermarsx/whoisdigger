@@ -9,5 +9,7 @@ require('./common/fontawesome.js');
 (window as any).$ = (window as any).jQuery = require('jquery');
 if ((window as any).module) (globalThis as any).module = (window as any).module;
 
-require('./renderer/loadcontents.js');
+// The main HTML file is precompiled and loaded directly, so loading
+// additional content at runtime is unnecessary.
+// require('./renderer/loadcontents.js');
 require('./renderer.js');
