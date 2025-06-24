@@ -1,6 +1,6 @@
 import '../test/electronMock';
 import { settings, getUserDataPath } from '../app/ts/common/settings';
-import { getCached, setCached } from '../app/ts/common/requestCache';
+import { getCached, setCached, closeCache } from '../app/ts/common/requestCache';
 import fs from 'fs';
 import path from 'path';
 
@@ -41,5 +41,10 @@ describe('requestCache', () => {
     await new Promise((r) => setTimeout(r, 1100));
     const res = getCached('whois', 'expire.com');
     expect(res).toBeUndefined();
+  });
+
+  test('closeCache does not throw when cache disabled', () => {
+    settings.requestCache.enabled = false;
+    expect(() => closeCache()).not.toThrow();
   });
 });
