@@ -67,4 +67,15 @@ export function setCached(type: string, domain: string, response: string): void 
   }
 }
 
-export default { getCached, setCached };
+export function closeCache(): void {
+  if (db) {
+    try {
+      db.close();
+    } catch (e) {
+      debug(`Cache close failed: ${e}`);
+    }
+    db = undefined;
+  }
+}
+
+export default { getCached, setCached, closeCache };
