@@ -25,6 +25,7 @@ try {
   precompileTemplates();
   debug('Templates precompiled successfully.');
 } catch (err) {
-  console.error('Template precompilation failed.');
+  console.error('Template precompilation failed:');
+  console.error(err);
   process.exit(1);
 }
