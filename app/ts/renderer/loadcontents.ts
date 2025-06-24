@@ -5,10 +5,16 @@ import { loadTemplate } from './templateLoader';
   loadHtml (self-executing)
     Loads HTML files inside the renderer
  */
-(async function loadHtml() {
+async function loadHtml(): Promise<void> {
   await loadTemplate('html', 'mainPanel.hbs');
+}
 
-  return;
-})();
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', () => {
+    void loadHtml();
+  });
+} else {
+  void loadHtml();
+}
 
 //loadHtml();
