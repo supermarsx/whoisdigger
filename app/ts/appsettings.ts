@@ -9,7 +9,7 @@ const appSettings = {
       show: false, // Show app before load (default: false)
       height: 700, // Window height in pixels (default: 700)
       width: 1000, // Window width in pixels (default: 1000)
-      icon: path.join(__dirname, '../icons/app.png'), // App icon path (default: ...app.png)
+      icon: '../icons/app.png', // App icon path
       center: true, // Center window
       minimizable: true, // Make window minimizable
       maximizable: true, // Make window maximizable
@@ -46,7 +46,7 @@ const appSettings = {
     },
     appWindowUrl: {
       // Window URL
-      pathname: path.join(__dirname, '../html/mainPanel.html'), // Main html file location
+      pathname: '../html/mainPanel.html', // Main html file location
       protocol: 'file:', // Path protocol (default: file:)
       slashes: true // Path slashes (default: true)
     },

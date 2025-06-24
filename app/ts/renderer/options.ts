@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { settings, saveSettings } from '../common/settings';
+import { settings, saveSettings, validateSettings } from '../common/settings';
 import appDefaults, { appSettingsDescriptions } from '../appsettings';
 
 function getValue(path: string): any {
@@ -30,6 +30,19 @@ function getDefault(path: string): any {
     .reduce((obj: any, key: string) => (obj ? obj[key] : undefined), appDefaults.settings);
 }
 
+const enumOptions: Record<string, string[]> = {
+  'app.lookupGeneral.type': ['dns', 'whois'],
+  'app.lookupProxy.mode': ['single', 'multi'],
+  'app.lookupProxy.multimode': ['sequential', 'random', 'ascending', 'descending'],
+  'app.lookupProxy.checktype': ['ping', 'request', 'ping+request'],
+  'app.lookupConversion.algorithm': [
+    'uts46',
+    'uts46-transitional',
+    'punycode',
+    'ascii'
+  ]
+};
+
 function buildEntries(obj: any, prefix: string, table: JQuery<HTMLElement>): void {
   Object.entries(obj).forEach(([key, value]) => {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -39,7 +52,11 @@ function buildEntries(obj: any, prefix: string, table: JQuery<HTMLElement>): voi
       const path = prefix ? `${prefix}.${key}` : key;
       const id = `appSettings.${path}`;
       let inputHtml = '';
-      if (typeof value === 'boolean') {
+      const enumVals = enumOptions[`app.${path}`];
+      if (enumVals) {
+        const opts = enumVals.map((v) => `<option value="${v}">${v}</option>`).join('');
+        inputHtml = `<div class="select is-small"><select id="${id}">${opts}</select></div>`;
+      } else if (typeof value === 'boolean') {
         inputHtml = `<div class="select is-small"><select id="${id}"><option value="true">true</option><option value="false">false</option></select></div>`;
       } else {
         inputHtml = `<input id="${id}" class="input is-small" type="text">`;
@@ -63,7 +80,13 @@ function populateInputs(): void {
       const id = $el.attr('id');
       if (!id) return;
       const path = id.replace(/^appSettings\./, 'app.');
-      const val = getValue(path);
+      const allowed = enumOptions[path];
+      let val = getValue(path);
+      if (allowed && (val === undefined || !allowed.includes(String(val)))) {
+        val = getDefault(path);
+        setValue(path, val);
+        void saveSettings(settings);
+      }
       if (val !== undefined) {
         if ($el.is('select')) {
           $el.val(String(val));
@@ -93,12 +116,18 @@ $(document).ready(() => {
   buildEntries(appDefaults.settings, '', table);
   populateInputs();
 
+  const status = $('#custom-settings-status');
+  const customLoaded = sessionStorage.getItem('customSettingsLoaded') === 'true';
+  status.text(customLoaded ? 'Custom settings loaded.' : 'Custom settings not loaded.');
+
   if (sessionStorage.getItem('settingsLoaded') !== 'true') {
     $('#settings-not-loaded').removeClass('is-hidden');
   }
 
   window.addEventListener('settings-loaded', () => {
     $('#settings-not-loaded').addClass('is-hidden');
+    const loaded = sessionStorage.getItem('customSettingsLoaded') === 'true';
+    status.text(loaded ? 'Custom settings loaded.' : 'Custom settings not loaded.');
     populateInputs();
   });
 
@@ -123,5 +152,12 @@ $(document).ready(() => {
       $input.val(String(def));
     }
     saveEntry(path, $input, def);
+  });
+
+  $('#restoreDefaults').on('click', () => {
+    const defaults = validateSettings({});
+    Object.assign(settings, defaults);
+    populateInputs();
+    void saveSettings(settings);
   });
 });

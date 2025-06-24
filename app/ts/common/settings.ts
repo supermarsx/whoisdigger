@@ -59,6 +59,7 @@ let { settings } = settingsModule;
 const defaultSettings: Settings = JSON.parse(JSON.stringify(settings));
 const defaultCustomConfiguration = settings.customConfiguration;
 export { settings };
+export let customSettingsLoaded = false;
 export default settings;
 
 /*
@@ -161,21 +162,26 @@ export async function load(): Promise<Settings> {
         const parsed = JSON.parse(raw) as Partial<Settings>;
         try {
           settings = mergeDefaults(parsed);
+          customSettingsLoaded = true;
           debug(`Loaded custom configuration at ${filePath}`);
         } catch (mergeError) {
           settings = JSON.parse(JSON.stringify(defaultSettings));
+          customSettingsLoaded = false;
           debug(`Failed to merge custom configuration with error: ${mergeError}`);
         }
       } catch (parseError) {
+        customSettingsLoaded = false;
         debug(`Failed to parse custom configuration with error: ${parseError}`);
       }
     } catch (e) {
       debug(`Failed to load custom configuration with error: ${e}`);
+      customSettingsLoaded = false;
       // Silently ignore loading errors
     }
   }
 
   watchConfig();
+  if (!customSettingsLoaded) customSettingsLoaded = false;
   return settings;
 }
 
