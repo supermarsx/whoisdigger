@@ -22,48 +22,48 @@ export function getDomainSetup(settings: Settings, isRandom: {
     formatString(
       "Time between requests, 'israndom': {0}, 'timebetweenmax': {1}, 'timebetweenmin': {2}, 'timebetween': {3}",
       isRandom,
-      settings['lookup.randomize.timeBetween'].maximum,
-      settings['lookup.randomize.timeBetween'].minimum,
-      settings['lookup.general'].timeBetween,
+      settings.lookupRandomizeTimeBetween.maximum,
+      settings.lookupRandomizeTimeBetween.minimum,
+      settings.lookupGeneral.timeBetween,
     ),
   );
   debug(
     formatString(
       "Follow depth, 'israndom': {0}, 'followmax': {1}, 'followmin': {2}, 'follow': {3}",
       isRandom,
-      settings['lookup.randomize.follow'].maximumDepth,
-      settings['lookup.randomize.follow'].minimumDepth,
-      settings['lookup.general'].follow,
+      settings.lookupRandomizeFollow.maximumDepth,
+      settings.lookupRandomizeFollow.minimumDepth,
+      settings.lookupGeneral.follow,
     ),
   );
   debug(
     formatString(
       "Request timeout, 'israndom': {0}, 'timeoutmax': {1}, 'timeoutmin': {2}, 'timeout': {3}",
       isRandom,
-      settings['lookup.randomize.timeout'].maximum,
-      settings['lookup.randomize.timeout'].minimum,
-      settings['lookup.general'].timeout,
+      settings.lookupRandomizeTimeout.maximum,
+      settings.lookupRandomizeTimeout.minimum,
+      settings.lookupGeneral.timeout,
     ),
   );
 
   return {
     timebetween: isRandom.timeBetween
       ? Math.floor(
-          Math.random() * settings['lookup.randomize.timeBetween'].maximum +
-            settings['lookup.randomize.timeBetween'].minimum,
+          Math.random() * settings.lookupRandomizeTimeBetween.maximum +
+            settings.lookupRandomizeTimeBetween.minimum,
         )
-      : settings['lookup.general'].timeBetween,
+      : settings.lookupGeneral.timeBetween,
     follow: isRandom.followDepth
       ? Math.floor(
-          Math.random() * settings['lookup.randomize.follow'].maximumDepth +
-            settings['lookup.randomize.follow'].minimumDepth,
+          Math.random() * settings.lookupRandomizeFollow.maximumDepth +
+            settings.lookupRandomizeFollow.minimumDepth,
         )
-      : settings['lookup.general'].follow,
+      : settings.lookupGeneral.follow,
     timeout: isRandom.timeout
       ? Math.floor(
-          Math.random() * settings['lookup.randomize.timeout'].maximum +
-            settings['lookup.randomize.timeout'].minimum,
+          Math.random() * settings.lookupRandomizeTimeout.maximum +
+            settings.lookupRandomizeTimeout.minimum,
         )
-      : settings['lookup.general'].timeout,
+      : settings.lookupGeneral.timeout,
   };
 }

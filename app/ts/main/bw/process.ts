@@ -89,7 +89,7 @@ ipcMain.on('bw:lookup', function(event: IpcMainEvent, domains: string[], tlds: s
       followDepth: settings['lookup.randomize.follow'].randomize,
       timeout: settings['lookup.randomize.timeout'].randomize
     });
-    domainSetup.timebetween = settings['lookup.general'].useDnsTimeBetweenOverride ? settings['lookup.general'].dnsTimeBetween : domainSetup.timebetween;
+    domainSetup.timebetween = settings.lookupGeneral.useDnsTimeBetweenOverride ? settings.lookupGeneral.dnsTimeBetween : domainSetup.timebetween;
     domainSetup.domain = domain;
     domainSetup.index = index;
 
@@ -102,13 +102,13 @@ ipcMain.on('bw:lookup', function(event: IpcMainEvent, domains: string[], tlds: s
 
   } // End processing for loop
 
-  settings['lookup.randomize.timeBetween'].randomize ? // Counter total time
-    (stats.time.remainingcounter = stats.domains.total * settings['lookup.randomize.timeBetween'].maximum) :
-    (stats.time.remainingcounter = stats.domains.total * settings['lookup.general'].timeBetween);
+  settings.lookupRandomizeTimeBetween.randomize ? // Counter total time
+    (stats.time.remainingcounter = stats.domains.total * settings.lookupRandomizeTimeBetween.maximum) :
+    (stats.time.remainingcounter = stats.domains.total * settings.lookupGeneral.timeBetween);
 
-  settings['lookup.randomize.timeout'].randomize ? // Counter add timeout
-    (stats.time.remainingcounter += settings['lookup.randomize.timeout'].maximum) :
-    (stats.time.remainingcounter += settings['lookup.general'].timeout);
+  settings.lookupRandomizeTimeout.randomize ? // Counter add timeout
+    (stats.time.remainingcounter += settings.lookupRandomizeTimeout.maximum) :
+    (stats.time.remainingcounter += settings.lookupGeneral.timeout);
 
   counter(bulkWhois, event);
 
@@ -187,11 +187,11 @@ ipcMain.on('bw:lookup.continue', function(event: IpcMainEvent) {
   for (let domain = stats.domains.sent; domain < domainsPending.length; domain++) {
 
     domainSetup = getDomainSetup(settings, {
-      timeBetween: settings['lookup.randomize.timeBetween'].randomize,
-      followDepth: settings['lookup.randomize.follow'].randomize,
-      timeout: settings['lookup.randomize.timeout'].randomize
+      timeBetween: settings.lookupRandomizeTimeBetween.randomize,
+      followDepth: settings.lookupRandomizeFollow.randomize,
+      timeout: settings.lookupRandomizeTimeout.randomize
     });
-    domainSetup.timebetween = settings['lookup.general'].useDnsTimeBetweenOverride ? settings['lookup.general'].dnsTimeBetween : domainSetup.timebetween;
+    domainSetup.timebetween = settings.lookupGeneral.useDnsTimeBetweenOverride ? settings.lookupGeneral.dnsTimeBetween : domainSetup.timebetween;
     domainSetup.domain = domainsPending[domain];
     domainSetup.index = Number(domain);
 
@@ -210,15 +210,15 @@ ipcMain.on('bw:lookup.continue', function(event: IpcMainEvent) {
     sender.send('bw:status.update', 'domains.processed', stats.domains.processed);
   } // End processing for loop
 
-  stats.time.remainingcounter = settings['lookup.general'].useDnsTimeBetweenOverride ?
-    settings['lookup.randomize.timeBetween'].randomize ? // Counter total time
-    (stats.domains.total * settings['lookup.randomize.timeBetween'].maximum) :
-    (stats.domains.total * settings['lookup.general'].timeBetween) :
-    settings['lookup.general'].dnsTimeBetween;
+  stats.time.remainingcounter = settings.lookupGeneral.useDnsTimeBetweenOverride ?
+    settings.lookupRandomizeTimeBetween.randomize ? // Counter total time
+    (stats.domains.total * settings.lookupRandomizeTimeBetween.maximum) :
+    (stats.domains.total * settings.lookupGeneral.timeBetween) :
+    settings.lookupGeneral.dnsTimeBetween;
 
-  stats.time.remainingcounter += settings['lookup.randomize.timeout'].randomize ? // Counter add timeout
-    settings['lookup.randomize.timeout'].maximum :
-    settings['lookup.general'].timeout;
+  stats.time.remainingcounter += settings.lookupRandomizeTimeout.randomize ? // Counter add timeout
+    settings.lookupRandomizeTimeout.maximum :
+    settings.lookupGeneral.timeout;
 
   counter(bulkWhois, event); // Start counter/timer
 

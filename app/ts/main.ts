@@ -61,10 +61,10 @@ interface StartupSettings {
 }
 
 interface MainSettings extends BaseSettings {
-  'custom.configuration': { filepath: string; load: boolean; save: boolean };
-  'app.window': AppWindowSettings;
-  'app.window.webPreferences': WebPreferencesSettings;
-  'app.window.url': AppUrlSettings;
+  customConfiguration: { filepath: string; load: boolean; save: boolean };
+  appWindow: AppWindowSettings;
+  appWindowWebPreferences: WebPreferencesSettings;
+  appWindowUrl: AppUrlSettings;
   startup: StartupSettings;
   [key: string]: any;
 }
@@ -83,9 +83,9 @@ app.on('ready', async function() {
   await loadSettings();
   settings = store as MainSettings;
   const {
-    'app.window': appWindow,
-    'app.window.webPreferences': webPreferences,
-    'app.window.url': appUrl
+    appWindow,
+    appWindowWebPreferences: webPreferences,
+    appWindowUrl: appUrl
   } = settings;
 
   // Some application start debugging messages
@@ -156,9 +156,7 @@ app.on('ready', async function() {
       Quit application when main window is closed
    */
   mainWindow.on('closed', function() {
-    const {
-      'app.window': appWindow
-    } = settings;
+    const { appWindow } = settings;
 
     if (appWindow.closable) {
       debug('Exiting application');
@@ -192,9 +190,7 @@ function startup() {
     Application minimize event
  */
 ipcMain.on('app:minimize', function() {
-  const {
-    'app.window': appWindow
-  } = settings;
+  const { appWindow } = settings;
   if (appWindow.minimizable) {
     debug("App minimized");
     mainWindow.minimize();

@@ -33,9 +33,9 @@ ipcRenderer.on('bw:wordlistinput.confirmation', function() {
       $('#bwWordlistSpanTimebetweenmax').text(formatString('/ {0}ms', settings['lookup.randomize.timeBetween'].maximum));
       $('#bwWordlistTdEstimate').text(formatString('{0} to {1}', bwFileStats['minestimate'], bwFileStats['maxestimate']));
     } else {
-      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * settings['lookup.general'].timeBetween);
+      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * settings.lookupGeneral.timeBetween);
       $('#bwWordlistSpanTimebetweenminmax').addClass('is-hidden');
-      $('#bwWordlistSpanTimebetweenmin').text(settings['lookup.general'].timeBetween + 'ms');
+      $('#bwWordlistSpanTimebetweenmin').text(settings.lookupGeneral.timeBetween + 'ms');
       $('#bwWordlistTdEstimate').text(formatString('> {0}', bwFileStats['minestimate']));
     }
 

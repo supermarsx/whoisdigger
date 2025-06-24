@@ -17,8 +17,8 @@ let watcher: fs.FSWatcher | undefined;
 
 
 export interface Settings {
-  'lookup.conversion': { enabled: boolean; algorithm: string };
-  'lookup.general': {
+  lookupConversion: { enabled: boolean; algorithm: string };
+  lookupGeneral: {
     type: string;
     psl: boolean;
     server: string;
@@ -29,17 +29,17 @@ export interface Settings {
     useDnsTimeBetweenOverride: boolean;
     dnsTimeBetween: number;
   };
-  'lookup.randomize.follow': { randomize: boolean; minimumDepth: number; maximumDepth: number };
-  'lookup.randomize.timeout': { randomize: boolean; minimum: number; maximum: number };
-  'lookup.randomize.timeBetween': { randomize: boolean; minimum: number; maximum: number };
-  'lookup.assumptions': {
+  lookupRandomizeFollow: { randomize: boolean; minimumDepth: number; maximumDepth: number };
+  lookupRandomizeTimeout: { randomize: boolean; minimum: number; maximum: number };
+  lookupRandomizeTimeBetween: { randomize: boolean; minimum: number; maximum: number };
+  lookupAssumptions: {
     uniregistry: boolean;
     ratelimit: boolean;
     unparsable: boolean;
     dnsFailureUnavailable: boolean;
     expired?: boolean;
   };
-  'custom.configuration': { filepath: string; load: boolean; save: boolean };
+  customConfiguration: { filepath: string; load: boolean; save: boolean };
   theme: { darkMode: boolean };
   [key: string]: any;
 }
@@ -79,7 +79,7 @@ function getUserDataPath(): string {
 function getConfigFile(): string {
   return path.join(
     getUserDataPath(),
-    settings['custom.configuration'].filepath
+    settings.customConfiguration.filepath
   );
 }
 
@@ -110,7 +110,7 @@ function watchConfig(): void {
  */
 export async function load(): Promise<Settings> {
   const {
-    'custom.configuration': configuration
+    customConfiguration: configuration
   } = settings;
 
   if (configuration.load) {
@@ -118,7 +118,7 @@ export async function load(): Promise<Settings> {
       const filePath =
         path.join(
           getUserDataPath(),
-          settings['custom.configuration'].filepath
+          settings.customConfiguration.filepath
         );
       const raw = await fs.promises.readFile(filePath, 'utf8');
       try {
@@ -145,7 +145,7 @@ export async function load(): Promise<Settings> {
  */
 export async function save(newSettings: Settings): Promise<string | Error | undefined> {
   const {
-    'custom.configuration': configuration
+    customConfiguration: configuration
   } = newSettings;
 
   if (configuration.save) {
@@ -153,7 +153,7 @@ export async function save(newSettings: Settings): Promise<string | Error | unde
       const filePath =
         path.join(
           getUserDataPath(),
-          newSettings['custom.configuration'].filepath
+          newSettings.customConfiguration.filepath
         );
       await fs.promises.writeFile(
         filePath,

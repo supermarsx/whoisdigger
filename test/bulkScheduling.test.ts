@@ -28,19 +28,19 @@ describe('bulk scheduling', () => {
 
   test('queues domains with randomized setup and schedules timers', async () => {
     const backup = JSON.parse(JSON.stringify(settings));
-    settings['lookup.general'].type = 'whois';
+    settings.lookupGeneral.type = 'whois';
 
-    settings['lookup.randomize.timeBetween'].randomize = true;
-    settings['lookup.randomize.timeBetween'].minimum = 10;
-    settings['lookup.randomize.timeBetween'].maximum = 20;
+    settings.lookupRandomizeTimeBetween.randomize = true;
+    settings.lookupRandomizeTimeBetween.minimum = 10;
+    settings.lookupRandomizeTimeBetween.maximum = 20;
 
-    settings['lookup.randomize.follow'].randomize = true;
-    settings['lookup.randomize.follow'].minimumDepth = 1;
-    settings['lookup.randomize.follow'].maximumDepth = 2;
+    settings.lookupRandomizeFollow.randomize = true;
+    settings.lookupRandomizeFollow.minimumDepth = 1;
+    settings.lookupRandomizeFollow.maximumDepth = 2;
 
-    settings['lookup.randomize.timeout'].randomize = true;
-    settings['lookup.randomize.timeout'].minimum = 100;
-    settings['lookup.randomize.timeout'].maximum = 200;
+    settings.lookupRandomizeTimeout.randomize = true;
+    settings.lookupRandomizeTimeout.minimum = 100;
+    settings.lookupRandomizeTimeout.maximum = 200;
 
     const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0);
     const queue = compileQueue(['foo', 'bar'], ['com', 'net'], '.');

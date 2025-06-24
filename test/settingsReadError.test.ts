@@ -8,7 +8,7 @@ describe('settings load error handling', () => {
   test('fails silently when read fails', async () => {
     const tmpDir = fs.mkdtempSync(path.join(__dirname, 'config'));
     mockGetPath.mockReturnValue(tmpDir);
-    settings['custom.configuration'].filepath = 'fail.json';
+    settings.customConfiguration.filepath = 'fail.json';
     jest.spyOn(fs.promises, 'readFile').mockRejectedValueOnce(new Error('fail'));
 
     const original = JSON.parse(JSON.stringify(settings));

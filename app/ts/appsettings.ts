@@ -4,7 +4,7 @@ import * as path from 'path';
 // Default application settings
 const appSettings = {
   'settings': {
-    'app.window': { // Application window
+    'appWindow': { // Application window
       'frame': false, // Is basic frame shown (default: false)
       'show': false, // Show app before load (default: false)
       'height': 700, // Window height in pixels (default: 700)
@@ -24,7 +24,7 @@ const appSettings = {
       'darkTheme': false, // GTK dark theme mode
       'thickFrame': true // Use WS_THICKFRAME style for frameless windows on Windows, which adds standard window frame. Setting it to false will remove window shadow and window animations.
     },
-    'app.window.webPreferences': {  // Web preferences
+    'appWindowWebPreferences': {  // Web preferences
       'nodeIntegration': true, // Enable node integration
       'contextIsolation': false, // Enable context isolation
       'zoomFactor': 1.0, // Page zoom factor
@@ -41,17 +41,17 @@ const appSettings = {
     'theme': { // Application theme settings
       'darkMode': false // Enable dark mode theme (default: false)
     },
-    'app.window.url': { // Window URL
+    'appWindowUrl': { // Window URL
       'pathname': path.join(__dirname, '../html/mainPanel.html'), // Main html file location
       'protocol': 'file:', // Path protocol (default: file:)
       'slashes': true // Path slashes (default: true)
     },
-    'app.window.navigation': { // Navigation
+    'appWindowNavigation': { // Navigation
       'developerTools': true, // Enable devtools button on extended navigation bar (default: false)
       'extendedCollapsed': false, // Show extended navigation collapsed (default: false)
       'enableExtendedMenu': true // Enable extended navigation toggle (default: true)
     },
-    'lookup.general': { // Whois lookup default values
+    'lookupGeneral': { // Whois lookup default values
       'type': 'dns', // Lookup type: 'whois' - regular whois request, 'dns' - dns record request (default: whois)
       'psl': true, // Enable Public Suffix List conversion, removes subdomains includes wildcards (default: true)
       'server': "", // Default whois server
@@ -62,22 +62,22 @@ const appSettings = {
       'useDnsTimeBetweenOverride': true, // Override time between request (default: true)
       'dnsTimeBetween': 50 // Time between request specifically for dns requests
     },
-    'lookup.randomize.follow': { // Lookup follow randomization
+    'lookupRandomizeFollow': { // Lookup follow randomization
       'randomize': false, // Randomize maximum follow request depth (default: false)
       'minimumDepth': 3, // Lower bound maximum follow request depth (default: 3)
       'maximumDepth': 4 // Upper bound maximum follow request depth (default: 4)
     },
-    'lookup.randomize.timeout': { // Lookup timeout randomization
+    'lookupRandomizeTimeout': { // Lookup timeout randomization
       'randomize': false, // Randomize whois request timeout (default: false)
       'minimum': 2500, // Lower bound minimum request timeout (default: 2500)
       'maximum': 3500 // Upper bound minimum request timeout (default: 3500)
     },
-    'lookup.randomize.timeBetween': { // Lookup time between request randomization
+    'lookupRandomizeTimeBetween': { // Lookup time between request randomization
       'randomize': false, // Randomize time between each whois request (default: false)
       'minimum': 1000, // Lower bound time between each whois request (default: 1000)
       'maximum': 1500 // Upper bound time between each whois request (default: 1500)
     },
-    'lookup.proxy': { // Lookup proxy
+    'lookupProxy': { // Lookup proxy
       'enable': false, // Enable proxy requests (default: false)
       'mode': 'single', // Proxy request mode, 'single' - fixed single proxy, 'multi' - multiple proxies (default: 'single')
       /*
@@ -95,7 +95,7 @@ const appSettings = {
       'checktype': 'ping' // Type of proxy health check, 'ping' - Ping proxy, 'request' - Do test request, 'ping+request' - Ping and do request
 
     },
-    'lookup.conversion': { // Lookup domain conversion
+    'lookupConversion': { // Lookup domain conversion
       'enabled': true, // Enable domain character conversion (default: true)
       /*
       algorithm
@@ -110,34 +110,34 @@ const appSettings = {
        */
       'algorithm': 'uts46' // Domain character conversion algorithm
     },
-    'lookup.assumptions': { // Lookup assumptions
+    'lookupAssumptions': { // Lookup assumptions
       'uniregistry': true, // Assume a domain is unavailable when uniregistry query limit is reached (default: true)
       'ratelimit': false, // Assume a domain is unavailable when getting rate limited (default: false)
       'unparsable': false, // Assume a domain as available if reply is unparsable (default: false)
       'dnsFailureUnavailable': true // Assume a domain is unavailable if DNS request fails (default: true)
     },
-    'custom.configuration': { // Application custom configurations
+    'customConfiguration': { // Application custom configurations
       'filepath': 'appconfig.js', // Custom configuration filename on app directory (default: appconfig.js) || Non functional
       'load': true,  // Load custom configurations
       'save': true // Save custom configurations
     },
-    'performance.single.request': { // Single whois request performance metrics
+    'performanceSingleRequest': { // Single whois request performance metrics
       'timers': true, // enable performance timer for requests
       'averages': true, // enable average calcs
       'stopwatch': true // enable elapsed time to complete
     },
-    'performance.bulk.request': { // Bulk whois request performance metrics
+    'performanceBulkRequest': { // Bulk whois request performance metrics
       'timers': true, // enable performance timer for requests
       'averages': true, // enable average calcs
       'stopwatch': true // enable elapsed and remaining time to complete
     },
-    'lookup.misc': { // Lookup miscellaneous configurations
+    'lookupMisc': { // Lookup miscellaneous configurations
       'useStandardSize': true, // Use metric size measures for filesizes instead of IEC (ex: kB kilobyte (1000) instead of KiB kibibyte (1024)) (default: true)
       'asfOverride': false, // Use true average instead of weighted smoothed average, based on number of requests (default: true)
       'averageSmoothingFactor': 0.1, // Smoothing factor/weight to calculate average whois request time (default: 0.1 (0.1 = last 10 requests; 0.05 = last 20 requests)) (default: 0.1 - 10 last requests)
       'onlyCopy': true // Only copy domain to clipboard instead of opening in a new window, security risk (default: true)
     },
-    'lookup.export': { // Lookup results export
+    'lookupExport': { // Lookup results export
       'enclosure': '"', // Field enclosing char (default: '"')
       'separator': ',', // Field separator char (default: ',')
       'linebreak': '\n', // Line breaker char (default: '\n')
@@ -151,95 +151,95 @@ const appSettings = {
 export default appSettings;
 
 export const appSettingsDescriptions: Record<string, string> = {
-  'app.window.frame': 'Show native window frame',
-  'app.window.show': 'Show window before content loads',
-  'app.window.height': 'Default window height',
-  'app.window.width': 'Default window width',
-  'app.window.icon': 'Application icon path',
-  'app.window.center': 'Center window on screen',
-  'app.window.minimizable': 'Allow window minimization',
-  'app.window.maximizable': 'Allow window maximization',
-  'app.window.movable': 'Allow window to be moved',
-  'app.window.resizable': 'Allow window resize',
-  'app.window.closable': 'Allow window closing',
-  'app.window.focusable': 'Allow window focus',
-  'app.window.alwaysOnTop': 'Keep window on top of others',
-  'app.window.fullscreen': 'Start window in fullscreen mode',
-  'app.window.fullscreenable': 'Allow fullscreen toggling',
-  'app.window.kiosk': 'Enable kiosk mode',
-  'app.window.darkTheme': 'Use GTK dark theme',
-  'app.window.thickFrame': 'Use thick frame on Windows',
-  'app.window.webPreferences.nodeIntegration': 'Enable Node integration',
-  'app.window.webPreferences.contextIsolation': 'Enable context isolation',
-  'app.window.webPreferences.zoomFactor': 'Page zoom factor',
-  'app.window.webPreferences.images': 'Allow images',
-  'app.window.webPreferences.experimentalFeatures':
+  'appWindow.frame': 'Show native window frame',
+  'appWindow.show': 'Show window before content loads',
+  'appWindow.height': 'Default window height',
+  'appWindow.width': 'Default window width',
+  'appWindow.icon': 'Application icon path',
+  'appWindow.center': 'Center window on screen',
+  'appWindow.minimizable': 'Allow window minimization',
+  'appWindow.maximizable': 'Allow window maximization',
+  'appWindow.movable': 'Allow window to be moved',
+  'appWindow.resizable': 'Allow window resize',
+  'appWindow.closable': 'Allow window closing',
+  'appWindow.focusable': 'Allow window focus',
+  'appWindow.alwaysOnTop': 'Keep window on top of others',
+  'appWindow.fullscreen': 'Start window in fullscreen mode',
+  'appWindow.fullscreenable': 'Allow fullscreen toggling',
+  'appWindow.kiosk': 'Enable kiosk mode',
+  'appWindow.darkTheme': 'Use GTK dark theme',
+  'appWindow.thickFrame': 'Use thick frame on Windows',
+  'appWindowWebPreferences.nodeIntegration': 'Enable Node integration',
+  'appWindowWebPreferences.contextIsolation': 'Enable context isolation',
+  'appWindowWebPreferences.zoomFactor': 'Page zoom factor',
+  'appWindowWebPreferences.images': 'Allow images',
+  'appWindowWebPreferences.experimentalFeatures':
     'Enable Chromium experimental features',
-  'app.window.webPreferences.backgroundThrottling':
+  'appWindowWebPreferences.backgroundThrottling':
     'Throttle in background',
-  'app.window.webPreferences.offscreen': 'Enable offscreen rendering',
-  'app.window.webPreferences.spellcheck': 'Enable spellchecker',
-  'app.window.webPreferences.enableRemoteModule': 'Enable remote module',
+  'appWindowWebPreferences.offscreen': 'Enable offscreen rendering',
+  'appWindowWebPreferences.spellcheck': 'Enable spellchecker',
+  'appWindowWebPreferences.enableRemoteModule': 'Enable remote module',
   'startup.developerTools': 'Open developer tools on startup',
   'theme.darkMode': 'Enable dark mode theme',
-  'app.window.url.pathname': 'Main window HTML path',
-  'app.window.url.protocol': 'Main window URL protocol',
-  'app.window.url.slashes': 'Add slashes to window URL',
-  'app.window.navigation.developerTools': 'Show devtools button',
-  'app.window.navigation.extendedCollapsed': 'Collapse extended navigation',
-  'app.window.navigation.enableExtendedMenu':
+  'appWindowUrl.pathname': 'Main window HTML path',
+  'appWindowUrl.protocol': 'Main window URL protocol',
+  'appWindowUrl.slashes': 'Add slashes to window URL',
+  'appWindowNavigation.developerTools': 'Show devtools button',
+  'appWindowNavigation.extendedCollapsed': 'Collapse extended navigation',
+  'appWindowNavigation.enableExtendedMenu':
     'Allow extended navigation toggle',
-  'lookup.general.type': 'Default lookup type',
-  'lookup.general.psl': 'Use Public Suffix List',
-  'lookup.general.server': 'Default whois server',
-  'lookup.general.verbose': 'Return verbose whois output',
-  'lookup.general.follow': 'Maximum follow depth',
-  'lookup.general.timeout': 'Request timeout in milliseconds',
-  'lookup.general.timeBetween': 'Delay between requests',
-  'lookup.general.useDnsTimeBetweenOverride':
+  'lookupGeneral.type': 'Default lookup type',
+  'lookupGeneral.psl': 'Use Public Suffix List',
+  'lookupGeneral.server': 'Default whois server',
+  'lookupGeneral.verbose': 'Return verbose whois output',
+  'lookupGeneral.follow': 'Maximum follow depth',
+  'lookupGeneral.timeout': 'Request timeout in milliseconds',
+  'lookupGeneral.timeBetween': 'Delay between requests',
+  'lookupGeneral.useDnsTimeBetweenOverride':
     'Override delay for DNS requests',
-  'lookup.general.dnsTimeBetween': 'DNS request delay',
-  'lookup.randomize.follow.randomize': 'Randomize follow depth',
-  'lookup.randomize.follow.minimumDepth': 'Minimum follow depth',
-  'lookup.randomize.follow.maximumDepth': 'Maximum follow depth',
-  'lookup.randomize.timeout.randomize': 'Randomize request timeout',
-  'lookup.randomize.timeout.minimum': 'Minimum timeout',
-  'lookup.randomize.timeout.maximum': 'Maximum timeout',
-  'lookup.randomize.timeBetween.randomize': 'Randomize delay',
-  'lookup.randomize.timeBetween.minimum': 'Minimum delay',
-  'lookup.randomize.timeBetween.maximum': 'Maximum delay',
-  'lookup.proxy.enable': 'Enable proxy requests',
-  'lookup.proxy.mode': 'Proxy mode',
-  'lookup.proxy.multimode': 'Proxy rotation mode',
-  'lookup.proxy.check': 'Check proxy health',
-  'lookup.proxy.checktype': 'Proxy health check type',
-  'lookup.conversion.enabled': 'Enable domain conversion',
-  'lookup.conversion.algorithm': 'Conversion algorithm',
-  'lookup.assumptions.uniregistry':
+  'lookupGeneral.dnsTimeBetween': 'DNS request delay',
+  'lookupRandomizeFollow.randomize': 'Randomize follow depth',
+  'lookupRandomizeFollow.minimumDepth': 'Minimum follow depth',
+  'lookupRandomizeFollow.maximumDepth': 'Maximum follow depth',
+  'lookupRandomizeTimeout.randomize': 'Randomize request timeout',
+  'lookupRandomizeTimeout.minimum': 'Minimum timeout',
+  'lookupRandomizeTimeout.maximum': 'Maximum timeout',
+  'lookupRandomizeTimeBetween.randomize': 'Randomize delay',
+  'lookupRandomizeTimeBetween.minimum': 'Minimum delay',
+  'lookupRandomizeTimeBetween.maximum': 'Maximum delay',
+  'lookupProxy.enable': 'Enable proxy requests',
+  'lookupProxy.mode': 'Proxy mode',
+  'lookupProxy.multimode': 'Proxy rotation mode',
+  'lookupProxy.check': 'Check proxy health',
+  'lookupProxy.checktype': 'Proxy health check type',
+  'lookupConversion.enabled': 'Enable domain conversion',
+  'lookupConversion.algorithm': 'Conversion algorithm',
+  'lookupAssumptions.uniregistry':
     'Assume unavailable on Uniregistry limits',
-  'lookup.assumptions.ratelimit': 'Assume unavailable on rate limit',
-  'lookup.assumptions.unparsable':
+  'lookupAssumptions.ratelimit': 'Assume unavailable on rate limit',
+  'lookupAssumptions.unparsable':
     'Assume available on unparsable replies',
-  'lookup.assumptions.dnsFailureUnavailable':
+  'lookupAssumptions.dnsFailureUnavailable':
     'Assume unavailable on DNS failure',
-  'custom.configuration.filepath': 'Custom configuration filename',
-  'custom.configuration.load': 'Load custom configuration on start',
-  'custom.configuration.save': 'Save custom configuration on exit',
-  'performance.single.request.timers': 'Single lookup timers',
-  'performance.single.request.averages': 'Single lookup averages',
-  'performance.single.request.stopwatch': 'Single lookup stopwatch',
-  'performance.bulk.request.timers': 'Bulk lookup timers',
-  'performance.bulk.request.averages': 'Bulk lookup averages',
-  'performance.bulk.request.stopwatch': 'Bulk lookup stopwatch',
-  'lookup.misc.useStandardSize': 'Use metric units for file sizes',
-  'lookup.misc.asfOverride': 'Override average smoothing factor',
-  'lookup.misc.averageSmoothingFactor': 'Average smoothing factor',
-  'lookup.misc.onlyCopy': 'Only copy results to clipboard',
-  'lookup.export.enclosure': 'CSV enclosure character',
-  'lookup.export.separator': 'CSV separator character',
-  'lookup.export.linebreak': 'Line break character',
-  'lookup.export.filetypeText': 'Text file extension',
-  'lookup.export.filetypeCsv': 'CSV file extension',
-  'lookup.export.filetypeZip': 'ZIP file extension'
+  'customConfiguration.filepath': 'Custom configuration filename',
+  'customConfiguration.load': 'Load custom configuration on start',
+  'customConfiguration.save': 'Save custom configuration on exit',
+  'performanceSingleRequest.timers': 'Single lookup timers',
+  'performanceSingleRequest.averages': 'Single lookup averages',
+  'performanceSingleRequest.stopwatch': 'Single lookup stopwatch',
+  'performanceBulkRequest.timers': 'Bulk lookup timers',
+  'performanceBulkRequest.averages': 'Bulk lookup averages',
+  'performanceBulkRequest.stopwatch': 'Bulk lookup stopwatch',
+  'lookupMisc.useStandardSize': 'Use metric units for file sizes',
+  'lookupMisc.asfOverride': 'Override average smoothing factor',
+  'lookupMisc.averageSmoothingFactor': 'Average smoothing factor',
+  'lookupMisc.onlyCopy': 'Only copy results to clipboard',
+  'lookupExport.enclosure': 'CSV enclosure character',
+  'lookupExport.separator': 'CSV separator character',
+  'lookupExport.linebreak': 'Line break character',
+  'lookupExport.filetypeText': 'Text file extension',
+  'lookupExport.filetypeCsv': 'CSV file extension',
+  'lookupExport.filetypeZip': 'ZIP file extension'
 };
 

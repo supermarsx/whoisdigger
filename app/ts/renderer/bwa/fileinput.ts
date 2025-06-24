@@ -34,7 +34,7 @@ ipcRenderer.on('bwa:fileinput.confirmation', async function(event, filePath: str
       try {
         bwaFileStats = fs.statSync(filePath as string) as FileStats;
         bwaFileStats.filename = (filePath as string).replace(/^.*[\\\/]/, '');
-        bwaFileStats.humansize = conversions.byteToHumanFileSize(bwaFileStats.size, settings['lookup.misc'].useStandardSize);
+        bwaFileStats.humansize = conversions.byteToHumanFileSize(bwaFileStats.size, settings[lookupMisc'].useStandardSize);
         $('#bwaFileSpanInfo').text('Loading file contents...');
         bwaFileContents = Papa.parse((await fs.promises.readFile(filePath as string)).toString(), {
           header: true
@@ -48,7 +48,7 @@ ipcRenderer.on('bwa:fileinput.confirmation', async function(event, filePath: str
       try {
         bwaFileStats = fs.statSync((filePath as string[])[0]) as FileStats;
         bwaFileStats.filename = (filePath as string[])[0].replace(/^.*[\\\/]/, '');
-        bwaFileStats.humansize = conversions.byteToHumanFileSize(bwaFileStats.size, settings['lookup.misc'].useStandardSize);
+        bwaFileStats.humansize = conversions.byteToHumanFileSize(bwaFileStats.size, settings[lookupMisc'].useStandardSize);
         $('#bwaFileSpanInfo').text('Loading file contents...');
         bwaFileContents = Papa.parse((await fs.promises.readFile((filePath as string[])[0])).toString(), {
           header: true
@@ -87,7 +87,7 @@ ipcRenderer.on('bwa:fileinput.confirmation', async function(event, filePath: str
   $('#bwaEntryButtonOpen').click(function() {...});
     Bulk whois, file input, entry container button
  */
-$('#bwaEntryButtonOpen').click(function() {
+$(document).on('click', '#bwaEntryButtonOpen', function() {
   $('#bwaEntry').addClass('is-hidden');
   $.when($('#bwaFileinputloading').removeClass('is-hidden').delay(10)).done(function() {
     ipcRenderer.send("bwa:input.file");

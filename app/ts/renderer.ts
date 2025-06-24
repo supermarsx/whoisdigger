@@ -57,9 +57,7 @@ $(document).ready(async function() {
     Application startup checks
  */
 function startup() {
-  const {
-    'app.window.navigation': navigation
-  } = settings;
+  const { appWindowNavigation: navigation } = settings;
 
   sendDebug(formatString("'navigation.developerTools': {0}", String(navigation.developerTools)));
   if (navigation.developerTools) $('#navTabDevtools').removeClass('is-force-hidden');

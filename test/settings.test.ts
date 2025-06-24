@@ -12,12 +12,12 @@ describe('settings load', () => {
 
     const original = JSON.parse(JSON.stringify(settings));
     const configName = 'bad.json';
-    settings['custom.configuration'].filepath = configName;
+    settings.customConfiguration.filepath = configName;
     fs.writeFileSync(path.join(tmpDir, 'bad.json'), '{ invalid json');
 
     const loaded = await loadSettings();
 
-    original['custom.configuration'].filepath = configName;
+    original.customConfiguration.filepath = configName;
     expect(loaded).toEqual(original);
 
     fs.unlinkSync(path.join(tmpDir, 'bad.json'));

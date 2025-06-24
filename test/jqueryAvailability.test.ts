@@ -11,8 +11,8 @@ jest.mock('../app/ts/renderer/navigation', () => ({}));
 
 jest.mock('../app/ts/common/settings', () => ({
   loadSettings: jest.fn(() => ({
-    'custom.configuration': { filepath: 'test.json', load: false, save: false },
-    'app.window.navigation': {
+    customConfiguration: { filepath: 'test.json', load: false, save: false },
+    appWindowNavigation: {
       developerTools: false,
       extendedCollapsed: false,
       enableExtendedMenu: false

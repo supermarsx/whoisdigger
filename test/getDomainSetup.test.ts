@@ -6,17 +6,17 @@ describe('getDomainSetup', () => {
   test('returns randomized values within configured bounds', () => {
     const backup = JSON.parse(JSON.stringify(settings));
 
-    settings['lookup.randomize.timeBetween'].randomize = true;
-    settings['lookup.randomize.timeBetween'].minimum = 1;
-    settings['lookup.randomize.timeBetween'].maximum = 2;
+    settings.lookupRandomizeTimeBetween.randomize = true;
+    settings.lookupRandomizeTimeBetween.minimum = 1;
+    settings.lookupRandomizeTimeBetween.maximum = 2;
 
-    settings['lookup.randomize.follow'].randomize = true;
-    settings['lookup.randomize.follow'].minimumDepth = 1;
-    settings['lookup.randomize.follow'].maximumDepth = 2;
+    settings.lookupRandomizeFollow.randomize = true;
+    settings.lookupRandomizeFollow.minimumDepth = 1;
+    settings.lookupRandomizeFollow.maximumDepth = 2;
 
-    settings['lookup.randomize.timeout'].randomize = true;
-    settings['lookup.randomize.timeout'].minimum = 10;
-    settings['lookup.randomize.timeout'].maximum = 20;
+    settings.lookupRandomizeTimeout.randomize = true;
+    settings.lookupRandomizeTimeout.minimum = 10;
+    settings.lookupRandomizeTimeout.maximum = 20;
 
     const result = getDomainSetup(settings, {
       timeBetween: true,
@@ -25,40 +25,40 @@ describe('getDomainSetup', () => {
     });
 
     expect(result.timebetween).toBeGreaterThanOrEqual(
-      settings['lookup.randomize.timeBetween'].minimum,
+      settings.lookupRandomizeTimeBetween.minimum,
     );
     expect(result.timebetween).toBeLessThan(
-      settings['lookup.randomize.timeBetween'].minimum +
-        settings['lookup.randomize.timeBetween'].maximum,
+      settings.lookupRandomizeTimeBetween.minimum +
+        settings.lookupRandomizeTimeBetween.maximum,
     );
 
     expect(result.follow).toBeGreaterThanOrEqual(
-      settings['lookup.randomize.follow'].minimumDepth,
+      settings.lookupRandomizeFollow.minimumDepth,
     );
     expect(result.follow).toBeLessThan(
-      settings['lookup.randomize.follow'].minimumDepth +
-        settings['lookup.randomize.follow'].maximumDepth,
+      settings.lookupRandomizeFollow.minimumDepth +
+        settings.lookupRandomizeFollow.maximumDepth,
     );
 
     expect(result.timeout).toBeGreaterThanOrEqual(
-      settings['lookup.randomize.timeout'].minimum,
+      settings.lookupRandomizeTimeout.minimum,
     );
     expect(result.timeout).toBeLessThan(
-      settings['lookup.randomize.timeout'].minimum +
-        settings['lookup.randomize.timeout'].maximum,
+      settings.lookupRandomizeTimeout.minimum +
+        settings.lookupRandomizeTimeout.maximum,
     );
 
     Object.assign(
-      settings['lookup.randomize.timeBetween'],
-      backup['lookup.randomize.timeBetween'],
+      settings.lookupRandomizeTimeBetween,
+      backup.lookupRandomizeTimeBetween,
     );
     Object.assign(
-      settings['lookup.randomize.follow'],
-      backup['lookup.randomize.follow'],
+      settings.lookupRandomizeFollow,
+      backup.lookupRandomizeFollow,
     );
     Object.assign(
-      settings['lookup.randomize.timeout'],
-      backup['lookup.randomize.timeout'],
+      settings.lookupRandomizeTimeout,
+      backup.lookupRandomizeTimeout,
     );
   });
 });
