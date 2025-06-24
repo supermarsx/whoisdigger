@@ -51,6 +51,7 @@ const settingsModule: { settings: Settings } = rawModule.settings
   ? rawModule
   : rawModule.default;
 let { settings } = settingsModule;
+const defaultCustomConfiguration = settings.customConfiguration;
 export { settings };
 export default settings;
 
@@ -76,11 +77,13 @@ function getUserDataPath(): string {
   return userDataPath;
 }
 
+function getCustomConfiguration(): { filepath: string; load: boolean; save: boolean } {
+  return settings.customConfiguration ?? defaultCustomConfiguration;
+}
+
 function getConfigFile(): string {
-  return path.join(
-    getUserDataPath(),
-    settings.customConfiguration.filepath
-  );
+  const { filepath } = getCustomConfiguration();
+  return path.join(getUserDataPath(), filepath);
 }
 
 function watchConfig(): void {
@@ -109,16 +112,14 @@ function watchConfig(): void {
     Loads custom configurations from file or defaults
  */
 export async function load(): Promise<Settings> {
-  const {
-    customConfiguration: configuration
-  } = settings;
+  const configuration = getCustomConfiguration();
 
-  if (configuration.load) {
+  if (configuration && configuration.load) {
     try {
       const filePath =
         path.join(
           getUserDataPath(),
-          settings.customConfiguration.filepath
+          configuration.filepath
         );
       const raw = await fs.promises.readFile(filePath, 'utf8');
       try {
@@ -144,16 +145,14 @@ export async function load(): Promise<Settings> {
     settings (object) - Current custom configurations to be saved
  */
 export async function save(newSettings: Settings): Promise<string | Error | undefined> {
-  const {
-    customConfiguration: configuration
-  } = newSettings;
+  const configuration = newSettings.customConfiguration ?? defaultCustomConfiguration;
 
-  if (configuration.save) {
+  if (configuration && configuration.save) {
     try {
       const filePath =
         path.join(
           getUserDataPath(),
-          newSettings.customConfiguration.filepath
+          configuration.filepath
         );
       await fs.promises.writeFile(
         filePath,
