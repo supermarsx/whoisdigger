@@ -15,21 +15,21 @@ import {
 } from '../app/ts/common/wordlist';
 
 describe('wordlist tools', () => {
-  test('concatFiles joins files', () => {
+  test('concatFiles joins files', async () => {
     const p1 = path.join(__dirname, 'f1.txt');
     const p2 = path.join(__dirname, 'f2.txt');
     fs.writeFileSync(p1, 'a\nb');
     fs.writeFileSync(p2, 'c\nd');
-    const lines = concatFiles(p1, p2);
+    const lines = await concatFiles(p1, p2);
     expect(lines).toEqual(['a', 'b', 'c', 'd']);
     fs.unlinkSync(p1);
     fs.unlinkSync(p2);
   });
 
-  test('splitFiles by lines', () => {
+  test('splitFiles by lines', async () => {
     const p = path.join(__dirname, 'f3.txt');
     fs.writeFileSync(p, 'a\nb\nc\nd');
-    const parts = splitFiles({ files: [p], maxLines: 2 });
+    const parts = await splitFiles({ files: [p], maxLines: 2 });
     expect(parts).toEqual([
       ['a', 'b'],
       ['c', 'd']
