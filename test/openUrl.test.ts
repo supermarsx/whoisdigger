@@ -1,11 +1,5 @@
 const ipcMainHandlers: Record<string, (...args: any[]) => any> = {};
-const loadURLMock = jest.fn();
-const BrowserWindowMock = jest.fn().mockImplementation(() => ({
-  setSkipTaskbar: jest.fn(),
-  setMenu: jest.fn(),
-  loadURL: loadURLMock,
-  on: jest.fn()
-}));
+const openExternalMock = jest.fn();
 
 jest.mock('electron', () => ({
   ipcMain: {
@@ -13,7 +7,7 @@ jest.mock('electron', () => ({
       ipcMainHandlers[channel] = listener;
     }
   },
-  BrowserWindow: BrowserWindowMock,
+  shell: { openExternal: openExternalMock },
   app: undefined,
   Menu: {},
   dialog: { showSaveDialogSync: jest.fn() },
@@ -26,17 +20,15 @@ import '../app/ts/main/singlewhois';
 
 describe('openUrl', () => {
   beforeEach(() => {
-    BrowserWindowMock.mockClear();
-    loadURLMock.mockClear();
+    openExternalMock.mockClear();
   });
 
-  test('opens new window for valid http url', async () => {
+  test('opens external browser for valid http url', async () => {
     settings.lookupMisc.onlyCopy = false;
     const handler = ipcMainHandlers['singlewhois:openlink'];
     await handler({ sender: { send: jest.fn() } } as any, 'https://example.com');
 
-    expect(BrowserWindowMock).toHaveBeenCalled();
-    expect(loadURLMock).toHaveBeenCalledWith('https://example.com/');
+    expect(openExternalMock).toHaveBeenCalledWith('https://example.com/');
   });
 
   test('copies url to clipboard when onlyCopy is true', async () => {
@@ -45,7 +37,7 @@ describe('openUrl', () => {
     const handler = ipcMainHandlers['singlewhois:openlink'];
     await handler({ sender: { send: jest.fn() } } as any, 'https://example.com');
 
-    expect(BrowserWindowMock).not.toHaveBeenCalled();
+    expect(openExternalMock).not.toHaveBeenCalled();
     expect(clipboard.writeText).toHaveBeenCalledWith('https://example.com');
   });
 
@@ -55,7 +47,7 @@ describe('openUrl', () => {
     const handler = ipcMainHandlers['singlewhois:openlink'];
     await handler({ sender: { send: jest.fn() } } as any, 'ftp://example.com');
 
-    expect(BrowserWindowMock).not.toHaveBeenCalled();
+    expect(openExternalMock).not.toHaveBeenCalled();
     expect(warnSpy).toHaveBeenCalled();
     warnSpy.mockRestore();
   });
@@ -66,7 +58,7 @@ describe('openUrl', () => {
     const handler = ipcMainHandlers['singlewhois:openlink'];
     await handler({ sender: { send: jest.fn() } } as any, 'http://');
 
-    expect(BrowserWindowMock).not.toHaveBeenCalled();
+    expect(openExternalMock).not.toHaveBeenCalled();
     expect(warnSpy).toHaveBeenCalled();
     warnSpy.mockRestore();
   });
@@ -77,7 +69,7 @@ describe('openUrl', () => {
     const handler = ipcMainHandlers['singlewhois:openlink'];
     await handler({ sender: { send: jest.fn() } } as any, 'example.com');
 
-    expect(BrowserWindowMock).not.toHaveBeenCalled();
+    expect(openExternalMock).not.toHaveBeenCalled();
     expect(warnSpy).toHaveBeenCalled();
     warnSpy.mockRestore();
   });
