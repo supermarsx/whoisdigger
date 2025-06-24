@@ -23,76 +23,76 @@
       <section class="hero is-fullheight">
         <div class="hero-head is-fixed-top">
           <div id="navTop">
-            <!-- navbar controls, minimize, close, logo, extended nav (navigation/navbar-top.html)-->
+            {{> navTop}}
           </div>
           <div id="navBottom">
-            <!-- Navbar bottom contents, tabs, etc (navigation/navbar-bottom.html)-->
+            {{> navBottom}}
           </div>
         </div>
         <div id="contents-container" class="hero-body has-text-centered">
           <div class="container">
             <div id="singlewhoisMainContainer" class="container tab-content level-item current">
-              <!-- Single Whois panel (tabs/singlewhois.html)-->
+              {{> singlewhois}}
             </div>
             <div id="bwMainContainer" class="tab-content">
               <!-- Bulk Whois panel -->
               <div id="bwEntry" class="container is-clearfix">
-                <!-- Bulk whois entry container (tabs/bw/bwEntry.html) -->
+                {{> bwEntry}}
               </div>
               <div id="bwFileinputloading" class="container is-clearfix is-hidden">
-                <!-- Waiting for file to load (tabs/bw/bwFileInputloading.html) -->
+                {{> bwFileInputLoading}}
               </div>
               <div id="bwFileinputconfirm" class="container is-clearfix is-hidden">
-                <!-- File input confirmation (tabs/bw/bwFileInputconfirm.html) -->
+                {{> bwFileInputConfirm}}
               </div>
               <div id="bwWordlistinput" class="container is-clearfix is-hidden">
-                <!-- Manual wordlist input area (tabs/bw/bwWordlistinput.html) -->
+                {{> bwWordlistInput}}
               </div>
               <div id="bwWordlistloading" class="container is-clearfix is-hidden">
-                <!-- Waiting for wordlist to be loaded (tabs/bw/bwWordlistloading.html) -->
+                {{> bwWordlistLoading}}
               </div>
               <div id="bwWordlistconfirm" class="container is-clearfix is-hidden">
-                <!-- Confirm manual wordlist input (tabs/bw/bwWordlistconfirm.html) -->
+                {{> bwWordlistConfirm}}
               </div>
               <div id="bwProcessing" class="container is-clearfix is-hidden">
-                <!-- Bulk whois processing container (tabs/bw/bwProcessing.html) -->
+                {{> bwProcessing}}
               </div>
               <div id="bwExport" class="container is-clearfix is-hidden">
-                <!-- Bulk whois processed results export (tabs/bw/bwExport.html) -->
+                {{> bwExport}}
               </div>
               <div id="bwExportloading" class="container is-clearfix is-hidden">
-                <!-- Bulk whois export results loading container (tabs/bw/bwExportloading.html) -->
+                {{> bwExportLoading}}
               </div>
             </div>
             <div id="bwaMainContainer" class="tab-content">
               <div id="bwaEntry" class="container is-clearfix">
-                <!-- Bulk whois results analyser (tabs/bwa/bwaEntry.html) -->
+                {{> bwaEntry}}
               </div>
               <div id="bwaFileinputloading" class="container is-clearfix is-hidden">
-                <!-- Bulk whois analyser file loading (tabs/bwa/bwaFileinputloading.html) -->
+                {{> bwaFileInputLoading}}
               </div>
               <div id="bwaFileinputconfirm" class="container is-clearfix is-hidden">
-                <!-- Bulk whois analyser file input confirmation (tabs/bwa/bwaFileinputconfirm.html) -->
+                {{> bwaFileinputconfirm}}
               </div>
               <div id="bwaProcess" class="container is-clearfix is-hidden">
-                <!-- Bulk whois analyser file input processing (tabs/bwa/bwaProcess.html) -->
+                {{> bwaProcess}}
               </div>
               <div id="bwaAnalyser" class="container is-clearfix is-hidden">
-                <!-- Bulk whois analyser table (tabs/bwa/bwaAnalyser.html) -->
+                {{> bwaAnalyser}}
               </div>
             </div>
             <div id="toMainContainer" class="tab-content">
               <div id="toEntry" class="container is-clearfix">
-                <!-- Wordlist tools entry container (tabs/to/toEntry.html) -->
+                {{> toEntry}}
               </div>
             </div>
             <div id="opMainContainer" class="tab-content">
               <div id="opEntry" class="container is-clearfix">
-                <!-- Options container (tabs/op/opEntry.html) -->
+                {{> opEntry}}
               </div>
             </div>
             <div id="heMainContainer" class="tab-content">
-              <!-- Help container (tabs/he.html) -->
+              {{> he}}
             </div>
           </div>
         </div>
