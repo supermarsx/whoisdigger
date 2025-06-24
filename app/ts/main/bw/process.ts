@@ -215,7 +215,7 @@ ipcMain.on('bw:lookup.stop', function (event: IpcMainEvent) {
 
   const { sender } = event;
 
-  clearTimeout(stats.time.counter!);
+  clearInterval(stats.time.counter!);
   sender.send('bw:result.receive', results);
   sender.send('bw:status.update', 'finished');
 });
