@@ -48,16 +48,18 @@ describe('watch-assets', () => {
     expect(copyFileMock).toHaveBeenCalledWith(src, dest);
   });
 
-  test('precompiles templates when a template changes', () => {
+  test("doesn't recompile templates when a template changes", () => {
     jest.isolateModules(() => {
       require('../scripts/watch-assets');
     });
+
+    precompileMock.mockClear();
 
     const src = path.join(__dirname, '..', 'app', 'html', 'templates', 'test.hbs');
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
     emitter.emit('change', { path: src });
     logSpy.mockRestore();
 
-    expect(precompileMock).toHaveBeenCalled();
+    expect(precompileMock).not.toHaveBeenCalled();
   });
 });
