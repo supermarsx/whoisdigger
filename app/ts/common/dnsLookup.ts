@@ -25,8 +25,8 @@ function getSettings(): Settings {
 export async function nsLookup(host: string): Promise<string[]> {
   let result;
   const {
-    'lookup.conversion': conversion,
-    'lookup.general': general
+    lookupConversion: conversion,
+    lookupGeneral: general
   } = getSettings();
 
   host = conversion.enabled ? convertDomain(host) : host;
@@ -60,8 +60,8 @@ export async function nsLookup(host: string): Promise<string[]> {
 export async function hasNsServers(host: string): Promise<Result<boolean, DnsLookupError>> {
   let result;
   const {
-    'lookup.conversion': conversion,
-    'lookup.general': general
+    lookupConversion: conversion,
+    lookupGeneral: general
   } = getSettings();
 
   host = conversion.enabled ? convertDomain(host) : host;

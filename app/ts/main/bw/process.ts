@@ -85,9 +85,9 @@ ipcMain.on('bw:lookup', function(event: IpcMainEvent, domains: string[], tlds: s
   for (const [index, domain] of domainsPending.entries()) {
 
     domainSetup = getDomainSetup(settings, {
-      timeBetween: settings['lookup.randomize.timeBetween'].randomize,
-      followDepth: settings['lookup.randomize.follow'].randomize,
-      timeout: settings['lookup.randomize.timeout'].randomize
+      timeBetween: settings.lookupRandomizeTimeBetween.randomize,
+      followDepth: settings.lookupRandomizeFollow.randomize,
+      timeout: settings.lookupRandomizeTimeout.randomize
     });
     domainSetup.timebetween = settings.lookupGeneral.useDnsTimeBetweenOverride ? settings.lookupGeneral.dnsTimeBetween : domainSetup.timebetween;
     domainSetup.domain = domain;

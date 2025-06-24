@@ -26,11 +26,11 @@ ipcRenderer.on('bw:wordlistinput.confirmation', function() {
     $('#bwWordlistSpanInfo').text('Getting line count...');
     bwFileStats['linecount'] = bwWordlistContents.toString().split('\n').length;
 
-    if (settings['lookup.randomize.timeBetween'].randomize === true) {
-      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * settings['lookup.randomize.timeBetween'].minimum);
-      bwFileStats['maxestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * settings['lookup.randomize.timeBetween'].maximum);
-      $('#bwWordlistSpanTimebetweenmin').text(formatString('{0}ms ', settings['lookup.randomize.timeBetween'].minimum));
-      $('#bwWordlistSpanTimebetweenmax').text(formatString('/ {0}ms', settings['lookup.randomize.timeBetween'].maximum));
+    if (settings.lookupRandomizeTimeBetween.randomize === true) {
+      bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * settings.lookupRandomizeTimeBetween.minimum);
+      bwFileStats['maxestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * settings.lookupRandomizeTimeBetween.maximum);
+      $('#bwWordlistSpanTimebetweenmin').text(formatString('{0}ms ', settings.lookupRandomizeTimeBetween.minimum));
+      $('#bwWordlistSpanTimebetweenmax').text(formatString('/ {0}ms', settings.lookupRandomizeTimeBetween.maximum));
       $('#bwWordlistTdEstimate').text(formatString('{0} to {1}', bwFileStats['minestimate'], bwFileStats['maxestimate']));
     } else {
       bwFileStats['minestimate'] = conversions.msToHumanTime(bwFileStats['linecount'] * settings.lookupGeneral.timeBetween);

@@ -12,18 +12,18 @@ describe('settings reload', () => {
   test('convertDomain reflects saved settings', async () => {
     const tmpDir = fs.mkdtempSync(path.join(__dirname, 'config'));
     mockGetPath.mockReturnValue(tmpDir);
-    const originalAlg = settings['lookup.conversion'].algorithm;
+    const originalAlg = settings.lookupConversion.algorithm;
     const configName = 'reload.json';
     settings.customConfiguration.filepath = configName;
 
     await loadSettings();
-    settings['lookup.conversion'].algorithm = 'ascii';
+    settings.lookupConversion.algorithm = 'ascii';
     await saveSettings(settings);
 
     const result = convertDomain('t\u00E4st.de');
     expect(result).toBe('tst.de');
 
-    settings['lookup.conversion'].algorithm = originalAlg;
+    settings.lookupConversion.algorithm = originalAlg;
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 

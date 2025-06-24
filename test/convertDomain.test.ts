@@ -15,11 +15,11 @@ describe('convertDomain', () => {
   });
 
   test('ascii algorithm in settings strips characters by default', () => {
-    const original = settings['lookup.conversion'].algorithm;
-    settings['lookup.conversion'].algorithm = 'ascii';
+    const original = settings.lookupConversion.algorithm;
+    settings.lookupConversion.algorithm = 'ascii';
     const result = convertDomain('t\u00E4st.de');
     expect(result).toBe('tst.de');
-    settings['lookup.conversion'].algorithm = original;
+    settings.lookupConversion.algorithm = original;
   });
 
   test('explicit uts46 conversion handles unicode domains', () => {
@@ -38,11 +38,11 @@ describe('convertDomain', () => {
   });
 
   test('passthrough when algorithm is unknown', () => {
-    const original = settings['lookup.conversion'].algorithm;
-    settings['lookup.conversion'].algorithm = 'unknown';
+    const original = settings.lookupConversion.algorithm;
+    settings.lookupConversion.algorithm = 'unknown';
     const domain = 'example.com';
     const result = convertDomain(domain);
     expect(result).toBe(domain);
-    settings['lookup.conversion'].algorithm = original;
+    settings.lookupConversion.algorithm = original;
   });
 });
