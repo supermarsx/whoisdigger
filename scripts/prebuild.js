@@ -2,9 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const debug = require('debug')('prebuild');
-const { precompileTemplates } = require('./scripts/precompileTemplates');
+const { precompileTemplates } = require('./precompileTemplates');
 
-const modulesPath = path.join(__dirname, 'node_modules');
+const rootDir = path.join(__dirname, '..');
+const modulesPath = path.join(rootDir, 'node_modules');
 
 if (!fs.existsSync(modulesPath)) {
   debug('node_modules not found. Running "npm install" to install dependencies...');
