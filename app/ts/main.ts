@@ -10,6 +10,9 @@ import type { IpcMainEvent } from 'electron';
 const debug = debugModule('main');
 const debugb = debugModule('renderer');
 
+// Disable Chromium Autofill feature to silence devtools warnings in Electron
+app.commandLine.appendSwitch('disable-features', 'Autofill');
+
 interface AppWindowSettings {
   frame: boolean;
   show: boolean;
