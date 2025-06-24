@@ -27,7 +27,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Check formatting
         run: npm run format -- --check
       - run: npm run lint
@@ -46,7 +46,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - run: npx tsc --noEmit
 
   build:
@@ -63,7 +63,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - run: npm test
       - uses: actions/upload-artifact@v4
         if: always()
@@ -91,7 +91,7 @@ jobs:
             ~/.cache/electron-builder
           key: ${{ runner.os }}-electron-${{ hashFiles('package-lock.json') }}
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Build
         run: npm run build
       - name: Run e2e tests
@@ -117,7 +117,7 @@ jobs:
             ~/.cache/electron-builder
           key: ${{ runner.os }}-electron-${{ hashFiles('package-lock.json') }}
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - run: npm run package-linux
       - run: mv release_builds release_builds-${{ matrix.node-version }}
       - uses: actions/upload-artifact@v4
