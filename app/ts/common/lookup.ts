@@ -4,6 +4,7 @@ import uts46 from 'idna-uts46';
 import whois from 'whois';
 import debugModule from 'debug';
 import { settings, Settings } from './settings';
+import { getProxy } from './proxy';
 
 const debug = debugModule('common.whoisWrapper');
 
@@ -73,6 +74,10 @@ export function getWhoisOptions(): Record<string, unknown> {
   options.follow = getWhoisParameters(follow);
   options.timeout = getWhoisParameters(timeout);
   options.verbose = general.verbose;
+  const proxy = getProxy();
+  if (proxy) {
+    options.proxy = proxy;
+  }
 
   return options;
 }

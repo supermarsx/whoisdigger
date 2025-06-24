@@ -30,6 +30,15 @@ export interface Settings {
   lookupRandomizeFollow: { randomize: boolean; minimumDepth: number; maximumDepth: number };
   lookupRandomizeTimeout: { randomize: boolean; minimum: number; maximum: number };
   lookupRandomizeTimeBetween: { randomize: boolean; minimum: number; maximum: number };
+  lookupProxy: {
+    enable: boolean;
+    mode: string;
+    multimode: string;
+    check: boolean;
+    checktype: string;
+    single?: string;
+    list?: string[];
+  };
   lookupAssumptions: {
     uniregistry: boolean;
     ratelimit: boolean;
