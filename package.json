@@ -17,7 +17,7 @@
     "build:css": "postcss app/css/*.css -d dist/app/css --no-map",
     "watch": "cross-env DEBUG=* tsc -w",
     "watch-assets": "node watch-assets.js",
-    "dev": "npm run build && npm run postbuild && concurrently \"npm:watch\" \"npm:watch-assets\" \"electronmon .\"",
+    "dev": "npm run build && concurrently \"npm:watch\" \"npm:watch-assets\" \"electronmon .\"",
     "lint": "eslint \"app/**/*.ts\" \"test/**/*.ts\"",
     "format": "prettier --ignore-path .prettierignore .",
     "test": "jest",
