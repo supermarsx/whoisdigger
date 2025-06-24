@@ -208,6 +208,8 @@ compiles the application into the `dist` folder and then invokes
 Running `npm run build` automatically executes the `prebuild` script. `scripts/prebuild.js` installs dependencies using `npm install` if `node_modules` is missing.
 `scripts/postbuild.js` then bundles CSS using PostCSS by calling `npm run build:css`,
 which minifies files from `app/css` into `dist/app/css`.
+It also precompiles Handlebars templates and writes `dist/app/html/mainPanel.html`
+from `app/html/templates/mainPanel.hbs`.
 
 MacOS
 
