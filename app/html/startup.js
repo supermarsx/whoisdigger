@@ -1,3 +1,4 @@
+const { registerPartials } = require('../ts/renderer/registerPartials.js');
+registerPartials();
+
 require('../ts/mainPanel.js');
-require('../ts/renderer/loadcontents.js');
-require('../ts/renderer.js');
