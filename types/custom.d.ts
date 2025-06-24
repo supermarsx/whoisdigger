@@ -114,6 +114,16 @@ declare module 'app/ts/common/parseRawData' {
   export default parseRawData;
 }
 
+declare module 'app/ts/common/proxy' {
+  export interface ProxyInfo {
+    ipaddress: string;
+    port: number;
+    type?: number;
+  }
+  export function getProxy(): ProxyInfo | undefined;
+  export function resetProxyRotation(): void;
+}
+
 declare module 'app/ts/main/bw/auxiliary' {
   import type { IpcMainEvent } from 'electron';
   export function resetUiCounters(event: IpcMainEvent): void;

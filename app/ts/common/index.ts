@@ -5,6 +5,7 @@ import { parseRawData as ParseRawData } from './parser';
 import { lookup as WhoisLookup } from './lookup';
 import DnsLookup from './dnsLookup';
 import WordlistTools from './wordlist';
+import { getProxy } from './proxy';
 
 export {
   Conversions,
@@ -13,5 +14,6 @@ export {
   ParseRawData,
   WhoisLookup,
   DnsLookup,
-  WordlistTools
+  WordlistTools,
+  getProxy
 };

@@ -1,0 +1,38 @@
+import './electronMock';
+import { settings } from '../app/ts/common/settings';
+import { getProxy, resetProxyRotation } from '../app/ts/common/proxy';
+
+describe('proxy helper', () => {
+  afterEach(() => {
+    resetProxyRotation();
+    settings.lookupProxy.enable = false;
+    settings.lookupProxy.single = '';
+    settings.lookupProxy.list = [];
+  });
+
+  test('returns undefined when disabled', () => {
+    settings.lookupProxy.enable = false;
+    expect(getProxy()).toBeUndefined();
+  });
+
+  test('returns single proxy when enabled', () => {
+    settings.lookupProxy.enable = true;
+    settings.lookupProxy.mode = 'single';
+    settings.lookupProxy.single = '1.2.3.4:1080';
+    const proxy = getProxy();
+    expect(proxy).toEqual({ ipaddress: '1.2.3.4', port: 1080, type: 5 });
+  });
+
+  test('rotates proxies sequentially', () => {
+    settings.lookupProxy.enable = true;
+    settings.lookupProxy.mode = 'multi';
+    settings.lookupProxy.list = ['1.1.1.1:8080', '2.2.2.2:8080'];
+    settings.lookupProxy.multimode = 'sequential';
+    const first = getProxy();
+    const second = getProxy();
+    const third = getProxy();
+    expect(first).toEqual({ ipaddress: '1.1.1.1', port: 8080, type: 5 });
+    expect(second).toEqual({ ipaddress: '2.2.2.2', port: 8080, type: 5 });
+    expect(third).toEqual({ ipaddress: '1.1.1.1', port: 8080, type: 5 });
+  });
+});
