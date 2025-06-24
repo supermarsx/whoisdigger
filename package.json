@@ -23,7 +23,7 @@
     "test": "jest",
     "test:e2e": "xvfb-run -a node test/e2e/run.js",
     "prebuild": "node prebuild.js",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "author": "supermarsx",
   "license": "MIT",
