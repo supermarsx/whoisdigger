@@ -55,7 +55,7 @@
     "@types/jquery": "^3.5.32",
     "@types/node": "^24.0.3",
     "@typescript-eslint/eslint-plugin": "^8.34.1",
-    "@typescript-eslint/parser": "^8.34.1",
+    "@typescript-eslint/parser": "^8.35.0",
     "concurrently": "^9.2.0",
     "cross-env": "^7.0.3",
     "cssnano": "^7.0.7",
