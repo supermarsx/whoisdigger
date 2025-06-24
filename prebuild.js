@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const debug = require('debug')('prebuild');
+const { precompileTemplates } = require('./scripts/precompileTemplates');
 
 const modulesPath = path.join(__dirname, 'node_modules');
 
@@ -16,4 +17,14 @@ if (!fs.existsSync(modulesPath)) {
   }
 
   debug('\nDependencies installed successfully. Continuing build...');
+}
+
+// Precompile Handlebars templates so development builds have them ready
+try {
+  debug('Precompiling Handlebars templates...');
+  precompileTemplates();
+  debug('Templates precompiled successfully.');
+} catch (err) {
+  console.error('Template precompilation failed.');
+  process.exit(1);
 }
