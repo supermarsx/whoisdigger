@@ -180,28 +180,32 @@ $(document).on('click', '#bwFileButtonConfirm', function () {
     Bulk whois file input by drag and drop
  */
 (function dragDropInitialization() {
-  const holder = document.getElementById('bwMainContainer') as HTMLElement;
-  holder.ondragover = function () {
-    return false;
-  };
+  $(document).ready(() => {
+    const holder = document.getElementById('bwMainContainer') as HTMLElement | null;
+    if (!holder) return;
 
-  holder.ondragleave = function () {
-    return false;
-  };
+    holder.ondragover = function () {
+      return false;
+    };
 
-  holder.ondragend = function () {
-    return false;
-  };
+    holder.ondragleave = function () {
+      return false;
+    };
 
-  holder.ondrop = function (event) {
-    event.preventDefault();
-    for (const f of Array.from(event.dataTransfer!.files)) {
-      const file = f as any;
-      ipcRenderer.send('app:debug', `File(s) you dragged here: ${file.path}`);
-      ipcRenderer.send('ondragstart', file.path);
-    }
-    return false;
-  };
+    holder.ondragend = function () {
+      return false;
+    };
+
+    holder.ondrop = function (event) {
+      event.preventDefault();
+      for (const f of Array.from(event.dataTransfer!.files)) {
+        const file = f as any;
+        ipcRenderer.send('app:debug', `File(s) you dragged here: ${file.path}`);
+        ipcRenderer.send('ondragstart', file.path);
+      }
+      return false;
+    };
+  });
 })();
 
 /*
