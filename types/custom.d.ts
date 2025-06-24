@@ -145,9 +145,7 @@ declare module 'change-case' {
 }
 
 declare module 'html-entities' {
-  export class XmlEntities {
-    decode(input: string): string;
-  }
+  export function decode(input: string): string;
 }
 
 declare const $: any;

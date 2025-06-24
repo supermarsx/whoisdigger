@@ -1,13 +1,12 @@
 import * as changeCase from 'change-case';
-import { XmlEntities } from 'html-entities';
+import { decode } from 'html-entities';
 
 export function preStringStrip(str: string): string {
   return str.toString().replace(/\:\t{1,2}/g, ': ');
 }
 
 function stripHTMLEntities(rawData: string): string {
-  const entities = new XmlEntities();
-  return entities.decode(rawData);
+  return decode(rawData);
 }
 
 function filterColonChar(rawData: string): string {
