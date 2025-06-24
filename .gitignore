@@ -7,3 +7,4 @@ coverage/
 settings.json
 reload.json
 .DS_Store
+app/compiled-templates/
