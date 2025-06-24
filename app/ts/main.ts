@@ -4,6 +4,7 @@ import debugModule from 'debug';
 import { loadSettings, settings as store } from './common/settings';
 import type { Settings as BaseSettings } from './common/settings';
 import { formatString } from './common/stringformat';
+import { closeCache } from './common/requestCache';
 import { initialize as initializeRemote, enable as enableRemote } from '@electron/remote/main';
 import type { IpcMainEvent } from 'electron';
 
@@ -151,6 +152,7 @@ app.on('ready', async function () {
 
     if (appWindow.closable) {
       debug('Exiting application');
+      closeCache();
       app.quit();
     }
 
