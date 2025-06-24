@@ -4,6 +4,13 @@ const tsparser = require('@typescript-eslint/parser');
 const globals = require('globals');
 const prettier = require('eslint-config-prettier');
 
+// Trim any accidental whitespace from global names provided by the `globals`
+// package. Older versions contain a key `AudioWorkletGlobalScope ` with a
+// trailing space which breaks ESLint's flat config parser.
+const trimmedBrowserGlobals = Object.fromEntries(
+  Object.entries(globals.browser).map(([key, value]) => [key.trim(), value])
+);
+
 module.exports = [
   js.configs.recommended,
   prettier,
@@ -15,7 +22,7 @@ module.exports = [
       globals: {
         ...globals.node,
         ...globals.jest,
-        ...globals.browser,
+        ...trimmedBrowserGlobals,
         jQuery: 'readonly',
         $: 'readonly',
         ipcRenderer: 'readonly',
