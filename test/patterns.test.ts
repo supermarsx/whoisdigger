@@ -28,6 +28,11 @@ describe('whois patterns', () => {
     expect(checkPatterns(reply)).toBe('error:ratelimiting');
   });
 
+  test('detects not found replies', () => {
+    const reply = 'NOT FOUND';
+    expect(checkPatterns(reply)).toBe('available');
+  });
+
   test('returns error for empty replies', () => {
     expect(checkPatterns('')).toBe('error:nocontent');
   });

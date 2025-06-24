@@ -5,6 +5,7 @@ module.exports = {
   transform: {
     '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.json', diagnostics: false }]
   },
+  setupFiles: ['<rootDir>/test/jest.setup.ts'],
   collectCoverage: true,
   coverageDirectory: 'coverage'
 };

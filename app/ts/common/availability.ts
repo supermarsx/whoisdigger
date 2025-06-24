@@ -2,6 +2,7 @@ import debugModule from 'debug';
 import { getDate } from './conversions';
 import { toJSON } from './parser';
 import { settings as appSettings, Settings } from './settings';
+import { checkPatterns } from './whoiswrapper/patterns';
 
 const debug = debugModule('common.whoisWrapper');
 let settings: Settings = appSettings;
@@ -23,6 +24,10 @@ export function isDomainAvailable(
   resultsJSON?: Record<string, unknown>
 ): string {
   const { lookupAssumptions: assumptions } = settings;
+
+  const patternResult = checkPatterns(resultsText, resultsJSON);
+  const defaultResult = assumptions.unparsable ? 'available' : 'error:unparsable';
+  if (patternResult !== defaultResult) return patternResult;
 
   if (!resultsJSON) resultsJSON = toJSON(resultsText) as Record<string, unknown>;
 
