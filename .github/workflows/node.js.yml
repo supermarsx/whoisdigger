@@ -145,7 +145,7 @@ jobs:
             ~/.cache/electron-builder
           key: ${{ runner.os }}-electron-${{ hashFiles('package-lock.json') }}
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - run: npm run package-win
       - run: mv release_builds release_builds-${{ matrix.node-version }}
       - uses: actions/upload-artifact@v4
@@ -173,7 +173,7 @@ jobs:
             ~/.cache/electron-builder
           key: ${{ runner.os }}-electron-${{ hashFiles('package-lock.json') }}
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - run: npm run package-mac
       - run: mv release_builds release_builds-${{ matrix.node-version }}
       - uses: actions/upload-artifact@v4
