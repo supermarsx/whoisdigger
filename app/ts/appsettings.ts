@@ -129,6 +129,12 @@ const appSettings = {
       unparsable: false, // Assume a domain as available if reply is unparsable (default: false)
       dnsFailureUnavailable: true // Assume a domain is unavailable if DNS request fails (default: true)
     },
+    requestCache: {
+      // Request caching configuration
+      enabled: false, // Enable request caching (default: false)
+      database: 'request-cache.sqlite', // Cache database filename
+      ttl: 3600 // Cache entry time to live in seconds
+    },
     customConfiguration: {
       // Application custom configurations
       filepath: 'appconfig.js', // Custom configuration filename on app directory (default: appconfig.js) || Non functional
@@ -235,6 +241,9 @@ export const appSettingsDescriptions: Record<string, string> = {
   'lookupAssumptions.ratelimit': 'Assume unavailable on rate limit',
   'lookupAssumptions.unparsable': 'Assume available on unparsable replies',
   'lookupAssumptions.dnsFailureUnavailable': 'Assume unavailable on DNS failure',
+  'requestCache.enabled': 'Enable request caching',
+  'requestCache.database': 'Cache database filename',
+  'requestCache.ttl': 'Cache entry time to live (seconds)',
   'customConfiguration.filepath': 'Custom configuration filename',
   'customConfiguration.load': 'Load custom configuration on start',
   'customConfiguration.save': 'Save custom configuration on exit',
