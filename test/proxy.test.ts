@@ -50,7 +50,7 @@ describe('proxy helper', () => {
     const third = getProxy();
     expect(first).toEqual({ ipaddress: '2.2.2.2', port: 8080, type: 5 });
     expect(second).toEqual({ ipaddress: '3.3.3.3', port: 8080, type: 5 });
-    expect(third).toEqual({ ipaddress: '3.3.3.3', port: 8080, type: 5 });
+    expect(third).toEqual({ ipaddress: '1.1.1.1', port: 8080, type: 5 });
   });
 
   test('cycles proxies descending', () => {
