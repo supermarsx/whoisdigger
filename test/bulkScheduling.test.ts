@@ -51,6 +51,7 @@ describe('bulk scheduling', () => {
     const reqtime: number[] = [];
     const timerSpy = jest.spyOn(global, 'setTimeout');
 
+    let delay = 0;
     queue.forEach((domain, index) => {
       const setup = getDomainSetup(settings, {
         timeBetween: true,
@@ -61,7 +62,8 @@ describe('bulk scheduling', () => {
       expect(setup.timebetween).toBeLessThan(30);
       setup.domain = domain;
       setup.index = index;
-      processDomain(bulkWhois, reqtime, setup, event);
+      delay += setup.timebetween;
+      processDomain(bulkWhois, reqtime, setup, event, delay);
     });
 
     expect(timerSpy).toHaveBeenCalledTimes(4);

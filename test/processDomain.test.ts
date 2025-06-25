@@ -47,7 +47,7 @@ describe('processDomain', () => {
     const timerSpy = jest.spyOn(global, 'setTimeout');
     const nowSpy = jest.spyOn(performance, 'now').mockReturnValue(42);
 
-    processDomain(bulkWhois, reqtime, setup, event);
+    processDomain(bulkWhois, reqtime, setup, event, 10);
 
     expect(timerSpy).toHaveBeenCalledWith(expect.any(Function), 10);
     expect(bulkWhois.processingIDs[0]).toBeDefined();
@@ -94,7 +94,7 @@ describe('processDomain', () => {
     const timerSpy = jest.spyOn(global, 'setTimeout');
     const nowSpy = jest.spyOn(performance, 'now').mockReturnValue(100);
 
-    processDomain(bulkWhois, reqtime, setup, event);
+    processDomain(bulkWhois, reqtime, setup, event, 10);
 
     expect(timerSpy).toHaveBeenCalledWith(expect.any(Function), 10);
     expect(bulkWhois.processingIDs[1]).toBeDefined();

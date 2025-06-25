@@ -16,7 +16,8 @@ export function processDomain(
   bulkWhois: BulkWhois,
   reqtime: number[],
   domainSetup: DomainSetup,
-  event: IpcMainEvent
+  event: IpcMainEvent,
+  delay: number
 ): void {
   debug(
     formatString(
@@ -62,14 +63,9 @@ export function processDomain(
     } catch (e) {
       debug(e);
     }
-  }, domainSetup.timebetween * (domainSetup.index! - stats.domains.sent + 1));
+  }, delay);
 
-  debug(
-    formatString(
-      'Timebetween: {0}',
-      domainSetup.timebetween * (domainSetup.index! - stats.domains.sent + 1)
-    )
-  );
+  debug(formatString('Delay: {0}', delay));
 }
 
 export function counter(bulkWhois: BulkWhois, event: IpcMainEvent, start = true): void {

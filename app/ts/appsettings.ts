@@ -66,7 +66,7 @@ const appSettings = {
       follow: 3, // Maximum follow request depth (default: 3)
       timeout: 2500, // Supposed timeout for whois requests in milliseconds (default: 2500)
       timeBetween: 1500, // Time between each whois request in queue in milliseconds (default: 1500)
-      useDnsTimeBetweenOverride: true, // Override time between request (default: true)
+      dnsTimeBetweenOverride: true, // Override delay for DNS requests (default: true)
       dnsTimeBetween: 50 // Time between request specifically for dns requests
     },
     lookupRandomizeFollow: {
@@ -226,7 +226,7 @@ export const appSettingsDescriptions: Record<string, string> = {
   'lookupGeneral.follow': 'Maximum follow depth',
   'lookupGeneral.timeout': 'Request timeout in milliseconds',
   'lookupGeneral.timeBetween': 'Delay between requests',
-  'lookupGeneral.useDnsTimeBetweenOverride': 'Override delay for DNS requests',
+  'lookupGeneral.dnsTimeBetweenOverride': 'Override delay for DNS requests',
   'lookupGeneral.dnsTimeBetween': 'DNS request delay',
   'lookupRandomizeFollow.randomize': 'Randomize follow depth',
   'lookupRandomizeFollow.minimumDepth': 'Minimum follow depth',
