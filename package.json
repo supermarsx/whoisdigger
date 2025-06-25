@@ -23,7 +23,7 @@
     "test": "jest",
     "test:e2e": "xvfb-run -a node test/e2e/run.js",
     "prebuild": "node scripts/prebuild.js",
-    "prepare": "husky"
+    "prepare": "husky install"
   },
   "author": "supermarsx",
   "license": "MIT",
@@ -90,6 +90,8 @@
     "@babel/preset-env": "^7.27.2"
   },
   "electronmon": {
-    "patterns": ["!dist/app/data/**"]
+    "patterns": [
+      "!dist/app/data/**"
+    ]
   }
 }

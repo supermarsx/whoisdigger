@@ -30,8 +30,8 @@ describe('resetUiCounters', () => {
     ];
 
     const expected = [
-      ...integerEvents.map(e => [channel, e, 0]),
-      ...stringEvents.map(e => [channel, e, '-'])
+      ...integerEvents.map((e) => [channel, e, 0]),
+      ...stringEvents.map((e) => [channel, e, '-'])
     ];
 
     expect(send.mock.calls).toEqual(expected);

@@ -112,9 +112,7 @@ const patterns: PatternsSpec = {
   special: {
     1: {
       includes: ['Uniregistry', 'Query limit exceeded'],
-      result: appSettings.lookupAssumptions.uniregistry
-        ? 'unavailable'
-        : 'error:ratelimiting'
+      result: appSettings.lookupAssumptions.uniregistry ? 'unavailable' : 'error:ratelimiting'
     }
   },
 

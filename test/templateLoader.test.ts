@@ -8,10 +8,14 @@ jest.mock('handlebars/runtime', () => {
   return { __esModule: true, default: { template } };
 });
 
-jest.mock('../app/compiled-templates/mock.js', () => ({
-  __esModule: true,
-  default: { name: 'mock' }
-}), { virtual: true });
+jest.mock(
+  '../app/compiled-templates/mock.js',
+  () => ({
+    __esModule: true,
+    default: { name: 'mock' }
+  }),
+  { virtual: true }
+);
 
 import { loadTemplate } from '../app/ts/renderer/templateLoader';
 const handlebars = require('handlebars/runtime').default;

@@ -125,7 +125,15 @@ describe('processData', () => {
 
     jest.spyOn(performance, 'now').mockReturnValue(80);
 
-    await processData(bulk, reqtime, event, 'example.com', 0, { ok: false, error: new Error('fail') }, true);
+    await processData(
+      bulk,
+      reqtime,
+      event,
+      'example.com',
+      0,
+      { ok: false, error: new Error('fail') },
+      true
+    );
 
     expect(bulk.stats.reqtimes.minimum).toBe(80);
     expect(bulk.stats.status.error).toBe(1);
@@ -136,4 +144,3 @@ describe('processData', () => {
     Object.assign(settings, backup);
   });
 });
-

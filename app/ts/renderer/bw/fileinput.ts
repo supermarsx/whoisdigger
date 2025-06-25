@@ -25,10 +25,7 @@ async function refreshBwFile(pathToFile: string): Promise<void> {
     };
     const bwFileStats = fs.statSync(pathToFile) as FileStats;
     bwFileStats.filename = path.basename(pathToFile);
-    bwFileStats.humansize = conversions.byteToHumanFileSize(
-      bwFileStats.size,
-      misc.useStandardSize
-    );
+    bwFileStats.humansize = conversions.byteToHumanFileSize(bwFileStats.size, misc.useStandardSize);
     bwFileContents = fs.readFileSync(pathToFile) as unknown as Buffer;
     bwFileStats.linecount = bwFileContents.toString().split('\n').length;
 
@@ -64,8 +61,7 @@ async function refreshBwFile(pathToFile: string): Promise<void> {
     $('#bwFileTdLastmodified').text(conversions.getDate(bwFileStats.mtime) ?? '');
     $('#bwFileTdLastaccess').text(conversions.getDate(bwFileStats.atime) ?? '');
     $('#bwFileTdFilesize').text(
-      String(bwFileStats.humansize) +
-        formatString(' ({0} line(s))', String(bwFileStats.linecount))
+      String(bwFileStats.humansize) + formatString(' ({0} line(s))', String(bwFileStats.linecount))
     );
     $('#bwFileTdFilepreview').text(String(bwFileStats.filepreview) + '...');
   } catch (e) {
@@ -85,8 +81,8 @@ ipcRenderer.on(
   'bw:fileinput.confirmation',
   async function (event, filePath: string | string[] | null = null, isDragDrop = false) {
     let bwFileStats: FileStats; // File stats, size, last changed, etc
-  const misc = settings.lookupMisc;
-  const lookup = {
+    const misc = settings.lookupMisc;
+    const lookup = {
       randomize: {
         timeBetween: settings.lookupRandomizeTimeBetween
       }
@@ -97,7 +93,11 @@ ipcRenderer.on(
       bwFileWatcher = undefined;
     }
 
-    const chosenPath = Array.isArray(filePath) ? (filePath ? (filePath as string[])[0] : null) : (filePath as string | null);
+    const chosenPath = Array.isArray(filePath)
+      ? filePath
+        ? (filePath as string[])[0]
+        : null
+      : (filePath as string | null);
 
     debug(filePath);
     if (filePath === undefined || filePath == '' || filePath === null) {

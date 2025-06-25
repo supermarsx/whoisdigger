@@ -30,41 +30,38 @@ export function processDomain(
   const { stats, processingIDs } = bulkWhois;
   const { sender } = event;
 
-  processingIDs[domainSetup.index!] = setTimeout(
-    async () => {
-      let data: any;
-      stats.domains.sent++;
-      sender.send('bw:status.update', 'domains.sent', stats.domains.sent);
-      stats.domains.waiting++;
-      sender.send('bw:status.update', 'domains.waiting', stats.domains.waiting);
+  processingIDs[domainSetup.index!] = setTimeout(async () => {
+    let data: any;
+    stats.domains.sent++;
+    sender.send('bw:status.update', 'domains.sent', stats.domains.sent);
+    stats.domains.waiting++;
+    sender.send('bw:status.update', 'domains.waiting', stats.domains.waiting);
 
-      reqtime[domainSetup.index!] = await performance.now();
+    reqtime[domainSetup.index!] = await performance.now();
 
-      debug(formatString('Looking up domain: {0}', domainSetup.domain));
+    debug(formatString('Looking up domain: {0}', domainSetup.domain));
 
-      try {
-        data =
-          settings.lookupGeneral.type == 'whois'
-            ? await whoisLookup(domainSetup.domain!, {
-                follow: domainSetup.follow,
-                timeout: domainSetup.timeout
-              })
-            : await dns.hasNsServers(domainSetup.domain!);
-        await processData(
-          bulkWhois,
-          reqtime,
-          event,
-          domainSetup.domain!,
-          domainSetup.index!,
-          data,
-          false
-        );
-      } catch (e) {
-        debug(e);
-      }
-    },
-    domainSetup.timebetween * (domainSetup.index! - stats.domains.sent + 1)
-  );
+    try {
+      data =
+        settings.lookupGeneral.type == 'whois'
+          ? await whoisLookup(domainSetup.domain!, {
+              follow: domainSetup.follow,
+              timeout: domainSetup.timeout
+            })
+          : await dns.hasNsServers(domainSetup.domain!);
+      await processData(
+        bulkWhois,
+        reqtime,
+        event,
+        domainSetup.domain!,
+        domainSetup.index!,
+        data,
+        false
+      );
+    } catch (e) {
+      debug(e);
+    }
+  }, domainSetup.timebetween * (domainSetup.index! - stats.domains.sent + 1));
 
   debug(
     formatString(

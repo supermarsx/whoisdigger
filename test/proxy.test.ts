@@ -39,11 +39,7 @@ describe('proxy helper', () => {
   test('cycles proxies ascending', () => {
     settings.lookupProxy.enable = true;
     settings.lookupProxy.mode = 'multi';
-    settings.lookupProxy.list = [
-      '1.1.1.1:8080',
-      '2.2.2.2:8080',
-      '3.3.3.3:8080'
-    ];
+    settings.lookupProxy.list = ['1.1.1.1:8080', '2.2.2.2:8080', '3.3.3.3:8080'];
     settings.lookupProxy.multimode = 'ascending';
     const first = getProxy();
     const second = getProxy();
@@ -56,11 +52,7 @@ describe('proxy helper', () => {
   test('cycles proxies descending', () => {
     settings.lookupProxy.enable = true;
     settings.lookupProxy.mode = 'multi';
-    settings.lookupProxy.list = [
-      '1.1.1.1:8080',
-      '2.2.2.2:8080',
-      '3.3.3.3:8080'
-    ];
+    settings.lookupProxy.list = ['1.1.1.1:8080', '2.2.2.2:8080', '3.3.3.3:8080'];
     settings.lookupProxy.multimode = 'descending';
     const first = getProxy();
     const second = getProxy();

@@ -33,8 +33,6 @@ describe('options helper functions', () => {
   });
 
   test('getDefault returns default setting', () => {
-    expect(getDefault('lookupGeneral.timeout')).toBe(
-      appDefaults.settings.lookupGeneral.timeout
-    );
+    expect(getDefault('lookupGeneral.timeout')).toBe(appDefaults.settings.lookupGeneral.timeout);
   });
 });

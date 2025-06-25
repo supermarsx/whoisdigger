@@ -44,10 +44,7 @@ const partialDir = path.join(distDir, 'compiled-templates');
 for (const file of fs.readdirSync(partialDir)) {
   if (file === 'mainPanel.js' || !file.endsWith('.js')) continue;
   const spec = require(path.join(partialDir, file));
-  Handlebars.registerPartial(
-    path.basename(file, '.js'),
-    Handlebars.template(spec)
-  );
+  Handlebars.registerPartial(path.basename(file, '.js'), Handlebars.template(spec));
 }
 
 const mainSpec = require(path.join(partialDir, 'mainPanel.js'));
