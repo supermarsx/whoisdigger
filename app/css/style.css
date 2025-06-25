@@ -192,3 +192,16 @@ html[data-theme='dark'] #toTable .button {
 .toast.is-danger {
   background-color: #f14668;
 }
+
+/* Back to top button */
+#opBackToTop {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  display: none;
+  z-index: 900;
+}
+
+#opBackToTop.is-visible {
+  display: inline-flex;
+}

@@ -9,12 +9,15 @@
 <p id='settings-not-loaded' class='has-text-warning is-hidden'>
   Settings not loaded in this session.
 </p>
-<p id='custom-settings-status' class='has-text-info'></p>
 <table id='configStats' class='table is-narrow is-fullwidth mb-2'>
   <tbody>
     <tr>
       <th>Config file path</th>
       <td id='stat-config-path'></td>
+    </tr>
+    <tr>
+      <th>Config file size</th>
+      <td id='stat-config-size'></td>
     </tr>
     <tr>
       <th>Loaded</th>
@@ -25,26 +28,49 @@
       <td id='stat-config-mtime'></td>
     </tr>
     <tr>
+      <th>Permissions</th>
+      <td id='stat-config-perms'></td>
+    </tr>
+    <tr>
+      <th>Data folder path</th>
+      <td id='stat-data-path'></td>
+    </tr>
+    <tr>
       <th>Data folder size</th>
       <td id='stat-data-size'></td>
     </tr>
   </tbody>
 </table>
-<div class='field mb-2'>
-  <p class='control has-icons-left'>
+<div id='opActions' class='field is-grouped is-grouped-multiline mb-2'>
+  <p class='control has-icons-left is-expanded'>
     <input id='opSearch' class='input is-small' type='text' placeholder='Search options' />
     <span class='icon is-small is-left'><i class='fas fa-search'></i></span>
+  </p>
+  <p class='control'>
+    <button id='restoreDefaults' class='button is-small is-danger'>Restore defaults</button>
+  </p>
+  <p class='control'>
+    <button id='reloadSettings' class='button is-small is-info'>Reload</button>
+  </p>
+  <p class='control'>
+    <button id='saveConfig' class='button is-small is-success'>Save</button>
+  </p>
+  <p class='control'>
+    <button id='openDataFolder' class='button is-small is-info'>Open data folder</button>
+  </p>
+  <p class='control'>
+    <button id='reloadApp' class='button is-small is-warning'>Reload App</button>
+  </p>
+  <p class='control'>
+    <button id='deleteConfig' class='button is-small is-danger'>Delete config</button>
   </p>
 </div>
 <p id='opSearchNoResults' class='has-text-centered is-hidden'>
   No configuration found.
 </p>
-<div class='mb-2 has-text-right'>
-  <button id='restoreDefaults' class='button is-small is-danger'>Restore defaults</button>
-  <button id='reloadSettings' class='button is-small is-info'>Reload</button>
-  <button id='saveConfig' class='button is-small is-success'>Save</button>
-  <button id='openDataFolder' class='button is-small is-info'>Open data folder</button>
-  <button id='reloadApp' class='button is-small is-warning'>Reload App</button>
-  <button id='deleteConfig' class='button is-small is-danger'>Delete config</button>
-</div>
 <table id='opTable' class='table is-striped is-hoverable is-fullwidth has-text-left'></table>
+<button id='opBackToTop' class='button is-info is-small back-to-top'>
+  <span class='icon is-small'>
+    <i class='fas fa-arrow-up'></i>
+  </span>
+</button>
