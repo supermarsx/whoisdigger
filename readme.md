@@ -177,6 +177,7 @@ dependencies before building. This script runs whenever you execute `npm run bui
 
 ## Development setup
 
+Run `nvm use` to switch to the Node version defined in `.nvmrc`.
 Run `npm install` or `npm ci` before testing or linting to ensure all dependencies are installed.
 After installing, execute `npm test` to run the project's unit tests.
 Running tests also generates a coverage report in the `coverage/` directory.
