@@ -40,11 +40,11 @@ function getDefault(path: string): any {
 }
 
 const enumOptions: Record<string, string[]> = {
-  'app.lookupGeneral.type': ['dns', 'whois'],
-  'app.lookupProxy.mode': ['single', 'multi'],
-  'app.lookupProxy.multimode': ['sequential', 'random', 'ascending', 'descending'],
-  'app.lookupProxy.checktype': ['ping', 'request', 'ping+request'],
-  'app.lookupConversion.algorithm': [
+  'lookupGeneral.type': ['dns', 'whois'],
+  'lookupProxy.mode': ['single', 'multi'],
+  'lookupProxy.multimode': ['sequential', 'random', 'ascending', 'descending'],
+  'lookupProxy.checktype': ['ping', 'request', 'ping+request'],
+  'lookupConversion.algorithm': [
     'uts46',
     'uts46-transitional',
     'punycode',
@@ -61,7 +61,7 @@ function buildEntries(obj: any, prefix: string, table: JQuery<HTMLElement>): voi
       const path = prefix ? `${prefix}.${key}` : key;
       const id = `appSettings.${path}`;
       let inputHtml = '';
-      const enumVals = enumOptions[`app.${path}`];
+      const enumVals = enumOptions[path];
       if (enumVals) {
         const opts = enumVals.map((v) => `<option value="${v}">${v}</option>`).join('');
         inputHtml = `<div class="select is-small"><select id="${id}">${opts}</select></div>`;
@@ -88,7 +88,7 @@ export function populateInputs(): void {
       const $el = $(el);
       const id = $el.attr('id');
       if (!id) return;
-      const path = id.replace(/^appSettings\./, 'app.');
+      const path = id.replace(/^appSettings\./, '');
       const allowed = enumOptions[path];
       let val = getValue(path);
       if (allowed && (val === undefined || !allowed.includes(String(val)))) {
@@ -186,7 +186,7 @@ $(document).ready(() => {
     const $el = $(this);
     const id = $el.attr('id');
     if (!id) return;
-    const path = id.replace(/^appSettings\./, 'app.');
+    const path = id.replace(/^appSettings\./, '');
     const raw = $el.is('select') ? $el.val() : $el.val();
     const val = typeof raw === 'string' ? parseValue(raw) : raw;
     saveEntry(path, $el, val);
