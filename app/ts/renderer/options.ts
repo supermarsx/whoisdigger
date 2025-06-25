@@ -45,18 +45,15 @@ const enumOptions: Record<string, string[]> = {
   'lookupProxy.mode': ['single', 'multi'],
   'lookupProxy.multimode': ['sequential', 'random', 'ascending', 'descending'],
   'lookupProxy.checktype': ['ping', 'request', 'ping+request'],
-  'lookupConversion.algorithm': [
-    'uts46',
-    'uts46-transitional',
-    'punycode',
-    'ascii'
-  ]
+  'lookupConversion.algorithm': ['uts46', 'uts46-transitional', 'punycode', 'ascii']
 };
 
 function buildEntries(obj: any, prefix: string, table: JQuery<HTMLElement>): void {
   Object.entries(obj).forEach(([key, value]) => {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
-      table.append(`<tr class="group-row"><th colspan="2"><h4 class="title is-5">${key}</h4></th></tr>`);
+      table.append(
+        `<tr class="group-row"><th colspan="2"><h4 class="title is-5">${key}</h4></th></tr>`
+      );
       buildEntries(value, prefix ? `${prefix}.${key}` : key, table);
     } else {
       const path = prefix ? `${prefix}.${key}` : key;
@@ -121,9 +118,7 @@ function saveEntry(path: string, $input: JQuery<HTMLElement>, val: any): void {
 }
 
 function showToast(message: string, success: boolean): void {
-  const toast = $(
-    `<div class="toast ${success ? 'is-success' : 'is-danger'}">${message}</div>`
-  );
+  const toast = $(`<div class="toast ${success ? 'is-success' : 'is-danger'}">${message}</div>`);
   $('body').append(toast);
   setTimeout(() => {
     toast.fadeOut(400, () => toast.remove());
@@ -216,9 +211,7 @@ $(document).ready(() => {
     populateInputs();
     void saveSettings(settings).then((r) => {
       showToast(
-        r === 'SAVED' || r === undefined
-          ? 'Defaults restored'
-          : 'Failed to restore defaults',
+        r === 'SAVED' || r === undefined ? 'Defaults restored' : 'Failed to restore defaults',
         r === 'SAVED' || r === undefined
       );
     });
@@ -233,27 +226,26 @@ $(document).ready(() => {
     await loadSettings();
     sessionStorage.setItem('customSettingsLoaded', customSettingsLoaded ? 'true' : 'false');
     populateInputs();
-    showToast(
-      customSettingsLoaded ? 'Configuration reloaded' : 'Failed to reload configuration',
-      customSettingsLoaded
-    );
+    const filePath = path.join(getUserDataPath(), settings.customConfiguration.filepath);
+    const exists = fs.existsSync(filePath);
+    const success = customSettingsLoaded || !exists;
+    showToast(success ? 'Configuration reloaded' : 'Failed to reload configuration', success);
   });
 
   $('#saveConfig').on('click', async () => {
     const res = await saveSettings(settings);
     showToast(
-      res === 'SAVED' || res === undefined
-        ? 'Configuration saved'
-        : 'Failed to save configuration',
+      res === 'SAVED' || res === undefined ? 'Configuration saved' : 'Failed to save configuration',
       res === 'SAVED' || res === undefined
     );
   });
 
   $('#openConfigPath').on('click', async () => {
-    const filePath = path.join(
-      getUserDataPath(),
-      settings.customConfiguration.filepath
-    );
+    const filePath = path.join(getUserDataPath(), settings.customConfiguration.filepath);
+    await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
+    if (!fs.existsSync(filePath)) {
+      await fs.promises.writeFile(filePath, JSON.stringify(settings, null, 2));
+    }
     const result = await shell.openPath(filePath);
     if (result) {
       showToast('Failed to open configuration file', false);
@@ -267,7 +259,7 @@ $(document).ready(() => {
   $('#deleteConfigYes').on('click', () => {
     const filePath = path.join(getUserDataPath(), settings.customConfiguration.filepath);
     fs.unlink(filePath, (err) => {
-      if (err) {
+      if (err && err.code !== 'ENOENT') {
         showToast('Failed to delete configuration', false);
       } else {
         showToast('Configuration deleted', true);
@@ -285,5 +277,5 @@ export const _test = {
   getValue,
   setValue,
   parseValue,
-  getDefault,
+  getDefault
 };

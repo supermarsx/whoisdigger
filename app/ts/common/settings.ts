@@ -157,6 +157,8 @@ function watchConfig(): void {
 export async function load(): Promise<Settings> {
   const configuration = getCustomConfiguration();
 
+  await fs.promises.mkdir(getUserDataPath(), { recursive: true });
+
   if (configuration && configuration.load) {
     try {
       const filePath = path.join(getUserDataPath(), configuration.filepath);
@@ -200,6 +202,7 @@ export async function save(newSettings: Settings): Promise<string | Error | unde
   if (configuration && configuration.save) {
     try {
       const filePath = path.join(getUserDataPath(), configuration.filepath);
+      await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
       await fs.promises.writeFile(filePath, JSON.stringify(newSettings, null, 2));
       debug(`Saved custom configuration at ${filePath}`);
       settings = newSettings;
