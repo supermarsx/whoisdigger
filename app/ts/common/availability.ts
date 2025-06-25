@@ -19,6 +19,117 @@ export interface WhoisResult {
   whoisJson?: Record<string, unknown>;
 }
 
+interface CheckContext {
+  resultsText: string;
+  resultsJSON: Record<string, unknown>;
+  domainParams: WhoisResult;
+  controlDate: string | undefined;
+}
+
+type CheckFn = (ctx: CheckContext) => boolean;
+
+const AVAILABLE_PATTERNS: string[] = [
+  'No match for domain',
+  '- No Match',
+  'NO MATCH:',
+  'No match for',
+  'No match',
+  'No matching record.',
+  'Nincs talalat',
+  'Status: AVAILABLE',
+  'Status:             AVAILABLE',
+  'Status:         available',
+  'Status: free',
+  'Status: Not Registered',
+  'query_status: 220 Available',
+  'This domain name has not been registered',
+  'The domain has not been registered',
+  'This query returned 0 objects',
+  'domain name not known in',
+  'registration status: available',
+  'Object does not exist',
+  'The queried object does not exist',
+  'Not Registered -',
+  'is available for registration',
+  'is available for purchase',
+  'DOMAIN IS NOT A REGISTERD',
+  'No such domain',
+  'No_Se_Encontro_El_Objeto',
+  'Domain unknown',
+  'No information available about domain name',
+  'is not valid!'
+];
+
+const AVAILABLE_FUNCTIONS: CheckFn[] = [
+  (ctx) =>
+    ctx.domainParams.expiryDate !== undefined &&
+    ctx.controlDate !== undefined &&
+    Date.parse(ctx.domainParams.expiryDate) - Date.parse(ctx.controlDate) < 0,
+  (ctx) =>
+    ctx.resultsText.includes(' is free') &&
+    ctx.domainParams.whoisreply !== undefined &&
+    ctx.domainParams.whoisreply.length < 50,
+  (ctx) =>
+    ctx.resultsText.includes('whois.nic.bo') &&
+    ctx.domainParams.whoisreply !== undefined &&
+    ctx.domainParams.whoisreply.length < 55,
+  (ctx) => ctx.resultsText.includes('Error.') && ctx.resultsText.includes('SaudiNIC')
+];
+
+const UNAVAILABLE_PATTERNS: string[] = [
+  'Domain Status:ok',
+  'Expiration Date:',
+  'Expiry Date:',
+  'Status: connect',
+  'Changed:',
+  'organisation: Internet Assigned Numbers Authority'
+];
+
+const UNAVAILABLE_FUNCTIONS: CheckFn[] = [
+  (ctx) => Object.prototype.hasOwnProperty.call(ctx.resultsJSON, 'domainName'),
+  (ctx) => Object.keys(ctx.resultsJSON).length > 5
+];
+
+const ERROR_CHECKS: { result: string; strings?: string[]; fn?: CheckFn }[] = [
+  { result: 'error:nocontent', fn: (ctx) => ctx.resultsText === null || ctx.resultsText === '' },
+  {
+    result: 'error:unauthorized',
+    strings: ['You  are  not  authorized  to  access or query our Whois']
+  },
+  {
+    result: 'error:ratelimiting',
+    strings: [
+      'IP Address Has Reached Rate Limit',
+      'Too many connection attempts',
+      'Your request is being rate limited',
+      'Your query is too often.',
+      'Your connection limit exceeded.'
+    ]
+  },
+  { result: 'error:unretrivable', strings: ['Could not retrieve Whois data'] },
+  {
+    result: 'error:forbidden',
+    strings: ['si is forbidden', 'Requests of this client are not permitted']
+  },
+  { result: 'error:reservedbyregulator', strings: ['reserved by aeDA Regulator'] },
+  { result: 'error:unregistrable', strings: ['third-level domains may not start with'] },
+  {
+    result: 'error:replyerror',
+    strings: [
+      'error ',
+      'error',
+      'Error',
+      'ERROR:101:',
+      'Whois lookup error',
+      'can temporarily not be answered',
+      'Invalid input'
+    ],
+    fn: (ctx) =>
+      Object.prototype.hasOwnProperty.call(ctx.resultsJSON, 'error') ||
+      Object.prototype.hasOwnProperty.call(ctx.resultsJSON, 'errno')
+  }
+];
+
 export function isDomainAvailable(
   resultsText: string,
   resultsJSON?: Record<string, unknown>
@@ -34,102 +145,39 @@ export function isDomainAvailable(
   const domainParams = getDomainParameters(null, null, null, resultsJSON, true);
   const controlDate = getDate(new Date());
 
-  switch (true) {
-    case resultsText.includes('Uniregistry') && resultsText.includes('Query limit exceeded'):
-      return assumptions.uniregistry ? 'unavailable' : 'error:ratelimiting';
-
-    case resultsText.includes('No match for domain'):
-    case resultsText.includes('- No Match'):
-    case resultsText.includes('NO MATCH:'):
-    case resultsText.includes('No match for'):
-    case resultsText.includes('No match'):
-    case resultsText.includes('No matching record.'):
-    case resultsText.includes('Nincs talalat'):
-    case resultsText.includes('Status: AVAILABLE'):
-    case resultsText.includes('Status:             AVAILABLE'):
-    case resultsText.includes('Status:         available'):
-    case resultsText.includes('Status: free'):
-    case resultsText.includes('Status: Not Registered'):
-    case resultsText.includes('query_status: 220 Available'):
-    case domainParams.expiryDate !== undefined &&
-      controlDate !== undefined &&
-      Date.parse(domainParams.expiryDate) - Date.parse(controlDate) < 0:
-    case resultsText.includes('This domain name has not been registered'):
-    case resultsText.includes('The domain has not been registered'):
-    case resultsText.includes('This query returned 0 objects'):
-    case resultsText.includes(' is free') &&
-      domainParams.whoisreply !== undefined &&
-      domainParams.whoisreply.length < 50:
-    case resultsText.includes('domain name not known in'):
-    case resultsText.includes('registration status: available'):
-    case resultsText.includes('whois.nic.bo') &&
-      domainParams.whoisreply !== undefined &&
-      domainParams.whoisreply.length < 55:
-    case resultsText.includes('Object does not exist'):
-    case resultsText.includes('The queried object does not exist'):
-    case resultsText.includes('Not Registered -'):
-    case resultsText.includes('is available for registration'):
-    case resultsText.includes('is available for purchase'):
-    case resultsText.includes('DOMAIN IS NOT A REGISTERD'):
-    case resultsText.includes('No such domain'):
-    case resultsText.includes('No_Se_Encontro_El_Objeto'):
-    case resultsText.includes('Domain unknown'):
-    case resultsText.includes('No information available about domain name'):
-    case resultsText.includes('Error.') && resultsText.includes('SaudiNIC'):
-    case resultsText.includes('is not valid!'):
-      return 'available';
-
-    case resultsJSON.hasOwnProperty('domainName'):
-    case resultsText.includes('Domain Status:ok'):
-    case resultsText.includes('Expiration Date:'):
-    case resultsText.includes('Expiry Date:'):
-    case resultsText.includes('Status: connect'):
-    case resultsText.includes('Changed:'):
-    case Object.keys(resultsJSON).length > 5:
-    case resultsText.includes('organisation: Internet Assigned Numbers Authority'):
-      return 'unavailable';
-
-    case resultsText === null:
-    case resultsText === '':
-      return 'error:nocontent';
-
-    case resultsText.includes('You  are  not  authorized  to  access or query our Whois'):
-      return 'error:unauthorized';
-
-    case resultsText.includes('IP Address Has Reached Rate Limit'):
-    case resultsText.includes('Too many connection attempts'):
-    case resultsText.includes('Your request is being rate limited'):
-    case resultsText.includes('Your query is too often.'):
-    case resultsText.includes('Your connection limit exceeded.'):
-      return assumptions.ratelimit ? 'unavailable' : 'error:ratelimiting';
-
-    case resultsText.includes('Could not retrieve Whois data'):
-      return 'error:unretrivable';
-
-    case resultsText.includes('si is forbidden'):
-    case resultsText.includes('Requests of this client are not permitted'):
-      return 'error:forbidden';
-
-    case resultsText.includes('reserved by aeDA Regulator'):
-      return 'error:reservedbyregulator';
-
-    case resultsText.includes('third-level domains may not start with'):
-      return 'error:unregistrable';
-
-    case resultsJSON.hasOwnProperty('error'):
-    case resultsJSON.hasOwnProperty('errno'):
-    case resultsText.includes('error '):
-    case resultsText.includes('error'):
-    case resultsText.includes('Error'):
-    case resultsText.includes('ERROR:101:'):
-    case resultsText.includes('Whois lookup error'):
-    case resultsText.includes('can temporarily not be answered'):
-    case resultsText.includes('Invalid input'):
-      return 'error:replyerror';
-
-    default:
-      return assumptions.unparsable ? 'available' : 'error:unparsable';
+  if (resultsText.includes('Uniregistry') && resultsText.includes('Query limit exceeded')) {
+    return assumptions.uniregistry ? 'unavailable' : 'error:ratelimiting';
   }
+
+  const ctx: CheckContext = {
+    resultsText,
+    resultsJSON,
+    domainParams,
+    controlDate
+  };
+
+  for (const p of AVAILABLE_PATTERNS) {
+    if (resultsText.includes(p)) return 'available';
+  }
+  for (const fn of AVAILABLE_FUNCTIONS) {
+    if (fn(ctx)) return 'available';
+  }
+
+  for (const p of UNAVAILABLE_PATTERNS) {
+    if (resultsText.includes(p)) return 'unavailable';
+  }
+  for (const fn of UNAVAILABLE_FUNCTIONS) {
+    if (fn(ctx)) return 'unavailable';
+  }
+
+  for (const check of ERROR_CHECKS) {
+    if (check.fn && check.fn(ctx)) return check.result;
+    if (check.strings) {
+      for (const s of check.strings) if (resultsText.includes(s)) return check.result;
+    }
+  }
+
+  return assumptions.unparsable ? 'available' : 'error:unparsable';
 }
 
 export function getDomainParameters(
