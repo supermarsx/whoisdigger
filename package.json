@@ -23,7 +23,8 @@
     "test": "jest",
     "test:e2e": "xvfb-run -a node test/e2e/run.js",
     "prebuild": "node scripts/prebuild.js",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "clean": "rimraf dist release_builds app/compiled-templates"
   },
   "author": "supermarsx",
   "license": "MIT",
@@ -87,7 +88,8 @@
     "webdriverio": "^7.40.0",
     "babel-jest": "^30.0.2",
     "@babel/core": "^7.27.4",
-    "@babel/preset-env": "^7.27.2"
+    "@babel/preset-env": "^7.27.2",
+    "rimraf": "^6.0.1"
   },
   "electronmon": {
     "patterns": [
