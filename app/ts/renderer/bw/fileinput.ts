@@ -13,6 +13,65 @@ import { formatString } from '../../common/stringformat';
 import { settings } from '../../common/settings';
 
 let bwFileContents: Buffer;
+let bwFileWatcher: fs.FSWatcher | undefined;
+
+async function refreshBwFile(pathToFile: string): Promise<void> {
+  try {
+    const misc = settings.lookupMisc;
+    const lookup = {
+      randomize: {
+        timeBetween: settings.lookupRandomizeTimeBetween
+      }
+    };
+    const bwFileStats = fs.statSync(pathToFile) as FileStats;
+    bwFileStats.filename = path.basename(pathToFile);
+    bwFileStats.humansize = conversions.byteToHumanFileSize(
+      bwFileStats.size,
+      misc.useStandardSize
+    );
+    bwFileContents = fs.readFileSync(pathToFile);
+    bwFileStats.linecount = bwFileContents.toString().split('\n').length;
+
+    if (lookup.randomize.timeBetween.randomize === true) {
+      bwFileStats.minestimate = conversions.msToHumanTime(
+        bwFileStats.linecount! * lookup.randomize.timeBetween.minimum
+      );
+      bwFileStats.maxestimate = conversions.msToHumanTime(
+        bwFileStats.linecount! * lookup.randomize.timeBetween.maximum
+      );
+
+      $('#bwFileSpanTimebetweenmin').text(
+        formatString('{0}ms ', lookup.randomize.timeBetween.minimum)
+      );
+      $('#bwFileSpanTimebetweenmax').text(
+        formatString('/ {0}ms', lookup.randomize.timeBetween.maximum)
+      );
+      $('#bwFileTdEstimate').text(
+        formatString('{0} to {1}', bwFileStats.minestimate, bwFileStats.maxestimate)
+      );
+    } else {
+      bwFileStats.minestimate = conversions.msToHumanTime(
+        bwFileStats.linecount! * settings.lookupGeneral.timeBetween
+      );
+      $('#bwFileSpanTimebetweenminmax').addClass('is-hidden');
+      $('#bwFileSpanTimebetweenmin').text(settings.lookupGeneral.timeBetween + 'ms');
+      $('#bwFileTdEstimate').text(formatString('> {0}', bwFileStats.minestimate));
+    }
+
+    bwFileStats.filepreview = bwFileContents.toString().substring(0, 50);
+
+    $('#bwFileTdName').text(String(bwFileStats.filename));
+    $('#bwFileTdLastmodified').text(conversions.getDate(bwFileStats.mtime) ?? '');
+    $('#bwFileTdLastaccess').text(conversions.getDate(bwFileStats.atime) ?? '');
+    $('#bwFileTdFilesize').text(
+      String(bwFileStats.humansize) +
+        formatString(' ({0} line(s))', String(bwFileStats.linecount))
+    );
+    $('#bwFileTdFilepreview').text(String(bwFileStats.filepreview) + '...');
+  } catch (e) {
+    ipcRenderer.send('app:error', `Failed to reload file: ${e}`);
+  }
+}
 
 /*
   ipcRenderer.on('bw:fileinput.confirmation', function(...) {...});
@@ -32,6 +91,13 @@ ipcRenderer.on(
         timeBetween: settings.lookupRandomizeTimeBetween
       }
     };
+
+    if (bwFileWatcher) {
+      bwFileWatcher.close();
+      bwFileWatcher = undefined;
+    }
+
+    const chosenPath = Array.isArray(filePath) ? (filePath ? (filePath as string[])[0] : null) : (filePath as string | null);
 
     debug(filePath);
     if (filePath === undefined || filePath == '' || filePath === null) {
@@ -120,6 +186,12 @@ ipcRenderer.on(
       debug('cont:' + bwFileContents);
 
       debug(bwFileStats.linecount);
+
+      if (chosenPath) {
+        bwFileWatcher = fs.watch(chosenPath, { persistent: false }, (evt) => {
+          if (evt === 'change') void refreshBwFile(chosenPath);
+        });
+      }
     }
 
     return;
@@ -144,6 +216,10 @@ $(document).on('click', '#bwEntryButtonFile', function () {
     File Input, cancel file confirmation
  */
 $(document).on('click', '#bwFileButtonCancel', function () {
+  if (bwFileWatcher) {
+    bwFileWatcher.close();
+    bwFileWatcher = undefined;
+  }
   $('#bwFileinputconfirm').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 
@@ -155,6 +231,10 @@ $(document).on('click', '#bwFileButtonCancel', function () {
     File Input, proceed to bulk whois
  */
 $(document).on('click', '#bwFileButtonConfirm', function () {
+  if (bwFileWatcher) {
+    bwFileWatcher.close();
+    bwFileWatcher = undefined;
+  }
   const bwDomainArray = bwFileContents
     .toString()
     .split('\n')

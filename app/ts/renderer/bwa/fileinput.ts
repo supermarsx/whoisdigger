@@ -13,6 +13,36 @@ import $ from 'jquery';
 import { formatString } from '../../common/stringformat';
 
 let bwaFileContents: any;
+let bwaFileWatcher: fs.FSWatcher | undefined;
+
+function refreshBwaFile(pathToFile: string): void {
+  try {
+    const bwaFileStats = fs.statSync(pathToFile) as FileStats;
+    bwaFileStats.filename = path.basename(pathToFile);
+    bwaFileStats.humansize = conversions.byteToHumanFileSize(
+      bwaFileStats.size,
+      settings.lookupMisc.useStandardSize
+    );
+    bwaFileContents = Papa.parse(fs.readFileSync(pathToFile).toString(), { header: true });
+    bwaFileStats.linecount = bwaFileContents.data.length;
+    try {
+      bwaFileStats.filepreview = JSON.stringify(bwaFileContents.data[0], null, '\t').substring(0, 50);
+    } catch {
+      bwaFileStats.filepreview = '';
+    }
+    bwaFileStats.errors = JSON.stringify(bwaFileContents.errors).slice(1, -1);
+    $('#bwaFileTdFilename').text(String(bwaFileStats.filename));
+    $('#bwaFileTdLastmodified').text(conversions.getDate(bwaFileStats.mtime) ?? '');
+    $('#bwaFileTdLastaccessed').text(conversions.getDate(bwaFileStats.atime) ?? '');
+    $('#bwaFileTdFilesize').text(
+      String(bwaFileStats.humansize) + formatString(' ({0} record(s))', String(bwaFileStats.linecount))
+    );
+    $('#bwaFileTdFilepreview').text(String(bwaFileStats.filepreview) + '...');
+    $('#bwaFileTextareaErrors').text(String(bwaFileStats.errors || 'No errors'));
+  } catch (e) {
+    ipcRenderer.send('app:error', `Failed to reload file: ${e}`);
+  }
+}
 
 /*
   ipcRenderer.on('bwa:fileinput.confirmation', function(...) {...});
@@ -22,6 +52,13 @@ ipcRenderer.on(
   'bwa:fileinput.confirmation',
   async function (event, filePath: string | string[] | null = null, isDragDrop = false) {
     let bwaFileStats: FileStats; // File stats, size, last changed, etc
+
+    if (bwaFileWatcher) {
+      bwaFileWatcher.close();
+      bwaFileWatcher = undefined;
+    }
+
+    const chosenPath = Array.isArray(filePath) ? (filePath ? (filePath as string[])[0] : null) : (filePath as string | null);
 
     $('#bwaFileSpanInfo').text('Waiting for file...');
 
@@ -98,6 +135,11 @@ ipcRenderer.on(
       $('#bwaFileTdFilepreview').text(String(bwaFileStats.filepreview) + '...');
       $('#bwaFileTextareaErrors').text(String(bwaFileStats.errors || 'No errors'));
       //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']);
+      if (chosenPath) {
+        bwaFileWatcher = fs.watch(chosenPath, { persistent: false }, (evt) => {
+          if (evt === 'change') refreshBwaFile(chosenPath);
+        });
+      }
     }
 
     return;
@@ -122,6 +164,10 @@ $(document).on('click', '#bwaEntryButtonOpen', function () {
     Bulk whois, file input, cancel button, file confirmation
  */
 $('#bwaFileinputconfirmButtonCancel').click(function () {
+  if (bwaFileWatcher) {
+    bwaFileWatcher.close();
+    bwaFileWatcher = undefined;
+  }
   $('#bwaFileinputconfirm').addClass('is-hidden');
   $('#bwaEntry').removeClass('is-hidden');
 
@@ -133,6 +179,10 @@ $('#bwaFileinputconfirmButtonCancel').click(function () {
     Bulk whois, file input, start button, file confirmation
  */
 $('#bwaFileinputconfirmButtonStart').click(function () {
+  if (bwaFileWatcher) {
+    bwaFileWatcher.close();
+    bwaFileWatcher = undefined;
+  }
   ipcRenderer.send('bwa:analyser.start', bwaFileContents);
   /*
   $('#bwaFileinputconfirm').addClass('is-hidden');
