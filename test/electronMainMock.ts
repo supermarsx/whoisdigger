@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 
 export const mockShowSaveDialogSync = jest.fn();
+export const openPathMock = jest.fn();
 export const ipcMainHandlers: Record<string, (...args: any[]) => any> = {};
 
 export const ipcMain = {
@@ -23,5 +24,6 @@ jest.mock('electron', () => ({
   Menu,
   ipcMain,
   dialog: { showSaveDialogSync: mockShowSaveDialogSync },
+  shell: { openPath: openPathMock },
   remote
 }));
