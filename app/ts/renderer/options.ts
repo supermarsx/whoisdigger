@@ -6,6 +6,7 @@ import {
   saveSettings,
   validateSettings,
   loadSettings,
+  customSettingsLoaded,
   getUserDataPath
 } from '../common/settings';
 import appDefaults, { appSettingsDescriptions } from '../appsettings';
@@ -197,7 +198,12 @@ $(document).ready(() => {
 
   $('#reloadSettings').on('click', async () => {
     await loadSettings();
+    sessionStorage.setItem('customSettingsLoaded', customSettingsLoaded ? 'true' : 'false');
     populateInputs();
+    showToast(
+      customSettingsLoaded ? 'Configuration reloaded' : 'Failed to reload configuration',
+      customSettingsLoaded
+    );
   });
 
   $('#saveConfig').on('click', async () => {
