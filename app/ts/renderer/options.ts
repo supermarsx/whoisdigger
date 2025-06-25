@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import fs from 'fs';
 import path from 'path';
-import { shell } from 'electron';
+import { shell, ipcRenderer } from 'electron';
 import {
   settings,
   saveSettings,
@@ -245,6 +245,14 @@ $(document).ready(() => {
     const result = await shell.openPath(dataDir);
     if (result) {
       showToast('Failed to open data directory', false);
+    }
+  });
+
+  $('#reloadApp').on('click', async () => {
+    try {
+      await ipcRenderer.invoke('app:reload');
+    } catch {
+      showToast('Failed to reload application', false);
     }
   });
 

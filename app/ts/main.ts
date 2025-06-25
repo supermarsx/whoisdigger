@@ -208,6 +208,15 @@ ipcMain.handle('app:close', function () {
 });
 
 /*
+  ipcMain.handle('app:reload', function(...) {...});
+    Relaunch the application
+ */
+ipcMain.handle('app:reload', function () {
+  app.relaunch();
+  app.exit(0);
+});
+
+/*
   ipcMain.on('app:debug', function(...) {...});
     Application debug event
  */
