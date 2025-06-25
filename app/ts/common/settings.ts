@@ -24,7 +24,7 @@ export interface Settings {
     follow: number;
     timeout: number;
     timeBetween: number;
-    useDnsTimeBetweenOverride: boolean;
+    dnsTimeBetweenOverride: boolean;
     dnsTimeBetween: number;
   };
   lookupRandomizeFollow: { randomize: boolean; minimumDepth: number; maximumDepth: number };
@@ -52,13 +52,8 @@ export interface Settings {
     ttl: number;
   };
   customConfiguration: { filepath: string; load: boolean; save: boolean };
-<<<<<<< codex/add-theme-follow-system-preference-option
   theme: { darkMode: boolean; followSystem: boolean };
-  ui: { liveReload: boolean };
-=======
-  theme: { darkMode: boolean };
   ui: { liveReload: boolean; confirmExit: boolean };
->>>>>>> master
   [key: string]: any;
 }
 

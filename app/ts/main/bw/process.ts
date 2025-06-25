@@ -68,15 +68,17 @@ ipcMain.on('bw:lookup', function (event: IpcMainEvent, domains: string[], tlds: 
   domainsPending.push(...compileQueue(input.domains, input.tlds, tldSeparator));
 
   // Process compiled domains into future requests
+  let cumulativeDelay = 0;
   for (const [index, domain] of domainsPending.entries()) {
     domainSetup = getDomainSetup(settings, {
       timeBetween: settings.lookupRandomizeTimeBetween.randomize,
       followDepth: settings.lookupRandomizeFollow.randomize,
       timeout: settings.lookupRandomizeTimeout.randomize
     });
-    domainSetup.timebetween = settings.lookupGeneral.useDnsTimeBetweenOverride
-      ? settings.lookupGeneral.dnsTimeBetween
-      : domainSetup.timebetween;
+    domainSetup.timebetween =
+      settings.lookupGeneral.type === 'dns' && settings.lookupGeneral.dnsTimeBetweenOverride
+        ? settings.lookupGeneral.dnsTimeBetween
+        : domainSetup.timebetween;
     domainSetup.domain = domain;
     domainSetup.index = index;
 
@@ -89,7 +91,8 @@ ipcMain.on('bw:lookup', function (event: IpcMainEvent, domains: string[], tlds: 
       )
     );
 
-    processDomain(bulkWhois, reqtime, domainSetup, event);
+    cumulativeDelay += domainSetup.timebetween;
+    processDomain(bulkWhois, reqtime, domainSetup, event, cumulativeDelay);
 
     stats.domains.processed = domainSetup.index + 1;
     sender.send('bw:status.update', 'domains.processed', stats.domains.processed);
@@ -168,15 +171,17 @@ ipcMain.on('bw:lookup.continue', function (event: IpcMainEvent) {
   domainsPending.push(...compileQueue(input.domains, input.tlds, tldSeparator));
 
   // Do domain setup
+  let cumulativeDelay = 0;
   for (let domain = stats.domains.sent; domain < domainsPending.length; domain++) {
     domainSetup = getDomainSetup(settings, {
       timeBetween: settings.lookupRandomizeTimeBetween.randomize,
       followDepth: settings.lookupRandomizeFollow.randomize,
       timeout: settings.lookupRandomizeTimeout.randomize
     });
-    domainSetup.timebetween = settings.lookupGeneral.useDnsTimeBetweenOverride
-      ? settings.lookupGeneral.dnsTimeBetween
-      : domainSetup.timebetween;
+    domainSetup.timebetween =
+      settings.lookupGeneral.type === 'dns' && settings.lookupGeneral.dnsTimeBetweenOverride
+        ? settings.lookupGeneral.dnsTimeBetween
+        : domainSetup.timebetween;
     domainSetup.domain = domainsPending[domain];
     domainSetup.index = Number(domain);
 
@@ -189,17 +194,19 @@ ipcMain.on('bw:lookup.continue', function (event: IpcMainEvent) {
     */
 
     debug(domain);
-    processDomain(bulkWhois, reqtime, domainSetup, event);
+    cumulativeDelay += domainSetup.timebetween;
+    processDomain(bulkWhois, reqtime, domainSetup, event, cumulativeDelay);
 
     stats.domains.processed = Number(domainSetup.index) + 1;
     sender.send('bw:status.update', 'domains.processed', stats.domains.processed);
   } // End processing for loop
 
-  stats.time.remainingcounter = settings.lookupGeneral.useDnsTimeBetweenOverride
-    ? settings.lookupRandomizeTimeBetween.randomize // Counter total time
-      ? stats.domains.total * settings.lookupRandomizeTimeBetween.maximum
-      : stats.domains.total * settings.lookupGeneral.timeBetween
-    : settings.lookupGeneral.dnsTimeBetween;
+  stats.time.remainingcounter =
+    settings.lookupGeneral.type === 'dns' && settings.lookupGeneral.dnsTimeBetweenOverride
+      ? stats.domains.total * settings.lookupGeneral.dnsTimeBetween
+      : settings.lookupRandomizeTimeBetween.randomize // Counter total time
+        ? stats.domains.total * settings.lookupRandomizeTimeBetween.maximum
+        : stats.domains.total * settings.lookupGeneral.timeBetween;
 
   stats.time.remainingcounter += settings.lookupRandomizeTimeout.randomize // Counter add timeout
     ? settings.lookupRandomizeTimeout.maximum
