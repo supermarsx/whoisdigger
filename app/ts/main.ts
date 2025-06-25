@@ -69,6 +69,7 @@ import './main/index';
 
 let settings: MainSettings;
 let mainWindow: BrowserWindow;
+let exitConfirmed = false;
 
 /*
   app.on('ready', function() {...}
@@ -143,6 +144,14 @@ app.on('ready', async function () {
     return;
   });
 
+  mainWindow.on('close', function (event) {
+    const { ui } = settings;
+    if (ui.confirmExit && !exitConfirmed) {
+      event.preventDefault();
+      mainWindow.webContents.send('app:confirm-exit');
+    }
+  });
+
   /*
     mainWindow.on('closed', function() {...});
       Quit application when main window is closed
@@ -205,6 +214,11 @@ ipcMain.handle('app:close', function () {
   if (appWindow.closable) {
     mainWindow.close();
   }
+});
+
+ipcMain.on('app:exit-confirmed', function () {
+  exitConfirmed = true;
+  mainWindow.close();
 });
 
 /*

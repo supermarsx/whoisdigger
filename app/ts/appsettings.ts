@@ -156,7 +156,8 @@ const appSettings = {
     },
     ui: {
       // User interface options
-      liveReload: true // Reload settings on change (default: true)
+      liveReload: true, // Reload settings on change (default: true)
+      confirmExit: true // Ask for confirmation before exiting the application
     },
     lookupMisc: {
       // Lookup miscellaneous configurations
@@ -260,6 +261,7 @@ export const appSettingsDescriptions: Record<string, string> = {
   'performanceBulkRequest.averages': 'Bulk lookup averages',
   'performanceBulkRequest.stopwatch': 'Bulk lookup stopwatch',
   'ui.liveReload': 'Reload configuration automatically',
+  'ui.confirmExit': 'Confirm before exiting the application',
   'lookupMisc.useStandardSize': 'Use metric units for file sizes',
   'lookupMisc.asfOverride': 'Override average smoothing factor',
   'lookupMisc.averageSmoothingFactor': 'Average smoothing factor',

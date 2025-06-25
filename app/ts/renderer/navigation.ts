@@ -2,6 +2,7 @@ import { ipcRenderer } from 'electron';
 import { formatString } from '../common/stringformat';
 import $ from 'jquery';
 import { populateInputs } from './options';
+import { settings } from '../common/settings';
 
 /*
   $(document).on('drop', function(...) {...});
@@ -81,6 +82,10 @@ $(document).on('click', '.delete', function () {
 $(document).keyup(function (event) {
   if (event.keyCode === 27) {
     ipcRenderer.send('app:debug', formatString('Hotkey, Used [ESC] key, {0}', event.keyCode));
+    if ($('#appModalExit').hasClass('is-active')) {
+      $('#appModalExitButtonNo').click();
+      return;
+    }
     switch (true) {
       // Single whois tab is active
       case $('#navButtonSinglewhois').hasClass('is-active'):
@@ -152,9 +157,32 @@ $(document).on('click', '#navButtonMinimize', function () {
  */
 $(document).on('click', '#navButtonExit', function () {
   ipcRenderer.send('app:debug', '#navButtonExit was clicked');
-  void ipcRenderer.invoke('app:close');
+  if (settings.ui?.confirmExit) {
+    $('#appModalExit').addClass('is-active');
+  } else {
+    void ipcRenderer.invoke('app:close');
+  }
 
   return;
+});
+
+$(document).on('click', '#appModalExitButtonYes', function () {
+  ipcRenderer.send('app:debug', '#appModalExitButtonYes was clicked');
+  $('#appModalExit').removeClass('is-active');
+  ipcRenderer.send('app:exit-confirmed');
+});
+
+$(document).on('click', '#appModalExitButtonNo, #appModalExit .delete', function () {
+  ipcRenderer.send('app:debug', '#appModalExitButtonNo was clicked');
+  $('#appModalExit').removeClass('is-active');
+});
+
+ipcRenderer.on('app:confirm-exit', function () {
+  if (settings.ui?.confirmExit) {
+    $('#appModalExit').addClass('is-active');
+  } else {
+    void ipcRenderer.invoke('app:close');
+  }
 });
 
 /*
