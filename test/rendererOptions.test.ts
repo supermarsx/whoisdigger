@@ -3,10 +3,11 @@
 let jQuery: typeof import('jquery');
 let settingsModule: any;
 const invokeMock = jest.fn();
+const openPathMock = jest.fn();
 
 jest.mock('electron', () => ({
   ipcRenderer: { invoke: invokeMock },
-  shell: { openPath: jest.fn() }
+  shell: { openPath: openPathMock }
 }));
 
 jest.mock('worker_threads', () => ({
@@ -36,12 +37,14 @@ beforeEach(() => {
         <span class="result-icon"></span>
       </div>
     </div>
+    <button id="openDataFolder"></button>
     <button id="reloadApp"></button>
     <table id="opTable"></table>
     <input id="opSearch" />
     <div id="opSearchNoResults"></div>
   `;
   invokeMock.mockClear();
+  openPathMock.mockClear();
   saveSettingsMock.mockClear();
 });
 
@@ -76,4 +79,19 @@ test('reloadApp invokes ipcRenderer', async () => {
   await Promise.resolve();
 
   expect(invokeMock).toHaveBeenCalledWith('app:reload');
+});
+
+test('openDataFolder calls shell.openPath', async () => {
+  jQuery = require('jquery');
+  (window as any).$ = (window as any).jQuery = jQuery;
+  require('../app/ts/renderer/options');
+  jQuery.ready();
+
+  await new Promise((r) => setTimeout(r, 0));
+
+  jQuery('#openDataFolder').trigger('click');
+
+  await Promise.resolve();
+
+  expect(openPathMock).toHaveBeenCalled();
 });
