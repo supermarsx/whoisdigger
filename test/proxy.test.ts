@@ -63,4 +63,20 @@ describe('proxy helper', () => {
     expect(third).toEqual({ ipaddress: '1.1.1.1', port: 8080, type: 5 });
     expect(fourth).toEqual({ ipaddress: '3.3.3.3', port: 8080, type: 5 });
   });
+
+  test('returns undefined for invalid ip address', () => {
+    settings.lookupProxy.enable = true;
+    settings.lookupProxy.mode = 'single';
+    settings.lookupProxy.single = 'invalid_ip:8080';
+    expect(getProxy()).toBeUndefined();
+  });
+
+  test('returns undefined for invalid port', () => {
+    settings.lookupProxy.enable = true;
+    settings.lookupProxy.mode = 'single';
+    settings.lookupProxy.single = '1.2.3.4:70000';
+    expect(getProxy()).toBeUndefined();
+    settings.lookupProxy.single = '1.2.3.4:0';
+    expect(getProxy()).toBeUndefined();
+  });
 });

@@ -1,4 +1,5 @@
 import { settings } from './settings';
+import { isIP } from 'net';
 
 export interface ProxyInfo {
   ipaddress: string;
@@ -49,7 +50,14 @@ export function getProxy(): ProxyInfo | undefined {
   }
 
   const [ip, port] = entry.split(':');
-  const portNum = parseInt(port ?? '0', 10);
-  if (!ip || !portNum) return undefined;
+  const portNum = parseInt(port ?? '', 10);
+
+  if (!ip || isIP(ip) === 0) {
+    return undefined;
+  }
+  if (!port || Number.isNaN(portNum) || portNum < 1 || portNum > 65535) {
+    return undefined;
+  }
+
   return { ipaddress: ip, port: portNum, type: 5 };
 }
