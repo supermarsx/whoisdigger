@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import fs from 'fs';
 import path from 'path';
+import { shell } from 'electron';
 import {
   settings,
   saveSettings,
@@ -246,6 +247,17 @@ $(document).ready(() => {
         : 'Failed to save configuration',
       res === 'SAVED' || res === undefined
     );
+  });
+
+  $('#openConfigPath').on('click', async () => {
+    const filePath = path.join(
+      getUserDataPath(),
+      settings.customConfiguration.filepath
+    );
+    const result = await shell.openPath(filePath);
+    if (result) {
+      showToast('Failed to open configuration file', false);
+    }
   });
 
   $('#deleteConfig').on('click', () => {
