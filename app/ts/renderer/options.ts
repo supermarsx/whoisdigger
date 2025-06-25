@@ -240,15 +240,11 @@ $(document).ready(() => {
     );
   });
 
-  $('#openConfigPath').on('click', async () => {
-    const filePath = path.join(getUserDataPath(), settings.customConfiguration.filepath);
-    await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
-    if (!fs.existsSync(filePath)) {
-      await fs.promises.writeFile(filePath, JSON.stringify(settings, null, 2));
-    }
-    const result = await shell.openPath(filePath);
+  $('#openDataFolder').on('click', async () => {
+    const dataDir = getUserDataPath();
+    const result = await shell.openPath(dataDir);
     if (result) {
-      showToast('Failed to open configuration file', false);
+      showToast('Failed to open data directory', false);
     }
   });
 
