@@ -72,7 +72,7 @@
     "cross-env": "^7.0.3",
     "cssnano": "^7.0.7",
     "electron": "^36.5.0",
-    "electron-chromedriver": "^36.5.0",
+    "electron-chromedriver": "^37.0.0",
     "electronmon": "^2.0.3",
     "eslint": "^9.29.0",
     "eslint-config-prettier": "^8.10.0",
