@@ -268,3 +268,10 @@ $(document).ready(() => {
     $('#deleteConfigModal').removeClass('is-active');
   });
 });
+
+export const _test = {
+  getValue,
+  setValue,
+  parseValue,
+  getDefault,
+};
