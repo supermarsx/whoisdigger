@@ -153,6 +153,10 @@ const appSettings = {
       averages: true, // enable average calcs
       stopwatch: true // enable elapsed and remaining time to complete
     },
+    ui: {
+      // User interface options
+      liveReload: true // Reload settings on change (default: true)
+    },
     lookupMisc: {
       // Lookup miscellaneous configurations
       useStandardSize: true, // Use metric size measures for filesizes instead of IEC (ex: kB kilobyte (1000) instead of KiB kibibyte (1024)) (default: true)
@@ -253,6 +257,7 @@ export const appSettingsDescriptions: Record<string, string> = {
   'performanceBulkRequest.timers': 'Bulk lookup timers',
   'performanceBulkRequest.averages': 'Bulk lookup averages',
   'performanceBulkRequest.stopwatch': 'Bulk lookup stopwatch',
+  'ui.liveReload': 'Reload configuration automatically',
   'lookupMisc.useStandardSize': 'Use metric units for file sizes',
   'lookupMisc.asfOverride': 'Override average smoothing factor',
   'lookupMisc.averageSmoothingFactor': 'Average smoothing factor',

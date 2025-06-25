@@ -178,6 +178,12 @@ $(document).ready(() => {
     populateInputs();
   });
 
+  window.addEventListener('settings-reloaded', () => {
+    const loaded = sessionStorage.getItem('customSettingsLoaded') === 'true';
+    status.text(loaded ? 'Custom settings loaded.' : 'Custom settings not loaded.');
+    populateInputs();
+  });
+
   container.on('change', 'input[id], select[id]', function () {
     const $el = $(this);
     const id = $el.attr('id');

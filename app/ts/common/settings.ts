@@ -53,6 +53,7 @@ export interface Settings {
   };
   customConfiguration: { filepath: string; load: boolean; save: boolean };
   theme: { darkMode: boolean };
+  ui: { liveReload: boolean };
   [key: string]: any;
 }
 
@@ -139,9 +140,15 @@ function watchConfig(): void {
       try {
         settings = mergeDefaults(parsed);
         debug(`Reloaded custom configuration at ${cfg}`);
+        if (typeof window !== 'undefined' && settings.ui?.liveReload) {
+          window.dispatchEvent(new Event('settings-reloaded'));
+        }
       } catch (mergeError) {
         settings = JSON.parse(JSON.stringify(defaultSettings));
         debug(`Failed to merge configuration with error: ${mergeError}`);
+        if (typeof window !== 'undefined' && settings.ui?.liveReload) {
+          window.dispatchEvent(new Event('settings-reloaded'));
+        }
       }
     } catch (e) {
       debug(`Failed to reload configuration with error: ${e}`);
