@@ -20,6 +20,7 @@ If you clone this repo please patch `node_modules\whois\index.js` and remove the
 - [Setup](#setup)
 - [Development setup](#development-setup)
 - [Building](#building)
+- [Docker](#docker)
 - [Built with](#built-with)
 - [License](#license)
 
@@ -236,6 +237,35 @@ For convenience a single command builds packages for all platforms:
 
 ```
 npm run package-all
+```
+
+## Docker
+
+Build the Docker image:
+
+```bash
+docker build -t whoisdigger .
+```
+
+Run the application (requires X11 forwarding to display Electron):
+
+```bash
+docker run --rm -it \
+  -e DISPLAY=$DISPLAY \
+  -v /tmp/.X11-unix:/tmp/.X11-unix \
+  whoisdigger
+```
+
+Alternatively, start with docker-compose:
+
+```bash
+docker-compose up
+```
+
+Execute the test suite inside a container:
+
+```bash
+docker run --rm -it whoisdigger npm test
 ```
 
 ## Built with
