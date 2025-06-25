@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { shell, ipcRenderer } from 'electron';
 import { Worker } from 'worker_threads';
+import chokidar from 'chokidar';
 import {
   settings,
   saveSettings,
@@ -43,21 +44,83 @@ function getDefault(path: string): any {
 }
 
 let statsWorker: Worker | null = null;
+let statsWatcher: chokidar.FSWatcher | null = null;
+let statsConfigPath = '';
+let statsDataDir = '';
+
+async function dirSize(dir: string): Promise<number> {
+  let total = 0;
+  const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    const full = path.join(dir, entry.name);
+    try {
+      if (entry.isDirectory()) {
+        total += await dirSize(full);
+      } else {
+        total += (await fs.promises.stat(full)).size;
+      }
+    } catch {
+      // ignore errors from deleted files
+    }
+  }
+  return total;
+}
+
+async function sendStats(): Promise<void> {
+  let mtime: number | null = null;
+  let loaded = false;
+  try {
+    const st = await fs.promises.stat(statsConfigPath);
+    mtime = st.mtimeMs;
+    loaded = true;
+  } catch {
+    loaded = false;
+  }
+  let size = 0;
+  try {
+    size = await dirSize(statsDataDir);
+  } catch {
+    size = 0;
+  }
+  updateStats({ mtime, loaded, size, configPath: statsConfigPath });
+}
 
 function startStatsWorker(): void {
-  if (statsWorker) statsWorker.terminate();
-  const workerPath = path.join(__dirname, 'renderer', 'workers', 'statsWorker.js');
-  statsWorker = new Worker(workerPath, {
-    workerData: {
-      configPath: path.join(getUserDataPath(), settings.customConfiguration.filepath),
-      dataDir: getUserDataPath()
-    }
-  });
-  statsWorker.on('message', updateStats);
+  if (statsWorker) {
+    statsWorker.terminate();
+    statsWorker = null;
+  }
+  if (statsWatcher) {
+    statsWatcher.close();
+    statsWatcher = null;
+  }
+  statsConfigPath = path.join(getUserDataPath(), settings.customConfiguration.filepath);
+  statsDataDir = getUserDataPath();
+  try {
+    const workerPath = path.join(__dirname, 'renderer', 'workers', 'statsWorker.js');
+    statsWorker = new Worker(workerPath, {
+      workerData: {
+        configPath: statsConfigPath,
+        dataDir: statsDataDir
+      }
+    });
+    statsWorker.on('message', updateStats);
+  } catch (err) {
+    console.error('Failed to start worker, falling back to main thread:', err);
+    statsWatcher = chokidar.watch([statsConfigPath, statsDataDir], { ignoreInitial: true });
+    statsWatcher.on('all', () => {
+      void sendStats();
+    });
+    void sendStats();
+  }
 }
 
 function refreshStats(): void {
-  statsWorker?.postMessage('refresh');
+  if (statsWorker) {
+    statsWorker.postMessage('refresh');
+  } else {
+    void sendStats();
+  }
 }
 
 function updateStats(data: { mtime: number | null; loaded: boolean; size: number; configPath: string }): void {
