@@ -123,13 +123,16 @@ function refreshStats(): void {
   }
 }
 
-function updateStats(data: { mtime: number | null; loaded: boolean; size: number; configPath: string }): void {
+function updateStats(data: {
+  mtime: number | null;
+  loaded: boolean;
+  size: number;
+  configPath: string;
+}): void {
   $('#stat-config-path').text(data.configPath);
   $('#stat-config-loaded').text(data.loaded ? 'Loaded' : 'Not loaded');
   $('#stat-config-mtime').text(data.mtime ? new Date(data.mtime).toUTCString() : 'N/A');
-  $('#stat-data-size').text(
-    byteToHumanFileSize(data.size, settings.lookupMisc.useStandardSize)
-  );
+  $('#stat-data-size').text(byteToHumanFileSize(data.size, settings.lookupMisc.useStandardSize));
 }
 
 const enumOptions: Record<string, string[]> = {

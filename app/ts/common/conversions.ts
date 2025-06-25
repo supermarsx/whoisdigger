@@ -51,8 +51,7 @@ export function msToHumanTime(duration = 0): string {
     days: Math.floor(duration / (1000 * 60 * 60 * 24)) % 7,
     weeks: Math.floor(duration / (1000 * 60 * 60 * 24 * 7)) % 4,
     months: Math.floor(duration / (1000 * 60 * 60 * 24 * 7 * 4)) % 12,
-    years:
-      Math.floor(duration / (1000 * 60 * 60 * 24 * 7 * 4 * 12)) % 10
+    years: Math.floor(duration / (1000 * 60 * 60 * 24 * 7 * 4 * 12)) % 10
   };
   let time = '';
 

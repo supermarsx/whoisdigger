@@ -1,59 +1,61 @@
-<div id="singlewhoisSearchContainer" class="field has-addons box-shadow-5">
-  <p class="control is-large is-expanded">
+<div id='singlewhoisSearchContainer' class='field has-addons box-shadow-5'>
+  <p class='control is-large is-expanded'>
     <input
-      id="singlewhoisSearchInputDomain"
-      class="input is-large"
-      type="text"
-      placeholder="Domain name (ex.: whoisteam.com)"
+      id='singlewhoisSearchInputDomain'
+      class='input is-large'
+      type='text'
+      placeholder='Domain name (ex.: whoisteam.com)'
     />
   </p>
-  <p class="control">
-    <a id="singlewhoisSearchButtonSearch" class="button is-large"><i class="fas fa-search"></i></a>
+  <p class='control'>
+    <a id='singlewhoisSearchButtonSearch' class='button is-large'><i class='fas fa-search'></i></a>
   </p>
 </div>
 
-<div id="singlewhoisMessageError" class="notification is-danger box-shadow-5 is-hidden">
-  <button data-notif="singlewhoisMessageError" class="delete"></button> Whois lookup failed, an
-  error has ocurred. Check your internet connection, domain validity, amount of whois requests or
-  whois server. <a class="singlewhoisMessageWhoisOpen" href="#">Check response.</a>
+<div id='singlewhoisMessageError' class='notification is-danger box-shadow-5 is-hidden'>
+  <button data-notif='singlewhoisMessageError' class='delete'></button>
+  Whois lookup failed, an error has ocurred. Check your internet connection, domain validity, amount
+  of whois requests or whois server.
+  <a class='singlewhoisMessageWhoisOpen' href='#'>Check response.</a>
 </div>
 
-<div id="singlewhoisMessageAvailable" class="notification is-success box-shadow-5 is-hidden">
-  <button data-notif="singlewhoisMessageAvailable" class="delete"></button> Domain is available for
-  registry. <a class="singlewhoisMessageWhoisOpen" href="#">Check the whois request response.</a>
+<div id='singlewhoisMessageAvailable' class='notification is-success box-shadow-5 is-hidden'>
+  <button data-notif='singlewhoisMessageAvailable' class='delete'></button>
+  Domain is available for registry.
+  <a class='singlewhoisMessageWhoisOpen' href='#'>Check the whois request response.</a>
 </div>
 
-<div id="singlewhoisMessageUnavailable" class="notification is-danger box-shadow-5 is-hidden">
-  <button data-notif="singlewhoisMessageUnavailable" class="delete"></button> Domain is unavailable
-  for registry.
-  <a class="singlewhoisMessageWhoisOpen" href="#">Check the whois request response.</a>
+<div id='singlewhoisMessageUnavailable' class='notification is-danger box-shadow-5 is-hidden'>
+  <button data-notif='singlewhoisMessageUnavailable' class='delete'></button>
+  Domain is unavailable for registry.
+  <a class='singlewhoisMessageWhoisOpen' href='#'>Check the whois request response.</a>
 </div>
 
-<div id="singlewhoisMessageWhois" class="modal">
-  <div class="modal-background"></div>
-  <div class="modal-content">
-    <div class="box">
-      <div class="highlight-full">
-        <figure class="highlight">
-          <pre id="singlewhoisMessageWhoisResults" class="has-text-left"></pre>
+<div id='singlewhoisMessageWhois' class='modal'>
+  <div class='modal-background'></div>
+  <div class='modal-content'>
+    <div class='box'>
+      <div class='highlight-full'>
+        <figure class='highlight'>
+          <pre id='singlewhoisMessageWhoisResults' class='has-text-left'></pre>
         </figure>
       </div>
     </div>
   </div>
   <button
-    id="singlewhoisMessageWhoisClose"
-    class="modal-close is-large"
-    aria-label="close"
+    id='singlewhoisMessageWhoisClose'
+    class='modal-close is-large'
+    aria-label='close'
   ></button>
 </div>
 
-<div id="singlewhoisDomainCopied" class="modal">
-  <div class="modal-background"></div>
-  <div class="modal-content">
-    <div class="box">
-      <div class="highlight-full">
-        <figure class="highlight">
-          <pre class="has-text-left">
+<div id='singlewhoisDomainCopied' class='modal'>
+  <div class='modal-background'></div>
+  <div class='modal-content'>
+    <div class='box'>
+      <div class='highlight-full'>
+        <figure class='highlight'>
+          <pre class='has-text-left'>
             The domain url has been copied
           </pre>
         </figure>
@@ -61,89 +63,89 @@
     </div>
   </div>
   <button
-    id="singlewhoisDomainCopiedClose"
-    class="modal-close is-large"
-    aria-label="close"
+    id='singlewhoisDomainCopiedClose'
+    class='modal-close is-large'
+    aria-label='close'
   ></button>
 </div>
 
-<div class="container is-hidden">
-  <div class="columns">
-    <div class="column">
-      <span class="tag is-success is-medium">.com</span>
+<div class='container is-hidden'>
+  <div class='columns'>
+    <div class='column'>
+      <span class='tag is-success is-medium'>.com</span>
     </div>
-    <div class="column">
-      <span class="tag is-success is-medium">.net</span>
+    <div class='column'>
+      <span class='tag is-success is-medium'>.net</span>
     </div>
-    <div class="column">
-      <span class="tag is-success is-medium">.org</span>
+    <div class='column'>
+      <span class='tag is-success is-medium'>.org</span>
     </div>
-    <div class="column">
-      <span class="tag is-success is-medium">.info</span>
+    <div class='column'>
+      <span class='tag is-success is-medium'>.info</span>
     </div>
-    <div class="column">
-      <span class="tag is-success is-medium">.xyz</span>
+    <div class='column'>
+      <span class='tag is-success is-medium'>.xyz</span>
     </div>
-    <div class="column">
-      <span class="tag is-success is-medium">.io</span>
+    <div class='column'>
+      <span class='tag is-success is-medium'>.io</span>
     </div>
-    <div class="column">
-      <span class="tag is-success is-medium">.ly</span>
+    <div class='column'>
+      <span class='tag is-success is-medium'>.ly</span>
     </div>
-    <div class="column">
-      <span class="tag is-success is-medium">.me</span>
+    <div class='column'>
+      <span class='tag is-success is-medium'>.me</span>
     </div>
   </div>
-  <div class="columns">
-    <div class="column">
-      <span class="tag is-success is-medium">.co</span>
+  <div class='columns'>
+    <div class='column'>
+      <span class='tag is-success is-medium'>.co</span>
     </div>
-    <div class="column">
-      <span class="tag is-success is-medium">.it</span>
+    <div class='column'>
+      <span class='tag is-success is-medium'>.it</span>
     </div>
-    <div class="column">
-      <span class="tag is-success is-medium">.tv</span>
+    <div class='column'>
+      <span class='tag is-success is-medium'>.tv</span>
     </div>
-    <div class="column">
-      <span class="tag is-success is-medium">.by</span>
+    <div class='column'>
+      <span class='tag is-success is-medium'>.by</span>
     </div>
-    <div class="column">
-      <span class="tag is-success is-medium">.us</span>
+    <div class='column'>
+      <span class='tag is-success is-medium'>.us</span>
     </div>
-    <div class="column">
-      <span class="tag is-success is-medium">.eu</span>
+    <div class='column'>
+      <span class='tag is-success is-medium'>.eu</span>
     </div>
-    <div class="column">
-      <span class="tag is-success is-medium">.de</span>
+    <div class='column'>
+      <span class='tag is-success is-medium'>.de</span>
     </div>
-    <div class="column">
-      <span class="tag is-success is-medium">.ru</span>
+    <div class='column'>
+      <span class='tag is-success is-medium'>.ru</span>
     </div>
   </div>
 </div>
 
-<table id="singlewhoisTableWhoisinfo" class="table is-fullwidth is-hidden">
+<table id='singlewhoisTableWhoisinfo' class='table is-fullwidth is-hidden'>
   <tr>
-    <td colspan="4" class="is-expanded" style="border-bottom: none; text-align: right">
-      <button data-notif="singlewhoisTableWhoisinfo" class="delete"></button>
+    <td colspan='4' class='is-expanded' style='border-bottom: none; text-align: right'>
+      <button data-notif='singlewhoisTableWhoisinfo' class='delete'></button>
     </td>
   </tr>
   <tr>
     <th>Domain:</th>
-    <td class="is-expanded"><a id="singlewhoisTdDomain" href="#">n/a</a></td>
+    <td class='is-expanded'><a id='singlewhoisTdDomain' href='#'>n/a</a></td>
     <th>Update Date:</th>
-    <td id="singlewhoisTdUpdate" class="is-expanded">n/a</td>
+    <td id='singlewhoisTdUpdate' class='is-expanded'>n/a</td>
   </tr>
   <tr>
     <th>Registrar:</th>
-    <td id="singlewhoisTdRegistrar" class="is-expanded">n/a</td>
+    <td id='singlewhoisTdRegistrar' class='is-expanded'>n/a</td>
     <th>Creation Date:</th>
-    <td id="singlewhoisTdCreation" class="is-expanded">n/a</td>
+    <td id='singlewhoisTdCreation' class='is-expanded'>n/a</td>
   </tr>
   <tr>
     <th>Company:</th>
-    <td id="singlewhoisTdCompany" class="is-expanded">n/a</td>
+    <td id='singlewhoisTdCompany' class='is-expanded'>n/a</td>
     <th>Expiry Date:</th>
-    <td id="singlewhoisTdExpiry" class="is-expanded">n/a</td>
+    <td id='singlewhoisTdExpiry' class='is-expanded'>n/a</td>
   </tr>
 </table>

@@ -8,14 +8,7 @@ const debug = require('debug')('test:e2e');
   const electronPath = require('electron');
   const appPath = path.join(__dirname, '..', '..', 'dist', 'app', 'ts', 'main.js');
 
-  const chromedriverPath = path.join(
-    __dirname,
-    '..',
-    '..',
-    'node_modules',
-    '.bin',
-    'chromedriver'
-  );
+  const chromedriverPath = path.join(__dirname, '..', '..', 'node_modules', '.bin', 'chromedriver');
   const chromedriver = spawn(chromedriverPath, ['--port=9515'], {
     stdio: 'inherit'
   });

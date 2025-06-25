@@ -26,7 +26,10 @@ function refreshBwaFile(pathToFile: string): void {
     bwaFileContents = Papa.parse(fs.readFileSync(pathToFile).toString(), { header: true });
     bwaFileStats.linecount = bwaFileContents.data.length;
     try {
-      bwaFileStats.filepreview = JSON.stringify(bwaFileContents.data[0], null, '\t').substring(0, 50);
+      bwaFileStats.filepreview = JSON.stringify(bwaFileContents.data[0], null, '\t').substring(
+        0,
+        50
+      );
     } catch {
       bwaFileStats.filepreview = '';
     }
@@ -35,7 +38,8 @@ function refreshBwaFile(pathToFile: string): void {
     $('#bwaFileTdLastmodified').text(conversions.getDate(bwaFileStats.mtime) ?? '');
     $('#bwaFileTdLastaccessed').text(conversions.getDate(bwaFileStats.atime) ?? '');
     $('#bwaFileTdFilesize').text(
-      String(bwaFileStats.humansize) + formatString(' ({0} record(s))', String(bwaFileStats.linecount))
+      String(bwaFileStats.humansize) +
+        formatString(' ({0} record(s))', String(bwaFileStats.linecount))
     );
     $('#bwaFileTdFilepreview').text(String(bwaFileStats.filepreview) + '...');
     $('#bwaFileTextareaErrors').text(String(bwaFileStats.errors || 'No errors'));
@@ -58,7 +62,11 @@ ipcRenderer.on(
       bwaFileWatcher = undefined;
     }
 
-    const chosenPath = Array.isArray(filePath) ? (filePath ? (filePath as string[])[0] : null) : (filePath as string | null);
+    const chosenPath = Array.isArray(filePath)
+      ? filePath
+        ? (filePath as string[])[0]
+        : null
+      : (filePath as string | null);
 
     $('#bwaFileSpanInfo').text('Waiting for file...');
 

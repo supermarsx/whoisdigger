@@ -18,11 +18,7 @@ describe('wordlist tools advanced', () => {
     const p = path.join(__dirname, 'pattern.txt');
     fs.writeFileSync(p, 'a\n---\nb\nc\n---\nd');
     const parts = await splitFiles({ files: [p], pattern: /^---$/ });
-    expect(parts).toEqual([
-      ['a'],
-      ['b', 'c'],
-      ['d']
-    ]);
+    expect(parts).toEqual([['a'], ['b', 'c'], ['d']]);
     fs.unlinkSync(p);
   });
 
@@ -30,11 +26,7 @@ describe('wordlist tools advanced', () => {
     const p = path.join(__dirname, 'size.txt');
     fs.writeFileSync(p, 'a\nbb\nccc');
     const parts = await splitFiles({ files: [p], maxSize: 4 });
-    expect(parts).toEqual([
-      ['a'],
-      ['bb'],
-      ['ccc']
-    ]);
+    expect(parts).toEqual([['a'], ['bb'], ['ccc']]);
     fs.unlinkSync(p);
   });
 

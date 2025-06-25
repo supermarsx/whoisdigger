@@ -38,9 +38,9 @@ export function getCached(type: string, domain: string): string | undefined {
   if (!database) return undefined;
   const key = makeKey(type, domain);
   try {
-    const row = database
-      .prepare('SELECT response, timestamp FROM cache WHERE key = ?')
-      .get(key) as { response: string; timestamp: number } | undefined;
+    const row = database.prepare('SELECT response, timestamp FROM cache WHERE key = ?').get(key) as
+      | { response: string; timestamp: number }
+      | undefined;
     if (!row) return undefined;
     if (Date.now() - row.timestamp > requestCache.ttl * 1000) {
       database.prepare('DELETE FROM cache WHERE key = ?').run(key);
@@ -62,9 +62,7 @@ export function setCached(type: string, domain: string, response: string): void 
   const key = makeKey(type, domain);
   try {
     database
-      .prepare(
-        'INSERT OR REPLACE INTO cache(key, response, timestamp) VALUES(?, ?, ?)'
-      )
+      .prepare('INSERT OR REPLACE INTO cache(key, response, timestamp) VALUES(?, ?, ?)')
       .run(key, response, Date.now());
     debug(`Cached response for ${key}`);
   } catch (e) {

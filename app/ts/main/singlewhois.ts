@@ -68,7 +68,6 @@ function copyToClipboard(event: IpcMainEvent, domain: string): void {
     settings
 */
 function openUrl(domain: string, settings: Settings): void {
-
   let target: URL;
   try {
     target = new URL(domain);

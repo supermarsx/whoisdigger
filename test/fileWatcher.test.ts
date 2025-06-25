@@ -59,10 +59,18 @@ test('bw watcher updates table on change', async () => {
     <td id="bwFileTdEstimate"></td>
   `;
 
-  const initialStats = { size: 10, mtime: new Date('2020-01-01'), atime: new Date('2020-01-01') } as any;
+  const initialStats = {
+    size: 10,
+    mtime: new Date('2020-01-01'),
+    atime: new Date('2020-01-01')
+  } as any;
   statMock.mockResolvedValue(initialStats);
   readFileMock.mockResolvedValue(Buffer.from('a\nb\n'));
-  statSyncMock.mockReturnValue({ size: 20, mtime: new Date('2020-01-02'), atime: new Date('2020-01-02') } as any);
+  statSyncMock.mockReturnValue({
+    size: 20,
+    mtime: new Date('2020-01-02'),
+    atime: new Date('2020-01-02')
+  } as any);
   readFileSyncMock.mockReturnValue(Buffer.from('a\nb\nc\n'));
 
   jest.isolateModules(() => {
@@ -70,12 +78,16 @@ test('bw watcher updates table on change', async () => {
   });
 
   ipc.emit('bw:fileinput.confirmation', {}, '/tmp/test.txt', true);
-  for (let i = 0; i < 5; i++) await new Promise(res => setTimeout(res, 0));
+  for (let i = 0; i < 5; i++) await new Promise((res) => setTimeout(res, 0));
 
-  expect(watchMock).toHaveBeenCalledWith('/tmp/test.txt', { persistent: false }, expect.any(Function));
+  expect(watchMock).toHaveBeenCalledWith(
+    '/tmp/test.txt',
+    { persistent: false },
+    expect.any(Function)
+  );
 
   watchEmitter.emit('change', 'change');
-  for (let i = 0; i < 5; i++) await new Promise(res => setTimeout(res, 0));
+  for (let i = 0; i < 5; i++) await new Promise((res) => setTimeout(res, 0));
 
   expect(statSyncMock).toHaveBeenCalled();
   expect(readFileSyncMock).toHaveBeenCalled();
@@ -91,10 +103,18 @@ test('bwa watcher updates table on change', async () => {
     <textarea id="bwaFileTextareaErrors"></textarea>
   `;
 
-  const initialStats = { size: 5, mtime: new Date('2020-03-01'), atime: new Date('2020-03-01') } as any;
+  const initialStats = {
+    size: 5,
+    mtime: new Date('2020-03-01'),
+    atime: new Date('2020-03-01')
+  } as any;
   statMock.mockResolvedValue(initialStats);
   readFileMock.mockResolvedValue(Buffer.from('a,b\n1,2\n3,4\n'));
-  statSyncMock.mockReturnValue({ size: 8, mtime: new Date('2020-03-02'), atime: new Date('2020-03-02') } as any);
+  statSyncMock.mockReturnValue({
+    size: 8,
+    mtime: new Date('2020-03-02'),
+    atime: new Date('2020-03-02')
+  } as any);
   readFileSyncMock.mockReturnValue(Buffer.from('a,b\n1,2\n3,4\n5,6\n'));
 
   jest.isolateModules(() => {
@@ -102,12 +122,16 @@ test('bwa watcher updates table on change', async () => {
   });
 
   ipc.emit('bwa:fileinput.confirmation', {}, '/tmp/test.csv', true);
-  for (let i = 0; i < 5; i++) await new Promise(res => setTimeout(res, 0));
+  for (let i = 0; i < 5; i++) await new Promise((res) => setTimeout(res, 0));
 
-  expect(watchMock).toHaveBeenCalledWith('/tmp/test.csv', { persistent: false }, expect.any(Function));
+  expect(watchMock).toHaveBeenCalledWith(
+    '/tmp/test.csv',
+    { persistent: false },
+    expect.any(Function)
+  );
 
   watchEmitter.emit('change', 'change');
-  for (let i = 0; i < 5; i++) await new Promise(res => setTimeout(res, 0));
+  for (let i = 0; i < 5; i++) await new Promise((res) => setTimeout(res, 0));
 
   expect(statSyncMock).toHaveBeenCalled();
   expect(readFileSyncMock).toHaveBeenCalled();
