@@ -1,4 +1,6 @@
 const path = require('path');
+const fs = require('fs');
+const os = require('os');
 const assert = require('assert');
 const { spawn } = require('child_process');
 const { remote } = require('webdriverio');
@@ -7,6 +9,10 @@ const debug = require('debug')('test:e2e');
 (async () => {
   const electronPath = require('electron');
   const appPath = path.join(__dirname, '..', '..', 'dist', 'app', 'ts', 'main.js');
+
+  const artifactsDir = path.join(__dirname, 'artifacts');
+  fs.mkdirSync(artifactsDir, { recursive: true });
+  const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'whoisdigger-'));
 
   const chromedriverPath = path.join(__dirname, '..', '..', 'node_modules', '.bin', 'chromedriver');
   const chromedriver = spawn(chromedriverPath, ['--port=9515'], {
@@ -23,7 +29,12 @@ const debug = require('debug')('test:e2e');
         browserName: 'chrome',
         'goog:chromeOptions': {
           binary: electronPath,
-          args: [appPath, '--no-sandbox', '--disable-dev-shm-usage']
+          args: [
+            appPath,
+            '--no-sandbox',
+            '--disable-dev-shm-usage',
+            `--user-data-dir=${userDataDir}`
+          ]
         }
       }
     });
@@ -45,6 +56,68 @@ const debug = require('debug')('test:e2e');
     });
     assert.ok(minimized, 'Window did not minimize via IPC');
 
+    // Navigate between tabs
+    await browser.execute(() => document.querySelector('#navButtonBw')?.click());
+    await browser.pause(500);
+    let active = await browser.execute(() =>
+      document.getElementById('bwMainContainer')?.classList.contains('current')
+    );
+    assert.ok(active, 'Bulk tab did not activate');
+
+    await browser.execute(() => document.querySelector('#navButtonOp')?.click());
+    await browser.pause(500);
+    active = await browser.execute(() =>
+      document.getElementById('opMainContainer')?.classList.contains('current')
+    );
+    assert.ok(active, 'Options tab did not activate');
+
+    // Trigger sample bulk lookup using mock data
+    await browser.execute(() => document.querySelector('#navButtonBw')?.click());
+    await browser.pause(300);
+    await browser.execute(() => {
+      document.querySelector('#bwEntryButtonWordlist')?.click();
+      const ta = document.getElementById('bwWordlistTextareaDomains');
+      if (ta) ta.value = 'example';
+      const tlds = document.getElementById('bwWordlistInputTlds');
+      if (tlds) tlds.value = 'com';
+      document.querySelector('#bwWordlistinputButtonConfirm')?.click();
+    });
+    await browser.pause(500);
+    await browser.execute(() => {
+      document.querySelector('#bwWordlistconfirmButtonStart')?.click();
+    });
+    await browser.pause(500);
+    const processing = await browser.execute(
+      () => !document.getElementById('bwProcessing')?.classList.contains('is-hidden')
+    );
+    assert.ok(processing, 'Bulk lookup did not start');
+
+    // Verify dark mode toggle and persistence
+    await browser.execute(() => document.querySelector('#navButtonOp')?.click());
+    await browser.pause(500);
+    await browser.execute(() => {
+      const dark = document.getElementById('appSettings.theme.darkMode');
+      const sys = document.getElementById('appSettings.theme.followSystem');
+      if (sys) {
+        sys.value = 'false';
+        sys.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      if (dark) {
+        dark.value = 'true';
+        dark.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+    await browser.pause(1000);
+    let theme = await browser.execute(() => document.documentElement.getAttribute('data-theme'));
+    assert.strictEqual(theme, 'dark', 'Dark mode not applied');
+
+    await browser.execute(() => location.reload());
+    await browser.pause(2000);
+    theme = await browser.execute(() => document.documentElement.getAttribute('data-theme'));
+    assert.strictEqual(theme, 'dark', 'Dark mode not persisted after reload');
+
+    await browser.saveScreenshot(path.join(artifactsDir, 'screenshot.png'));
+
     debug('E2E tests passed');
     await browser.deleteSession();
   } catch (err) {
@@ -52,5 +125,6 @@ const debug = require('debug')('test:e2e');
     process.exit(1);
   } finally {
     chromedriver.kill();
+    fs.rmSync(userDataDir, { recursive: true, force: true });
   }
 })();
