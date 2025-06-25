@@ -208,6 +208,7 @@ Whoisdigger uses a small build step before packaging. Each packaging command
 compiles the application into the `dist` folder and then invokes
 `@electron/packager`.
 Running `npm run build` automatically executes the `prebuild` script. `scripts/prebuild.js` installs dependencies using `npm install` if `node_modules` is missing.
+If you need a fresh build, run `npm run clean` first to remove the `dist`, `release_builds` and `app/compiled-templates` directories.
 `scripts/postbuild.js` then bundles CSS using PostCSS by calling `npm run build:css`,
 which minifies files from `app/css` into `dist/app/css`.
 It also precompiles Handlebars templates and writes `dist/app/html/mainPanel.html`
