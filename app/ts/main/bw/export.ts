@@ -83,8 +83,7 @@ ipcMain.handle('bw:export', async function (event, results, options) {
   const isZip =
     options.filetype === 'txt' ||
     (options.filetype === 'csv' &&
-      (options.whoisreply === 'yes+inlineseparate' ||
-        options.whoisreply === 'yes+block'));
+      (options.whoisreply === 'yes+inlineseparate' || options.whoisreply === 'yes+block'));
   const ext = isZip ? zip : options.filetype === 'csv' ? csv : txt;
   const filePath = dialog.showSaveDialogSync({
     title: 'Save export file',

@@ -67,4 +67,3 @@ test('opens exported zip when enabled', async () => {
   });
   expect(openPathMock).toHaveBeenCalledWith('/tmp/out.zip');
 });
-
