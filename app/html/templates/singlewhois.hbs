@@ -29,42 +29,44 @@
   <a class="singlewhoisMessageWhoisOpen" href="#">Check the whois request response.</a>
 </div>
 
-<div id="singlewhoisMessageWhois" class="modal">
-  <div class="modal-background"></div>
-  <div class="modal-content">
-    <div class="box">
-      <div class="highlight-full">
-        <figure class="highlight">
-          <pre id="singlewhoisMessageWhoisResults" class="has-text-left"></pre>
-        </figure>
+<div id="singlewhoisModals">
+  <div id="singlewhoisMessageWhois" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div class="box">
+        <div class="highlight-full">
+          <figure class="highlight">
+            <pre id="singlewhoisMessageWhoisResults" class="has-text-left"></pre>
+          </figure>
+        </div>
       </div>
     </div>
+    <button
+      id="singlewhoisMessageWhoisClose"
+      class="modal-close is-large"
+      aria-label="close"
+    ></button>
   </div>
-  <button
-    id="singlewhoisMessageWhoisClose"
-    class="modal-close is-large"
-    aria-label="close"
-  ></button>
-</div>
 
-<div id="singlewhoisDomainCopied" class="modal">
-  <div class="modal-background"></div>
-  <div class="modal-content">
-    <div class="box">
-      <div class="highlight-full">
-        <figure class="highlight">
-          <pre class="has-text-left">
-            The domain url has been copied
-          </pre>
-        </figure>
+  <div id="singlewhoisDomainCopied" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      <div class="box">
+        <div class="highlight-full">
+          <figure class="highlight">
+            <pre class="has-text-left">
+              The domain url has been copied
+            </pre>
+          </figure>
+        </div>
       </div>
     </div>
+    <button
+      id="singlewhoisDomainCopiedClose"
+      class="modal-close is-large"
+      aria-label="close"
+    ></button>
   </div>
-  <button
-    id="singlewhoisDomainCopiedClose"
-    class="modal-close is-large"
-    aria-label="close"
-  ></button>
 </div>
 
 <div class="container is-hidden">
