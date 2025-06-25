@@ -12,7 +12,12 @@
     "skipLibCheck": true,
     "moduleDetection": "force",
     "types": ["node", "jest", "better-sqlite3"],
-    "typeRoots": ["./node_modules/@types", "./types", "./types/fontawesome-free.d.ts"],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./types",
+      "./types/fontawesome-free.d.ts",
+      "./types/compiled-templates.d.ts"
+    ],
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noImplicitThis": true
