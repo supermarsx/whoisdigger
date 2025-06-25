@@ -69,12 +69,22 @@ async function dirSize(dir: string): Promise<number> {
 async function sendStats(): Promise<void> {
   let mtime: number | null = null;
   let loaded = false;
+  let cfgSize = 0;
+  let readWrite = false;
   try {
     const st = await fs.promises.stat(statsConfigPath);
     mtime = st.mtimeMs;
+    cfgSize = st.size;
     loaded = true;
+    try {
+      await fs.promises.access(statsConfigPath, fs.constants.R_OK | fs.constants.W_OK);
+      readWrite = true;
+    } catch {
+      readWrite = false;
+    }
   } catch {
     loaded = false;
+    cfgSize = 0;
   }
   let size = 0;
   try {
@@ -82,7 +92,15 @@ async function sendStats(): Promise<void> {
   } catch {
     size = 0;
   }
-  updateStats({ mtime, loaded, size, configPath: statsConfigPath });
+  updateStats({
+    mtime,
+    loaded,
+    size,
+    configPath: statsConfigPath,
+    configSize: cfgSize,
+    readWrite,
+    dataPath: statsDataDir
+  });
 }
 
 function startStatsWorker(): void {
@@ -128,10 +146,18 @@ function updateStats(data: {
   loaded: boolean;
   size: number;
   configPath: string;
+  configSize: number;
+  readWrite: boolean;
+  dataPath: string;
 }): void {
   $('#stat-config-path').text(data.configPath);
+  $('#stat-config-size').text(
+    byteToHumanFileSize(data.configSize, settings.lookupMisc.useStandardSize)
+  );
   $('#stat-config-loaded').text(data.loaded ? 'Loaded' : 'Not loaded');
   $('#stat-config-mtime').text(data.mtime ? new Date(data.mtime).toUTCString() : 'N/A');
+  $('#stat-config-perms').text(data.readWrite ? 'Read/Write' : 'Read only');
+  $('#stat-data-path').text(data.dataPath);
   $('#stat-data-size').text(byteToHumanFileSize(data.size, settings.lookupMisc.useStandardSize));
 }
 
@@ -258,10 +284,6 @@ $(document).ready(() => {
   });
   // Wait for the final settings to load before populating fields
 
-  const status = $('#custom-settings-status');
-  const customLoaded = sessionStorage.getItem('customSettingsLoaded') === 'true';
-  status.text(customLoaded ? 'Custom settings loaded.' : 'Custom settings not loaded.');
-
   startStatsWorker();
 
   if (sessionStorage.getItem('settingsLoaded') !== 'true') {
@@ -270,15 +292,11 @@ $(document).ready(() => {
 
   window.addEventListener('settings-loaded', () => {
     $('#settings-not-loaded').addClass('is-hidden');
-    const loaded = sessionStorage.getItem('customSettingsLoaded') === 'true';
-    status.text(loaded ? 'Custom settings loaded.' : 'Custom settings not loaded.');
     populateInputs();
     startStatsWorker();
   });
 
   window.addEventListener('settings-reloaded', () => {
-    const loaded = sessionStorage.getItem('customSettingsLoaded') === 'true';
-    status.text(loaded ? 'Custom settings loaded.' : 'Custom settings not loaded.');
     populateInputs();
     startStatsWorker();
   });
@@ -382,6 +400,19 @@ $(document).ready(() => {
 
   $('#deleteConfigNo, #deleteConfigModal .delete').on('click', () => {
     $('#deleteConfigModal').removeClass('is-active');
+  });
+
+  const backToTop = $('#opBackToTop');
+  const containerEl = $('#contents-container');
+  containerEl.on('scroll', () => {
+    if ($('#opMainContainer').hasClass('current')) {
+      backToTop.toggleClass('is-visible', containerEl.scrollTop() > 200);
+    } else {
+      backToTop.removeClass('is-visible');
+    }
+  });
+  backToTop.on('click', () => {
+    containerEl.animate({ scrollTop: 0 }, 300);
   });
 });
 

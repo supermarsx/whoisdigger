@@ -31,12 +31,22 @@ async function dirSize(dir: string): Promise<number> {
 async function sendStats(): Promise<void> {
   let mtime: number | null = null;
   let loaded = false;
+  let cfgSize = 0;
+  let readWrite = false;
   try {
     const st = await fs.promises.stat(configPath);
     mtime = st.mtimeMs;
+    cfgSize = st.size;
     loaded = true;
+    try {
+      await fs.promises.access(configPath, fs.constants.R_OK | fs.constants.W_OK);
+      readWrite = true;
+    } catch {
+      readWrite = false;
+    }
   } catch {
     loaded = false;
+    cfgSize = 0;
   }
   let size = 0;
   try {
@@ -44,7 +54,15 @@ async function sendStats(): Promise<void> {
   } catch {
     size = 0;
   }
-  parentPort?.postMessage({ mtime, loaded, size, configPath });
+  parentPort?.postMessage({
+    mtime,
+    loaded,
+    size,
+    configPath,
+    configSize: cfgSize,
+    readWrite,
+    dataPath: dataDir
+  });
 }
 
 void sendStats();
