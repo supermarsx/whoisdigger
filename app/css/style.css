@@ -205,3 +205,16 @@ html[data-theme='dark'] #toTable .button {
 #opBackToTop.is-visible {
   display: inline-flex;
 }
+
+/* Go to bottom button */
+#opGoToBottom {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 4rem;
+  display: none;
+  z-index: 900;
+}
+
+#opGoToBottom.is-visible {
+  display: inline-flex;
+}
