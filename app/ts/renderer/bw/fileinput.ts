@@ -23,10 +23,10 @@ async function refreshBwFile(pathToFile: string): Promise<void> {
         timeBetween: settings.lookupRandomizeTimeBetween
       }
     };
-    const bwFileStats = fs.statSync(pathToFile) as FileStats;
+    const bwFileStats = (await fs.promises.stat(pathToFile)) as FileStats;
     bwFileStats.filename = path.basename(pathToFile);
     bwFileStats.humansize = conversions.byteToHumanFileSize(bwFileStats.size, misc.useStandardSize);
-    bwFileContents = fs.readFileSync(pathToFile) as unknown as Buffer;
+    bwFileContents = await fs.promises.readFile(pathToFile);
     bwFileStats.linecount = bwFileContents.toString().split('\n').length;
 
     if (lookup.randomize.timeBetween.randomize === true) {
