@@ -56,7 +56,6 @@ test('changing setting updates configuration', async () => {
   jQuery.ready();
   const { settings } = settingsModule;
 
-
   await new Promise((r) => setTimeout(r, 0));
 
   jQuery('#appSettings\\.theme\\.darkMode').val('true').trigger('change');

@@ -205,8 +205,8 @@ ipcMain.on('bw:lookup.continue', function (event: IpcMainEvent) {
     settings.lookupGeneral.type === 'dns' && settings.lookupGeneral.dnsTimeBetweenOverride
       ? stats.domains.total * settings.lookupGeneral.dnsTimeBetween
       : settings.lookupRandomizeTimeBetween.randomize // Counter total time
-        ? stats.domains.total * settings.lookupRandomizeTimeBetween.maximum
-        : stats.domains.total * settings.lookupGeneral.timeBetween;
+      ? stats.domains.total * settings.lookupRandomizeTimeBetween.maximum
+      : stats.domains.total * settings.lookupGeneral.timeBetween;
 
   stats.time.remainingcounter += settings.lookupRandomizeTimeout.randomize // Counter add timeout
     ? settings.lookupRandomizeTimeout.maximum
