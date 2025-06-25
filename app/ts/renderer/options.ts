@@ -408,7 +408,9 @@ $(document).ready(() => {
   containerEl.on('scroll', () => {
     if ($('#opMainContainer').hasClass('current')) {
       const top = containerEl.scrollTop() ?? 0;
-      const bottom = containerEl[0].scrollHeight - containerEl.innerHeight() - top;
+      const bottom =
+        (containerEl[0]?.scrollHeight ?? 0) - (containerEl.innerHeight() ?? 0) -
+        top;
       backToTop.toggleClass('is-visible', top > 200);
       goToBottom.toggleClass('is-visible', bottom > 200);
     } else {
@@ -420,7 +422,7 @@ $(document).ready(() => {
     containerEl.animate({ scrollTop: 0 }, 300);
   });
   goToBottom.on('click', () => {
-    containerEl.animate({ scrollTop: containerEl[0].scrollHeight }, 300);
+    containerEl.animate({ scrollTop: containerEl[0]?.scrollHeight ?? 0 }, 300);
   });
 });
 
