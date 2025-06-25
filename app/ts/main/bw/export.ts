@@ -7,9 +7,27 @@ const debug = debugModule('main.bw.export');
 import JSZip from 'jszip';
 import { formatString } from '../../common/stringformat';
 
-const { app, BrowserWindow, Menu, ipcMain, dialog, remote } = electron;
+const { app, BrowserWindow, Menu, ipcMain, dialog, remote, shell } = electron;
 
 import { getSettings } from '../../common/settings';
+
+function generateFilename(ext: string): string {
+  function pad(n: number): string {
+    return String(n).padStart(2, '0');
+  }
+  const d = new Date();
+  const datetime =
+    d.getFullYear().toString() +
+    pad(d.getMonth() + 1) +
+    pad(d.getDate()) +
+    pad(d.getHours()) +
+    pad(d.getMinutes()) +
+    pad(d.getSeconds());
+  const hex = Math.floor(Math.random() * 0xffffff)
+    .toString(16)
+    .padStart(6, '0');
+  return `bulkwhois-export-${datetime}-${hex}${ext}`;
+}
 
 /*
   ipcMain.on('bw:export', function(...) {...});
@@ -62,10 +80,17 @@ ipcMain.handle('bw:export', async function (event, results, options) {
       break;
   }
 
+  const isZip =
+    options.filetype === 'txt' ||
+    (options.filetype === 'csv' &&
+      (options.whoisreply === 'yes+inlineseparate' ||
+        options.whoisreply === 'yes+block'));
+  const ext = isZip ? zip : options.filetype === 'csv' ? csv : txt;
   const filePath = dialog.showSaveDialogSync({
     title: 'Save export file',
     buttonLabel: 'Save',
-    filters
+    filters,
+    defaultPath: resExports.autoGenerateFilename ? generateFilename(ext) : undefined
   });
 
   if (filePath === undefined || filePath == '' || filePath === null) {
@@ -191,13 +216,20 @@ ipcMain.handle('bw:export', async function (event, results, options) {
         try {
           const genType = JSZip.support.uint8array ? 'uint8array' : 'string';
           const content = await contentZip.generateAsync({ type: genType });
-          await fs.promises.writeFile(filePath + zip, content);
-          debug(formatString('Zip saved, {0}', filePath + zip));
+          const target = filePath.endsWith(zip) ? filePath : filePath + zip;
+          await fs.promises.writeFile(target, content);
+          debug(formatString('Zip saved, {0}', target));
+          if (resExports.openAfterExport) {
+            await shell.openPath(target);
+          }
         } catch (err) {
           debug(formatString('Error, {0}', err));
           throw err;
         }
         break;
+    }
+    if (!isZip && resExports.openAfterExport) {
+      await shell.openPath(filePath);
     }
   }
   sender.send('bw:export.cancel');

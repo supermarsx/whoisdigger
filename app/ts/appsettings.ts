@@ -173,7 +173,9 @@ const appSettings = {
       linebreak: '\n', // Line breaker char (default: '\n')
       filetypeText: '.txt', // Text file extension (default: '.txt')
       filetypeCsv: '.csv', // Comma separated values file extension (default: '.csv')
-      filetypeZip: '.zip' // Compressed file extension (default: '.zip')
+      filetypeZip: '.zip', // Compressed file extension (default: '.zip')
+      openAfterExport: false, // Open file after exporting (default: false)
+      autoGenerateFilename: false // Suggest filename automatically (default: false)
     }
   }
 };
@@ -271,5 +273,7 @@ export const appSettingsDescriptions: Record<string, string> = {
   'lookupExport.linebreak': 'Line break character',
   'lookupExport.filetypeText': 'Text file extension',
   'lookupExport.filetypeCsv': 'CSV file extension',
-  'lookupExport.filetypeZip': 'ZIP file extension'
+  'lookupExport.filetypeZip': 'ZIP file extension',
+  'lookupExport.openAfterExport': 'Open exported file automatically',
+  'lookupExport.autoGenerateFilename': 'Suggest export filename automatically'
 };
