@@ -58,7 +58,7 @@ const appSettings = {
     },
     lookupGeneral: {
       // Whois lookup default values
-      type: 'dns', // Lookup type: 'whois' - regular whois request, 'dns' - dns record request (default: whois)
+      type: 'whois', // Lookup type: 'whois' - regular whois request, 'dns' - dns record request (default: whois)
       psl: true, // Enable Public Suffix List conversion, removes subdomains includes wildcards (default: true)
       server: '', // Default whois server
       verbose: false, // When true returns array of whois replies

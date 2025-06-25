@@ -65,6 +65,9 @@ let { settings } = settingsModule;
 const defaultSettings: Settings = JSON.parse(JSON.stringify(settings));
 const defaultCustomConfiguration = settings.customConfiguration;
 export { settings };
+export function getSettings(): Settings {
+  return settings;
+}
 export let customSettingsLoaded = false;
 export default settings;
 

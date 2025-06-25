@@ -2,7 +2,7 @@ import debugModule from 'debug';
 import { isDomainAvailable, getDomainParameters } from '../../common/availability';
 import { toJSON } from '../../common/parser';
 import { performance } from 'perf_hooks';
-import { settings } from '../../common/settings';
+import { getSettings } from '../../common/settings';
 import { formatString } from '../../common/stringformat';
 import type { BulkWhois, ProcessedResult } from './types';
 import * as dns from '../../common/dnsLookup';
@@ -27,6 +27,7 @@ export async function processData(
   let domainAvailable: string;
   let lastStatus: string | undefined;
   let resultsJSON: Record<string, unknown> | string;
+  const settings = getSettings();
   reqtime[index] = parseFloat((performance.now() - reqtime[index]).toFixed(2));
 
   if (reqtimes.minimum > reqtime[index]) {
