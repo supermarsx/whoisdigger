@@ -29,7 +29,7 @@ async function refreshBwFile(pathToFile: string): Promise<void> {
       bwFileStats.size,
       misc.useStandardSize
     );
-    bwFileContents = fs.readFileSync(pathToFile);
+    bwFileContents = fs.readFileSync(pathToFile) as unknown as Buffer;
     bwFileStats.linecount = bwFileContents.toString().split('\n').length;
 
     if (lookup.randomize.timeBetween.randomize === true) {
