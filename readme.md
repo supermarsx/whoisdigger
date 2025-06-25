@@ -248,9 +248,11 @@ Build the Docker image:
 docker build -t whoisdigger .
 ```
 
-Run the application (requires X11 forwarding to display Electron):
+Run the application (requires X11 forwarding to display Electron).
+Ensure an X server is active on the host and allow local connections:
 
 ```bash
+xhost +local:
 docker run --rm -it \
   -e DISPLAY=$DISPLAY \
   -v /tmp/.X11-unix:/tmp/.X11-unix \
