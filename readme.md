@@ -40,6 +40,8 @@ If you clone this repo please patch `node_modules\whois\index.js` and remove the
 - Persistent settings through JSON file preload with live updates
 - Redesigned options interface with auto-save
 - Dark mode toggle
+- Follow system theme option
+- Exit confirmation prompt
 
 ### Planned features
 
@@ -189,6 +191,14 @@ Run `npm run format -- --write` before committing to apply Prettier formatting. 
 ## Settings
 
 Whoisdigger uses a settings file that rules how the application behaves overall, this can be achieved by either using the preload settings file or change the `appsettings.ts` inside `js`.
+
+### Theme
+
+The options screen provides a **Follow system theme** toggle. When enabled the application automatically switches between dark and light modes according to your operating system preference. This behaviour is controlled by the `theme.followSystem` setting which can be set to `true` or `false` in the configuration file.
+
+### User interface
+
+Enable **Confirm before exiting** to receive a prompt before Whoisdigger closes. Toggle this option in the interface or set `ui.confirmExit` in the configuration file.
 
 ### Assumptions
 
