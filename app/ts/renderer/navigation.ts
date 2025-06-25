@@ -1,6 +1,7 @@
 import { ipcRenderer } from 'electron';
 import { formatString } from '../common/stringformat';
 import $ from 'jquery';
+import { populateInputs } from './options';
 
 /*
   $(document).on('drop', function(...) {...});
@@ -51,6 +52,9 @@ $(document).on('click', 'section.tabs ul li', function () {
 
     $(this).addClass('is-active');
     $('#' + tabName).addClass('current');
+    if (tabName === 'opMainContainer') {
+      populateInputs();
+    }
   }
   ipcRenderer.send('app:debug', formatString('#section.tabs switched to data tab, {0}', tabName));
 

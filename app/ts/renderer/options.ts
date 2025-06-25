@@ -80,7 +80,7 @@ function buildEntries(obj: any, prefix: string, table: JQuery<HTMLElement>): voi
   });
 }
 
-function populateInputs(): void {
+export function populateInputs(): void {
   $('#opTable')
     .find('input[id], select[id]')
     .each((_, el) => {
