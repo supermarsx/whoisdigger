@@ -53,7 +53,7 @@ export interface Settings {
   };
   customConfiguration: { filepath: string; load: boolean; save: boolean };
   theme: { darkMode: boolean };
-  ui: { liveReload: boolean };
+  ui: { liveReload: boolean; confirmExit: boolean };
   [key: string]: any;
 }
 
