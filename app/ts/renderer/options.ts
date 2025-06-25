@@ -2,6 +2,7 @@ import $ from 'jquery';
 import fs from 'fs';
 import path from 'path';
 import { shell, ipcRenderer } from 'electron';
+import { Worker } from 'worker_threads';
 import {
   settings,
   saveSettings,
@@ -10,6 +11,7 @@ import {
   customSettingsLoaded,
   getUserDataPath
 } from '../common/settings';
+import { byteToHumanFileSize } from '../common/conversions';
 import appDefaults, { appSettingsDescriptions } from '../appsettings';
 
 function getValue(path: string): any {
@@ -38,6 +40,33 @@ function getDefault(path: string): any {
   return path
     .split('.')
     .reduce((obj: any, key: string) => (obj ? obj[key] : undefined), appDefaults.settings);
+}
+
+let statsWorker: Worker | null = null;
+
+function startStatsWorker(): void {
+  if (statsWorker) statsWorker.terminate();
+  const workerPath = path.join(__dirname, 'renderer', 'workers', 'statsWorker.js');
+  statsWorker = new Worker(workerPath, {
+    workerData: {
+      configPath: path.join(getUserDataPath(), settings.customConfiguration.filepath),
+      dataDir: getUserDataPath()
+    }
+  });
+  statsWorker.on('message', updateStats);
+}
+
+function refreshStats(): void {
+  statsWorker?.postMessage('refresh');
+}
+
+function updateStats(data: { mtime: number | null; loaded: boolean; size: number; configPath: string }): void {
+  $('#stat-config-path').text(data.configPath);
+  $('#stat-config-loaded').text(data.loaded ? 'Loaded' : 'Not loaded');
+  $('#stat-config-mtime').text(data.mtime ? new Date(data.mtime).toUTCString() : 'N/A');
+  $('#stat-data-size').text(
+    byteToHumanFileSize(data.size, settings.lookupMisc.useStandardSize)
+  );
 }
 
 const enumOptions: Record<string, string[]> = {
@@ -167,6 +196,8 @@ $(document).ready(() => {
   const customLoaded = sessionStorage.getItem('customSettingsLoaded') === 'true';
   status.text(customLoaded ? 'Custom settings loaded.' : 'Custom settings not loaded.');
 
+  startStatsWorker();
+
   if (sessionStorage.getItem('settingsLoaded') !== 'true') {
     $('#settings-not-loaded').removeClass('is-hidden');
   }
@@ -176,12 +207,14 @@ $(document).ready(() => {
     const loaded = sessionStorage.getItem('customSettingsLoaded') === 'true';
     status.text(loaded ? 'Custom settings loaded.' : 'Custom settings not loaded.');
     populateInputs();
+    startStatsWorker();
   });
 
   window.addEventListener('settings-reloaded', () => {
     const loaded = sessionStorage.getItem('customSettingsLoaded') === 'true';
     status.text(loaded ? 'Custom settings loaded.' : 'Custom settings not loaded.');
     populateInputs();
+    startStatsWorker();
   });
 
   container.on('change', 'input[id], select[id]', function () {
@@ -236,6 +269,7 @@ $(document).ready(() => {
     const exists = fs.existsSync(filePath);
     const success = customSettingsLoaded || !exists;
     showToast(success ? 'Configuration reloaded' : 'Failed to reload configuration', success);
+    refreshStats();
   });
 
   $('#saveConfig').on('click', async () => {
@@ -244,6 +278,7 @@ $(document).ready(() => {
       res === 'SAVED' || res === undefined ? 'Configuration saved' : 'Failed to save configuration',
       res === 'SAVED' || res === undefined
     );
+    refreshStats();
   });
 
   $('#openDataFolder').on('click', async () => {
@@ -275,6 +310,7 @@ $(document).ready(() => {
         showToast('Configuration deleted', true);
       }
     });
+    refreshStats();
     $('#deleteConfigModal').removeClass('is-active');
   });
 
