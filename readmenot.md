@@ -43,11 +43,11 @@ Html is split across different files and is fully loaded at startup with Jquery 
 
 Tab Single Whois
 
-- Single Whois Panel, `#singlewhoisMainContainer`, `tabs\singlewhois.html`, search for domain using input.
+- Single Whois Panel, `#singlewhoisMainContainer`, `templates/singlewhois.hbs`, search for domain using input.
 
 Tab Bulk Whois
 
-- Bulk Whois Entry, `#bwEntry`, `tabs\bw\bwEntry.html`
+- Bulk Whois Entry, `#bwEntry`, `templates/bwEntry.hbs`
   - [If file wordlist is chosen], File loading, - [If file is selected], file input confirm - [If confirmed, go to processing]
   - [If manual wordlist is chosen], Wordlist Input, - [If wordlist is confirmed], Wordlist loading, - [after loading], wordlist confirm - [If confirmed, go to processing]
 - Bulk whois processing,
