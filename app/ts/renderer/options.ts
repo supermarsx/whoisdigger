@@ -55,7 +55,7 @@ const enumOptions: Record<string, string[]> = {
 function buildEntries(obj: any, prefix: string, table: JQuery<HTMLElement>): void {
   Object.entries(obj).forEach(([key, value]) => {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
-      table.append(`<tr><th colspan="2"><h4 class="title is-5">${key}</h4></th></tr>`);
+      table.append(`<tr class="group-row"><th colspan="2"><h4 class="title is-5">${key}</h4></th></tr>`);
       buildEntries(value, prefix ? `${prefix}.${key}` : key, table);
     } else {
       const path = prefix ? `${prefix}.${key}` : key;
@@ -129,10 +129,42 @@ function showToast(message: string, success: boolean): void {
   }, 3000);
 }
 
+function filterOptions(term: string): void {
+  const needle = term.trim().toLowerCase();
+  const rows = $('#opTable tr');
+  if (!needle) {
+    rows.show();
+    $('#opSearchNoResults').addClass('is-hidden');
+    return;
+  }
+
+  rows.each(function () {
+    const $row = $(this);
+    if ($row.hasClass('group-row')) {
+      $row.show();
+      return;
+    }
+    $row.toggle($row.text().toLowerCase().includes(needle));
+  });
+
+  $('#opTable .group-row').each(function () {
+    const $group = $(this);
+    const visible = $group.nextUntil('.group-row').filter(':visible').length > 0;
+    $group.toggle(visible);
+  });
+
+  const anyVisible = rows.not('.group-row').filter(':visible').length > 0;
+  $('#opSearchNoResults').toggleClass('is-hidden', anyVisible);
+}
+
 $(document).ready(() => {
   const container = $('#opEntry');
   const table = $('#opTable');
   buildEntries(appDefaults.settings, '', table);
+  filterOptions('');
+  $('#opSearch').on('input', function () {
+    filterOptions($(this).val() as string);
+  });
   // Wait for the final settings to load before populating fields
 
   const status = $('#custom-settings-status');
