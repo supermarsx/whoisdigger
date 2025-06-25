@@ -5,7 +5,7 @@ import * as dns from '../../common/dnsLookup';
 import { Result, DnsLookupError } from '../../common/errors';
 import { formatString } from '../../common/stringformat';
 import { msToHumanTime } from '../../common/conversions';
-import { settings } from '../../common/settings';
+import { getSettings } from '../../common/settings';
 import type { BulkWhois, DomainSetup } from './types';
 import { processData } from './resultHandler';
 import type { IpcMainEvent } from 'electron';
@@ -32,6 +32,7 @@ export function processDomain(
 
   processingIDs[domainSetup.index!] = setTimeout(async () => {
     let data: any;
+    const settings = getSettings();
     stats.domains.sent++;
     sender.send('bw:status.update', 'domains.sent', stats.domains.sent);
     stats.domains.waiting++;

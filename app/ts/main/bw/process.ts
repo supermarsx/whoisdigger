@@ -10,7 +10,7 @@ import { processDomain, counter } from './scheduler';
 import { resetObject } from '../../common/resetObject';
 import { resetUiCounters } from './auxiliary';
 
-import { settings } from '../../common/settings';
+import { getSettings } from '../../common/settings';
 
 const { app, BrowserWindow, Menu, ipcMain, dialog, remote } = electron;
 import { formatString } from '../../common/stringformat';
@@ -30,6 +30,8 @@ ipcMain.on('bw:lookup', function (event: IpcMainEvent, domains: string[], tlds: 
   resetUiCounters(event); // Reset UI counters, pass window param
   bulkWhois = resetObject(defaultBulkWhois); // Resets the bulkWhois object to default
   reqtime = [];
+
+  const settings = getSettings();
 
   // bulkWhois section
   const { results, input, stats, processingIDs } = bulkWhois;
@@ -138,6 +140,8 @@ ipcMain.on('bw:lookup.pause', function (event: IpcMainEvent) {
  */
 ipcMain.on('bw:lookup.continue', function (event: IpcMainEvent) {
   debug('Continuing bulk whois requests');
+
+  const settings = getSettings();
 
   // Go through the remaining domains and queue them again using setTimeouts
   let follow, timeout, timebetween;

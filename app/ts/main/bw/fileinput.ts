@@ -5,7 +5,7 @@ const debug = debugModule('main.bw.fileinput');
 const { app, BrowserWindow, Menu, ipcMain, dialog } = electron;
 import { formatString } from '../../common/stringformat';
 
-import { settings } from '../../common/settings';
+import { getSettings } from '../../common/settings';
 
 /*
   ipcMain.on('bw:input.file', function(...) {...});
@@ -35,7 +35,7 @@ ipcMain.on('bw:input.file', function (event) {
     filePath (string) - dropped file path
  */
 ipcMain.on('ondragstart', function (event, filePath) {
-  const { appWindow } = settings;
+  const { appWindow } = getSettings();
 
   const { sender } = event;
 

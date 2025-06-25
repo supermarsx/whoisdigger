@@ -9,7 +9,7 @@ import { formatString } from '../../common/stringformat';
 
 const { app, BrowserWindow, Menu, ipcMain, dialog, remote } = electron;
 
-import { settings } from '../../common/settings';
+import { getSettings } from '../../common/settings';
 
 /*
   ipcMain.on('bw:export', function(...) {...});
@@ -20,7 +20,7 @@ import { settings } from '../../common/settings';
     options (object) - bulk whois export options object
  */
 ipcMain.handle('bw:export', async function (event, results, options) {
-  const { lookupExport: resExports } = settings;
+  const { lookupExport: resExports } = getSettings();
 
   const { sender } = event;
 
