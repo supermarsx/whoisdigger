@@ -52,7 +52,7 @@ export interface Settings {
     ttl: number;
   };
   customConfiguration: { filepath: string; load: boolean; save: boolean };
-  theme: { darkMode: boolean };
+  theme: { darkMode: boolean; followSystem: boolean };
   ui: { liveReload: boolean };
   [key: string]: any;
 }

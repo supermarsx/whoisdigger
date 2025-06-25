@@ -42,6 +42,7 @@ const appSettings = {
     },
     theme: {
       // Application theme settings
+      followSystem: false, // Follow system theme preference
       darkMode: false // Enable dark mode theme (default: false)
     },
     appWindowUrl: {
@@ -207,6 +208,7 @@ export const appSettingsDescriptions: Record<string, string> = {
   'appWindowWebPreferences.spellcheck': 'Enable spellchecker',
   'appWindowWebPreferences.enableRemoteModule': 'Enable remote module',
   'startup.developerTools': 'Open developer tools on startup',
+  'theme.followSystem': 'Follow system theme preference',
   'theme.darkMode': 'Enable dark mode theme',
   'appWindowUrl.pathname': 'Main window HTML path',
   'appWindowUrl.protocol': 'Main window URL protocol',

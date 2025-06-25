@@ -10,24 +10,54 @@ function applyDarkMode(enabled: boolean): void {
   }
 }
 
+function getSystemPref(): boolean {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
 $(document).ready(() => {
-  const select = $('#theme\\.darkMode');
-  const stored = settings.theme?.darkMode ?? false;
-  applyDarkMode(stored);
-  if (select.length) {
-    select.val(stored ? 'true' : 'false');
-    select.on('change', () => {
-      const state = select.val() === 'true';
-      settings.theme = settings.theme || { darkMode: false };
+  const darkSelect = $('#theme\\.darkMode');
+  const systemSelect = $('#theme\\.followSystem');
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+  const applyFromSettings = (): void => {
+    const useSystem = settings.theme?.followSystem ?? false;
+    const isDark = useSystem ? mediaQuery.matches : settings.theme?.darkMode ?? false;
+    applyDarkMode(isDark);
+    if (darkSelect.length) darkSelect.val(settings.theme?.darkMode ? 'true' : 'false');
+    if (systemSelect.length) systemSelect.val(useSystem ? 'true' : 'false');
+  };
+
+  applyFromSettings();
+
+  mediaQuery.addEventListener('change', () => {
+    if (settings.theme?.followSystem) {
+      applyDarkMode(mediaQuery.matches);
+    }
+  });
+
+  if (darkSelect.length) {
+    darkSelect.on('change', () => {
+      const state = darkSelect.val() === 'true';
+      settings.theme = settings.theme || { darkMode: false, followSystem: false };
       settings.theme.darkMode = state;
       void saveSettings(settings);
-      applyDarkMode(state);
+      if (!settings.theme.followSystem) {
+        applyDarkMode(state);
+      }
+    });
+  }
+
+  if (systemSelect.length) {
+    systemSelect.on('change', () => {
+      const state = systemSelect.val() === 'true';
+      settings.theme = settings.theme || { darkMode: false, followSystem: false };
+      settings.theme.followSystem = state;
+      void saveSettings(settings);
+      applyDarkMode(state ? mediaQuery.matches : settings.theme.darkMode ?? false);
     });
   }
 
   window.addEventListener('settings-loaded', () => {
-    const current = settings.theme?.darkMode ?? false;
-    applyDarkMode(current);
-    if (select.length) select.val(current ? 'true' : 'false');
+    applyFromSettings();
   });
 });
