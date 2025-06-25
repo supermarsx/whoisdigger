@@ -406,7 +406,8 @@ $(document).ready(() => {
   const containerEl = $('#contents-container');
   containerEl.on('scroll', () => {
     if ($('#opMainContainer').hasClass('current')) {
-      backToTop.toggleClass('is-visible', containerEl.scrollTop() > 200);
+      const top = containerEl.scrollTop() ?? 0;
+      backToTop.toggleClass('is-visible', top > 200);
     } else {
       backToTop.removeClass('is-visible');
     }
