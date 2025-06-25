@@ -403,17 +403,24 @@ $(document).ready(() => {
   });
 
   const backToTop = $('#opBackToTop');
+  const goToBottom = $('#opGoToBottom');
   const containerEl = $('#contents-container');
   containerEl.on('scroll', () => {
     if ($('#opMainContainer').hasClass('current')) {
       const top = containerEl.scrollTop() ?? 0;
+      const bottom = containerEl[0].scrollHeight - containerEl.innerHeight() - top;
       backToTop.toggleClass('is-visible', top > 200);
+      goToBottom.toggleClass('is-visible', bottom > 200);
     } else {
       backToTop.removeClass('is-visible');
+      goToBottom.removeClass('is-visible');
     }
   });
   backToTop.on('click', () => {
     containerEl.animate({ scrollTop: 0 }, 300);
+  });
+  goToBottom.on('click', () => {
+    containerEl.animate({ scrollTop: containerEl[0].scrollHeight }, 300);
   });
 });
 
