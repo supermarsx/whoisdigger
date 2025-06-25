@@ -86,11 +86,14 @@ test('bw watcher updates table on change', async () => {
     expect.any(Function)
   );
 
+  const beforeStat = statMock.mock.calls.length;
+  const beforeRead = readFileMock.mock.calls.length;
+
   watchEmitter.emit('change', 'change');
   for (let i = 0; i < 5; i++) await new Promise((res) => setTimeout(res, 0));
 
-  expect(statSyncMock).toHaveBeenCalled();
-  expect(readFileSyncMock).toHaveBeenCalled();
+  expect(statMock.mock.calls.length).toBeGreaterThan(beforeStat);
+  expect(readFileMock.mock.calls.length).toBeGreaterThan(beforeRead);
 });
 
 test('bwa watcher updates table on change', async () => {
@@ -130,9 +133,12 @@ test('bwa watcher updates table on change', async () => {
     expect.any(Function)
   );
 
+  const beforeStat = statMock.mock.calls.length;
+  const beforeRead = readFileMock.mock.calls.length;
+
   watchEmitter.emit('change', 'change');
   for (let i = 0; i < 5; i++) await new Promise((res) => setTimeout(res, 0));
 
-  expect(statSyncMock).toHaveBeenCalled();
-  expect(readFileSyncMock).toHaveBeenCalled();
+  expect(statMock.mock.calls.length).toBeGreaterThan(beforeStat);
+  expect(readFileMock.mock.calls.length).toBeGreaterThan(beforeRead);
 });

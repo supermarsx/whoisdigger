@@ -15,15 +15,18 @@ import { formatString } from '../../common/stringformat';
 let bwaFileContents: any;
 let bwaFileWatcher: fs.FSWatcher | undefined;
 
-function refreshBwaFile(pathToFile: string): void {
+async function refreshBwaFile(pathToFile: string): Promise<void> {
   try {
-    const bwaFileStats = fs.statSync(pathToFile) as FileStats;
+    const bwaFileStats = (await fs.promises.stat(pathToFile)) as FileStats;
     bwaFileStats.filename = path.basename(pathToFile);
     bwaFileStats.humansize = conversions.byteToHumanFileSize(
       bwaFileStats.size,
       settings.lookupMisc.useStandardSize
     );
-    bwaFileContents = Papa.parse(fs.readFileSync(pathToFile).toString(), { header: true });
+    bwaFileContents = Papa.parse(
+      (await fs.promises.readFile(pathToFile)).toString(),
+      { header: true }
+    );
     bwaFileStats.linecount = bwaFileContents.data.length;
     try {
       bwaFileStats.filepreview = JSON.stringify(bwaFileContents.data[0], null, '\t').substring(
@@ -145,7 +148,7 @@ ipcRenderer.on(
       //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']);
       if (chosenPath) {
         bwaFileWatcher = fs.watch(chosenPath, { persistent: false }, (evt) => {
-          if (evt === 'change') refreshBwaFile(chosenPath);
+          if (evt === 'change') void refreshBwaFile(chosenPath);
         });
       }
     }
