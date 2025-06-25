@@ -88,5 +88,8 @@
     "babel-jest": "^30.0.2",
     "@babel/core": "^7.27.4",
     "@babel/preset-env": "^7.27.2"
+  },
+  "electronmon": {
+    "patterns": ["!dist/app/data/**"]
   }
 }
