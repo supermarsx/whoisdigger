@@ -1,7 +1,12 @@
 import $ from 'jquery';
 import fs from 'fs';
 import path from 'path';
-import { shell, ipcRenderer } from 'electron';
+const electron = (window as any).electron as {
+  send: (channel: string, ...args: any[]) => void;
+  invoke: (channel: string, ...args: any[]) => Promise<any>;
+  on: (channel: string, listener: (...args: any[]) => void) => void;
+  openPath: (path: string) => Promise<string>;
+};
 import { Worker } from 'worker_threads';
 import chokidar from 'chokidar';
 import {
@@ -367,7 +372,7 @@ $(document).ready(() => {
 
   $('#openDataFolder').on('click', async () => {
     const dataDir = getUserDataPath();
-    const result = await shell.openPath(dataDir);
+    const result = await electron.openPath(dataDir);
     if (result) {
       showToast('Failed to open data directory', false);
     }
@@ -375,7 +380,7 @@ $(document).ready(() => {
 
   $('#reloadApp').on('click', async () => {
     try {
-      await ipcRenderer.invoke('app:reload');
+      await electron.invoke('app:reload');
     } catch {
       showToast('Failed to reload application', false);
     }

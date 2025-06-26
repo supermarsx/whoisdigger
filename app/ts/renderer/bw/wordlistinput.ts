@@ -1,7 +1,11 @@
 import * as conversions from '../../common/conversions';
 import { settings } from '../../common/settings';
 
-import { ipcRenderer } from 'electron';
+const electron = (window as any).electron as {
+  send: (channel: string, ...args: any[]) => void;
+  invoke: (channel: string, ...args: any[]) => Promise<any>;
+  on: (channel: string, listener: (...args: any[]) => void) => void;
+};
 import { tableReset } from './auxiliary';
 import $ from 'jquery';
 
@@ -10,10 +14,10 @@ import { formatString } from '../../common/stringformat';
 let bwWordlistContents = ''; // Global wordlist input contents
 
 /*
-  ipcRenderer.on('bw:wordlistinput.confirmation', function() {...});
+  electron.on('bw:wordlistinput.confirmation', function() {...});
     Wordlist input, contents confirmation container
  */
-ipcRenderer.on('bw:wordlistinput.confirmation', function () {
+electron.on('bw:wordlistinput.confirmation', function () {
   const bwFileStats: Record<string, any> = {};
 
   bwWordlistContents = String($('#bwWordlistTextareaDomains').val() ?? '');
@@ -90,7 +94,7 @@ $(document).on('click', '#bwWordlistinputButtonCancel', function () {
  */
 $(document).on('click', '#bwWordlistinputButtonConfirm', function () {
   $('#bwWordlistinput').addClass('is-hidden');
-  ipcRenderer.send('bw:input.wordlist');
+  electron.send('bw:input.wordlist');
 
   return;
 });
@@ -125,7 +129,7 @@ $(document).on('click', '#bwWordlistconfirmButtonStart', function () {
   $('#bwWordlistconfirm').addClass('is-hidden');
   $('#bwProcessing').removeClass('is-hidden');
 
-  ipcRenderer.send('bw:lookup', bwDomainArray, bwTldsArray);
+  electron.send('bw:lookup', bwDomainArray, bwTldsArray);
 
   return;
 });

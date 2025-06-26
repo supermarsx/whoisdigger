@@ -1,8 +1,13 @@
-import { ipcRenderer } from 'electron';
 import { formatString } from '../common/stringformat';
 import $ from 'jquery';
 import { populateInputs } from './options';
 import { settings } from '../common/settings';
+
+const electron = (window as any).electron as {
+  send: (channel: string, ...args: any[]) => void;
+  invoke: (channel: string, ...args: any[]) => Promise<any>;
+  on: (channel: string, listener: (...args: any[]) => void) => void;
+};
 
 /*
   $(document).on('drop', function(...) {...});
@@ -11,7 +16,7 @@ import { settings } from '../common/settings';
     event (object)
  */
 $(document).on('drop', function (event) {
-  ipcRenderer.send('app:debug', 'Preventing drag and drop redirect');
+  electron.send('app:debug', 'Preventing drag and drop redirect');
   event.preventDefault();
 
   return false;
@@ -34,8 +39,8 @@ $(document).on('dragover', function (event) {
     On click: Button toggle developer tools
  */
 $(document).on('click', '#navButtonDevtools', function () {
-  void ipcRenderer.invoke('app:toggleDevtools');
-  ipcRenderer.send('app:debug', '#navButtonDevtools was clicked');
+  void electron.invoke('app:toggleDevtools');
+  electron.send('app:debug', '#navButtonDevtools was clicked');
 
   return;
 });
@@ -57,7 +62,7 @@ $(document).on('click', 'section.tabs ul li', function () {
       populateInputs();
     }
   }
-  ipcRenderer.send('app:debug', formatString('#section.tabs switched to data tab, {0}', tabName));
+  electron.send('app:debug', formatString('#section.tabs switched to data tab, {0}', tabName));
 
   return;
 });
@@ -67,7 +72,7 @@ $(document).on('click', 'section.tabs ul li', function () {
     On click: Delete open notifications
  */
 $(document).on('click', '.delete', function () {
-  ipcRenderer.send('app:debug', '.delete (notifications) was clicked');
+  electron.send('app:debug', '.delete (notifications) was clicked');
   const notificationId = $(this).attr('data-notif');
 
   $('#' + notificationId).addClass('is-hidden');
@@ -81,7 +86,7 @@ $(document).on('click', '.delete', function () {
  */
 $(document).keyup(function (event) {
   if (event.keyCode === 27) {
-    ipcRenderer.send('app:debug', formatString('Hotkey, Used [ESC] key, {0}', event.keyCode));
+    electron.send('app:debug', formatString('Hotkey, Used [ESC] key, {0}', event.keyCode));
     if ($('#appModalExit').hasClass('is-active')) {
       $('#appModalExitButtonNo').click();
       return;
@@ -89,7 +94,7 @@ $(document).keyup(function (event) {
     switch (true) {
       // Single whois tab is active
       case $('#navButtonSinglewhois').hasClass('is-active'):
-        ipcRenderer.send('app:debug', 'Hotkey, Single whois tab is active');
+        electron.send('app:debug', 'Hotkey, Single whois tab is active');
         switch (true) {
           case $('#singlewhoisDomainCopied').hasClass('is-active'):
             $('#singlewhoisDomainCopiedClose').click();
@@ -114,7 +119,7 @@ $(document).keyup(function (event) {
 
       // Bulk whois tab is active
       case $('#navButtonBw').hasClass('is-active'):
-        ipcRenderer.send('app:debug', 'Hotkey, Bulk whois tab is active');
+        electron.send('app:debug', 'Hotkey, Bulk whois tab is active');
         switch (true) {
           // Bulk whois, is Stop dialog open
           case $('#bwProcessingModalStop').hasClass('is-active'):
@@ -133,7 +138,7 @@ $(document).keyup(function (event) {
     Button/Toggle special menu items
  */
 $(document).on('click', '#navButtonExtendedmenu', function () {
-  ipcRenderer.send('app:debug', '#navButtonExtendedmenu was clicked');
+  electron.send('app:debug', '#navButtonExtendedmenu was clicked');
   $('#navButtonExtendedmenu').toggleClass('is-active');
   $('.is-specialmenu').toggleClass('is-hidden');
 
@@ -145,8 +150,8 @@ $(document).on('click', '#navButtonExtendedmenu', function () {
     On click: Minimize window button
  */
 $(document).on('click', '#navButtonMinimize', function () {
-  ipcRenderer.send('app:debug', '#navButtonMinimize was clicked');
-  void ipcRenderer.invoke('app:minimize');
+  electron.send('app:debug', '#navButtonMinimize was clicked');
+  void electron.invoke('app:minimize');
 
   return;
 });
@@ -156,32 +161,32 @@ $(document).on('click', '#navButtonMinimize', function () {
     On click: Close main window button
  */
 $(document).on('click', '#navButtonExit', function () {
-  ipcRenderer.send('app:debug', '#navButtonExit was clicked');
+  electron.send('app:debug', '#navButtonExit was clicked');
   if (settings.ui?.confirmExit) {
     $('#appModalExit').addClass('is-active');
   } else {
-    void ipcRenderer.invoke('app:close');
+      void electron.invoke('app:close');
   }
 
   return;
 });
 
 $(document).on('click', '#appModalExitButtonYes', function () {
-  ipcRenderer.send('app:debug', '#appModalExitButtonYes was clicked');
+  electron.send('app:debug', '#appModalExitButtonYes was clicked');
   $('#appModalExit').removeClass('is-active');
-  ipcRenderer.send('app:exit-confirmed');
+  electron.send('app:exit-confirmed');
 });
 
 $(document).on('click', '#appModalExitButtonNo, #appModalExit .delete', function () {
-  ipcRenderer.send('app:debug', '#appModalExitButtonNo was clicked');
+  electron.send('app:debug', '#appModalExitButtonNo was clicked');
   $('#appModalExit').removeClass('is-active');
 });
 
-ipcRenderer.on('app:confirm-exit', function () {
+electron.on('app:confirm-exit', function () {
   if (settings.ui?.confirmExit) {
     $('#appModalExit').addClass('is-active');
   } else {
-    void ipcRenderer.invoke('app:close');
+      void electron.invoke('app:close');
   }
 });
 

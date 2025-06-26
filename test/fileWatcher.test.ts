@@ -35,6 +35,12 @@ jest.mock('electron', () => ({
 
 beforeAll(() => {
   (window as any).$ = (window as any).jQuery = jQuery;
+  (window as any).electron = {
+    on: (channel: string, listener: (...args: any[]) => void) => ipc.on(channel, listener),
+    send: ipc.send,
+    invoke: jest.fn(),
+    openPath: jest.fn()
+  };
 });
 
 beforeEach(() => {

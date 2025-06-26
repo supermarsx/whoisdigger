@@ -2,7 +2,11 @@ import { isDomainAvailable, getDomainParameters, WhoisResult } from '../common/a
 import { preStringStrip, toJSON } from '../common/parser';
 
 import { getDate } from '../common/conversions';
-import { ipcRenderer } from 'electron';
+const electron = (window as any).electron as {
+  send: (channel: string, ...args: any[]) => void;
+  invoke: (channel: string, ...args: any[]) => Promise<any>;
+  on: (channel: string, listener: (...args: any[]) => void) => void;
+};
 import { formatString } from '../common/stringformat';
 
 import $ from 'jquery';
@@ -23,19 +27,19 @@ const singleWhois: SingleWhois = {
 };
 
 /*
-  ipcRenderer.on('singlewhois:results', function(...) {...});
+  electron.on('singlewhois:results', function(...) {...});
     On event: Single whois results, whois reply processing
   parameters
     event (object) - Event object
     domainResults (object) - Domain results object
  */
-ipcRenderer.on('singlewhois:results', function (event, domainResults: string) {
+electron.on('singlewhois:results', function (event, domainResults: string) {
   let domainName: string;
   let domainStatus: string;
   let domainResultsJSON: Record<string, unknown>;
   let resultFilter: WhoisResult;
   let errorReason: string | undefined;
-  //ipcRenderer.send('app:debug', "Whois domain reply:\n {0}".format(domainResults));
+  //electron.send('app:debug', "Whois domain reply:\n {0}".format(domainResults));
 
   domainResults = preStringStrip(domainResults);
   domainResultsJSON = toJSON(domainResults) as Record<string, unknown>;
@@ -95,10 +99,10 @@ ipcRenderer.on('singlewhois:results', function (event, domainResults: string) {
 });
 
 /*
-  ipcRenderer.on('singlewhois:copied', function() {...});
+  electron.on('singlewhois:copied', function() {...});
     On event: Domain copied
  */
-ipcRenderer.on('singlewhois:copied', function () {
+  electron.on('singlewhois:copied', function () {
   $('#singlewhoisDomainCopied').addClass('is-active');
 
   return;
@@ -123,7 +127,7 @@ $('#singlewhoisSearchInputDomain').keyup(function (event) {
  */
 $(document).on('click', '#singlewhoisTdDomain', function () {
   const domain = $('#singlewhoisTdDomain').attr('url') as string;
-  ipcRenderer.send('singlewhois:openlink', domain);
+  electron.send('singlewhois:openlink', domain);
 
   return;
 });
@@ -137,18 +141,18 @@ $(document).on('click', '#singlewhoisSearchButtonSearch', function () {
   let { domain } = input;
 
   if ($(this).hasClass('is-loading')) return true;
-  ipcRenderer.send('app:debug', '#singlewhoisSearchButtonSearch was clicked');
+  electron.send('app:debug', '#singlewhoisSearchButtonSearch was clicked');
 
   domain = $('#singlewhoisSearchInputDomain').val() as string;
 
-  ipcRenderer.send('app:debug', formatString('Looking up for {0}', domain));
+  electron.send('app:debug', formatString('Looking up for {0}', domain));
 
   $('#singlewhoisSearchButtonSearch').addClass('is-loading');
   $('#singlewhoisSearchInputDomain').attr('readonly', '');
   $('.notification:not(.is-hidden)').addClass('is-hidden');
   $('#singlewhoisTableWhoisinfo:not(.is-hidden)').addClass('is-hidden');
   tableReset();
-  ipcRenderer.send('singlewhois:lookup', domain);
+  electron.send('singlewhois:lookup', domain);
   return undefined;
 });
 
@@ -157,7 +161,7 @@ $(document).on('click', '#singlewhoisSearchButtonSearch', function () {
     On click: Single whois lookup modal open click
  */
 $(document).on('click', '.singlewhoisMessageWhoisOpen', function () {
-  ipcRenderer.send('app:debug', 'Opening whois reply');
+  electron.send('app:debug', 'Opening whois reply');
   $('#singlewhoisMessageWhois').addClass('is-active');
 
   return;
@@ -168,7 +172,7 @@ $(document).on('click', '.singlewhoisMessageWhoisOpen', function () {
     On click: Single whois lookup modal close click
  */
 $(document).on('click', '#singlewhoisMessageWhoisClose', function () {
-  ipcRenderer.send('app:debug', 'Closing whois reply');
+  electron.send('app:debug', 'Closing whois reply');
   $('#singlewhoisMessageWhois').removeClass('is-active');
 
   return;
@@ -179,7 +183,7 @@ $(document).on('click', '#singlewhoisMessageWhoisClose', function () {
     On click: Domain copied close click
  */
 $(document).on('click', '#singlewhoisDomainCopiedClose', function () {
-  ipcRenderer.send('app:debug', 'Closing domain copied');
+  electron.send('app:debug', 'Closing domain copied');
   $('#singlewhoisDomainCopied').removeClass('is-active');
 
   return;
@@ -190,7 +194,7 @@ $(document).on('click', '#singlewhoisDomainCopiedClose', function () {
     Resets registry table contents
  */
 function tableReset() {
-  ipcRenderer.send('app:debug', 'Resetting whois result table');
+  electron.send('app:debug', 'Resetting whois result table');
   $('#singlewhoisTdDomain').attr('href', '#');
   $('#singlewhoisTdDomain').text('n/a');
   $('#singlewhoisTdUpdate').text('n/a');
