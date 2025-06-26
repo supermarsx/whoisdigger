@@ -1,4 +1,4 @@
-const { registerPartials } = require('../ts/renderer/registerPartials.js');
+import { registerPartials } from '../ts/renderer/registerPartials.js';
 registerPartials();
 
-require('../ts/mainPanel.js');
+import '../ts/mainPanel.js';
