@@ -7,6 +7,11 @@ import debugModule from 'debug';
 
 const debug = debugModule('common.requestCache');
 
+export interface CacheOptions {
+  enabled?: boolean;
+  ttl?: number;
+}
+
 let db: DatabaseType | undefined;
 
 function init(): DatabaseType | undefined {
@@ -31,9 +36,15 @@ function makeKey(type: string, domain: string): string {
   return `${type}:${domain}`;
 }
 
-export function getCached(type: string, domain: string): string | undefined {
+export function getCached(
+  type: string,
+  domain: string,
+  cacheOpts: CacheOptions = {}
+): string | undefined {
   const { requestCache } = settings;
-  if (!requestCache.enabled) return undefined;
+  const enabled = cacheOpts.enabled ?? requestCache.enabled;
+  const ttl = cacheOpts.ttl ?? requestCache.ttl;
+  if (!enabled) return undefined;
   const database = init();
   if (!database) return undefined;
   const key = makeKey(type, domain);
@@ -42,7 +53,7 @@ export function getCached(type: string, domain: string): string | undefined {
       | { response: string; timestamp: number }
       | undefined;
     if (!row) return undefined;
-    if (Date.now() - row.timestamp > requestCache.ttl * 1000) {
+    if (Date.now() - row.timestamp > ttl * 1000) {
       database.prepare('DELETE FROM cache WHERE key = ?').run(key);
       return undefined;
     }
@@ -54,9 +65,15 @@ export function getCached(type: string, domain: string): string | undefined {
   }
 }
 
-export function setCached(type: string, domain: string, response: string): void {
+export function setCached(
+  type: string,
+  domain: string,
+  response: string,
+  cacheOpts: CacheOptions = {}
+): void {
   const { requestCache } = settings;
-  if (!requestCache.enabled) return;
+  const enabled = cacheOpts.enabled ?? requestCache.enabled;
+  if (!enabled) return;
   const database = init();
   if (!database) return;
   const key = makeKey(type, domain);
