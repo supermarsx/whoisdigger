@@ -3,17 +3,17 @@
   <div class='modal-background'></div>
   <div class='modal-card'>
     <header class='modal-card-head'>
-      <p class='modal-card-title'>Close whoisdigger?</p>
+      <p class='modal-card-title'>{{t 'close_modal_title'}}</p>
       <button class='delete' aria-label='close'></button>
     </header>
     <section class='modal-card-body'>
-      Are you sure you want to close whoisdigger?
+      {{t 'close_modal_body'}}
       <br />
-      Any unsaved changes or results will be lost.
+      {{t 'close_modal_lost'}}
     </section>
     <footer class='modal-card-foot uk-text-center'>
-      <button id='appModalExitButtonYes' class='button is-danger'>Yes</button>
-      <button id='appModalExitButtonNo' class='button'>No</button>
+      <button id='appModalExitButtonYes' class='button is-danger'>{{t 'yes'}}</button>
+      <button id='appModalExitButtonNo' class='button'>{{t 'no'}}</button>
     </footer>
   </div>
 </div>
@@ -23,13 +23,13 @@
   <div class='modal-background'></div>
   <div class='modal-card'>
     <header class='modal-card-head'>
-      <p class='modal-card-title'>Restore defaults?</p>
+      <p class='modal-card-title'>{{t 'restore_defaults_title'}}</p>
       <button class='delete' aria-label='close'></button>
     </header>
-    <section class='modal-card-body'>Are you sure you want to restore default settings?</section>
+    <section class='modal-card-body'>{{t 'restore_defaults_confirm'}}</section>
     <footer class='modal-card-foot uk-text-center'>
-      <button id='restoreDefaultsYes' class='button is-danger'>Yes</button>
-      <button id='restoreDefaultsNo' class='button'>No</button>
+      <button id='restoreDefaultsYes' class='button is-danger'>{{t 'yes'}}</button>
+      <button id='restoreDefaultsNo' class='button'>{{t 'no'}}</button>
     </footer>
   </div>
 </div>
@@ -39,13 +39,13 @@
   <div class='modal-background'></div>
   <div class='modal-card'>
     <header class='modal-card-head'>
-      <p class='modal-card-title'>Delete configuration?</p>
+      <p class='modal-card-title'>{{t 'delete_config_title'}}</p>
       <button class='delete' aria-label='close'></button>
     </header>
-    <section class='modal-card-body'>This will remove the saved configuration file.</section>
+    <section class='modal-card-body'>{{t 'delete_config_body'}}</section>
     <footer class='modal-card-foot uk-text-center'>
-      <button id='deleteConfigYes' class='button is-danger'>Yes</button>
-      <button id='deleteConfigNo' class='button'>No</button>
+      <button id='deleteConfigYes' class='button is-danger'>{{t 'yes'}}</button>
+      <button id='deleteConfigNo' class='button'>{{t 'no'}}</button>
     </footer>
   </div>
 </div>

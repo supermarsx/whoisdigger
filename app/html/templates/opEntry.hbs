@@ -1,72 +1,75 @@
-<h4 class='title is-4 has-text-centered'>Options</h4>
+<h4 class='title is-4 has-text-centered'>{{t 'options_heading'}}</h4>
 <h5>
-  Here you're able to set any of your whoisdigger preferred settings, such as whois timing, window
-  settings, file settings, etc.<br />
-  For basic usage changes to these settings are not recommended as they can result in crashing,
-  malfunction or unexpected behavior as direct result.
+  {{t 'options_desc_1'}}<br />
+  {{t 'options_desc_2'}}
 </h5>
 <hr />
 <p id='settings-not-loaded' class='has-text-warning is-hidden'>
-  Settings not loaded in this session.
+  {{t 'settings_not_loaded'}}
 </p>
 <table id='configStats' class='table is-narrow is-fullwidth mb-2'>
   <tbody>
     <tr>
-      <th>Config file path</th>
+      <th>{{t 'config_file_path'}}</th>
       <td id='stat-config-path'></td>
     </tr>
     <tr>
-      <th>Config file size</th>
+      <th>{{t 'config_file_size'}}</th>
       <td id='stat-config-size'></td>
     </tr>
     <tr>
-      <th>Loaded</th>
+      <th>{{t 'loaded'}}</th>
       <td id='stat-config-loaded'></td>
     </tr>
     <tr>
-      <th>Last modified</th>
+      <th>{{t 'last_modified'}}</th>
       <td id='stat-config-mtime'></td>
     </tr>
     <tr>
-      <th>Permissions</th>
+      <th>{{t 'permissions'}}</th>
       <td id='stat-config-perms'></td>
     </tr>
     <tr>
-      <th>Data folder path</th>
+      <th>{{t 'data_folder_path'}}</th>
       <td id='stat-data-path'></td>
     </tr>
     <tr>
-      <th>Data folder size</th>
+      <th>{{t 'data_folder_size'}}</th>
       <td id='stat-data-size'></td>
     </tr>
   </tbody>
 </table>
 <div id='opActions' class='field is-grouped is-grouped-multiline mb-2'>
   <p class='control has-icons-left is-expanded'>
-    <input id='opSearch' class='input is-small' type='text' placeholder='Search options' />
+    <input
+      id='opSearch'
+      class='input is-small'
+      type='text'
+      placeholder='{{t "search_placeholder"}}'
+    />
     <span class='icon is-small is-left'><i class='fas fa-search'></i></span>
   </p>
   <p class='control'>
-    <button id='restoreDefaults' class='button is-small is-danger'>Restore defaults</button>
+    <button id='restoreDefaults' class='button is-small is-danger'>{{t 'restore_defaults'}}</button>
   </p>
   <p class='control'>
-    <button id='reloadSettings' class='button is-small is-info'>Reload</button>
+    <button id='reloadSettings' class='button is-small is-info'>{{t 'reload'}}</button>
   </p>
   <p class='control'>
-    <button id='saveConfig' class='button is-small is-success'>Save</button>
+    <button id='saveConfig' class='button is-small is-success'>{{t 'save'}}</button>
   </p>
   <p class='control'>
-    <button id='openDataFolder' class='button is-small is-info'>Open data folder</button>
+    <button id='openDataFolder' class='button is-small is-info'>{{t 'open_data_folder'}}</button>
   </p>
   <p class='control'>
-    <button id='reloadApp' class='button is-small is-warning'>Reload App</button>
+    <button id='reloadApp' class='button is-small is-warning'>{{t 'reload_app'}}</button>
   </p>
   <p class='control'>
-    <button id='deleteConfig' class='button is-small is-danger'>Delete config</button>
+    <button id='deleteConfig' class='button is-small is-danger'>{{t 'delete_config'}}</button>
   </p>
 </div>
 <p id='opSearchNoResults' class='has-text-centered is-hidden'>
-  No configuration found.
+  {{t 'no_config_found'}}
 </p>
 <table id='opTable' class='table is-striped is-hoverable is-fullwidth has-text-left'></table>
 <button id='opBackToTop' class='button is-info is-small back-to-top'>

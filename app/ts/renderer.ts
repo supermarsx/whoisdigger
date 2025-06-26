@@ -3,6 +3,7 @@ import $ from 'jquery';
 
 import './renderer/index';
 import { loadSettings, settings, customSettingsLoaded } from './common/settings';
+import { loadTranslations, registerTranslationHelpers } from './renderer/i18n';
 import { formatString } from './common/stringformat';
 
 const electron = (window as any).electron as {
@@ -40,6 +41,8 @@ function sendError(message: string): void {
  */
 $(document).ready(async function () {
   await loadSettings();
+  await loadTranslations(settings.ui.language);
+  registerTranslationHelpers();
   sessionStorage.setItem('settingsLoaded', 'true');
   sessionStorage.setItem('customSettingsLoaded', customSettingsLoaded ? 'true' : 'false');
   window.dispatchEvent(new Event('settings-loaded'));

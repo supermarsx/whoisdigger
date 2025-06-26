@@ -5,7 +5,7 @@ const { copyRecursiveSync } = require('./copyRecursive');
 const { precompileTemplates } = require('./precompileTemplates');
 const debug = require('debug')('postbuild');
 
-const folders = ['html', 'html/templates', 'fonts', 'icons', 'compiled-templates'];
+const folders = ['html', 'html/templates', 'fonts', 'icons', 'compiled-templates', 'locales'];
 const rootDir = path.join(__dirname, '..');
 const appDir = path.join(rootDir, 'app');
 const distDir = path.join(rootDir, 'dist', 'app');
@@ -40,6 +40,9 @@ precompileTemplates(path.join(distDir, 'compiled-templates'));
 // the mainPanel template to static HTML.
 const Handlebars = require('handlebars/runtime');
 const partialDir = path.join(distDir, 'compiled-templates');
+const localeDir = path.join(distDir, 'locales');
+const defaultLocale = require(path.join(localeDir, 'en.json'));
+Handlebars.registerHelper('t', (k) => defaultLocale[k] || k);
 
 for (const file of fs.readdirSync(partialDir)) {
   if (file === 'mainPanel.js' || !file.endsWith('.js')) continue;

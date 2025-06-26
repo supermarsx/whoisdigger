@@ -266,6 +266,12 @@ For convenience a single command builds packages for all platforms:
 npm run package-all
 ```
 
+### Adding translations
+
+Translation files live under `app/locales/` and are simple JSON maps of keys to translated strings.
+Add a new `<lang>.json` file (e.g. `fr.json`) with your translations and include the language code in
+`ui.language` inside `appsettings.ts`. Templates reference strings using the `{{t}}` helper.
+
 ## Docker
 
 Build the Docker image:

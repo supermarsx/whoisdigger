@@ -24,10 +24,10 @@ const appSettings = {
       darkTheme: false, // GTK dark theme mode
       thickFrame: true // Use WS_THICKFRAME style for frameless windows on Windows, which adds standard window frame. Setting it to false will remove window shadow and window animations.
     },
-      appWindowWebPreferences: {
-        // Web preferences
-        nodeIntegration: true, // Enable node integration
-        contextIsolation: true, // Enable context isolation
+    appWindowWebPreferences: {
+      // Web preferences
+      nodeIntegration: true, // Enable node integration
+      contextIsolation: true, // Enable context isolation
       zoomFactor: 1.0, // Page zoom factor
       images: true, // Image support
       experimentalFeatures: false, // Enable Chromium experimental features
@@ -157,7 +157,8 @@ const appSettings = {
     ui: {
       // User interface options
       liveReload: true, // Reload settings on change (default: true)
-      confirmExit: true // Ask for confirmation before exiting the application
+      confirmExit: true, // Ask for confirmation before exiting the application
+      language: 'en' // Interface language
     },
     lookupMisc: {
       // Lookup miscellaneous configurations
@@ -264,6 +265,7 @@ export const appSettingsDescriptions: Record<string, string> = {
   'performanceBulkRequest.stopwatch': 'Bulk lookup stopwatch',
   'ui.liveReload': 'Reload configuration automatically',
   'ui.confirmExit': 'Confirm before exiting the application',
+  'ui.language': 'Interface language',
   'lookupMisc.useStandardSize': 'Use metric units for file sizes',
   'lookupMisc.asfOverride': 'Override average smoothing factor',
   'lookupMisc.averageSmoothingFactor': 'Average smoothing factor',

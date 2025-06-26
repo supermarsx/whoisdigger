@@ -5,7 +5,15 @@ const { copyRecursiveSync } = require('./copyRecursive');
 const { precompileTemplates } = require('./precompileTemplates');
 const debug = require('debug')('watch-assets');
 
-const folders = ['html', 'html/templates', 'css', 'fonts', 'icons', 'compiled-templates'];
+const folders = [
+  'html',
+  'html/templates',
+  'css',
+  'fonts',
+  'icons',
+  'compiled-templates',
+  'locales'
+];
 const rootDir = path.join(__dirname, '..');
 const appDir = path.join(rootDir, 'app');
 const distDir = path.join(rootDir, 'dist', 'app');
