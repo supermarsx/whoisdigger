@@ -21,7 +21,7 @@
     "lint": "eslint \"app/**/*.ts\" \"test/**/*.ts\"",
     "format": "prettier --ignore-path .prettierignore .",
     "test": "jest",
-    "test:e2e": "xvfb-run -a node test/e2e/run.js",
+    "test:e2e": "node test/e2e/run.js",
     "prebuild": "node scripts/prebuild.js",
     "prepare": "husky install",
     "clean": "rimraf dist release_builds app/compiled-templates",
