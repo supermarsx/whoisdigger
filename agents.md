@@ -94,7 +94,7 @@ ipcRenderer.invoke('settings:get').then((set) => applySettings(set));
 
 To merge a PR, the following must be true:
 
-- ✅ Code passes **TypeScript** type checks
+- ✅ Code passes **TypeScript** type checks (`npx tsc --noEmit`)
 - ✅ Code passes **ESLint** (`npm run lint`)
 - ✅ Code passes **Prettier** formatting (`npm run format`)
 - ✅ All unit tests pass (`npm test`)
