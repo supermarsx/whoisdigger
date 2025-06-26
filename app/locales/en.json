@@ -28,5 +28,8 @@
   "download_model": "Download model",
   "reload_app": "Reload App",
   "delete_config": "Delete config",
-  "no_config_found": "No configuration found."
+  "no_config_found": "No configuration found.",
+  "history_heading": "Lookup History",
+  "clear_history": "Clear history",
+  "history_empty": "No history available."
 }
