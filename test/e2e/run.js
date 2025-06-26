@@ -1,14 +1,19 @@
-const path = require('path');
-const fs = require('fs');
-const os = require('os');
-const assert = require('assert');
-const { spawn } = require('child_process');
-const net = require('net');
-const { remote } = require('webdriverio');
-const debug = require('debug')('test:e2e');
+import path from 'path';
+import fs from 'fs';
+import os from 'os';
+import assert from 'assert';
+import { spawn } from 'child_process';
+import net from 'net';
+import { remote } from 'webdriverio';
+import debugModule from 'debug';
+import { fileURLToPath } from 'url';
+import electron from 'electron';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const debug = debugModule('test:e2e');
 
 (async () => {
-  const electronPath = require('electron');
+  const electronPath = electron;
   const appPath = path.resolve(__dirname, '..', '..', 'dist', 'app', 'ts', 'main.js');
 
   const artifactsDir = path.join(__dirname, 'artifacts');

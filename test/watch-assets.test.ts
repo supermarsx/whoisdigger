@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import path from 'path';
+import { pathToFileURL } from 'url';
 
 const emitter = new EventEmitter();
 
@@ -17,11 +18,11 @@ jest.mock('fs', () => ({
   copyFileSync: jest.fn((...args: any[]) => copyFileMock(...args))
 }));
 
-jest.mock('../scripts/copyRecursive', () => ({
+jest.mock('../scripts/copyRecursive.js', () => ({
   copyRecursiveSync: jest.fn()
 }));
 
-jest.mock('../scripts/precompileTemplates', () => ({
+jest.mock('../scripts/precompileTemplates.js', () => ({
   precompileTemplates: jest.fn((...args: any[]) => precompileMock(...args))
 }));
 
@@ -32,10 +33,8 @@ describe('watch-assets', () => {
     precompileMock.mockClear();
   });
 
-  test('copies changed files into dist/app', () => {
-    jest.isolateModules(() => {
-      require('../scripts/watch-assets');
-    });
+  test('copies changed files into dist/app', async () => {
+    await import(pathToFileURL(require.resolve('../scripts/watch-assets.js')).href);
 
     const src = path.join(__dirname, '..', 'app', 'html', 'mainPanel.html');
     const dest = path.join(__dirname, '..', 'dist', 'app', 'html', 'mainPanel.html');
@@ -48,10 +47,8 @@ describe('watch-assets', () => {
     expect(copyFileMock).toHaveBeenCalledWith(src, dest);
   });
 
-  test("doesn't recompile templates when a template changes", () => {
-    jest.isolateModules(() => {
-      require('../scripts/watch-assets');
-    });
+  test("doesn't recompile templates when a template changes", async () => {
+    await import(pathToFileURL(require.resolve('../scripts/watch-assets.js')).href);
 
     precompileMock.mockClear();
 

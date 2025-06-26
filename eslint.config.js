@@ -1,8 +1,8 @@
-const js = require('@eslint/js');
-const tseslint = require('@typescript-eslint/eslint-plugin');
-const tsparser = require('@typescript-eslint/parser');
-const globals = require('globals');
-const prettier = require('eslint-config-prettier');
+import js from '@eslint/js';
+import tseslint from '@typescript-eslint/eslint-plugin';
+import tsparser from '@typescript-eslint/parser';
+import globals from 'globals';
+import prettier from 'eslint-config-prettier';
 
 // Trim any accidental whitespace from global names provided by the `globals`
 // package. Older versions contain a key `AudioWorkletGlobalScope ` with a
@@ -11,7 +11,7 @@ const trimmedBrowserGlobals = Object.fromEntries(
   Object.entries(globals.browser).map(([key, value]) => [key.trim(), value])
 );
 
-module.exports = [
+export default [
   js.configs.recommended,
   prettier,
   {

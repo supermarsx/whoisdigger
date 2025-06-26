@@ -1,9 +1,12 @@
-const fs = require('fs');
-const path = require('path');
-const watchboy = require('watchboy');
-const { copyRecursiveSync } = require('./copyRecursive.cjs');
-const { precompileTemplates } = require('./precompileTemplates.cjs');
-const debug = require('debug')('watch-assets');
+import fs from 'fs';
+import path from 'path';
+import watchboy from 'watchboy';
+import { copyRecursiveSync } from './copyRecursive.js';
+import { precompileTemplates } from './precompileTemplates.js';
+import debugModule from 'debug';
+
+const rootDir = process.cwd();
+const debug = debugModule('watch-assets');
 
 const folders = [
   'html',
@@ -14,7 +17,6 @@ const folders = [
   'compiled-templates',
   'locales'
 ];
-const rootDir = path.join(__dirname, '..');
 const appDir = path.join(rootDir, 'app');
 const distDir = path.join(rootDir, 'dist', 'app');
 

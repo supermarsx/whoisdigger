@@ -1,26 +1,26 @@
 import Handlebars from 'handlebars/runtime';
 
-import bwEntry from '../../compiled-templates/bwEntry.cjs';
-import bwExport from '../../compiled-templates/bwExport.cjs';
-import bwExportLoading from '../../compiled-templates/bwExportLoading.cjs';
-import bwFileInputConfirm from '../../compiled-templates/bwFileInputConfirm.cjs';
-import bwFileInputLoading from '../../compiled-templates/bwFileInputLoading.cjs';
-import bwProcessing from '../../compiled-templates/bwProcessing.cjs';
-import bwWordlistConfirm from '../../compiled-templates/bwWordlistConfirm.cjs';
-import bwWordlistInput from '../../compiled-templates/bwWordlistInput.cjs';
-import bwWordlistLoading from '../../compiled-templates/bwWordlistLoading.cjs';
-import bwaAnalyser from '../../compiled-templates/bwaAnalyser.cjs';
-import bwaEntry from '../../compiled-templates/bwaEntry.cjs';
-import bwaFileInputLoading from '../../compiled-templates/bwaFileInputLoading.cjs';
-import bwaFileinputconfirm from '../../compiled-templates/bwaFileinputconfirm.cjs';
-import bwaProcess from '../../compiled-templates/bwaProcess.cjs';
-import navBottom from '../../compiled-templates/navBottom.cjs';
-import navTop from '../../compiled-templates/navTop.cjs';
-import opEntry from '../../compiled-templates/opEntry.cjs';
-import singlewhois from '../../compiled-templates/singlewhois.cjs';
-import toEntry from '../../compiled-templates/toEntry.cjs';
-import he from '../../compiled-templates/he.cjs';
-import modals from '../../compiled-templates/modals.cjs';
+import bwEntry from '../../compiled-templates/bwEntry.js';
+import bwExport from '../../compiled-templates/bwExport.js';
+import bwExportLoading from '../../compiled-templates/bwExportLoading.js';
+import bwFileInputConfirm from '../../compiled-templates/bwFileInputConfirm.js';
+import bwFileInputLoading from '../../compiled-templates/bwFileInputLoading.js';
+import bwProcessing from '../../compiled-templates/bwProcessing.js';
+import bwWordlistConfirm from '../../compiled-templates/bwWordlistConfirm.js';
+import bwWordlistInput from '../../compiled-templates/bwWordlistInput.js';
+import bwWordlistLoading from '../../compiled-templates/bwWordlistLoading.js';
+import bwaAnalyser from '../../compiled-templates/bwaAnalyser.js';
+import bwaEntry from '../../compiled-templates/bwaEntry.js';
+import bwaFileInputLoading from '../../compiled-templates/bwaFileInputLoading.js';
+import bwaFileinputconfirm from '../../compiled-templates/bwaFileinputconfirm.js';
+import bwaProcess from '../../compiled-templates/bwaProcess.js';
+import navBottom from '../../compiled-templates/navBottom.js';
+import navTop from '../../compiled-templates/navTop.js';
+import opEntry from '../../compiled-templates/opEntry.js';
+import singlewhois from '../../compiled-templates/singlewhois.js';
+import toEntry from '../../compiled-templates/toEntry.js';
+import he from '../../compiled-templates/he.js';
+import modals from '../../compiled-templates/modals.js';
 
 export function registerPartials(): void {
   const partials: Record<string, any> = {

@@ -1,8 +1,12 @@
-const fs = require('fs');
-const path = require('path');
-const { spawnSync } = require('child_process');
-const debug = require('debug')('prebuild');
-const { precompileTemplates } = require('./precompileTemplates.cjs');
+import fs from 'fs';
+import path from 'path';
+import { spawnSync } from 'child_process';
+import debugModule from 'debug';
+import { precompileTemplates } from './precompileTemplates.js';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const debug = debugModule('prebuild');
 
 const rootDir = path.join(__dirname, '..');
 const modulesPath = path.join(rootDir, 'node_modules');

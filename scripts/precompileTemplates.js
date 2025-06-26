@@ -1,8 +1,13 @@
-const fs = require('fs');
-const path = require('path');
-const { spawnSync } = require('child_process');
+import fs from 'fs';
+import path from 'path';
+import { spawnSync } from 'child_process';
+import { fileURLToPath } from 'url';
 
-function precompileTemplates(outputDir = path.join(__dirname, '..', 'app', 'compiled-templates')) {
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export function precompileTemplates(
+  outputDir = path.join(__dirname, '..', 'app', 'compiled-templates')
+) {
   const templatesDir = path.join(__dirname, '..', 'app', 'html', 'templates');
   fs.mkdirSync(outputDir, { recursive: true });
 
@@ -24,14 +29,12 @@ function precompileTemplates(outputDir = path.join(__dirname, '..', 'app', 'comp
       process.exit(result.status || 1);
     }
     const compiled = result.stdout.trim();
-    const outPath = path.join(outputDir, file.replace(/\.hbs$/, '.cjs'));
-    fs.writeFileSync(outPath, `module.exports = ${compiled};\n`);
+    const outPath = path.join(outputDir, file.replace(/\.hbs$/, '.js'));
+    fs.writeFileSync(outPath, `export default ${compiled};\n`);
   }
 }
 
-if (require.main === module) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const dir = process.argv[2];
   precompileTemplates(dir && path.resolve(dir));
 }
-
-module.exports = { precompileTemplates };
