@@ -166,6 +166,21 @@ When choosing export options, you can decide what domain status to export, if yo
 
 Exporting as text will only export raw replies for each domain in a zip file, as a csv you're able to see both both basic information and whois replies (in text, inline csv or separate csv inside a zip file).
 
+### CLI usage
+
+After building the project you can run lookups from the command line:
+
+```bash
+# single domain
+node dist/app/ts/cli.js --domain example.com
+
+# bulk search using a wordlist
+node dist/app/ts/cli.js --wordlist words.txt --tlds com net --format csv --out results.csv
+
+# using a proxy
+node dist/app/ts/cli.js --domain example.com --proxy 127.0.0.1:9050
+```
+
 ### Notes on errors
 
 Errors during bulk lookups are pretty common due to sheer request volume, this means that you'll have requests periodically getting blocked, rejected, throttled or delayed (might result in false negatives, false positives in rare cases or errors). Errors may and usually signal that a domain is already registered, at times you can assume that but take into account the domain name, tld and probability of it being registered. Whoisdigger includes assumptions settings that you can tweak for specific scenarios, see assumptions below for more.
