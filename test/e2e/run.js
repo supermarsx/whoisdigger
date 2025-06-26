@@ -3,6 +3,7 @@ const fs = require('fs');
 const os = require('os');
 const assert = require('assert');
 const { spawn } = require('child_process');
+const net = require('net');
 const { remote } = require('webdriverio');
 const debug = require('debug')('test:e2e');
 
@@ -12,9 +13,25 @@ const debug = require('debug')('test:e2e');
 
   const artifactsDir = path.join(__dirname, 'artifacts');
   fs.mkdirSync(artifactsDir, { recursive: true });
+  const userDataDir = path.join(os.tmpdir(), `whoisdigger-test-${Date.now()}`);
+  fs.mkdirSync(userDataDir, { recursive: true });
 
   const chromedriverPath = path.join(__dirname, '..', '..', 'node_modules', '.bin', 'chromedriver');
-  const chromedriver = spawn(chromedriverPath, ['--port=9515'], {
+
+  const findPort = async (port) => {
+    return new Promise((resolve) => {
+      const server = net.createServer();
+      server.unref();
+      server.on('error', () => resolve(findPort(port + 1)));
+      server.listen(port, () => {
+        const { port: found } = server.address();
+        server.close(() => resolve(found));
+      });
+    });
+  };
+
+  const port = await findPort(9515);
+  const chromedriver = spawn(chromedriverPath, [`--port=${port}`], {
     stdio: 'inherit'
   });
   await new Promise((r) => setTimeout(r, 1000));
@@ -23,7 +40,7 @@ const debug = require('debug')('test:e2e');
     const browser = await remote({
       logLevel: 'error',
       path: '/',
-      port: 9515,
+      port,
       capabilities: {
         browserName: 'chrome',
         'goog:chromeOptions': {
@@ -32,8 +49,10 @@ const debug = require('debug')('test:e2e');
             appPath,
             '--no-sandbox',
             '--disable-dev-shm-usage',
+            '--disable-gpu',
             '--headless=new',
-            '--remote-debugging-port=9515'
+            `--remote-debugging-port=${port}`,
+            `--user-data-dir=${userDataDir}`
           ]
         }
       }
