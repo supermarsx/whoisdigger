@@ -4,3 +4,4 @@ import './bwa';
 import './to';
 import './cache';
 import './ai';
+import './history';

@@ -28,5 +28,8 @@
   "download_model": "Descargar modelo",
   "reload_app": "Reiniciar aplicación",
   "delete_config": "Eliminar configuración",
-  "no_config_found": "No se encontró configuración"
+  "no_config_found": "No se encontró configuración",
+  "history_heading": "Historial de Búsquedas",
+  "clear_history": "Borrar historial",
+  "history_empty": "Sin historial disponible."
 }

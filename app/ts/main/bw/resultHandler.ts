@@ -8,6 +8,7 @@ import type { BulkWhois, ProcessedResult } from './types';
 import * as dns from '../../common/dnsLookup';
 import { Result, DnsLookupError } from '../../common/errors';
 import type { IpcMainEvent } from 'electron';
+import { addEntry as addHistoryEntry } from '../../common/history';
 
 const debug = debugModule('main.bw.resultHandler');
 
@@ -138,6 +139,9 @@ export async function processData(
   }
 
   resultFilter.requesttime = reqtime[index];
+  if (resultFilter.domain && resultFilter.status) {
+    addHistoryEntry(resultFilter.domain, resultFilter.status);
+  }
   results.id[index] = resultFilter.id;
   results.domain[index] = resultFilter.domain;
   results.status[index] = resultFilter.status;

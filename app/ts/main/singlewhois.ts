@@ -3,6 +3,8 @@ import type { IpcMainEvent } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
 import { lookup as whoisLookup } from '../common/lookup';
+import { isDomainAvailable } from '../common/availability';
+import { addEntry as addHistoryEntry } from '../common/history';
 import debugModule from 'debug';
 const debug = debugModule('main.singlewhois');
 
@@ -24,10 +26,17 @@ ipcMain.on('singlewhois:lookup', async function (event, domain) {
     .then(function (data) {
       debug('Sending back whois reply');
       sender.send('singlewhois:results', data);
+      try {
+        const status = isDomainAvailable(data);
+        addHistoryEntry(domain, status);
+      } catch {
+        addHistoryEntry(domain, 'error');
+      }
     })
     .catch(function (err) {
       debug('Whois lookup threw an error');
       sender.send('singlewhois:results', err);
+      addHistoryEntry(domain, 'error');
     });
 });
 
