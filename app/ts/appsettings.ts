@@ -177,6 +177,14 @@ const appSettings = {
       filetypeZip: '.zip', // Compressed file extension (default: '.zip')
       openAfterExport: false, // Open file after exporting (default: false)
       autoGenerateFilename: false // Suggest filename automatically (default: false)
+    },
+    ai: {
+      // AI domain availability configuration
+      enabled: false,
+      modelPath: 'model/availability.onnx',
+      dataPath: 'ai-data',
+      modelURL: '',
+      openai: { url: '', apiKey: '' }
     }
   }
 };
@@ -277,5 +285,11 @@ export const appSettingsDescriptions: Record<string, string> = {
   'lookupExport.filetypeCsv': 'CSV file extension',
   'lookupExport.filetypeZip': 'ZIP file extension',
   'lookupExport.openAfterExport': 'Open exported file automatically',
-  'lookupExport.autoGenerateFilename': 'Suggest export filename automatically'
+  'lookupExport.autoGenerateFilename': 'Suggest export filename automatically',
+  'ai.enabled': 'Enable AI features',
+  'ai.modelPath': 'Local ONNX model path',
+  'ai.dataPath': 'Directory for AI data',
+  'ai.modelURL': 'URL to download the ONNX model',
+  'ai.openai.url': 'Custom OpenAI API endpoint',
+  'ai.openai.apiKey': 'OpenAI API key'
 };

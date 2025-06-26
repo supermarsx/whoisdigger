@@ -54,6 +54,13 @@ export interface Settings {
   customConfiguration: { filepath: string; load: boolean; save: boolean };
   theme: { darkMode: boolean; followSystem: boolean };
   ui: { liveReload: boolean; confirmExit: boolean; language: string };
+  ai: {
+    enabled: boolean;
+    modelPath: string;
+    dataPath: string;
+    modelURL: string;
+    openai: { url: string; apiKey: string };
+  };
   [key: string]: any;
 }
 
