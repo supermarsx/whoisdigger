@@ -1,6 +1,7 @@
 {
   "name": "whoisdigger",
   "version": "0.2.0",
+  "type": "module",
   "description": "Bulk whois lookup tool",
   "main": "./dist/app/ts/main.js",
   "scripts": {
@@ -13,20 +14,20 @@
     "package-linux": "npm run build && npm run postbuild && @electron/packager . whoisdigger --overwrite --asar --platform=linux --arch=x64 --icon=app/icons/app.png --prune=true --out=release_builds",
     "package-all": "npm run build && npm run postbuild && @electron/packager . --all --overwrite --asar --icon=app/icons/app.png --prune=true --out=release_builds",
     "build": "tsc",
-    "postbuild": "node scripts/postbuild.js",
+    "postbuild": "node scripts/postbuild.cjs",
     "build:css": "postcss app/css/*.css -d dist/app/css --no-map",
     "watch": "cross-env DEBUG=* tsc -w",
-    "watch-assets": "node scripts/watch-assets.js",
+    "watch-assets": "node scripts/watch-assets.cjs",
     "dev": "npm run build && concurrently \"npm:watch\" \"npm:watch-assets\" \"electronmon .\"",
     "lint": "eslint \"app/**/*.ts\" \"test/**/*.ts\"",
     "format": "prettier --write --ignore-path .prettierignore .",
     "format:check": "prettier --check --ignore-path .prettierignore .",
     "test": "jest",
-    "test:e2e": "node test/e2e/run.js",
-    "prebuild": "node scripts/prebuild.js",
+    "test:e2e": "node test/e2e/run.cjs",
+    "prebuild": "node scripts/prebuild.cjs",
     "prepare": "husky install",
     "clean": "rimraf dist release_builds app/compiled-templates",
-    "pretest": "node scripts/prebuild.js"
+    "pretest": "node scripts/prebuild.cjs"
   },
   "author": "supermarsx",
   "license": "MIT",

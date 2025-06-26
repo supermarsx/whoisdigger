@@ -30,7 +30,7 @@ jest.mock('handlebars/runtime', () => {
 
 for (const name of partialNames) {
   jest.mock(
-    `../app/compiled-templates/${name}.js`,
+    `../app/compiled-templates/${name}.cjs`,
     () => ({
       __esModule: true,
       default: { name }
