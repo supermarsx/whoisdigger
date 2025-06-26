@@ -15,6 +15,12 @@ describe('cli utility', () => {
     expect(opts.format).toBe('csv');
   });
 
+  test('parseArgs recognizes cache flags', () => {
+    const opts = parseArgs(['--purge-cache', '--clear-cache']);
+    expect(opts.purgeCache).toBe(true);
+    expect(opts.clearCache).toBe(true);
+  });
+
   test('lookupDomains uses whois module', async () => {
     mockLookup.mockResolvedValueOnce('data');
     const opts: CliOptions = { domains: ['example.com'], tlds: ['com'], format: 'txt' };

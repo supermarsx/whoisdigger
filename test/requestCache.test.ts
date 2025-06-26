@@ -1,6 +1,12 @@
 import '../test/electronMock';
 import { settings, getUserDataPath } from '../app/ts/common/settings';
-import { getCached, setCached, closeCache } from '../app/ts/common/requestCache';
+import {
+  getCached,
+  setCached,
+  closeCache,
+  purgeExpired,
+  clearCache
+} from '../app/ts/common/requestCache';
 import fs from 'fs';
 import path from 'path';
 
@@ -46,5 +52,22 @@ describe('requestCache', () => {
   test('closeCache does not throw when cache disabled', () => {
     settings.requestCache.enabled = false;
     expect(() => closeCache()).not.toThrow();
+  });
+
+  test('purgeExpired removes outdated entries', async () => {
+    settings.requestCache.enabled = true;
+    setCached('whois', 'old.com', 'data');
+    await new Promise((r) => setTimeout(r, 1100));
+    purgeExpired();
+    const res = getCached('whois', 'old.com');
+    expect(res).toBeUndefined();
+  });
+
+  test('clearCache wipes all entries', () => {
+    setCached('whois', 'a.com', '1');
+    setCached('whois', 'b.com', '2');
+    clearCache();
+    expect(getCached('whois', 'a.com')).toBeUndefined();
+    expect(getCached('whois', 'b.com')).toBeUndefined();
   });
 });

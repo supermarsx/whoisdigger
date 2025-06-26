@@ -179,6 +179,12 @@ node dist/app/ts/cli.js --wordlist words.txt --tlds com net --format csv --out r
 
 # using a proxy
 node dist/app/ts/cli.js --domain example.com --proxy 127.0.0.1:9050
+
+# purge expired cache
+node dist/app/ts/cli.js --purge-cache
+
+# clear entire cache
+node dist/app/ts/cli.js --clear-cache
 ```
 
 ### Notes on errors
