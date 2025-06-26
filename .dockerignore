@@ -1,0 +1,8 @@
+node_modules
+# Ignore compiled output
+dist
+# Test coverage reports
+coverage
+# Git repository files
+.git
+
