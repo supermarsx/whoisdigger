@@ -24,10 +24,10 @@ const appSettings = {
       darkTheme: false, // GTK dark theme mode
       thickFrame: true // Use WS_THICKFRAME style for frameless windows on Windows, which adds standard window frame. Setting it to false will remove window shadow and window animations.
     },
-    appWindowWebPreferences: {
-      // Web preferences
-      nodeIntegration: true, // Enable node integration
-      contextIsolation: false, // Enable context isolation
+      appWindowWebPreferences: {
+        // Web preferences
+        nodeIntegration: true, // Enable node integration
+        contextIsolation: true, // Enable context isolation
       zoomFactor: 1.0, // Page zoom factor
       images: true, // Image support
       experimentalFeatures: false, // Enable Chromium experimental features
