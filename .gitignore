@@ -9,3 +9,4 @@ reload.json
 .DS_Store
 app/compiled-templates/
 test/e2e/artifacts/
+app/data/history.sqlite

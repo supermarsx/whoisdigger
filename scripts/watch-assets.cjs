@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const watchboy = require('watchboy');
-const { copyRecursiveSync } = require('./copyRecursive');
-const { precompileTemplates } = require('./precompileTemplates');
+const { copyRecursiveSync } = require('./copyRecursive.cjs');
+const { precompileTemplates } = require('./precompileTemplates.cjs');
 const debug = require('debug')('watch-assets');
 
 const folders = [

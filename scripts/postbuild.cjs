@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
-const { copyRecursiveSync } = require('./copyRecursive');
-const { precompileTemplates } = require('./precompileTemplates');
+const { copyRecursiveSync } = require('./copyRecursive.cjs');
+const { precompileTemplates } = require('./precompileTemplates.cjs');
 const debug = require('debug')('postbuild');
 
 const folders = ['html', 'html/templates', 'fonts', 'icons', 'compiled-templates', 'locales'];
@@ -45,12 +45,12 @@ const defaultLocale = require(path.join(localeDir, 'en.json'));
 Handlebars.registerHelper('t', (k) => defaultLocale[k] || k);
 
 for (const file of fs.readdirSync(partialDir)) {
-  if (file === 'mainPanel.js' || !file.endsWith('.js')) continue;
+  if (file === 'mainPanel.cjs' || !file.endsWith('.cjs')) continue;
   const spec = require(path.join(partialDir, file));
-  Handlebars.registerPartial(path.basename(file, '.js'), Handlebars.template(spec));
+  Handlebars.registerPartial(path.basename(file, '.cjs'), Handlebars.template(spec));
 }
 
-const mainSpec = require(path.join(partialDir, 'mainPanel.js'));
+const mainSpec = require(path.join(partialDir, 'mainPanel.cjs'));
 const mainTemplate = Handlebars.template(mainSpec);
 const htmlOut = mainTemplate({});
 

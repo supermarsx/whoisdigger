@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const debug = require('debug')('prebuild');
-const { precompileTemplates } = require('./precompileTemplates');
+const { precompileTemplates } = require('./precompileTemplates.cjs');
 
 const rootDir = path.join(__dirname, '..');
 const modulesPath = path.join(rootDir, 'node_modules');

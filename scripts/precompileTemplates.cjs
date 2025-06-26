@@ -24,7 +24,7 @@ function precompileTemplates(outputDir = path.join(__dirname, '..', 'app', 'comp
       process.exit(result.status || 1);
     }
     const compiled = result.stdout.trim();
-    const outPath = path.join(outputDir, file.replace(/\.hbs$/, '.js'));
+    const outPath = path.join(outputDir, file.replace(/\.hbs$/, '.cjs'));
     fs.writeFileSync(outPath, `module.exports = ${compiled};\n`);
   }
 }
