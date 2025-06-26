@@ -6,13 +6,14 @@ A complete internal guide for contributors to the `supermarsx/whoisdigger` proje
 
 ## 🔧 Tech Stack
 
-* **Platform:** Electron 22+
-* **Language:** TypeScript (strict mode)
-* **Frontend:** HTML/CSS with vanilla JS or jQuery
-* **Backend Libraries:** `node-whois`, `dns/promises`, `sqlite3`, `fs-extra`
-* **Build Tools:** Vite (dev), Electron Builder (prod)
-* **Testing:** Jest (unit), Playwright (integration recommended)
-* **Linting/Formatting:** ESLint + Prettier
+- **Platform:** Electron 22+
+- **Language:** TypeScript (strict mode)
+- **Frontend:** HTML/CSS with vanilla JS or jQuery
+- **Backend Libraries:** `node-whois`, `dns/promises`, `sqlite3`, `fs-extra`
+- **Build Tools:** Vite (dev), Electron Builder (prod)
+- **Testing:** Jest (unit), Playwright (integration recommended)
+- **Linting/Formatting:** ESLint + Prettier
+- **Package Manager:** npm
 
 ---
 
@@ -52,18 +53,18 @@ whoisdigger/
 
 Agents are logic-first modules responsible for:
 
-* WHOIS lookups (bulk/single)
-* Proxy use and selection
-* Result parsing and analysis
-* File exports (CSV, ZIP, JSON)
-* Settings loading and persistence
+- WHOIS lookups (bulk/single)
+- Proxy use and selection
+- Result parsing and analysis
+- File exports (CSV, ZIP, JSON)
+- Settings loading and persistence
 
 Agents follow these rules:
 
-* Stateless when possible
-* Accept explicit config and dependency inputs
-* Use callbacks or IPC for async updates
-* Catch and surface all external errors cleanly
+- Stateless when possible
+- Accept explicit config and dependency inputs
+- Use callbacks or IPC for async updates
+- Catch and surface all external errors cleanly
 
 ---
 
@@ -71,20 +72,20 @@ Agents follow these rules:
 
 Communication between Electron main and renderer follows a strict contract:
 
-* Use `ipcMain.handle()` + `ipcRenderer.invoke()` for req-res flows
-* Use `ipcRenderer.send()` + `ipcMain.on()` for status streaming
+- Use `ipcMain.handle()` + `ipcRenderer.invoke()` for req-res flows
+- Use `ipcRenderer.send()` + `ipcMain.on()` for status streaming
 
 All IPC events must:
 
-* Have a distinct `type`
-* Return typed payloads
-* Handle cancellation gracefully
+- Have a distinct `type`
+- Return typed payloads
+- Handle cancellation gracefully
 
 Example:
 
 ```ts
 ipcMain.handle('bw:lookup', async (e, data) => await runBulkLookup(data));
-ipcRenderer.invoke('settings:get').then(set => applySettings(set));
+ipcRenderer.invoke('settings:get').then((set) => applySettings(set));
 ```
 
 ---
@@ -93,14 +94,14 @@ ipcRenderer.invoke('settings:get').then(set => applySettings(set));
 
 To merge a PR, the following must be true:
 
-* ✅ Code passes **TypeScript** type checks
-* ✅ Code passes **ESLint** (`pnpm lint`)
-* ✅ Code passes **Prettier** formatting (`pnpm format`)
-* ✅ All unit tests pass (`pnpm test`)
-* ✅ New logic includes test coverage
-* ✅ No production `console.log`s or `debugger` statements
-* ✅ PR follows conventional commits (`feat:`, `fix:`, `refactor:`)
-* ✅ Public-facing changes must be reflected in the README when relevant
+- ✅ Code passes **TypeScript** type checks
+- ✅ Code passes **ESLint** (`npm run lint`)
+- ✅ Code passes **Prettier** formatting (`npm run format`)
+- ✅ All unit tests pass (`npm test`)
+- ✅ New logic includes test coverage
+- ✅ No production `console.log`s or `debugger` statements
+- ✅ PR follows conventional commits (`feat:`, `fix:`, `refactor:`)
+- ✅ Public-facing changes must be reflected in the README when relevant
 
 If any of these checks fail, the PR must be fixed before merging.
 
@@ -108,21 +109,21 @@ If any of these checks fail, the PR must be fixed before merging.
 
 ## 🎨 Code Style
 
-* Enforced via ESLint and Prettier
-* Use `interface` and `type` for structured values
-* Avoid `any` unless explicitly justified
-* Keep each file single-purpose
-* Naming: kebab-case for files, camelCase for vars, PascalCase for types
-* Add inline comments where behavior or usage is non-obvious
-* Suggest documentation or contextual comments if a feature would benefit from clarity
+- Enforced via ESLint and Prettier
+- Use `interface` and `type` for structured values
+- Avoid `any` unless explicitly justified
+- Keep each file single-purpose
+- Naming: kebab-case for files, camelCase for vars, PascalCase for types
+- Add inline comments where behavior or usage is non-obvious
+- Suggest documentation or contextual comments if a feature would benefit from clarity
 
 ---
 
 ## 🧪 Testing Strategy
 
-* All critical logic must have **unit tests**
-* WHOIS parsing, expiry detection, and export logic are priority targets
-* Use Playwright to test UI interactions (bulk > export, etc.)
+- All critical logic must have **unit tests**
+- WHOIS parsing, expiry detection, and export logic are priority targets
+- Use Playwright to test UI interactions (bulk > export, etc.)
 
 Example test:
 
@@ -138,45 +139,45 @@ test('parses WHOIS expiry date', () => {
 ## 🚀 Build & Release
 
 ```bash
-pnpm build:main      # Compile backend
-pnpm build:renderer  # Compile frontend
-pnpm dist            # Create OS installers
+npm run build        # Compile TypeScript
+npm run build:css    # Compile and minify CSS
+npm run package-all  # Create OS installers
 ```
 
 Ensure the build includes:
 
-* SQLite cache file
-* Static icon resources
-* Platform-specific build config in `electron-builder.yml`
+- SQLite cache file
+- Static icon resources
+- Platform-specific build config in `electron-builder.yml`
 
 ---
 
 ## 📦 Deployment Checklist
 
-* [ ] Clean build passes
-* [ ] Settings persist and reload correctly
-* [ ] WHOIS lookups succeed (single + bulk)
-* [ ] Export feature generates valid CSV/ZIP
-* [ ] UI tested with real and fake proxies
+- [ ] Clean build passes
+- [ ] Settings persist and reload correctly
+- [ ] WHOIS lookups succeed (single + bulk)
+- [ ] Export feature generates valid CSV/ZIP
+- [ ] UI tested with real and fake proxies
 
 ---
 
 ## 🔮 Roadmap & Ideas
 
-* [ ] AI WHOIS interpreter (Codex)
-* [ ] Agent health status in UI (green/red)
-* [ ] Proxy configuration per WHOIS region
-* [ ] CLI-compatible mode for automation
-* [ ] Dark mode toggle and i18n
+- [ ] AI WHOIS interpreter (Codex)
+- [ ] Agent health status in UI (green/red)
+- [ ] Proxy configuration per WHOIS region
+- [ ] CLI-compatible mode for automation
+- [ ] Dark mode toggle and i18n
 
 ---
 
 ## 🤝 Contribution Workflow
 
-* Create branches per feature/fix: `feat/bulk-status`, `fix/export-bug`
-* Include meaningful PR titles and descriptions
-* Update this guide if you add new agents
-* Mark as `draft` if not ready
+- Create branches per feature/fix: `feat/bulk-status`, `fix/export-bug`
+- Include meaningful PR titles and descriptions
+- Update this guide if you add new agents
+- Mark as `draft` if not ready
 
 ---
 
@@ -184,18 +185,18 @@ Ensure the build includes:
 
 Suggestions for improvements, features, or fixes are welcome. Follow these rules:
 
-* Use GitHub Issues with label `suggestion`
-* Keep scope clear: what, why, and expected outcome
-* Attach examples or mockups when relevant
-* If implementation is easy, consider a PR instead
-* Suggestion titles should be action-oriented: `Improve WHOIS output parsing`, `Add proxy pool tester`, etc.
-* Features should aim to be **as complete as possible** in scope and design
-* If a suggestion is trivial or self-contained, you're encouraged to go ahead and implement it instead
-* When asked for general suggestions, think in terms of: `CI`, `code quality`, `features`, `UX`, `bugfixes`, and `tooling`
-* When fixing a bug, prefer the **most definitive and long-term solution**—if complex, provide a prioritized list of possible fixes
-* When implementing a new feature, aim to produce a **comprehensive and robust version** from the start
-* Suggest inline comments where needed and improve documentation proactively
-* Edit the project README for changes with significant user-visible impact (e.g. features, UI behavior, major CLI usage changes)
+- Use GitHub Issues with label `suggestion`
+- Keep scope clear: what, why, and expected outcome
+- Attach examples or mockups when relevant
+- If implementation is easy, consider a PR instead
+- Suggestion titles should be action-oriented: `Improve WHOIS output parsing`, `Add proxy pool tester`, etc.
+- Features should aim to be **as complete as possible** in scope and design
+- If a suggestion is trivial or self-contained, you're encouraged to go ahead and implement it instead
+- When asked for general suggestions, think in terms of: `CI`, `code quality`, `features`, `UX`, `bugfixes`, and `tooling`
+- When fixing a bug, prefer the **most definitive and long-term solution**—if complex, provide a prioritized list of possible fixes
+- When implementing a new feature, aim to produce a **comprehensive and robust version** from the start
+- Suggest inline comments where needed and improve documentation proactively
+- Edit the project README for changes with significant user-visible impact (e.g. features, UI behavior, major CLI usage changes)
 
 Suggestions that align with the roadmap or architectural direction are more likely to be accepted.
 
