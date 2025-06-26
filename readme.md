@@ -302,7 +302,7 @@ Add a new `<lang>.json` file (e.g. `fr.json`) with your translations and include
 Build the Docker image:
 
 ```bash
-docker build -t whoisdigger .
+docker build -t whoisdigger -f docker/Dockerfile .
 ```
 
 Run the application (requires X11 forwarding to display Electron).
@@ -319,7 +319,7 @@ docker run --rm -it \
 Alternatively, start with docker-compose:
 
 ```bash
-docker-compose up
+docker compose -f docker/docker-compose.yml up
 ```
 
 Execute the test suite inside a container:
