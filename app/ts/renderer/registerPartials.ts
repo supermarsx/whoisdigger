@@ -66,3 +66,5 @@ export function registerPartials(): void {
     Handlebars.registerPartial(name, template);
   }
 }
+
+export default registerPartials;
