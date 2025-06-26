@@ -38,15 +38,16 @@ export async function loadModel(modelPath: string = settings.ai.modelPath): Prom
 
 export function predict(text: string): 'available' | 'unavailable' | 'error' {
   if (!model) return 'error';
+  const m = model as Model;
   try {
     const tokens = tokenize(text);
-    const vocabSize = model.vocabulary.length;
-    const totalDocs = model.classTotals.available + model.classTotals.unavailable;
+    const vocabSize = m.vocabulary.length;
+    const totalDocs = m.classTotals.available + m.classTotals.unavailable;
     function score(label: Label): number {
-      let s = Math.log(model.classTotals[label] / totalDocs);
+      let s = Math.log(m.classTotals[label] / totalDocs);
       for (const t of tokens) {
-        const count = model.tokenCounts[label][t] || 0;
-        s += Math.log((count + 1) / (model.tokenTotals[label] + vocabSize));
+        const count = m.tokenCounts[label][t] || 0;
+        s += Math.log((count + 1) / (m.tokenTotals[label] + vocabSize));
       }
       return s;
     }

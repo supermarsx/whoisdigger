@@ -5,7 +5,7 @@
   "description": "Bulk whois lookup tool",
   "main": "./dist/app/ts/main.js",
   "scripts": {
-    "start": "npm run build && npm run postbuild && electron .",
+    "start": "npm run build && npm run postbuild && cross-env NODE_OPTIONS=--experimental-specifier-resolution=node electron .",
     "debug-powershell": "@powershell -Command $env:DEBUG='*';npm start;",
     "debug-cmd": "set DEBUG=* & npm start",
     "debug": "cross-env DEBUG=* npm start",
@@ -18,7 +18,7 @@
     "build:css": "postcss app/css/*.css -d dist/app/css --no-map",
     "watch": "cross-env DEBUG=* tsc -w",
     "watch-assets": "node scripts/watch-assets.cjs",
-    "dev": "npm run build && concurrently \"npm:watch\" \"npm:watch-assets\" \"electronmon .\"",
+    "dev": "npm run build && concurrently \"npm:watch\" \"npm:watch-assets\" \"cross-env NODE_OPTIONS=--experimental-specifier-resolution=node electronmon .\"",
     "lint": "eslint \"app/**/*.ts\" \"test/**/*.ts\"",
     "format": "prettier --write --ignore-path .prettierignore .",
     "format:check": "prettier --check --ignore-path .prettierignore .",
