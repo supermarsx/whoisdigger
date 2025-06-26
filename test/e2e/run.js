@@ -41,6 +41,13 @@ const debug = require('debug')('test:e2e');
 
     await browser.pause(2000);
 
+    const logs =
+      typeof browser.getRenderProcessLogs === 'function'
+        ? await browser.getRenderProcessLogs()
+        : await browser.getLogs('browser');
+    const errorLogs = logs.filter((l) => l.level === 'SEVERE' || /Error/.test(l.message));
+    assert.strictEqual(errorLogs.length, 0, 'Console errors: ' + JSON.stringify(errorLogs));
+
     const handles = await browser.getWindowHandles();
     assert.ok(handles.length > 0, 'No windows were created');
 
