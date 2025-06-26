@@ -171,7 +171,8 @@ const enumOptions: Record<string, string[]> = {
   'lookupProxy.mode': ['single', 'multi'],
   'lookupProxy.multimode': ['sequential', 'random', 'ascending', 'descending'],
   'lookupProxy.checktype': ['ping', 'request', 'ping+request'],
-  'lookupConversion.algorithm': ['uts46', 'uts46-transitional', 'punycode', 'ascii']
+  'lookupConversion.algorithm': ['uts46', 'uts46-transitional', 'punycode', 'ascii'],
+  'ui.language': ['en', 'es']
 };
 
 function buildEntries(obj: any, prefix: string, table: JQuery<HTMLElement>): void {
@@ -413,9 +414,7 @@ $(document).ready(() => {
   containerEl.on('scroll', () => {
     if ($('#opMainContainer').hasClass('current')) {
       const top = containerEl.scrollTop() ?? 0;
-      const bottom =
-        (containerEl[0]?.scrollHeight ?? 0) - (containerEl.innerHeight() ?? 0) -
-        top;
+      const bottom = (containerEl[0]?.scrollHeight ?? 0) - (containerEl.innerHeight() ?? 0) - top;
       backToTop.toggleClass('is-visible', top > 200);
       goToBottom.toggleClass('is-visible', bottom > 200);
     } else {
