@@ -57,3 +57,6 @@ const htmlOut = mainTemplate({});
 const outPath = path.join(distDir, 'html', 'mainPanel.html');
 fs.rmSync(outPath, { force: true });
 fs.writeFileSync(outPath, htmlOut);
+
+// Create extensionless symlinks for Node ESM
+require('./create-esm-links.cjs');

@@ -5,7 +5,10 @@ import { loadSettings, settings as store } from './common/settings';
 import type { Settings as BaseSettings } from './common/settings';
 import { formatString } from './common/stringformat';
 import { closeCache } from './common/requestCache';
-import { initialize as initializeRemote, enable as enableRemote } from '@electron/remote/main';
+import {
+  initialize as initializeRemote,
+  enable as enableRemote
+} from '@electron/remote/main/index.js';
 import type { IpcMainEvent } from 'electron';
 
 const debug = debugModule('main');
@@ -32,7 +35,7 @@ interface AppWindowSettings {
   fullscreenable: boolean;
   kiosk: boolean;
   darkTheme: boolean;
-    thickFrame: boolean;
+  thickFrame: boolean;
 }
 
 interface WebPreferencesSettings {

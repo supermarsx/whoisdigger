@@ -1,7 +1,7 @@
-import './singlewhois';
-import './bw';
-import './bwa';
-import './to';
-import './cache';
-import './ai';
-import './history';
+import './singlewhois.js';
+import './bw.js';
+import './bwa.js';
+import './to.js';
+import './cache.js';
+import './ai.js';
+import './history.js';
