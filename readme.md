@@ -189,6 +189,9 @@ node dist/app/ts/cli.js --clear-cache
 
 # download the AI model
 node dist/app/ts/cli.js --download-model
+
+# get AI word suggestions
+node dist/app/ts/cli.js --suggest "short tech names" --suggest-count 5
 ```
 
 ### Notes on errors

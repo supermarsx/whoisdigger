@@ -13,6 +13,22 @@ import { formatString } from '../../common/stringformat';
 
 let bwWordlistContents = ''; // Global wordlist input contents
 
+$(document).on('click', '#bwSuggestButton', async () => {
+  const prompt = String($('#bwSuggestPrompt').val() ?? '');
+  if (!prompt) return;
+  try {
+    const words: string[] = await electron.invoke('ai:suggest', prompt, 5);
+    if (words.length > 0) {
+      const textarea = $('#bwWordlistTextareaDomains');
+      const current = String(textarea.val() ?? '').trim();
+      const prefix = current ? '\n' : '';
+      textarea.val(current + prefix + words.join('\n'));
+    }
+  } catch (e) {
+    electron.send('app:error', `Suggestion failed: ${e}`);
+  }
+});
+
 /*
   electron.on('bw:wordlistinput.confirmation', function() {...});
     Wordlist input, contents confirmation container
