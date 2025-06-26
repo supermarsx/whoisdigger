@@ -100,6 +100,7 @@ To merge a PR, the following must be true:
 - ✅ All unit tests pass (`npm test`)
 - ✅ End-to-end tests pass (`npm run test:e2e`) and confirm the app launches without console errors
 - ✅ New logic includes test coverage
+- ✅ E2E tests pass and the app loads without console errors (`npm run test:e2e`)
 - ✅ No production `console.log`s or `debugger` statements
 - ✅ PR follows conventional commits (`feat:`, `fix:`, `refactor:`)
 - ✅ Public-facing changes must be reflected in the README when relevant
