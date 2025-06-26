@@ -134,7 +134,7 @@ declare module 'app/ts/main/bw/auxiliary' {
 
 declare module 'app/ts/main/bw/process.defaults' {
   const defaults: any;
-  export = defaults;
+  export default defaults;
 }
 
 declare module 'app/ts/common/resetObject' {

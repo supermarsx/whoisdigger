@@ -69,4 +69,4 @@ const defaultBulkWhois: BulkWhois = {
   }
 };
 
-export = defaultBulkWhois;
+export default defaultBulkWhois;
