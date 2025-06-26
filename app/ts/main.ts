@@ -32,7 +32,7 @@ interface AppWindowSettings {
   fullscreenable: boolean;
   kiosk: boolean;
   darkTheme: boolean;
-  thickFrame: boolean;
+    thickFrame: boolean;
 }
 
 interface WebPreferencesSettings {
@@ -109,7 +109,7 @@ app.on('ready', async function () {
     thickFrame: appWindow.thickFrame, // Use WS_THICKFRAME style for frameless windows on Windows, which adds standard window frame. Setting it to false will remove window shadow and window animations.
     webPreferences: {
       nodeIntegration: webPreferences.nodeIntegration, // Enable node integration
-      contextIsolation: webPreferences.contextIsolation, // Context isolation
+      contextIsolation: true, // Enforce context isolation for security
       zoomFactor: webPreferences.zoomFactor, // Page zoom factor
       images: webPreferences.images, // Image support
       experimentalFeatures: webPreferences.experimentalFeatures, // Enable Chromium experimental features

@@ -208,6 +208,8 @@ Run `npm run format -- --write` before committing to apply Prettier formatting. 
 
 Whoisdigger uses a settings file that rules how the application behaves overall, this can be achieved by either using the preload settings file or change the `appsettings.ts` inside `js`.
 
+Context isolation is always enabled for security purposes and cannot be disabled in configuration.
+
 ### Theme
 
 The options screen provides a **Follow system theme** toggle. When enabled the application automatically switches between dark and light modes according to your operating system preference. This behaviour is controlled by the `theme.followSystem` setting which can be set to `true` or `false` in the configuration file.

@@ -142,12 +142,19 @@ function watchConfig(): void {
       const parsed = JSON.parse(raw) as Partial<Settings>;
       try {
         settings = mergeDefaults(parsed);
+        if ((settings as any).appWindowWebPreferences) {
+          // Always enforce context isolation when reloading settings
+          (settings as any).appWindowWebPreferences.contextIsolation = true;
+        }
         debug(`Reloaded custom configuration at ${cfg}`);
         if (typeof window !== 'undefined' && settings.ui?.liveReload) {
           window.dispatchEvent(new Event('settings-reloaded'));
         }
       } catch (mergeError) {
         settings = JSON.parse(JSON.stringify(defaultSettings));
+        if ((settings as any).appWindowWebPreferences) {
+          (settings as any).appWindowWebPreferences.contextIsolation = true;
+        }
         debug(`Failed to merge configuration with error: ${mergeError}`);
         if (typeof window !== 'undefined' && settings.ui?.liveReload) {
           window.dispatchEvent(new Event('settings-reloaded'));
@@ -177,26 +184,43 @@ export async function load(): Promise<Settings> {
         const parsed = JSON.parse(raw) as Partial<Settings>;
         try {
           settings = mergeDefaults(parsed);
+          if ((settings as any).appWindowWebPreferences) {
+            // Enforce context isolation when loading configuration
+            (settings as any).appWindowWebPreferences.contextIsolation = true;
+          }
           customSettingsLoaded = true;
           debug(`Loaded custom configuration at ${filePath}`);
         } catch (mergeError) {
           settings = JSON.parse(JSON.stringify(defaultSettings));
+          if ((settings as any).appWindowWebPreferences) {
+            (settings as any).appWindowWebPreferences.contextIsolation = true;
+          }
           customSettingsLoaded = false;
           debug(`Failed to merge custom configuration with error: ${mergeError}`);
         }
       } catch (parseError) {
         customSettingsLoaded = false;
+        if ((settings as any).appWindowWebPreferences) {
+          (settings as any).appWindowWebPreferences.contextIsolation = true;
+        }
         debug(`Failed to parse custom configuration with error: ${parseError}`);
       }
     } catch (e) {
       debug(`Failed to load custom configuration with error: ${e}`);
       customSettingsLoaded = false;
+      if ((settings as any).appWindowWebPreferences) {
+        (settings as any).appWindowWebPreferences.contextIsolation = true;
+      }
       // Silently ignore loading errors
     }
   }
 
   watchConfig();
   if (!customSettingsLoaded) customSettingsLoaded = false;
+  if ((settings as any).appWindowWebPreferences) {
+    // Enforce context isolation regardless of loaded configuration
+    (settings as any).appWindowWebPreferences.contextIsolation = true;
+  }
   return settings;
 }
 
