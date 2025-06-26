@@ -1,7 +1,7 @@
-import './singlewhois';
-import './bw';
-import './bwa';
-import './darkmode';
-import './options';
-import './to';
-import './history';
+import './singlewhois.js';
+import './bw.js';
+import './bwa.js';
+import './darkmode.js';
+import './options.js';
+import './to.js';
+import './history.js';
