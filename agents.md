@@ -98,6 +98,7 @@ To merge a PR, the following must be true:
 - ✅ Code passes **ESLint** (`npm run lint`)
 - ✅ Code passes **Prettier** formatting (`npm run format`)
 - ✅ All unit tests pass (`npm test`)
+- ✅ End-to-end tests pass (`npm run test:e2e`) and confirm the app launches without console errors
 - ✅ New logic includes test coverage
 - ✅ No production `console.log`s or `debugger` statements
 - ✅ PR follows conventional commits (`feat:`, `fix:`, `refactor:`)
