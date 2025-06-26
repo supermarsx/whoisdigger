@@ -3,6 +3,7 @@ import { getDate } from './conversions';
 import { toJSON } from './parser';
 import { settings as appSettings, Settings } from './settings';
 import { checkPatterns } from './whoiswrapper/patterns';
+import { predict as aiPredict } from '../ai/availabilityModel';
 
 const debug = debugModule('common.whoisWrapper');
 let settings: Settings = appSettings;
@@ -135,6 +136,15 @@ export function isDomainAvailable(
   resultsJSON?: Record<string, unknown>
 ): string {
   const { lookupAssumptions: assumptions } = settings;
+
+  if (settings.ai.enabled) {
+    try {
+      const aiRes = aiPredict(resultsText);
+      if (aiRes === 'available' || aiRes === 'unavailable') return aiRes;
+    } catch (e) {
+      debug(`AI prediction failed: ${e}`);
+    }
+  }
 
   const patternResult = checkPatterns(resultsText, resultsJSON);
   const defaultResult = assumptions.unparsable ? 'available' : 'error:unparsable';
