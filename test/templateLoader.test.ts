@@ -9,7 +9,7 @@ jest.mock('handlebars/runtime', () => {
 });
 
 jest.mock(
-  '../app/compiled-templates/mock.js',
+  '../app/compiled-templates/mock.cjs',
   () => ({
     __esModule: true,
     default: { name: 'mock' }

@@ -5,7 +5,7 @@ import { copyRecursiveSync } from './copyRecursive.js';
 import { precompileTemplates } from './precompileTemplates.js';
 import debugModule from 'debug';
 import { fileURLToPath } from 'url';
-import Handlebars from 'handlebars/runtime';
+import Handlebars from 'handlebars/runtime.js';
 import './create-esm-links.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

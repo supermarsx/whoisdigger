@@ -3,3 +3,15 @@ dist/
 release_builds/
 package-lock.json
 app/html/templates/mainPanel.hbs
+app/compiled-templates/
+app/data/
+coverage/
+app/css/
+app/html/templates/
+app/ts/common/tools.ts
+app/ts/main/bw/process.ts
+app/ts/main/to.ts
+app/ts/renderer/bwa/fileinput.ts
+app/ts/renderer/darkmode.ts
+app/ts/renderer/navigation.ts
+app/ts/renderer/singlewhois.ts
