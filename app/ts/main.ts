@@ -1,5 +1,8 @@
 import { app, BrowserWindow, Menu, ipcMain, dialog } from 'electron';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 import debugModule from 'debug';
 import { loadSettings, settings as store } from './common/settings';
 import type { Settings as BaseSettings } from './common/settings';

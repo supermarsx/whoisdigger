@@ -1,5 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 import * as electron from 'electron';
 import { createRequire as nodeCreateRequire } from 'module';
 const moduleRequire =
