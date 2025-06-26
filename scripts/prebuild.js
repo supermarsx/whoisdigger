@@ -3,12 +3,13 @@ import path from 'path';
 import { spawnSync } from 'child_process';
 import debugModule from 'debug';
 import { precompileTemplates } from './precompileTemplates.js';
+import { dirnameCompat } from './dirnameCompat.js';
 import { fileURLToPath } from 'url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const baseDir = dirnameCompat();
 const debug = debugModule('prebuild');
 
-const rootDir = path.join(__dirname, '..');
+const rootDir = path.join(baseDir, '..');
 const modulesPath = path.join(rootDir, 'node_modules');
 
 if (!fs.existsSync(modulesPath)) {

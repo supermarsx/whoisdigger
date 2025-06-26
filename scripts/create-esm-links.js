@@ -1,10 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { dirnameCompat } from './dirnameCompat.js';
+const baseDir = dirnameCompat();
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-const distDir = path.join(__dirname, '..', 'dist', 'app', 'ts');
+const distDir = path.join(baseDir, '..', 'dist', 'app', 'ts');
 
 function processDir(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {

@@ -1,24 +1,18 @@
 import fs from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
+import { dirnameCompat } from './dirnameCompat.js';
 import { fileURLToPath } from 'url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const baseDir = dirnameCompat();
 
 export function precompileTemplates(
-  outputDir = path.join(__dirname, '..', 'app', 'compiled-templates')
+  outputDir = path.join(baseDir, '..', 'app', 'compiled-templates')
 ) {
-  const templatesDir = path.join(__dirname, '..', 'app', 'html', 'templates');
+  const templatesDir = path.join(baseDir, '..', 'app', 'html', 'templates');
   fs.mkdirSync(outputDir, { recursive: true });
 
-  const handlebarBin = path.join(
-    __dirname,
-    '..',
-    'node_modules',
-    'handlebars',
-    'bin',
-    'handlebars'
-  );
+  const handlebarBin = path.join(baseDir, '..', 'node_modules', 'handlebars', 'bin', 'handlebars');
 
   for (const file of fs.readdirSync(templatesDir)) {
     if (path.extname(file) !== '.hbs') continue;
