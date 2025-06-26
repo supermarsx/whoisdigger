@@ -5,6 +5,7 @@ import { hideBin } from 'yargs/helpers';
 import JSZip from 'jszip';
 import { lookup as whoisLookup } from './common/lookup';
 import { settings } from './common/settings';
+import { purgeExpired, clearCache } from './common/requestCache';
 import { isDomainAvailable, getDomainParameters, WhoisResult } from './common/availability';
 import { toJSON } from './common/parser';
 import { generateFilename } from './main/bw/export';
@@ -16,6 +17,8 @@ export interface CliOptions {
   proxy?: string;
   format: 'csv' | 'txt' | 'zip';
   out?: string;
+  purgeCache?: boolean;
+  clearCache?: boolean;
 }
 
 export function parseArgs(argv: string[]): CliOptions {
@@ -26,6 +29,8 @@ export function parseArgs(argv: string[]): CliOptions {
     .option('proxy', { type: 'string' })
     .option('format', { choices: ['csv', 'txt', 'zip'] as const, default: 'txt' })
     .option('out', { type: 'string' })
+    .option('purge-cache', { type: 'boolean' })
+    .option('clear-cache', { type: 'boolean' })
     .parseSync();
   return {
     domains: args.domain ?? [],
@@ -33,7 +38,9 @@ export function parseArgs(argv: string[]): CliOptions {
     tlds: args.tlds as string[],
     proxy: args.proxy,
     format: args.format as 'csv' | 'txt' | 'zip',
-    out: args.out
+    out: args.out,
+    purgeCache: args['purge-cache'],
+    clearCache: args['clear-cache']
   };
 }
 
@@ -118,6 +125,16 @@ export async function exportResults(results: WhoisResult[], opts: CliOptions): P
 if (require.main === module) {
   (async () => {
     const opts = parseArgs(hideBin(process.argv));
+    if (opts.purgeCache || opts.clearCache) {
+      if (opts.clearCache) {
+        clearCache();
+        console.log('Cache cleared');
+      } else {
+        const purged = purgeExpired();
+        console.log(`Purged ${purged} expired entries`);
+      }
+      return;
+    }
     const results = await lookupDomains(opts);
     const outPath = await exportResults(results, opts);
     console.log(`Results written to ${path.resolve(outPath)}`);

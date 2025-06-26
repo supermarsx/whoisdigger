@@ -70,6 +70,35 @@ export function setCached(type: string, domain: string, response: string): void 
   }
 }
 
+export function purgeExpired(): number {
+  const { requestCache } = settings;
+  if (!requestCache.enabled) return 0;
+  const database = init();
+  if (!database) return 0;
+  try {
+    const threshold = Date.now() - requestCache.ttl * 1000;
+    const res = database.prepare('DELETE FROM cache WHERE timestamp <= ?').run(threshold);
+    debug(`Purged ${res.changes} expired entries`);
+    return res.changes ?? 0;
+  } catch (e) {
+    debug(`Cache purge failed: ${e}`);
+    return 0;
+  }
+}
+
+export function clearCache(): void {
+  const { requestCache } = settings;
+  if (!requestCache.enabled) return;
+  const database = init();
+  if (!database) return;
+  try {
+    database.prepare('DELETE FROM cache').run();
+    debug('Cleared all cache entries');
+  } catch (e) {
+    debug(`Cache clear failed: ${e}`);
+  }
+}
+
 export function closeCache(): void {
   if (db) {
     try {
@@ -81,4 +110,4 @@ export function closeCache(): void {
   }
 }
 
-export default { getCached, setCached, closeCache };
+export default { getCached, setCached, closeCache, purgeExpired, clearCache };
