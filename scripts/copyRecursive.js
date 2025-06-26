@@ -1,7 +1,7 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
-function copyRecursiveSync(src, dest) {
+export function copyRecursiveSync(src, dest) {
   const stat = fs.statSync(src);
   if (stat.isDirectory()) {
     fs.mkdirSync(dest, { recursive: true });
@@ -15,5 +15,3 @@ function copyRecursiveSync(src, dest) {
     fs.copyFileSync(src, dest);
   }
 }
-
-module.exports = { copyRecursiveSync };

@@ -1,9 +1,15 @@
-const fs = require('fs');
-const path = require('path');
-const { spawnSync } = require('child_process');
-const { copyRecursiveSync } = require('./copyRecursive.cjs');
-const { precompileTemplates } = require('./precompileTemplates.cjs');
-const debug = require('debug')('postbuild');
+import fs from 'fs';
+import path from 'path';
+import { spawnSync } from 'child_process';
+import { copyRecursiveSync } from './copyRecursive.js';
+import { precompileTemplates } from './precompileTemplates.js';
+import debugModule from 'debug';
+import { fileURLToPath } from 'url';
+import Handlebars from 'handlebars/runtime';
+import './create-esm-links.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const debug = debugModule('postbuild');
 
 const folders = ['html', 'html/templates', 'fonts', 'icons', 'compiled-templates', 'locales'];
 const rootDir = path.join(__dirname, '..');
@@ -38,19 +44,18 @@ precompileTemplates(path.join(distDir, 'compiled-templates'));
 
 // After precompilation, register the partials with Handlebars and render
 // the mainPanel template to static HTML.
-const Handlebars = require('handlebars/runtime');
 const partialDir = path.join(distDir, 'compiled-templates');
 const localeDir = path.join(distDir, 'locales');
-const defaultLocale = require(path.join(localeDir, 'en.json'));
+const defaultLocale = JSON.parse(fs.readFileSync(path.join(localeDir, 'en.json'), 'utf8'));
 Handlebars.registerHelper('t', (k) => defaultLocale[k] || k);
 
 for (const file of fs.readdirSync(partialDir)) {
-  if (file === 'mainPanel.cjs' || !file.endsWith('.cjs')) continue;
-  const spec = require(path.join(partialDir, file));
-  Handlebars.registerPartial(path.basename(file, '.cjs'), Handlebars.template(spec));
+  if (file === 'mainPanel.js' || !file.endsWith('.js')) continue;
+  const spec = (await import(path.join(partialDir, file))).default;
+  Handlebars.registerPartial(path.basename(file, '.js'), Handlebars.template(spec));
 }
 
-const mainSpec = require(path.join(partialDir, 'mainPanel.cjs'));
+const mainSpec = (await import(path.join(partialDir, 'mainPanel.js'))).default;
 const mainTemplate = Handlebars.template(mainSpec);
 const htmlOut = mainTemplate({});
 
@@ -59,4 +64,3 @@ fs.rmSync(outPath, { force: true });
 fs.writeFileSync(outPath, htmlOut);
 
 // Create extensionless symlinks for Node ESM
-require('./create-esm-links.cjs');
