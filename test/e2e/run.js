@@ -12,7 +12,6 @@ const debug = require('debug')('test:e2e');
 
   const artifactsDir = path.join(__dirname, 'artifacts');
   fs.mkdirSync(artifactsDir, { recursive: true });
-  const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'whoisdigger-'));
 
   const chromedriverPath = path.join(__dirname, '..', '..', 'node_modules', '.bin', 'chromedriver');
   const chromedriver = spawn(chromedriverPath, ['--port=9515'], {
@@ -33,7 +32,8 @@ const debug = require('debug')('test:e2e');
             appPath,
             '--no-sandbox',
             '--disable-dev-shm-usage',
-            `--user-data-dir=${userDataDir}`
+            '--headless=new',
+            '--remote-debugging-port=9515'
           ]
         }
       }
@@ -130,6 +130,5 @@ const debug = require('debug')('test:e2e');
     process.exit(1);
   } finally {
     chromedriver.kill();
-    fs.rmSync(userDataDir, { recursive: true, force: true });
   }
 })();
