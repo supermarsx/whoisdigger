@@ -25,6 +25,7 @@
   "reload": "Recargar",
   "save": "Guardar",
   "open_data_folder": "Abrir carpeta de datos",
+  "download_model": "Descargar modelo",
   "reload_app": "Reiniciar aplicación",
   "delete_config": "Eliminar configuración",
   "no_config_found": "No se encontró configuración"

@@ -25,6 +25,7 @@
   "reload": "Reload",
   "save": "Save",
   "open_data_folder": "Open data folder",
+  "download_model": "Download model",
   "reload_app": "Reload App",
   "delete_config": "Delete config",
   "no_config_found": "No configuration found."

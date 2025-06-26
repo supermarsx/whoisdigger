@@ -186,6 +186,9 @@ node dist/app/ts/cli.js --purge-cache
 
 # clear entire cache
 node dist/app/ts/cli.js --clear-cache
+
+# download the AI model
+node dist/app/ts/cli.js --download-model
 ```
 
 ### Notes on errors
