@@ -8,7 +8,7 @@ const debug = require('debug')('test:e2e');
 
 (async () => {
   const electronPath = require('electron');
-  const appPath = path.join(__dirname, '..', '..', 'dist', 'app', 'ts', 'main.js');
+  const appPath = path.resolve(__dirname, '..', '..', 'dist', 'app', 'ts', 'main.js');
 
   const artifactsDir = path.join(__dirname, 'artifacts');
   fs.mkdirSync(artifactsDir, { recursive: true });
@@ -52,14 +52,12 @@ const debug = require('debug')('test:e2e');
     assert.ok(handles.length > 0, 'No windows were created');
 
     await browser.execute(() => {
-      const { ipcRenderer } = require('electron');
-      ipcRenderer.send('app:minimize');
+      window.electron?.send('app:minimize');
     });
     await browser.pause(500);
 
-    const minimized = await browser.execute(() => {
-      const remote = require('@electron/remote');
-      return remote.BrowserWindow.getFocusedWindow().isMinimized();
+    const minimized = await browser.executeAsync((done) => {
+      window.electron?.invoke('app:isMinimized').then((res) => done(res));
     });
     assert.ok(minimized, 'Window did not minimize via IPC');
 

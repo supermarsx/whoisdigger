@@ -207,6 +207,14 @@ ipcMain.handle('app:minimize', function () {
 });
 
 /*
+  ipcMain.handle('app:isMinimized', function() {...});
+    Return whether the window is currently minimized
+ */
+ipcMain.handle('app:isMinimized', function () {
+  return mainWindow.isMinimized();
+});
+
+/*
   ipcMain.handle('app:close', function() {...});
     Close the application window
  */
