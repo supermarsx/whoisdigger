@@ -33,6 +33,7 @@ declare module 'electron' {
 
   interface RendererToMainIpc {
     'app:minimize': [];
+    'app:isMinimized': [];
     'app:reload': [];
     'app:debug': [message: any];
     'bw:lookup': [string[], string[]];
