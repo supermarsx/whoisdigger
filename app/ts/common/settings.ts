@@ -1,10 +1,13 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as electron from 'electron';
+import { createRequire as nodeCreateRequire } from 'module';
+const moduleRequire =
+  typeof require === 'undefined' ? nodeCreateRequire(eval('import.meta.url')) : require;
 let remote: typeof import('@electron/remote') | undefined;
 try {
   // Dynamically require to avoid issues when Electron bindings are unavailable
-  remote = require('@electron/remote');
+  remote = moduleRequire('@electron/remote');
 } catch {
   remote = (electron as any).remote;
 }
@@ -65,8 +68,8 @@ export interface Settings {
 }
 
 const rawModule = fs.existsSync('./appsettings')
-  ? require('./appsettings')
-  : require('../appsettings');
+  ? moduleRequire('./appsettings')
+  : moduleRequire('../appsettings');
 const settingsModule: { settings: Settings } = rawModule.settings ? rawModule : rawModule.default;
 let { settings } = settingsModule;
 const defaultSettings: Settings = JSON.parse(JSON.stringify(settings));
