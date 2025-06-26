@@ -17,7 +17,7 @@ let watcher: fs.FSWatcher | undefined;
 export interface Settings {
   lookupConversion: { enabled: boolean; algorithm: string };
   lookupGeneral: {
-    type: string;
+    type: 'dns' | 'whois';
     psl: boolean;
     server: string;
     verbose: boolean;
@@ -32,10 +32,10 @@ export interface Settings {
   lookupRandomizeTimeBetween: { randomize: boolean; minimum: number; maximum: number };
   lookupProxy: {
     enable: boolean;
-    mode: string;
-    multimode: string;
+    mode: 'single' | 'multi';
+    multimode: 'sequential' | 'random' | 'ascending' | 'descending';
     check: boolean;
-    checktype: string;
+    checktype: 'ping' | 'request' | 'ping+request';
     single?: string;
     list?: string[];
   };
