@@ -9,6 +9,7 @@ import { purgeExpired, clearCache } from './common/requestCache';
 import { isDomainAvailable, getDomainParameters, WhoisResult } from './common/availability';
 import { toJSON } from './common/parser';
 import { generateFilename } from './main/bw/export';
+import { downloadModel } from './ai/modelDownloader';
 
 export interface CliOptions {
   domains: string[];
@@ -19,6 +20,7 @@ export interface CliOptions {
   out?: string;
   purgeCache?: boolean;
   clearCache?: boolean;
+  downloadModel?: boolean;
 }
 
 export function parseArgs(argv: string[]): CliOptions {
@@ -31,6 +33,7 @@ export function parseArgs(argv: string[]): CliOptions {
     .option('out', { type: 'string' })
     .option('purge-cache', { type: 'boolean' })
     .option('clear-cache', { type: 'boolean' })
+    .option('download-model', { type: 'boolean' })
     .parseSync();
   return {
     domains: args.domain ?? [],
@@ -40,7 +43,8 @@ export function parseArgs(argv: string[]): CliOptions {
     format: args.format as 'csv' | 'txt' | 'zip',
     out: args.out,
     purgeCache: args['purge-cache'],
-    clearCache: args['clear-cache']
+    clearCache: args['clear-cache'],
+    downloadModel: args['download-model']
   };
 }
 
@@ -125,6 +129,16 @@ export async function exportResults(results: WhoisResult[], opts: CliOptions): P
 if (require.main === module) {
   (async () => {
     const opts = parseArgs(hideBin(process.argv));
+    if (opts.downloadModel) {
+      const url = settings.ai.modelURL;
+      if (!url) {
+        console.error('Model URL not configured');
+        return;
+      }
+      await downloadModel(url, settings.ai.modelPath);
+      console.log('Model downloaded');
+      return;
+    }
     if (opts.purgeCache || opts.clearCache) {
       if (opts.clearCache) {
         clearCache();

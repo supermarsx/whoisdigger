@@ -379,6 +379,19 @@ $(document).ready(() => {
     }
   });
 
+  $('#downloadModel').on('click', async () => {
+    if (!settings.ai.modelURL) {
+      showToast('Model URL not configured', false);
+      return;
+    }
+    try {
+      await electron.invoke('ai:download-model');
+      showToast('Model download started', true);
+    } catch {
+      showToast('Model download failed', false);
+    }
+  });
+
   $('#reloadApp').on('click', async () => {
     try {
       await electron.invoke('app:reload');

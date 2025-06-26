@@ -21,6 +21,11 @@ describe('cli utility', () => {
     expect(opts.clearCache).toBe(true);
   });
 
+  test('parseArgs detects download-model flag', () => {
+    const opts = parseArgs(['--download-model']);
+    expect(opts.downloadModel).toBe(true);
+  });
+
   test('lookupDomains uses whois module', async () => {
     mockLookup.mockResolvedValueOnce('data');
     const opts: CliOptions = { domains: ['example.com'], tlds: ['com'], format: 'txt' };
