@@ -37,6 +37,7 @@ If you clone this repo please patch `node_modules\whois\index.js` and remove the
 - IDNA 2003/2008 (UTS46), Punycode, non-ASCII character filter support
 - Public Suffix List (PSL) and wildcard filtering
 - Basic bulk whois result analyser (csv import)
+- Experimental AI domain availability checks
 - Persistent settings through JSON file preload with live updates
 - Redesigned options interface with auto-save
 - Dark mode toggle
@@ -231,6 +232,16 @@ You can use assumptions (`lookup.assumptions` settings section) to make more rel
 `unparsable`, Assume a domain as available if reply is unparsable, it may help correcting malformed, unusual or unhandled whois replies, default: false
 
 `dnsFailureUnavailable`, Assume a domain is unavailable in a DNS sweep if request fails, this avoids having false positives on availability, default: true
+
+### AI
+
+Whoisdigger can optionally use a local ONNX model or OpenAI to predict domain availability.
+Configure these features in the `ai` section of `appsettings.ts`:
+
+- `ai.enabled` - toggle AI features
+- `ai.modelPath` and `ai.dataPath` - local model and data locations
+- `ai.modelURL` - remote URL to download the model
+- `ai.openai.url` and `ai.openai.apiKey` - OpenAI endpoint and API key
 
 ## Building
 
