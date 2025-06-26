@@ -137,6 +137,14 @@ jobs:
           name: e2e-artifacts-${{ matrix.node-version }}
           path: test/e2e/artifacts
 
+  docker-build:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -f docker/Dockerfile .
+
   package:
     needs: e2e
     if: startsWith(github.ref, 'refs/tags/')
