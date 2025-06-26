@@ -6,22 +6,22 @@ import { spawn } from 'child_process';
 import net from 'net';
 import { remote } from 'webdriverio';
 import debugModule from 'debug';
-import { fileURLToPath } from 'url';
+import { dirnameCompat } from '../../scripts/dirnameCompat.js';
 import electron from 'electron';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const baseDir = dirnameCompat();
 const debug = debugModule('test:e2e');
 
 (async () => {
   const electronPath = electron;
-  const appPath = path.resolve(__dirname, '..', '..', 'dist', 'app', 'ts', 'main.js');
+  const appPath = path.resolve(baseDir, '..', '..', 'dist', 'app', 'ts', 'main.js');
 
-  const artifactsDir = path.join(__dirname, 'artifacts');
+  const artifactsDir = path.join(baseDir, 'artifacts');
   fs.mkdirSync(artifactsDir, { recursive: true });
   const userDataDir = path.join(os.tmpdir(), `whoisdigger-test-${Date.now()}`);
   fs.mkdirSync(userDataDir, { recursive: true });
 
-  const chromedriverPath = path.join(__dirname, '..', '..', 'node_modules', '.bin', 'chromedriver');
+  const chromedriverPath = path.join(baseDir, '..', '..', 'node_modules', '.bin', 'chromedriver');
 
   const findPort = async (port) => {
     return new Promise((resolve) => {

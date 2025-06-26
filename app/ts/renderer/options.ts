@@ -1,9 +1,9 @@
 import $ from 'jquery';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { dirnameCompat } from '../utils/dirnameCompat';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const baseDir = dirnameCompat();
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
   invoke: (channel: string, ...args: any[]) => Promise<any>;
@@ -128,7 +128,7 @@ function startStatsWorker(): void {
       workerPath = new URL('./renderer/workers/statsWorker.js', eval('import.meta.url')).pathname;
     } catch {
       // Fallback for CommonJS environments like Jest
-      workerPath = path.join(__dirname, 'renderer', 'workers', 'statsWorker.js');
+      workerPath = path.join(baseDir, 'renderer', 'workers', 'statsWorker.js');
     }
     statsWorker = new Worker(workerPath, {
       workerData: {

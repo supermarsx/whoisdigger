@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
+import { dirnameCompat } from '../utils/dirnameCompat';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const baseDir = dirnameCompat();
 import * as electron from 'electron';
 import { createRequire as nodeCreateRequire } from 'module';
 const moduleRequire =
@@ -97,7 +97,7 @@ const isMainProcess = ((): boolean => {
   }
 })();
 
-const userDataPath = path.join(__dirname, '..', '..', 'data');
+const userDataPath = path.join(baseDir, '..', '..', 'data');
 
 export function getUserDataPath(): string {
   return userDataPath;

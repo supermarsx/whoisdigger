@@ -217,6 +217,20 @@ Use `npm run dev` to watch source files and automatically reload the application
 
 Run `npm run format` before committing to apply Prettier formatting. CI will verify formatting with `npm run format:check`.
 
+### Resolving paths
+
+Modules within Whoisdigger may execute in both CommonJS and ESM contexts. Use
+`dirnameCompat()` from `app/ts/utils/dirnameCompat.ts` to obtain a directory
+name that works in either environment:
+
+```ts
+import { dirnameCompat } from './utils/dirnameCompat';
+const __dirname = dirnameCompat();
+```
+
+The helper checks for `__filename` in CommonJS and falls back to
+`fileURLToPath(import.meta.url)` when running as an ES module.
+
 ## Settings
 
 Whoisdigger uses a settings file that rules how the application behaves overall, this can be achieved by either using the preload settings file or change the `appsettings.ts` inside `js`.

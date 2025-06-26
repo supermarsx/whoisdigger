@@ -4,15 +4,16 @@ import { spawnSync } from 'child_process';
 import { copyRecursiveSync } from './copyRecursive.js';
 import { precompileTemplates } from './precompileTemplates.js';
 import debugModule from 'debug';
+import { dirnameCompat } from './dirnameCompat.js';
 import { fileURLToPath } from 'url';
 import Handlebars from 'handlebars/runtime.js';
 import './create-esm-links.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const baseDir = dirnameCompat();
 const debug = debugModule('postbuild');
 
 const folders = ['html', 'html/templates', 'fonts', 'icons', 'compiled-templates', 'locales'];
-const rootDir = path.join(__dirname, '..');
+const rootDir = path.join(baseDir, '..');
 const appDir = path.join(rootDir, 'app');
 const distDir = path.join(rootDir, 'dist', 'app');
 

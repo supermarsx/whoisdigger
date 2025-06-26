@@ -1,8 +1,8 @@
 import { app, BrowserWindow, Menu, ipcMain, dialog } from 'electron';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
+import { dirnameCompat } from './utils/dirnameCompat';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const baseDir = dirnameCompat();
 import debugModule from 'debug';
 import { loadSettings, settings as store } from './common/settings';
 import type { Settings as BaseSettings } from './common/settings';
@@ -99,7 +99,7 @@ app.on('ready', async function () {
     show: appWindow.show, // Show app before load (default: false)
     height: appWindow.height, // Window height in pixels (default: 700)
     width: appWindow.width, // Window width in pixels (default: 1000)
-    icon: path.join(__dirname, appWindow.icon), // App icon path
+    icon: path.join(baseDir, appWindow.icon), // App icon path
     center: appWindow.center, // Center window
     minimizable: appWindow.minimizable, // Make window minimizable
     maximizable: appWindow.maximizable, // Make window maximizable
@@ -122,7 +122,7 @@ app.on('ready', async function () {
       backgroundThrottling: webPreferences.backgroundThrottling, // Whether to throttle animations and timers when the page becomes background
       offscreen: webPreferences.offscreen, // enable offscreen rendering for the browser window
       spellcheck: webPreferences.spellcheck, // Enable builtin spellchecker
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(baseDir, 'preload.js')
     }
   });
 
@@ -131,7 +131,7 @@ app.on('ready', async function () {
   // mainWindow, Main window URL load
   const loadPath = path.isAbsolute(appUrl.pathname)
     ? path.normalize(appUrl.pathname)
-    : path.join(__dirname, appUrl.pathname);
+    : path.join(baseDir, appUrl.pathname);
   mainWindow.loadFile(loadPath);
 
   // Some more debugging messages
