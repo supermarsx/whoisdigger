@@ -182,6 +182,7 @@ dependencies before building. This script runs whenever you execute `npm run bui
 Run `nvm use` to switch to the Node version defined in `.nvmrc`.
 Run `npm install` or `npm ci` before testing or linting to ensure all dependencies are installed.
 After installing, execute `npm test` to run the project's unit tests.
+Run `npm run test:e2e` to execute end-to-end tests that ensure the application starts cleanly.
 Running tests also generates a coverage report in the `coverage/` directory.
 Development packages such as `@types/node` and `@types/jest` are required for TypeScript compilation and running tests. The `prebuild` script will auto-install dependencies if `node_modules` is missing.
 Use `npm run dev` to watch source files and automatically reload the application during development. Static assets such as stylesheets are synced to `dist` while this command runs, so CSS changes are picked up without rebuilding.
