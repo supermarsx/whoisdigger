@@ -1,4 +1,4 @@
-import { registerPartials } from '../ts/renderer/registerPartials.js';
-registerPartials();
+import registerPartialsModule from '../ts/renderer/registerPartials.js';
+registerPartialsModule.registerPartials();
 
 import '../ts/mainPanel.js';
