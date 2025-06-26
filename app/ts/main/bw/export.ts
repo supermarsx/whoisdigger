@@ -11,7 +11,7 @@ const { app, BrowserWindow, Menu, ipcMain, dialog, remote, shell } = electron;
 
 import { getSettings } from '../../common/settings';
 
-function generateFilename(ext: string): string {
+export function generateFilename(ext: string): string {
   function pad(n: number): string {
     return String(n).padStart(2, '0');
   }
