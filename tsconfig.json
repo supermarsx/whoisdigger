@@ -22,6 +22,6 @@
     "strictNullChecks": true,
     "noImplicitThis": true
   },
-  "include": ["app/ts/**/*.ts", "**/*.d.ts"],
+  "include": ["app/ts/**/*.ts", "app/ts/server/**/*.ts", "**/*.d.ts"],
   "exclude": ["test", "app/compiled-templates"]
 }
