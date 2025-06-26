@@ -2,16 +2,20 @@ import * as conversions from '../../common/conversions';
 import parseRawData from '../../common/parser';
 const base = 10;
 
-import { ipcRenderer } from 'electron';
+const electron = (window as any).electron as {
+  send: (channel: string, ...args: any[]) => void;
+  invoke: (channel: string, ...args: any[]) => Promise<any>;
+  on: (channel: string, listener: (...args: any[]) => void) => void;
+};
 import $ from 'jquery';
 
 import { formatString } from '../../common/stringformat';
 
 /*
 // Receive whois lookup reply
-ipcRenderer.on('bulkwhois:results', function(event, domain, domainResults) {
+electron.on('bulkwhois:results', function(event, domain, domainResults) {
 
-  //ipcRenderer.send('app:debug', "Whois domain reply for {0}:\n {1}".format(domain, domainResults));
+  //electron.send('app:debug', "Whois domain reply for {0}:\n {1}".format(domain, domainResults));
 
 
   (function() {
@@ -33,21 +37,21 @@ ipcRenderer.on('bulkwhois:results', function(event, domain, domainResults) {
 
 /*
 // Receive bulk whois results
-ipcRenderer.on('bulkwhois:resultreceive', function(event, results) {
+electron.on('bulkwhois:resultreceive', function(event, results) {
 
 });
 */
 
 /*
-  ipcRenderer.on('bw:status.update', function(...) {...});
+  electron.on('bw:status.update', function(...) {...});
     Bulk whois processing, ui status update
   parameters
     event
     stat
     value
  */
-ipcRenderer.on('bw:status.update', function (event, stat, value) {
-  ipcRenderer.send('app:debug', formatString('{0}, value update to {1}', stat, value)); // status update
+electron.on('bw:status.update', function (event, stat, value) {
+  electron.send('app:debug', formatString('{0}, value update to {1}', stat, value)); // status update
   let percent;
   switch (stat) {
     case 'start':
@@ -150,13 +154,13 @@ $(document).on('click', '#bwProcessingButtonPause', function () {
   switch (searchStatus) {
     case 'Continue':
       setPauseButton();
-      ipcRenderer.send('bw:lookup.continue');
+      electron.send('bw:lookup.continue');
       break;
     case 'Pause':
       $('#bwProcessingButtonPause').removeClass('is-warning').addClass('is-success');
       $('#bwProcessingButtonPauseicon').removeClass('fa-pause').addClass('fa-play');
       $('#bwProcessingButtonPauseSpanText').text('Continue');
-      ipcRenderer.send('bw:lookup.pause');
+      electron.send('bw:lookup.pause');
       break;
     default:
       break;
@@ -182,7 +186,7 @@ function setPauseButton() {
     Trigger Bulk whois Stop modal
  */
 $(document).on('click', '#bwProcessingButtonStop', function () {
-  ipcRenderer.send('app:debug', 'Pausing whois & opening stop modal');
+  electron.send('app:debug', 'Pausing whois & opening stop modal');
   $('#bwProcessingButtonPause').text().includes('Pause')
     ? $('#bwProcessingButtonPause').click()
     : false;
@@ -196,7 +200,7 @@ $(document).on('click', '#bwProcessingButtonStop', function () {
     Close modal and allow continue
  */
 $(document).on('click', '#bwProcessingModalStopButtonContinue', function () {
-  ipcRenderer.send('app:debug', 'Closing Stop modal & continue');
+  electron.send('app:debug', 'Closing Stop modal & continue');
   $('#bwProcessingModalStop').removeClass('is-active');
 
   return;
@@ -207,7 +211,7 @@ $(document).on('click', '#bwProcessingModalStopButtonContinue', function () {
     Stop bulk whois entirely and scrape everything
  */
 $(document).on('click', '#bwProcessingModalStopButtonStop', function () {
-  ipcRenderer.send('app:debug', 'Closing Stop modal & going back to start');
+  electron.send('app:debug', 'Closing Stop modal & going back to start');
   $('#bwProcessingModalStop').removeClass('is-active');
   $('#bwProcessing').addClass('is-hidden');
   setPauseButton();
@@ -221,8 +225,8 @@ $(document).on('click', '#bwProcessingModalStopButtonStop', function () {
     Stop bulk whois entirely and save/export
  */
 $(document).on('click', '#bwProcessingModalStopButtonStopsave', function () {
-  ipcRenderer.send('app:debug', 'Closing Stop modal & exporting');
-  ipcRenderer.send('bw:lookup.stop');
+  electron.send('app:debug', 'Closing Stop modal & exporting');
+  electron.send('bw:lookup.stop');
   $('#bwProcessingModalStop').removeClass('is-active');
   $('#bwProcessing').addClass('is-hidden');
   setPauseButton();

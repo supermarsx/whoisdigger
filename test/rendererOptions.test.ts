@@ -5,11 +5,6 @@ let settingsModule: any;
 const invokeMock = jest.fn();
 const openPathMock = jest.fn();
 
-jest.mock('electron', () => ({
-  ipcRenderer: { invoke: invokeMock },
-  shell: { openPath: openPathMock }
-}));
-
 jest.mock('worker_threads', () => ({
   Worker: jest.fn().mockImplementation(() => ({
     on: jest.fn(),
@@ -43,6 +38,12 @@ beforeEach(() => {
     <input id="opSearch" />
     <div id="opSearchNoResults"></div>
   `;
+  (window as any).electron = {
+    invoke: invokeMock,
+    openPath: openPathMock,
+    send: jest.fn(),
+    on: jest.fn()
+  };
   invokeMock.mockClear();
   openPathMock.mockClear();
   saveSettingsMock.mockClear();

@@ -5,20 +5,24 @@ import datatables from 'datatables';
 const dt = datatables();
 import $ from 'jquery';
 
-import { ipcRenderer } from 'electron';
+const electron = (window as any).electron as {
+  send: (channel: string, ...args: any[]) => void;
+  invoke: (channel: string, ...args: any[]) => Promise<any>;
+  on: (channel: string, listener: (...args: any[]) => void) => void;
+};
 
 import { formatString } from '../../common/stringformat';
 
 let bwaFileContents: any;
 
 /*
-  ipcRenderer.on('bwa:analyser.tablegen', function() {...});
+  electron.on('bwa:analyser.tablegen', function() {...});
     Generate analyser content table
   parameters
     event
     contents
  */
-ipcRenderer.on('bwa:analyser.tablegen', function (event, contents) {
+electron.on('bwa:analyser.tablegen', function (event, contents) {
   bwaFileContents = contents;
   showTable();
 
@@ -30,7 +34,7 @@ ipcRenderer.on('bwa:analyser.tablegen', function (event, contents) {
     Bulk whois analyser close button
  */
 $('#bwaAnalyserButtonClose').click(function () {
-  ipcRenderer.send('app:debug', '#bwaAnalyserButtonClose clicked');
+  electron.send('app:debug', '#bwaAnalyserButtonClose clicked');
   $('#bwaAnalyserModalClose').addClass('is-active');
 
   return;

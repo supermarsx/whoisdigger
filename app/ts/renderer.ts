@@ -1,11 +1,15 @@
 // Base path --> assets/html
-import { ipcRenderer, dialog } from 'electron';
-import type { IpcRendererEvent } from 'electron';
 import $ from 'jquery';
 
 import './renderer/index';
 import { loadSettings, settings, customSettingsLoaded } from './common/settings';
 import { formatString } from './common/stringformat';
+
+const electron = (window as any).electron as {
+  send: (channel: string, ...args: any[]) => void;
+  invoke: (channel: string, ...args: any[]) => Promise<any>;
+  on: (channel: string, listener: (...args: any[]) => void) => void;
+};
 
 (window as any).$ = $;
 (window as any).jQuery = $;
@@ -22,12 +26,12 @@ interface ErrorMessage {
 
 function sendDebug(message: string): void {
   const payload: DebugMessage = { channel: 'app:debug', message };
-  ipcRenderer.send(payload.channel, payload.message);
+  electron.send(payload.channel, payload.message);
 }
 
 function sendError(message: string): void {
   const payload: ErrorMessage = { channel: 'app:error', message };
-  ipcRenderer.send(payload.channel, payload.message);
+  electron.send(payload.channel, payload.message);
 }
 
 /*

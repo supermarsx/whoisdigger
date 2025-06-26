@@ -7,7 +7,11 @@ const dt = datatables();
 import path from 'path';
 import { settings } from '../../common/settings';
 
-import { ipcRenderer } from 'electron';
+const electron = (window as any).electron as {
+  send: (channel: string, ...args: any[]) => void;
+  invoke: (channel: string, ...args: any[]) => Promise<any>;
+  on: (channel: string, listener: (...args: any[]) => void) => void;
+};
 import $ from 'jquery';
 
 import { formatString } from '../../common/stringformat';
@@ -47,15 +51,15 @@ async function refreshBwaFile(pathToFile: string): Promise<void> {
     $('#bwaFileTdFilepreview').text(String(bwaFileStats.filepreview) + '...');
     $('#bwaFileTextareaErrors').text(String(bwaFileStats.errors || 'No errors'));
   } catch (e) {
-    ipcRenderer.send('app:error', `Failed to reload file: ${e}`);
+    electron.send('app:error', `Failed to reload file: ${e}`);
   }
 }
 
 /*
-  ipcRenderer.on('bwa:fileinput.confirmation', function(...) {...});
+  electron.on('bwa:fileinput.confirmation', function(...) {...});
     File input, path and information confirmation container
  */
-ipcRenderer.on(
+electron.on(
   'bwa:fileinput.confirmation',
   async function (event, filePath: string | string[] | null = null, isDragDrop = false) {
     let bwaFileStats: FileStats; // File stats, size, last changed, etc
@@ -96,7 +100,7 @@ ipcRenderer.on(
             }
           );
         } catch (e) {
-          ipcRenderer.send('app:error', `Failed to read file: ${e}`);
+          electron.send('app:error', `Failed to read file: ${e}`);
           $('#bwaFileSpanInfo').text('Failed to load file');
           return;
         }
@@ -116,7 +120,7 @@ ipcRenderer.on(
             }
           );
         } catch (e) {
-          ipcRenderer.send('app:error', `Failed to read file: ${e}`);
+          electron.send('app:error', `Failed to read file: ${e}`);
           $('#bwaFileSpanInfo').text('Failed to load file');
           return;
         }
@@ -164,7 +168,7 @@ ipcRenderer.on(
 $(document).on('click', '#bwaEntryButtonOpen', function () {
   $('#bwaEntry').addClass('is-hidden');
   $.when($('#bwaFileinputloading').removeClass('is-hidden').delay(10)).done(function () {
-    ipcRenderer.send('bwa:input.file');
+    electron.send('bwa:input.file');
   });
 
   return;
@@ -194,7 +198,7 @@ $('#bwaFileinputconfirmButtonStart').click(function () {
     bwaFileWatcher.close();
     bwaFileWatcher = undefined;
   }
-  ipcRenderer.send('bwa:analyser.start', bwaFileContents);
+  electron.send('bwa:analyser.start', bwaFileContents);
   /*
   $('#bwaFileinputconfirm').addClass('is-hidden');
   $.when($('#bwaProcess').removeClass('is-hidden').delay(10)).done(function() {
@@ -213,7 +217,7 @@ $('#bwafButtonConfirm').click(function() {
   $('#bwFileInputConfirm').addClass('is-hidden');
   $('#bwProcessing').removeClass('is-hidden');
 
-  ipcRenderer.send("bulkwhois:lookup", bwDomainArray, bwTldsArray);
+  electron.send('bulkwhois:lookup', bwDomainArray, bwTldsArray);
 });
 
 // Bulk whois file input by drag and drop
@@ -234,8 +238,8 @@ $('#bwafButtonConfirm').click(function() {
   holder.ondrop = function(event) {
     event.preventDefault();
     for (const file of event.dataTransfer.files) {
-      ipcRenderer.send('app:debug', `File(s) you dragged here: ${file.path}`);
-      ipcRenderer.send('ondragstart', file.path);
+      electron.send('app:debug', `File(s) you dragged here: ${file.path}`);
+      electron.send('ondragstart', file.path);
     }
     return false;
   };

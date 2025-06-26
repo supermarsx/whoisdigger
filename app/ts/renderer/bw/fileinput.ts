@@ -5,7 +5,11 @@ import type { FileStats } from '../../common/fileStats';
 import debugModule from 'debug';
 const debug = debugModule('renderer.bw.fileinput');
 
-import { ipcRenderer } from 'electron';
+const electron = (window as any).electron as {
+  send: (channel: string, ...args: any[]) => void;
+  invoke: (channel: string, ...args: any[]) => Promise<any>;
+  on: (channel: string, listener: (...args: any[]) => void) => void;
+};
 import { tableReset } from './auxiliary';
 import $ from 'jquery';
 
@@ -65,19 +69,19 @@ async function refreshBwFile(pathToFile: string): Promise<void> {
     );
     $('#bwFileTdFilepreview').text(String(bwFileStats.filepreview) + '...');
   } catch (e) {
-    ipcRenderer.send('app:error', `Failed to reload file: ${e}`);
+    electron.send('app:error', `Failed to reload file: ${e}`);
   }
 }
 
 /*
-  ipcRenderer.on('bw:fileinput.confirmation', function(...) {...});
+  electron.on('bw:fileinput.confirmation', function(...) {...});
     // File input, path and information confirmation container
   parameters
     event
     filePath
     isDragDrop
  */
-ipcRenderer.on(
+electron.on(
   'bw:fileinput.confirmation',
   async function (event, filePath: string | string[] | null = null, isDragDrop = false) {
     let bwFileStats: FileStats; // File stats, size, last changed, etc
@@ -119,7 +123,7 @@ ipcRenderer.on(
           $('#bwFileSpanInfo').text('Loading file contents...');
           bwFileContents = await fs.promises.readFile(filePath as string);
         } catch (e) {
-          ipcRenderer.send('app:error', `Failed to read file: ${e}`);
+          electron.send('app:error', `Failed to read file: ${e}`);
           $('#bwFileSpanInfo').text('Failed to load file');
           return;
         }
@@ -134,7 +138,7 @@ ipcRenderer.on(
           $('#bwFileSpanInfo').text('Loading file contents...');
           bwFileContents = await fs.promises.readFile((filePath as string[])[0]);
         } catch (e) {
-          ipcRenderer.send('app:error', `Failed to read file: ${e}`);
+          electron.send('app:error', `Failed to read file: ${e}`);
           $('#bwFileSpanInfo').text('Failed to load file');
           return;
         }
@@ -205,7 +209,7 @@ ipcRenderer.on(
 $(document).on('click', '#bwEntryButtonFile', function () {
   $('#bwEntry').addClass('is-hidden');
   $.when($('#bwFileinputloading').removeClass('is-hidden').delay(10)).done(function () {
-    ipcRenderer.send('bw:input.file');
+    electron.send('bw:input.file');
   });
 
   return;
@@ -252,7 +256,7 @@ $(document).on('click', '#bwFileButtonConfirm', function () {
   debug(bwDomainArray);
   debug(bwTldsArray);
 
-  ipcRenderer.send('bw:lookup', bwDomainArray, bwTldsArray);
+  electron.send('bw:lookup', bwDomainArray, bwTldsArray);
 });
 
 /*
@@ -280,8 +284,8 @@ $(document).on('click', '#bwFileButtonConfirm', function () {
       event.preventDefault();
       for (const f of Array.from(event.dataTransfer!.files)) {
         const file = f as any;
-        ipcRenderer.send('app:debug', `File(s) you dragged here: ${file.path}`);
-        ipcRenderer.send('ondragstart', file.path);
+        electron.send('app:debug', `File(s) you dragged here: ${file.path}`);
+        electron.send('ondragstart', file.path);
       }
       return false;
     };
@@ -296,8 +300,8 @@ $('#bwMainContainer').on('drop', function (event) {
   event.preventDefault();
   for (const f of Array.from((event as any).originalEvent.dataTransfer.files)) {
     const file = f as any;
-    ipcRenderer.send('app:debug', `File(s) you dragged here: ${file.path}`);
-    ipcRenderer.send('ondragstart', file.path);
+    electron.send('app:debug', `File(s) you dragged here: ${file.path}`);
+    electron.send('ondragstart', file.path);
   }
 
   return false;

@@ -2,7 +2,11 @@ import * as conversions from '../../common/conversions';
 import defaultExportOptions from './export.defaults';
 import $ from 'jquery';
 
-import { ipcRenderer } from 'electron';
+const electron = (window as any).electron as {
+  send: (channel: string, ...args: any[]) => void;
+  invoke: (channel: string, ...args: any[]) => Promise<any>;
+  on: (channel: string, listener: (...args: any[]) => void) => void;
+};
 import { resetObject } from '../../common/resetObject';
 import { getExportOptions, setExportOptions, setExportOptionsEx } from './auxiliary';
 
@@ -12,14 +16,14 @@ let results: any;
 let options: any;
 
 /*
-  ipcRenderer.on('bw:result.receive', function(...) {...});
+  electron.on('bw:result.receive', function(...) {...});
     ipsum
   parameters
     event
     rcvResults
  */
-ipcRenderer.on('bw:result.receive', function (event, rcvResults) {
-  ipcRenderer.send('app:debug', formatString('Results are ready for export {0}', rcvResults));
+electron.on('bw:result.receive', function (event, rcvResults) {
+  electron.send('app:debug', formatString('Results are ready for export {0}', rcvResults));
 
   results = rcvResults;
 
@@ -27,10 +31,10 @@ ipcRenderer.on('bw:result.receive', function (event, rcvResults) {
 });
 
 /*
-  ipcRenderer.on('bw:export.cancel', function() {...});
+  electron.on('bw:export.cancel', function() {...});
     Bulk whois export cancel
  */
-ipcRenderer.on('bw:export.cancel', function () {
+electron.on('bw:export.cancel', function () {
   $('#bwExportloading').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 
@@ -46,7 +50,7 @@ $(document).on('click', '#bwExportButtonExport', async function () {
   options = getExportOptions();
   $.when($('#bwExportloading').removeClass('is-hidden').delay(10)).done(async function () {
     try {
-      await ipcRenderer.invoke('bw:export', results, options);
+      await electron.invoke('bw:export', results, options);
     } catch (err) {
       $('#bwExportErrorText').text((err as Error).message);
       $('#bwExportMessageError').removeClass('is-hidden');

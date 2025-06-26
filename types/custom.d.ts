@@ -156,6 +156,12 @@ declare global {
   interface Window {
     $: any;
     jQuery: any;
+    electron: {
+      send: (channel: string, ...args: any[]) => void;
+      invoke: (channel: string, ...args: any[]) => Promise<any>;
+      on: (channel: string, listener: (...args: any[]) => void) => void;
+      openPath: (path: string) => Promise<string>;
+    };
   }
 }
 
