@@ -26,6 +26,12 @@ describe('cli utility', () => {
     expect(opts.downloadModel).toBe(true);
   });
 
+  test('parseArgs handles suggest option', () => {
+    const opts = parseArgs(['--suggest', 'idea', '--suggest-count', '7']);
+    expect(opts.suggest).toBe('idea');
+    expect(opts.suggestCount).toBe(7);
+  });
+
   test('lookupDomains uses whois module', async () => {
     mockLookup.mockResolvedValueOnce('data');
     const opts: CliOptions = { domains: ['example.com'], tlds: ['com'], format: 'txt' };

@@ -10,6 +10,7 @@ import { isDomainAvailable, getDomainParameters, WhoisResult } from './common/av
 import { toJSON } from './common/parser';
 import { generateFilename } from './main/bw/export';
 import { downloadModel } from './ai/modelDownloader';
+import { suggestWords } from './ai/openaiSuggest';
 
 export interface CliOptions {
   domains: string[];
@@ -21,6 +22,8 @@ export interface CliOptions {
   purgeCache?: boolean;
   clearCache?: boolean;
   downloadModel?: boolean;
+  suggest?: string;
+  suggestCount?: number;
 }
 
 export function parseArgs(argv: string[]): CliOptions {
@@ -34,6 +37,8 @@ export function parseArgs(argv: string[]): CliOptions {
     .option('purge-cache', { type: 'boolean' })
     .option('clear-cache', { type: 'boolean' })
     .option('download-model', { type: 'boolean' })
+    .option('suggest', { type: 'string' })
+    .option('suggest-count', { type: 'number', default: 5 })
     .parseSync();
   return {
     domains: args.domain ?? [],
@@ -44,7 +49,9 @@ export function parseArgs(argv: string[]): CliOptions {
     out: args.out,
     purgeCache: args['purge-cache'],
     clearCache: args['clear-cache'],
-    downloadModel: args['download-model']
+    downloadModel: args['download-model'],
+    suggest: args.suggest,
+    suggestCount: args['suggest-count']
   };
 }
 
@@ -129,6 +136,13 @@ export async function exportResults(results: WhoisResult[], opts: CliOptions): P
 if (require.main === module) {
   (async () => {
     const opts = parseArgs(hideBin(process.argv));
+    if (opts.suggest) {
+      const words = await suggestWords(opts.suggest, opts.suggestCount ?? 5);
+      for (const w of words) {
+        console.log(w);
+      }
+      return;
+    }
     if (opts.downloadModel) {
       const url = settings.ai.modelURL;
       if (!url) {
