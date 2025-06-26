@@ -4,7 +4,7 @@ import uts46 from 'idna-uts46';
 import whois from 'whois';
 import debugModule from 'debug';
 import { settings, Settings } from './settings';
-import { getCached, setCached } from './requestCache';
+import { getCached, setCached, CacheOptions } from './requestCache';
 import { getProxy } from './proxy';
 
 const debug = debugModule('common.whoisWrapper');
@@ -23,11 +23,15 @@ const lookupPromise = (...args: unknown[]): Promise<string> => {
   });
 };
 
-export async function lookup(domain: string, options = getWhoisOptions()): Promise<string> {
+export async function lookup(
+  domain: string,
+  options = getWhoisOptions(),
+  cacheOpts: CacheOptions = {}
+): Promise<string> {
   const { lookupConversion: conversion, lookupGeneral: general } = getSettings();
   let domainResults: string;
 
-  const cached = getCached('whois', domain);
+  const cached = getCached('whois', domain, cacheOpts);
   if (cached !== undefined) {
     return cached;
   }
@@ -45,7 +49,7 @@ export async function lookup(domain: string, options = getWhoisOptions()): Promi
     domainResults = `Whois lookup error, ${e}`;
   }
 
-  setCached('whois', domain, domainResults);
+  setCached('whois', domain, domainResults, cacheOpts);
 
   return domainResults;
 }

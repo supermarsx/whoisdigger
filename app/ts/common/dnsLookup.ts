@@ -3,7 +3,7 @@ import psl from 'psl';
 import debugModule from 'debug';
 import { convertDomain } from './lookup';
 import { settings, Settings } from './settings';
-import { getCached, setCached } from './requestCache';
+import { getCached, setCached, CacheOptions } from './requestCache';
 import { DnsLookupError, Result } from './errors';
 
 const debug = debugModule('common.dnsLookup');
@@ -21,7 +21,7 @@ function getSettings(): Settings {
     result (string[]) - array of nameservers
     throws DnsLookupError on failure
  */
-export async function nsLookup(host: string): Promise<string[]> {
+export async function nsLookup(host: string, cacheOpts: CacheOptions = {}): Promise<string[]> {
   let result;
   const { lookupConversion: conversion, lookupGeneral: general } = getSettings();
 
@@ -31,14 +31,14 @@ export async function nsLookup(host: string): Promise<string[]> {
     host = clean ? clean.replace(/((\*\.)*)/g, '') : host;
   }
 
-  const cached = getCached('dns', host);
+  const cached = getCached('dns', host, cacheOpts);
   if (cached !== undefined) {
     return JSON.parse(cached) as string[];
   }
 
   try {
     result = await dns.resolve(host, 'NS');
-    setCached('dns', host, JSON.stringify(result));
+    setCached('dns', host, JSON.stringify(result), cacheOpts);
   } catch (e) {
     debug(`Lookup failed with error ${e}`);
     throw new DnsLookupError((e as Error).message);
