@@ -4,7 +4,7 @@
 
 ![Whoisdigger app](https://github.com/whois-team/website/raw/master/images/projects/whoisdigger.gif)
 
-Whoisdigger is a cross-platform bulk WHOIS lookup desktop app built on Electron.
+Whoisdigger is a cross-platform bulk WHOIS lookup desktop app built on Electron. Now written in TypeScript.
 
 Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on Electron. Made with builders and creators in mind, rapidly lookup up your favorite domain mashups without risking third-party logging, domain squatting and a few other common issues that come with using third-party platforms. The faster, reliable and most private way of looking for domains.
 
@@ -37,7 +37,6 @@ If you clone this repo please patch `node_modules\whois\index.js` and remove the
 - IDNA 2003/2008 (UTS46), Punycode, non-ASCII character filter support
 - Public Suffix List (PSL) and wildcard filtering
 - Basic bulk whois result analyser (csv import)
-- Experimental AI domain availability checks
 - Persistent settings through JSON file preload with live updates
 - Redesigned options interface with auto-save
 - Dark mode toggle
@@ -49,6 +48,7 @@ If you clone this repo please patch `node_modules\whois\index.js` and remove the
 - Misc tools
 - Options
 - Help page
+- Experimental AI domain availability checks
 
 ### Features QA
 
