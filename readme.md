@@ -42,7 +42,6 @@ If you clone this repo please patch `node_modules\whois\index.js` and remove the
 - Redesigned options interface with auto-save
 - Dark mode toggle
 - Follow system theme option
-- Exit confirmation prompt
 
 ### Planned features
 
