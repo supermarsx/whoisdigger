@@ -40,7 +40,15 @@ export function createServer() {
   return app;
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+let moduleUrl: string | undefined;
+try {
+  // Avoid syntax errors in CommonJS environments
+  moduleUrl = eval('import.meta.url') as string;
+} catch {
+  moduleUrl = undefined;
+}
+
+if (moduleUrl && process.argv[1] === fileURLToPath(moduleUrl)) {
   const port = Number(process.env.PORT) || 3000;
   createServer().listen(port, () => {
     console.log(`Server listening on port ${port}`);
