@@ -26,17 +26,17 @@ If you clone this repo please patch `node_modules\whois\index.js` and remove the
 
 ## Features
 
-- Fast whois lookup
-- Better privacy
-- Raw text whois replies
-- Bulk whois lookup
+- Fast WHOIS lookup
+- Better search privacy
+- Raw text WHOIS replies
+- Bulk WHOIS lookup
 - Bulk DNS sweep lookup
 - Optional request caching with configurable SQLite backend
 - Proxy support for outgoing requests
 - Wordlist capabilities with drag n' drop
 - IDNA 2003/2008 (UTS46), Punycode, non-ASCII character filter support
 - Public Suffix List (PSL) and wildcard filtering
-- Basic bulk whois result analyser (csv import)
+- Basic bulk WHOIS result analyser (csv import)
 - Persistent settings through JSON file preload with live updates
 - Redesigned options interface with auto-save
 - Dark mode toggle
