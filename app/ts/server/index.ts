@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
-import { lookup } from '../common/lookup';
-import { lookupDomains, CliOptions } from '../cli';
+import { lookup } from '../common/lookup.js';
+import { lookupDomains, CliOptions } from '../cli.js';
 import { fileURLToPath } from 'url';
 
 export function createServer() {

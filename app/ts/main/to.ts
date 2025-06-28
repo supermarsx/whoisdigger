@@ -1,7 +1,7 @@
 import electron from 'electron';
 import fs from 'fs';
 import debugModule from 'debug';
-import { processLines, ProcessOptions } from '../common/tools';
+import { processLines, ProcessOptions } from '../common/tools.js';
 
 const { ipcMain, dialog } = electron;
 const debug = debugModule('main.to');

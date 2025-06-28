@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import https from 'https';
 import debugModule from 'debug';
-import { settings, getUserDataPath } from '../common/settings';
+import { settings, getUserDataPath } from '../common/settings.js';
 
 const debug = debugModule('ai.modelDownloader');
 

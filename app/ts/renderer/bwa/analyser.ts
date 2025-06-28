@@ -1,4 +1,4 @@
-import * as conversions from '../../common/conversions';
+import * as conversions from '../../common/conversions.js';
 import fs from 'fs';
 import Papa from 'papaparse';
 import datatables from 'datatables';
@@ -11,7 +11,7 @@ const electron = (window as any).electron as {
   on: (channel: string, listener: (...args: any[]) => void) => void;
 };
 
-import { formatString } from '../../common/stringformat';
+import { formatString } from '../../common/stringformat.js';
 
 let bwaFileContents: any;
 

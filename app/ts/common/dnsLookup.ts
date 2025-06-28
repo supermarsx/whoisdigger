@@ -1,10 +1,10 @@
 import dns from 'dns/promises';
 import psl from 'psl';
 import debugModule from 'debug';
-import { convertDomain } from './lookup';
-import { settings, Settings } from './settings';
-import { getCached, setCached, CacheOptions } from './requestCache';
-import { DnsLookupError, Result } from './errors';
+import { convertDomain } from './lookup.js';
+import { settings, Settings } from './settings.js';
+import { getCached, setCached, CacheOptions } from './requestCache.js';
+import { DnsLookupError, Result } from './errors.js';
 
 const debug = debugModule('common.dnsLookup');
 

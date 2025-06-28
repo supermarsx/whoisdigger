@@ -1,11 +1,11 @@
-import * as conversions from '../../common/conversions';
+import * as conversions from '../../common/conversions.js';
 import fs from 'fs';
-import type { FileStats } from '../../common/fileStats';
+import type { FileStats } from '../../common/fileStats.js';
 import Papa from 'papaparse';
 import datatables from 'datatables';
 const dt = datatables();
 import path from 'path';
-import { settings } from '../../common/settings';
+import { settings } from '../../common/settings.js';
 
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
@@ -14,7 +14,7 @@ const electron = (window as any).electron as {
 };
 import $ from 'jquery';
 
-import { formatString } from '../../common/stringformat';
+import { formatString } from '../../common/stringformat.js';
 
 let bwaFileContents: any;
 let bwaFileWatcher: fs.FSWatcher | undefined;

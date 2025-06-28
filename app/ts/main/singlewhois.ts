@@ -2,17 +2,17 @@ import electron from 'electron';
 import type { IpcMainEvent } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
-import { lookup as whoisLookup } from '../common/lookup';
-import { isDomainAvailable } from '../common/availability';
-import { addEntry as addHistoryEntry } from '../common/history';
+import { lookup as whoisLookup } from '../common/lookup.js';
+import { isDomainAvailable } from '../common/availability.js';
+import { addEntry as addHistoryEntry } from '../common/history.js';
 import debugModule from 'debug';
 const debug = debugModule('main.singlewhois');
 
 const { app, Menu, ipcMain, dialog, remote, clipboard, shell } = electron;
-import { formatString } from '../common/stringformat';
+import { formatString } from '../common/stringformat.js';
 
-import { settings } from '../common/settings';
-import type { Settings } from '../common/settings';
+import { settings } from '../common/settings.js';
+import type { Settings } from '../common/settings.js';
 
 /*
   ipcMain.on('singlewhois:lookup', function(...) {...});

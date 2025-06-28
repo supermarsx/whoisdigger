@@ -1,10 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import { parseArgs } from 'util';
-import { settings, getUserDataPath } from '../app/ts/common/settings';
-import { lookup } from '../app/ts/common/lookup';
-import { toJSON } from '../app/ts/common/parser';
-import { isDomainAvailable } from '../app/ts/common/availability';
+import { settings, getUserDataPath } from '../app/ts/common/settings.js';
+import { lookup } from '../app/ts/common/lookup.js';
+import { toJSON } from '../app/ts/common/parser.js';
+import { isDomainAvailable } from '../app/ts/common/availability.js';
 
 type Label = 'available' | 'unavailable';
 

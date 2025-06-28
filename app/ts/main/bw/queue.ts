@@ -1,7 +1,7 @@
 import debugModule from 'debug';
-import { formatString } from '../../common/stringformat';
-import type { Settings } from '../../common/settings';
-import type { DomainSetup } from './types';
+import { formatString } from '../../common/stringformat.js';
+import type { Settings } from '../../common/settings.js';
+import type { DomainSetup } from './types.js';
 
 const debug = debugModule('main.bw.queue');
 

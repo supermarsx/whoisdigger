@@ -2,7 +2,7 @@ import Database from 'better-sqlite3';
 import type { Database as DatabaseType } from 'better-sqlite3';
 import fs from 'fs';
 import path from 'path';
-import { getUserDataPath } from './settings';
+import { getUserDataPath } from './settings.js';
 import debugModule from 'debug';
 
 const debug = debugModule('common.history');

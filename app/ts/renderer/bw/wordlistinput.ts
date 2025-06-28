@@ -1,15 +1,15 @@
-import * as conversions from '../../common/conversions';
-import { settings } from '../../common/settings';
+import * as conversions from '../../common/conversions.js';
+import { settings } from '../../common/settings.js';
 
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
 };
-import { tableReset } from './auxiliary';
+import { tableReset } from './auxiliary.js';
 import $ from 'jquery';
 
-import { formatString } from '../../common/stringformat';
+import { formatString } from '../../common/stringformat.js';
 
 let bwWordlistContents = ''; // Global wordlist input contents
 

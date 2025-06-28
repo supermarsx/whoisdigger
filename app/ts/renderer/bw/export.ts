@@ -1,5 +1,5 @@
-import * as conversions from '../../common/conversions';
-import defaultExportOptions from './export.defaults';
+import * as conversions from '../../common/conversions.js';
+import defaultExportOptions from './export.defaults.js';
 import $ from 'jquery';
 
 const electron = (window as any).electron as {
@@ -7,10 +7,10 @@ const electron = (window as any).electron as {
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
 };
-import { resetObject } from '../../common/resetObject';
-import { getExportOptions, setExportOptions, setExportOptionsEx } from './auxiliary';
+import { resetObject } from '../../common/resetObject.js';
+import { getExportOptions, setExportOptions, setExportOptionsEx } from './auxiliary.js';
 
-import { formatString } from '../../common/stringformat';
+import { formatString } from '../../common/stringformat.js';
 
 let results: any;
 let options: any;

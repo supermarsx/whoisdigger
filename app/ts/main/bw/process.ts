@@ -2,18 +2,18 @@ import electron from 'electron';
 import type { IpcMainEvent } from 'electron';
 import debugModule from 'debug';
 const debug = debugModule('main.bw.process');
-import defaultBulkWhois from './process.defaults';
+import defaultBulkWhois from './process.defaults.js';
 
-import type { BulkWhois, DomainSetup } from './types';
-import { compileQueue, getDomainSetup } from './queue';
-import { processDomain, counter } from './scheduler';
-import { resetObject } from '../../common/resetObject';
-import { resetUiCounters } from './auxiliary';
+import type { BulkWhois, DomainSetup } from './types.js';
+import { compileQueue, getDomainSetup } from './queue.js';
+import { processDomain, counter } from './scheduler.js';
+import { resetObject } from '../../common/resetObject.js';
+import { resetUiCounters } from './auxiliary.js';
 
-import { getSettings } from '../../common/settings';
+import { getSettings } from '../../common/settings.js';
 
 const { app, BrowserWindow, Menu, ipcMain, dialog, remote } = electron;
-import { formatString } from '../../common/stringformat';
+import { formatString } from '../../common/stringformat.js';
 
 let bulkWhois: BulkWhois; // BulkWhois object
 let reqtime: number[] = [];
@@ -232,4 +232,4 @@ ipcMain.on('bw:lookup.stop', function (event: IpcMainEvent) {
 });
 
 // Re-export for consumers that imported from this module previously
-export { getDomainSetup } from './queue';
+export { getDomainSetup } from './queue.js';

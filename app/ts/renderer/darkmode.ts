@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { settings, saveSettings } from '../common/settings';
+import { settings, saveSettings } from '../common/settings.js';
 
 function applyDarkMode(enabled: boolean): void {
   const html = document.documentElement;

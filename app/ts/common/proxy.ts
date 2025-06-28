@@ -1,4 +1,4 @@
-import { settings } from './settings';
+import { settings } from './settings.js';
 import { isIP } from 'net';
 
 export interface ProxyInfo {

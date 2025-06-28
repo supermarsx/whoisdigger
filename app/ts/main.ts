@@ -1,13 +1,13 @@
 import { app, BrowserWindow, Menu, ipcMain, dialog } from 'electron';
 import * as path from 'path';
-import { dirnameCompat } from './utils/dirnameCompat';
+import { dirnameCompat } from './utils/dirnameCompat.js';
 
 const baseDir = dirnameCompat();
 import debugModule from 'debug';
-import { loadSettings, settings as store } from './common/settings';
-import type { Settings as BaseSettings } from './common/settings';
-import { formatString } from './common/stringformat';
-import { closeCache } from './common/requestCache';
+import { loadSettings, settings as store } from './common/settings.js';
+import type { Settings as BaseSettings } from './common/settings.js';
+import { formatString } from './common/stringformat.js';
+import { closeCache } from './common/requestCache.js';
 import {
   initialize as initializeRemote,
   enable as enableRemote

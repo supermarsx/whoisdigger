@@ -3,7 +3,7 @@ import debugModule from 'debug';
 const debug = debugModule('main.bwa.fileinput');
 
 const { app, BrowserWindow, Menu, ipcMain, dialog } = electron;
-import { formatString } from '../../common/stringformat';
+import { formatString } from '../../common/stringformat.js';
 
 /*
   ipcMain.on('bwa:input.file', function(...) {...});

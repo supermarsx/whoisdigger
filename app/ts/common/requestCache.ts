@@ -2,7 +2,7 @@ import Database from 'better-sqlite3';
 import type { Database as DatabaseType } from 'better-sqlite3';
 import fs from 'fs';
 import path from 'path';
-import { settings, getUserDataPath } from './settings';
+import { settings, getUserDataPath } from './settings.js';
 import debugModule from 'debug';
 
 const debug = debugModule('common.requestCache');

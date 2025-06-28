@@ -3,14 +3,14 @@ import path from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import JSZip from 'jszip';
-import { lookup as whoisLookup } from './common/lookup';
-import { settings } from './common/settings';
-import { purgeExpired, clearCache } from './common/requestCache';
-import { isDomainAvailable, getDomainParameters, WhoisResult } from './common/availability';
-import { toJSON } from './common/parser';
-import { generateFilename } from './main/bw/export';
-import { downloadModel } from './ai/modelDownloader';
-import { suggestWords } from './ai/openaiSuggest';
+import { lookup as whoisLookup } from './common/lookup.js';
+import { settings } from './common/settings.js';
+import { purgeExpired, clearCache } from './common/requestCache.js';
+import { isDomainAvailable, getDomainParameters, WhoisResult } from './common/availability.js';
+import { toJSON } from './common/parser.js';
+import { generateFilename } from './main/bw/export.js';
+import { downloadModel } from './ai/modelDownloader.js';
+import { suggestWords } from './ai/openaiSuggest.js';
 
 export interface CliOptions {
   domains: string[];

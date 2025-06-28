@@ -1,7 +1,7 @@
-import { settings as appSettings, Settings } from '../settings';
-import { toJSON } from '../parser';
-import { getDomainParameters, WhoisResult } from '../availability';
-import { getDate } from '../conversions';
+import { settings as appSettings, Settings } from '../settings.js';
+import { toJSON } from '../parser.js';
+import { getDomainParameters, WhoisResult } from '../availability.js';
+import { getDate } from '../conversions.js';
 
 export interface PatternFunction {
   (context: PatternContext): boolean;

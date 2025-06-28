@@ -1,14 +1,14 @@
 import debugModule from 'debug';
-import { isDomainAvailable, getDomainParameters } from '../../common/availability';
-import { toJSON } from '../../common/parser';
+import { isDomainAvailable, getDomainParameters } from '../../common/availability.js';
+import { toJSON } from '../../common/parser.js';
 import { performance } from 'perf_hooks';
-import { getSettings } from '../../common/settings';
-import { formatString } from '../../common/stringformat';
-import type { BulkWhois, ProcessedResult } from './types';
-import * as dns from '../../common/dnsLookup';
-import { Result, DnsLookupError } from '../../common/errors';
+import { getSettings } from '../../common/settings.js';
+import { formatString } from '../../common/stringformat.js';
+import type { BulkWhois, ProcessedResult } from './types.js';
+import * as dns from '../../common/dnsLookup.js';
+import { Result, DnsLookupError } from '../../common/errors.js';
 import type { IpcMainEvent } from 'electron';
-import { addEntry as addHistoryEntry } from '../../common/history';
+import { addEntry as addHistoryEntry } from '../../common/history.js';
 
 const debug = debugModule('main.bw.resultHandler');
 

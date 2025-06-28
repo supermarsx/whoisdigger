@@ -1,15 +1,15 @@
 import electron from 'electron';
 import fs from 'fs';
 import path from 'path';
-import * as conversions from '../../common/conversions';
+import * as conversions from '../../common/conversions.js';
 import debugModule from 'debug';
 const debug = debugModule('main.bw.export');
 import JSZip from 'jszip';
-import { formatString } from '../../common/stringformat';
+import { formatString } from '../../common/stringformat.js';
 
 const { app, BrowserWindow, Menu, ipcMain, dialog, remote, shell } = electron;
 
-import { getSettings } from '../../common/settings';
+import { getSettings } from '../../common/settings.js';
 
 export function generateFilename(ext: string): string {
   function pad(n: number): string {

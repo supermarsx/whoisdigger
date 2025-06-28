@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import fs from 'fs';
 import path from 'path';
-import { dirnameCompat } from '../utils/dirnameCompat';
+import { dirnameCompat } from '../utils/dirnameCompat.js';
 
 const baseDir = dirnameCompat();
 const electron = (window as any).electron as {
@@ -19,9 +19,9 @@ import {
   loadSettings,
   customSettingsLoaded,
   getUserDataPath
-} from '../common/settings';
-import { byteToHumanFileSize } from '../common/conversions';
-import appDefaults, { appSettingsDescriptions } from '../appsettings';
+} from '../common/settings.js';
+import { byteToHumanFileSize } from '../common/conversions.js';
+import appDefaults, { appSettingsDescriptions } from '../appsettings.js';
 
 function getValue(path: string): any {
   return path.split('.').reduce((obj: any, key: string) => (obj ? obj[key] : undefined), settings);

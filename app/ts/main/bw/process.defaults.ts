@@ -1,4 +1,4 @@
-import type { BulkWhois } from './types';
+import type { BulkWhois } from './types.js';
 
 const defaultFirstValue = null, // Default that is equivalent or similar to null value: null, undefined, false..
   defaultSecondValue = 0, // Default numeric starting value
