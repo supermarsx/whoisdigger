@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron';
 import debugModule from 'debug';
-import { purgeExpired, clearCache } from '../common/requestCache';
+import { purgeExpired, clearCache } from '../common/requestCache.js';
 
 const debug = debugModule('main.cache');
 

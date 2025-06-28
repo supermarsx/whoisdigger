@@ -1,8 +1,8 @@
 import { ipcMain } from 'electron';
 import debugModule from 'debug';
-import { settings } from '../common/settings';
-import { downloadModel } from '../ai/modelDownloader';
-import { suggestWords } from '../ai/openaiSuggest';
+import { settings } from '../common/settings.js';
+import { downloadModel } from '../ai/modelDownloader.js';
+import { suggestWords } from '../ai/openaiSuggest.js';
 
 const debug = debugModule('main.ai');
 

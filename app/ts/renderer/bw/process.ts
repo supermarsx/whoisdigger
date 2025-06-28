@@ -1,5 +1,5 @@
-import * as conversions from '../../common/conversions';
-import parseRawData from '../../common/parser';
+import * as conversions from '../../common/conversions.js';
+import parseRawData from '../../common/parser.js';
 const base = 10;
 
 const electron = (window as any).electron as {
@@ -9,7 +9,7 @@ const electron = (window as any).electron as {
 };
 import $ from 'jquery';
 
-import { formatString } from '../../common/stringformat';
+import { formatString } from '../../common/stringformat.js';
 
 /*
 // Receive whois lookup reply

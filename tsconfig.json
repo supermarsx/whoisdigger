@@ -1,15 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ES2019",
-    "module": "esnext",
-    "moduleResolution": "node",
+    "target": "ES2020",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "allowJs": true,
     "noEmit": false,
-    "rootDir": "app",
+    "rootDir": ".",
     "outDir": "dist/app",
     "esModuleInterop": true,
     "strict": true,
     "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
     "moduleDetection": "force",
     "types": ["node", "jest", "better-sqlite3", "express"],
     "typeRoots": [
@@ -20,8 +21,9 @@
     ],
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "noImplicitThis": true
+    "noImplicitThis": true,
+    "resolveJsonModule": true
   },
-  "include": ["app/ts/**/*.ts", "app/ts/server/**/*.ts", "**/*.d.ts"],
+  "include": ["app/ts/**/*.ts", "app/ts/server/**/*.ts", "scripts/**/*.ts", "**/*.d.ts"],
   "exclude": ["test", "app/compiled-templates"]
 }

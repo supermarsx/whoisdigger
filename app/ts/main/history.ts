@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron';
 import debugModule from 'debug';
-import { getHistory, clearHistory } from '../common/history';
+import { getHistory, clearHistory } from '../common/history.js';
 
 const debug = debugModule('main.history');
 

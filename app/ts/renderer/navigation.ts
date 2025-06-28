@@ -1,7 +1,7 @@
-import { formatString } from '../common/stringformat';
+import { formatString } from '../common/stringformat.js';
 import $ from 'jquery';
-import { populateInputs } from './options';
-import { settings } from '../common/settings';
+import { populateInputs } from './options.js';
+import { settings } from '../common/settings.js';
 
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;

@@ -1,5 +1,5 @@
 import debugModule from 'debug';
-import { settings } from '../common/settings';
+import { settings } from '../common/settings.js';
 
 const debug = debugModule('ai.openaiSuggest');
 

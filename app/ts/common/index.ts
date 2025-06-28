@@ -1,11 +1,11 @@
-import * as Conversions from './conversions';
-import LineHelper from './lineHelper';
-import { formatString } from './stringformat';
-import { parseRawData as ParseRawData } from './parser';
-import { lookup as WhoisLookup } from './lookup';
-import DnsLookup from './dnsLookup';
-import WordlistTools from './wordlist';
-import { getProxy } from './proxy';
+import * as Conversions from './conversions.js';
+import LineHelper from './lineHelper.js';
+import { formatString } from './stringformat.js';
+import { parseRawData as ParseRawData } from './parser.js';
+import { lookup as WhoisLookup } from './lookup.js';
+import DnsLookup from './dnsLookup.js';
+import WordlistTools from './wordlist.js';
+import { getProxy } from './proxy.js';
 
 export {
   Conversions,

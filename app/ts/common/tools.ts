@@ -1,4 +1,4 @@
-import * as WordlistTools from './wordlist';
+import * as WordlistTools from './wordlist.js';
 
 export interface ProcessOptions {
   prefix?: string;

@@ -2,9 +2,9 @@
 import $ from 'jquery';
 
 import './renderer/index';
-import { loadSettings, settings, customSettingsLoaded } from './common/settings';
-import { loadTranslations, registerTranslationHelpers } from './renderer/i18n';
-import { formatString } from './common/stringformat';
+import { loadSettings, settings, customSettingsLoaded } from './common/settings.js';
+import { loadTranslations, registerTranslationHelpers } from './renderer/i18n.js';
+import { formatString } from './common/stringformat.js';
 
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
@@ -49,7 +49,7 @@ $(document).ready(async function () {
   sendDebug('Document is ready');
 
   startup();
-  void import('./renderer/navigation');
+  void import('./renderer/navigation.js');
 
   return;
 });

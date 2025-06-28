@@ -1,7 +1,7 @@
-import * as conversions from '../../common/conversions';
+import * as conversions from '../../common/conversions.js';
 import fs from 'fs';
 import path from 'path';
-import type { FileStats } from '../../common/fileStats';
+import type { FileStats } from '../../common/fileStats.js';
 import debugModule from 'debug';
 const debug = debugModule('renderer.bw.fileinput');
 
@@ -10,11 +10,11 @@ const electron = (window as any).electron as {
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
 };
-import { tableReset } from './auxiliary';
+import { tableReset } from './auxiliary.js';
 import $ from 'jquery';
 
-import { formatString } from '../../common/stringformat';
-import { settings } from '../../common/settings';
+import { formatString } from '../../common/stringformat.js';
+import { settings } from '../../common/settings.js';
 
 let bwFileContents: Buffer;
 let bwFileWatcher: fs.FSWatcher | undefined;

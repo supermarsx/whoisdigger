@@ -1,13 +1,13 @@
 import debugModule from 'debug';
 import { performance } from 'perf_hooks';
-import { lookup as whoisLookup } from '../../common/lookup';
-import * as dns from '../../common/dnsLookup';
-import { Result, DnsLookupError } from '../../common/errors';
-import { formatString } from '../../common/stringformat';
-import { msToHumanTime } from '../../common/conversions';
-import { getSettings } from '../../common/settings';
-import type { BulkWhois, DomainSetup } from './types';
-import { processData } from './resultHandler';
+import { lookup as whoisLookup } from '../../common/lookup.js';
+import * as dns from '../../common/dnsLookup.js';
+import { Result, DnsLookupError } from '../../common/errors.js';
+import { formatString } from '../../common/stringformat.js';
+import { msToHumanTime } from '../../common/conversions.js';
+import { getSettings } from '../../common/settings.js';
+import type { BulkWhois, DomainSetup } from './types.js';
+import { processData } from './resultHandler.js';
 import type { IpcMainEvent } from 'electron';
 
 const debug = debugModule('main.bw.scheduler');

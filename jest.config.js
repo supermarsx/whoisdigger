@@ -8,6 +8,9 @@ export default {
     '^.+\\.m?js$': 'babel-jest'
   },
   transformIgnorePatterns: ['node_modules/(?!(change-case|html-entities)/)'],
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1'
+  },
   setupFiles: ['<rootDir>/test/jest.setup.ts'],
   collectCoverage: true,
   coverageDirectory: 'coverage'

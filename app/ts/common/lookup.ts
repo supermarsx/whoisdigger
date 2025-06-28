@@ -6,9 +6,9 @@ const puny = moduleRequire('punycode/') as typeof import('punycode');
 import uts46 from 'idna-uts46';
 import whois from 'whois';
 import debugModule from 'debug';
-import { settings, Settings } from './settings';
-import { getCached, setCached, CacheOptions } from './requestCache';
-import { getProxy } from './proxy';
+import { settings, Settings } from './settings.js';
+import { getCached, setCached, CacheOptions } from './requestCache.js';
+import { getProxy } from './proxy.js';
 
 const debug = debugModule('common.whoisWrapper');
 

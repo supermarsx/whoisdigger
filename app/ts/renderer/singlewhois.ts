@@ -1,13 +1,13 @@
-import { isDomainAvailable, getDomainParameters, WhoisResult } from '../common/availability';
-import { preStringStrip, toJSON } from '../common/parser';
+import { isDomainAvailable, getDomainParameters, WhoisResult } from '../common/availability.js';
+import { preStringStrip, toJSON } from '../common/parser.js';
 
-import { getDate } from '../common/conversions';
+import { getDate } from '../common/conversions.js';
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
 };
-import { formatString } from '../common/stringformat';
+import { formatString } from '../common/stringformat.js';
 
 import $ from 'jquery';
 (window as any).$ = (window as any).jQuery = $;

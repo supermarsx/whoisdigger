@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { dirnameCompat } from '../utils/dirnameCompat';
+import { dirnameCompat } from '../utils/dirnameCompat.js';
 
 const baseDir = dirnameCompat();
 import Handlebars from 'handlebars/runtime';

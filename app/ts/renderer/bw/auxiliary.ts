@@ -1,4 +1,4 @@
-import { resetObject } from '../../common/resetObject';
+import { resetObject } from '../../common/resetObject.js';
 import $ from 'jquery';
 
 /*
