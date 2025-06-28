@@ -6,7 +6,7 @@
     "allowJs": true,
     "noEmit": false,
     "rootDir": ".",
-    "outDir": "dist/app",
+    "outDir": "dist",
     "esModuleInterop": true,
     "strict": true,
     "skipLibCheck": true,
