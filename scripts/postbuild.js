@@ -5,7 +5,7 @@ import { copyRecursiveSync } from './copyRecursive.js';
 import { precompileTemplates } from './precompileTemplates.js';
 import debugModule from 'debug';
 import { dirnameCompat } from './dirnameCompat.js';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import Handlebars from 'handlebars/runtime.js';
 import './create-esm-links.js';
 
@@ -52,11 +52,13 @@ Handlebars.registerHelper('t', (k) => defaultLocale[k] || k);
 
 for (const file of fs.readdirSync(partialDir)) {
   if (file === 'mainPanel.js' || !file.endsWith('.js')) continue;
-  const spec = (await import(path.join(partialDir, file))).default;
+  const specPath = path.join(partialDir, file);
+  const spec = (await import(pathToFileURL(specPath).href)).default;
   Handlebars.registerPartial(path.basename(file, '.js'), Handlebars.template(spec));
 }
 
-const mainSpec = (await import(path.join(partialDir, 'mainPanel.js'))).default;
+const mainSpecPath = path.join(partialDir, 'mainPanel.js');
+const mainSpec = (await import(pathToFileURL(mainSpecPath).href)).default;
 const mainTemplate = Handlebars.template(mainSpec);
 const htmlOut = mainTemplate({});
 
