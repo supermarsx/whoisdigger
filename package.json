@@ -98,6 +98,9 @@
     "typescript": "^5.8.3",
     "webdriverio": "^9.16.2"
   },
+  "overrides": {
+    "superagent": "^10.2.1"
+  },
   "electronmon": {
     "patterns": [
       "!dist/app/data/**"
