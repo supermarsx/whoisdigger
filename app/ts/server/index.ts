@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { lookup } from '../common/lookup';
 import { lookupDomains, CliOptions } from '../cli';
 import { fileURLToPath } from 'url';
@@ -7,7 +7,7 @@ export function createServer() {
   const app = express();
   app.use(express.json());
 
-  app.post('/lookup', async (req, res) => {
+  app.post('/lookup', async (req: Request, res: Response) => {
     const domain = req.body?.domain;
     if (!domain || typeof domain !== 'string') {
       res.status(400).json({ error: 'domain required' });
@@ -21,7 +21,7 @@ export function createServer() {
     }
   });
 
-  app.post('/bulk-lookup', async (req, res) => {
+  app.post('/bulk-lookup', async (req: Request, res: Response) => {
     const body = req.body ?? {};
     const opts: CliOptions = {
       domains: Array.isArray(body.domains) ? body.domains : [],
