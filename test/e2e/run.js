@@ -20,6 +20,7 @@ const debug = debugModule('test:e2e');
   fs.mkdirSync(artifactsDir, { recursive: true });
   const userDataDir = path.join(os.tmpdir(), `whoisdigger-test-${Date.now()}`);
   fs.mkdirSync(userDataDir, { recursive: true });
+  process.env.NODE_OPTIONS = '--experimental-specifier-resolution=node';
 
   const chromedriverPath = path.join(baseDir, '..', '..', 'node_modules', '.bin', 'chromedriver');
 
@@ -56,7 +57,7 @@ const debug = debugModule('test:e2e');
             '--disable-dev-shm-usage',
             '--disable-gpu',
             '--headless=new',
-            `--remote-debugging-port=${port}`,
+            `--remote-debugging-port=${port + 1}`,
             `--user-data-dir=${userDataDir}`
           ]
         }

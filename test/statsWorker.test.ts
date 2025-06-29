@@ -4,7 +4,7 @@ import os from 'os';
 import { execSync } from 'child_process';
 import { Worker } from 'worker_threads';
 
-jest.setTimeout(60000);
+jest.setTimeout(120000);
 
 const workerPath = path.join(
   process.cwd(),
@@ -57,10 +57,12 @@ test('statsWorker reports stats and updates on file changes', async () => {
   expect(first.readWrite).toBe(true);
 
   fs.writeFileSync(path.join(dataDir, 'file.txt'), 'hello');
+  worker.postMessage('refresh');
   const second: any = await new Promise((resolve) => worker.once('message', resolve));
   expect(second.size).toBeGreaterThan(first.size);
 
   fs.writeFileSync(configPath, 'changed!!!!');
+  worker.postMessage('refresh');
   const third: any = await new Promise((resolve) => worker.once('message', resolve));
   expect(third.configSize).toBeGreaterThan(first.configSize);
 

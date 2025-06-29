@@ -1,2 +1,2 @@
-import './bwa/fileinput'; // File input
-import './bwa/analyser';
+import './bwa/fileinput.js'; // File input
+import './bwa/analyser.js';

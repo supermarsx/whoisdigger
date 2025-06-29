@@ -72,7 +72,7 @@ interface MainSettings extends BaseSettings {
   [key: string]: any;
 }
 
-import './main/index';
+import './main/index.js';
 
 let settings: MainSettings;
 let mainWindow: BrowserWindow;
