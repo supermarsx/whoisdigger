@@ -25,19 +25,13 @@ describe('getDomainSetup', () => {
     });
 
     expect(result.timebetween).toBeGreaterThanOrEqual(settings.lookupRandomizeTimeBetween.minimum);
-    expect(result.timebetween).toBeLessThan(
-      settings.lookupRandomizeTimeBetween.minimum + settings.lookupRandomizeTimeBetween.maximum
-    );
+    expect(result.timebetween).toBeLessThanOrEqual(settings.lookupRandomizeTimeBetween.maximum);
 
     expect(result.follow).toBeGreaterThanOrEqual(settings.lookupRandomizeFollow.minimumDepth);
-    expect(result.follow).toBeLessThan(
-      settings.lookupRandomizeFollow.minimumDepth + settings.lookupRandomizeFollow.maximumDepth
-    );
+    expect(result.follow).toBeLessThanOrEqual(settings.lookupRandomizeFollow.maximumDepth);
 
     expect(result.timeout).toBeGreaterThanOrEqual(settings.lookupRandomizeTimeout.minimum);
-    expect(result.timeout).toBeLessThan(
-      settings.lookupRandomizeTimeout.minimum + settings.lookupRandomizeTimeout.maximum
-    );
+    expect(result.timeout).toBeLessThanOrEqual(settings.lookupRandomizeTimeout.maximum);
 
     Object.assign(settings.lookupRandomizeTimeBetween, backup.lookupRandomizeTimeBetween);
     Object.assign(settings.lookupRandomizeFollow, backup.lookupRandomizeFollow);

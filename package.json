@@ -64,7 +64,8 @@
     "papaparse": "^5.5.3",
     "psl": "^1.15.0",
     "punycode": "^2.3.1",
-    "whois": "^2.14.2"
+    "whois": "^2.14.2",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "@babel/core": "^7.27.4",

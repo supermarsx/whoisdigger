@@ -46,4 +46,16 @@ describe('model downloader', () => {
     await expect(downloadModel('https://bad', dest)).rejects.toThrow('fail');
     expect(fs.existsSync(destPath)).toBe(false);
   });
+
+  test('rejects on non-2xx status and cleans up file', async () => {
+    const res = new PassThrough() as PassThrough & { statusCode?: number };
+    res.statusCode = 404;
+    res.resume = jest.fn();
+    getMock.mockImplementation((_url, cb) => {
+      cb(res);
+      return new EventEmitter();
+    });
+    await expect(downloadModel('https://example.com/model.onnx', dest)).rejects.toThrow('HTTP 404');
+    expect(fs.existsSync(destPath)).toBe(false);
+  });
 });

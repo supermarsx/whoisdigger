@@ -3,6 +3,7 @@ import path from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import JSZip from 'jszip';
+import debugModule from 'debug';
 import { lookup as whoisLookup } from './common/lookup.js';
 import { settings } from './common/settings.js';
 import { RequestCache } from './common/requestCache.js';
@@ -13,6 +14,9 @@ import { downloadModel } from './ai/modelDownloader.js';
 import { suggestWords } from './ai/openaiSuggest.js';
 
 const requestCache = new RequestCache();
+
+const debug = debugModule('cli');
+
 
 export interface CliOptions {
   domains: string[];
@@ -145,7 +149,8 @@ if (require.main === module) {
     if (opts.suggest) {
       const words = await suggestWords(opts.suggest, opts.suggestCount ?? 5);
       for (const w of words) {
-        console.log(w);
+        console.info(w);
+        debug(w);
       }
       return;
     }
@@ -156,7 +161,8 @@ if (require.main === module) {
         return;
       }
       await downloadModel(url, settings.ai.modelPath);
-      console.log('Model downloaded');
+      console.info('Model downloaded');
+      debug('Model downloaded');
       return;
     }
     if (opts.purgeCache || opts.clearCache) {
@@ -171,6 +177,7 @@ if (require.main === module) {
     }
     const results = await lookupDomains(opts);
     const outPath = await exportResults(results, opts);
-    console.log(`Results written to ${path.resolve(outPath)}`);
+    console.info(`Results written to ${path.resolve(outPath)}`);
+    debug(`Results written to ${path.resolve(outPath)}`);
   })();
 }
