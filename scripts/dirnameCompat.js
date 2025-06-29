@@ -1,8 +1,12 @@
 import path from 'path';
-import { fileURLToPath } from 'url';
 
 export function dirnameCompat() {
-  return typeof __filename !== 'undefined'
-    ? path.dirname(__filename)
-    : path.dirname(fileURLToPath(import.meta.url));
+  const globalDir = global.__dirname;
+  if (typeof globalDir === 'string') {
+    return globalDir;
+  }
+  if (typeof __filename !== 'undefined') {
+    return path.dirname(__filename);
+  }
+  return process.cwd();
 }

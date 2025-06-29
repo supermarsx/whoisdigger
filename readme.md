@@ -227,8 +227,8 @@ import { dirnameCompat } from './utils/dirnameCompat';
 const __dirname = dirnameCompat();
 ```
 
-The helper checks for `__filename` in CommonJS and falls back to
-`fileURLToPath(import.meta.url)` when running as an ES module.
+The helper checks for a globally defined `__dirname` or the module
+`__dirname` and otherwise falls back to `process.cwd()`.
 
 ## Settings
 

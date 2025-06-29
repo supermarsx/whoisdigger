@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { dirnameCompat } from './dirnameCompat.js';
-import { fileURLToPath } from 'url';
 
 const baseDir = dirnameCompat();
 
@@ -10,6 +9,9 @@ export function precompileTemplates(
   outputDir = path.join(baseDir, '..', 'app', 'compiled-templates')
 ) {
   const templatesDir = path.join(baseDir, '..', 'app', 'html', 'templates');
+  if (!fs.existsSync(templatesDir)) {
+    return;
+  }
   fs.mkdirSync(outputDir, { recursive: true });
 
   const handlebarBin = path.join(baseDir, '..', 'node_modules', 'handlebars', 'bin', 'handlebars');
@@ -28,7 +30,7 @@ export function precompileTemplates(
   }
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (path.basename(process.argv[1] || '') === 'precompileTemplates.js') {
   const dir = process.argv[2];
   precompileTemplates(dir && path.resolve(dir));
 }
