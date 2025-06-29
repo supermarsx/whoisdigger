@@ -4,7 +4,7 @@ jest.mock('fs', () => ({
   promises: { readFile: jest.fn() }
 }));
 
-import Handlebars from 'handlebars/runtime.js';
+import Handlebars from '../app/vendor/handlebars.runtime.js';
 
 const readFileMock = require('fs').promises.readFile as jest.Mock;
 

@@ -2,7 +2,7 @@
 
 import jQuery from 'jquery';
 
-jest.mock('handlebars/runtime.js', () => {
+jest.mock('../app/vendor/handlebars.runtime.js', () => {
   const compiledFn = jest.fn((ctx: any) => `<span>${ctx.text}</span>`);
   const template = jest.fn(() => compiledFn);
   return { __esModule: true, default: { template } };
@@ -18,7 +18,7 @@ jest.mock(
 );
 
 import { loadTemplate } from '../app/ts/renderer/templateLoader';
-const handlebars = require('handlebars/runtime.js').default;
+const handlebars = require('../app/vendor/handlebars.runtime.js').default;
 
 beforeAll(() => {
   (window as any).$ = (window as any).jQuery = jQuery;

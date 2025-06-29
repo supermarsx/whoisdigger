@@ -15,7 +15,8 @@ const folders = [
   'fonts',
   'icons',
   'compiled-templates',
-  'locales'
+  'locales',
+  'vendor'
 ];
 const appDir = path.join(rootDir, 'app');
 const distDir = path.join(rootDir, 'dist', 'app');
