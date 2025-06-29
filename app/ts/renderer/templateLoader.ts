@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import Handlebars from 'handlebars/runtime';
+import Handlebars from 'handlebars/runtime.js';
 
 export async function loadTemplate(
   selector: string,
