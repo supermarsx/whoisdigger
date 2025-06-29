@@ -15,10 +15,18 @@ export async function downloadModel(url: string, dest: string): Promise<void> {
   await fs.promises.mkdir(path.dirname(destPath), { recursive: true });
   return new Promise<void>((resolve, reject) => {
     const file = fs.createWriteStream(destPath);
+    const cleanup = (err: Error): void => {
+      file.close(() => {
+        fs.unlink(destPath, () => {
+          debug(`Download failed: ${err}`);
+          reject(err);
+        });
+      });
+    };
     https
       .get(url, (res) => {
-        if (res.statusCode && res.statusCode >= 400) {
-          reject(new Error(`HTTP ${res.statusCode}`));
+        if (res.statusCode && (res.statusCode < 200 || res.statusCode >= 300)) {
+          cleanup(new Error(`HTTP ${res.statusCode}`));
           res.resume();
           return;
         }
@@ -31,10 +39,7 @@ export async function downloadModel(url: string, dest: string): Promise<void> {
         });
       })
       .on('error', (err) => {
-        fs.unlink(destPath, (_err2) => {
-          debug(`Download failed: ${err}`);
-          reject(err);
-        });
+        cleanup(err);
       });
   });
 }
