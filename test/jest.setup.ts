@@ -7,6 +7,6 @@ jest.mock('../app/vendor/change-case.js', () => ({
   }
 }));
 
-jest.mock('html-entities', () => ({
+jest.mock('../app/vendor/html-entities/index.js', () => ({
   decode: (input: string) => input
 }));

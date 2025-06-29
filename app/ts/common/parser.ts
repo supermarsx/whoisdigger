@@ -1,5 +1,5 @@
 import * as changeCase from '../../vendor/change-case.js';
-import { decode } from 'html-entities';
+import { decode } from '../../vendor/html-entities/index.js';
 
 export function preStringStrip(str: string): string {
   return str.toString().replace(/\:\t{1,2}/g, ': ');
