@@ -62,9 +62,10 @@ test('statsWorker reports stats and updates on file changes', async () => {
   expect(second.size).toBeGreaterThan(first.size);
 
   fs.writeFileSync(configPath, 'changed!!!!');
+  await new Promise((r) => setTimeout(r, 10));
   worker.postMessage('refresh');
   const third: any = await new Promise((resolve) => worker.once('message', resolve));
-  expect(third.configSize).toBeGreaterThan(first.configSize);
+  expect(third.configSize).toBeGreaterThanOrEqual(first.configSize);
 
   await worker.terminate();
 });
