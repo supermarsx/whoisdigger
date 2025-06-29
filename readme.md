@@ -228,7 +228,8 @@ const __dirname = dirnameCompat();
 ```
 
 The helper checks for a globally defined `__dirname` or the module
-`__dirname` and otherwise falls back to `process.cwd()`.
+`__dirname`, then tries `__filename`, `process.mainModule?.filename` or
+`process.argv[1]` before falling back to `process.cwd()`.
 
 ## Settings
 

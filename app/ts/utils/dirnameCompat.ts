@@ -11,6 +11,9 @@ export function dirnameCompat(): string {
   if (typeof __filename !== 'undefined') {
     return path.dirname(__filename);
   }
+  if (process.mainModule && process.mainModule.filename) {
+    return path.dirname(process.mainModule.filename);
+  }
   if (process.argv[1]) {
     return path.dirname(process.argv[1]);
   }
