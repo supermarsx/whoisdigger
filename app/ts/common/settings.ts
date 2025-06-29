@@ -70,9 +70,11 @@ export interface Settings {
   [key: string]: any;
 }
 
-const rawModule = fs.existsSync('./appsettings')
-  ? moduleRequire('./appsettings')
-  : moduleRequire('../appsettings');
+const localAppSettings = path.join(baseDir, 'appsettings');
+const parentAppSettings = path.join(baseDir, '..', 'appsettings');
+const rawModule = fs.existsSync(`${localAppSettings}.js`)
+  ? moduleRequire(localAppSettings)
+  : moduleRequire(parentAppSettings);
 const settingsModule: { settings: Settings } = rawModule.settings ? rawModule : rawModule.default;
 let { settings } = settingsModule;
 const defaultSettings: Settings = JSON.parse(JSON.stringify(settings));
