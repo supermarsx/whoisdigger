@@ -1,3 +1,4 @@
+import path from 'path';
 import { dirnameCompat } from '../app/ts/utils/dirnameCompat';
 
 describe('dirnameCompat', () => {
@@ -18,16 +19,10 @@ describe('dirnameCompat', () => {
     expect(result).toBe('/tmp/dir');
   });
 
-  test('uses process.cwd() when __dirname is undefined', () => {
+  test('uses module directory when global __dirname is undefined', () => {
     delete (global as any).__dirname;
+    const expected = path.resolve(__dirname, '../app/ts/utils');
     const result = dirnameCompat();
-    expect(result).toBe(process.cwd());
+    expect(result).toBe(expected);
   });
-
-  test('falls back to process.cwd()', () => {
-    delete (global as any).__dirname;
-    const result = dirnameCompat();
-    expect(result).toBe(process.cwd());
-  });
-
 });
