@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 
-let jQuery: typeof import('jquery');
+let jQuery: typeof import('../app/vendor/jquery.js');
 let settingsModule: any;
 const invokeMock = jest.fn();
 const openPathMock = jest.fn();
@@ -50,7 +50,7 @@ beforeEach(() => {
 });
 
 test('changing setting updates configuration', async () => {
-  jQuery = require('jquery');
+  jQuery = require('../app/vendor/jquery.js');
   (window as any).$ = (window as any).jQuery = jQuery;
   settingsModule = require('../app/ts/common/settings');
   require('../app/ts/renderer/options');
@@ -67,7 +67,7 @@ test('changing setting updates configuration', async () => {
 });
 
 test('reloadApp invokes ipcRenderer', async () => {
-  jQuery = require('jquery');
+  jQuery = require('../app/vendor/jquery.js');
   (window as any).$ = (window as any).jQuery = jQuery;
   require('../app/ts/renderer/options');
   jQuery.ready();
@@ -82,7 +82,7 @@ test('reloadApp invokes ipcRenderer', async () => {
 });
 
 test('openDataFolder calls shell.openPath', async () => {
-  jQuery = require('jquery');
+  jQuery = require('../app/vendor/jquery.js');
   (window as any).$ = (window as any).jQuery = jQuery;
   require('../app/ts/renderer/options');
   jQuery.ready();

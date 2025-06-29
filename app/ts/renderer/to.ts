@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import $ from 'jquery';
+import $ from '../../vendor/jquery.js';
 
 let filePath: string | null = null;
 

@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import $ from '../../vendor/jquery.js';
 const electron = (window as any).electron as {
   invoke: (channel: string, ...args: any[]) => Promise<any>;
 };

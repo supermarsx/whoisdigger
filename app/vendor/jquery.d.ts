@@ -1,2 +1,2 @@
-import $ from 'jquery';
-export default $;
+import jQuery from 'jquery';
+export default jQuery;

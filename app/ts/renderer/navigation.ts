@@ -1,5 +1,5 @@
 import { formatString } from '../common/stringformat.js';
-import $ from 'jquery';
+import $ from '../../vendor/jquery.js';
 import { populateInputs } from './options.js';
 import { settings } from '../common/settings.js';
 

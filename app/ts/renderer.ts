@@ -1,5 +1,5 @@
 // Base path --> assets/html
-import $ from 'jquery';
+import $ from '../vendor/jquery.js';
 
 import './renderer/index';
 import { loadSettings, settings, customSettingsLoaded } from './common/settings.js';

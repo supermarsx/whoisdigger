@@ -9,7 +9,7 @@ const electron = (window as any).electron as {
 };
 import { formatString } from '../common/stringformat.js';
 
-import $ from 'jquery';
+import $ from '../../vendor/jquery.js';
 (window as any).$ = (window as any).jQuery = $;
 
 interface SingleWhois {

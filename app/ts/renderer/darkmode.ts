@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import $ from '../../vendor/jquery.js';
 import { settings, saveSettings } from '../common/settings.js';
 
 function applyDarkMode(enabled: boolean): void {

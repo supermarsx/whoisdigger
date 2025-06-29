@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import $ from '../../vendor/jquery.js';
 import fs from 'fs';
 import path from 'path';
 import { dirnameCompat } from '../utils/dirnameCompat.js';
