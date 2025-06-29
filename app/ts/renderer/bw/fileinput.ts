@@ -243,11 +243,10 @@ $(document).on('click', '#bwFileButtonConfirm', function () {
     .toString()
     .split('\n')
     .map(Function.prototype.call, String.prototype.trim);
-  const bwTldsArray = (
-    ($('#bwFileInputTlds').val() as string | number | string[] | undefined) || ''
-  )
-    .toString()
-    .split(',');
+  const bwTldsArray = (($('#bwFileInputTlds').val() as string) || '')
+    .split(',')
+    .map((t) => t.trim())
+    .filter(Boolean);
 
   tableReset(bwDomainArray.length, bwTldsArray.length);
   $('#bwFileinputconfirm').addClass('is-hidden');
