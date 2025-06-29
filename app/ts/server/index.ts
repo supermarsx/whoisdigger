@@ -1,6 +1,9 @@
 import express, { Request, Response } from 'express';
 import { lookup } from '../common/lookup.js';
 import { lookupDomains, CliOptions } from '../cli.js';
+import debugModule from 'debug';
+
+const debug = debugModule('server');
 
 export function createServer() {
   const app = express();
@@ -42,6 +45,6 @@ export function createServer() {
 if (process.argv[1] && process.argv[1].endsWith('server/index.js')) {
   const port = Number(process.env.PORT) || 3000;
   createServer().listen(port, () => {
-    console.log(`Server listening on port ${port}`);
+    debug(`Server listening on port ${port}`);
   });
 }
