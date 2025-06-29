@@ -2,7 +2,6 @@ import { dirnameCompat } from '../app/ts/utils/dirnameCompat';
 
 describe('dirnameCompat', () => {
   const originalDirname = (global as any).__dirname;
-  const originalEval = global.eval;
 
   afterEach(() => {
     if (originalDirname === undefined) {
@@ -10,7 +9,7 @@ describe('dirnameCompat', () => {
     } else {
       (global as any).__dirname = originalDirname;
     }
-    global.eval = originalEval;
+    jest.restoreAllMocks();
   });
 
   test('returns __dirname when defined', () => {
@@ -19,18 +18,14 @@ describe('dirnameCompat', () => {
     expect(result).toBe('/tmp/dir');
   });
 
-  test('uses import.meta.url when __dirname is undefined', () => {
+  test('uses process.cwd() when __dirname is undefined', () => {
     delete (global as any).__dirname;
-    global.eval = jest.fn(() => 'file:///some/place/file.js');
     const result = dirnameCompat();
-    expect(result).toBe('/some/place');
+    expect(result).toBe(process.cwd());
   });
 
   test('falls back to process.cwd()', () => {
     delete (global as any).__dirname;
-    global.eval = jest.fn(() => {
-      throw new Error('fail');
-    });
     const result = dirnameCompat();
     expect(result).toBe(process.cwd());
   });

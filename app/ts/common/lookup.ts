@@ -1,8 +1,5 @@
 import psl from 'psl';
-import { createRequire as nodeCreateRequire } from 'module';
-const moduleRequire =
-  typeof require === 'undefined' ? nodeCreateRequire(eval('import.meta.url')) : require;
-const puny = moduleRequire('punycode/') as typeof import('punycode');
+import * as puny from 'punycode';
 import uts46 from 'idna-uts46';
 import whois from 'whois';
 import debugModule from 'debug';

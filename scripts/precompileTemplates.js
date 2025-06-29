@@ -10,6 +10,9 @@ export function precompileTemplates(
   outputDir = path.join(baseDir, '..', 'app', 'compiled-templates')
 ) {
   const templatesDir = path.join(baseDir, '..', 'app', 'html', 'templates');
+  if (!fs.existsSync(templatesDir)) {
+    return;
+  }
   fs.mkdirSync(outputDir, { recursive: true });
 
   const handlebarBin = path.join(baseDir, '..', 'node_modules', 'handlebars', 'bin', 'handlebars');
@@ -28,7 +31,14 @@ export function precompileTemplates(
   }
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+let moduleUrl;
+try {
+  moduleUrl = eval('import.meta.url');
+} catch {
+  moduleUrl = undefined;
+}
+
+if (moduleUrl && process.argv[1] === fileURLToPath(moduleUrl)) {
   const dir = process.argv[2];
   precompileTemplates(dir && path.resolve(dir));
 }

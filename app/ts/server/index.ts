@@ -42,7 +42,6 @@ export function createServer() {
 
 let moduleUrl: string | undefined;
 try {
-  // Avoid syntax errors in CommonJS environments
   moduleUrl = eval('import.meta.url') as string;
 } catch {
   moduleUrl = undefined;

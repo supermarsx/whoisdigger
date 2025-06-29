@@ -2,7 +2,13 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 export function dirnameCompat() {
-  return typeof __filename !== 'undefined'
-    ? path.dirname(__filename)
-    : path.dirname(fileURLToPath(import.meta.url));
+  if (typeof __filename !== 'undefined') {
+    return path.dirname(__filename);
+  }
+  try {
+    const metaUrl = eval('import.meta.url');
+    return path.dirname(fileURLToPath(metaUrl));
+  } catch {
+    return process.cwd();
+  }
 }

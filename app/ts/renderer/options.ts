@@ -123,13 +123,7 @@ function startStatsWorker(): void {
   statsConfigPath = path.join(getUserDataPath(), settings.customConfiguration.filepath);
   statsDataDir = getUserDataPath();
   try {
-    let workerPath: string;
-    try {
-      workerPath = new URL('./renderer/workers/statsWorker.js', eval('import.meta.url')).pathname;
-    } catch {
-      // Fallback for CommonJS environments like Jest
-      workerPath = path.join(baseDir, 'renderer', 'workers', 'statsWorker.js');
-    }
+    const workerPath = path.join(baseDir, 'renderer', 'workers', 'statsWorker.js');
     statsWorker = new Worker(workerPath, {
       workerData: {
         configPath: statsConfigPath,
