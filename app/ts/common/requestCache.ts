@@ -12,119 +12,110 @@ export interface CacheOptions {
   ttl?: number;
 }
 
-let db: DatabaseType | undefined;
+export class RequestCache {
+  private db: DatabaseType | undefined;
 
-function init(): DatabaseType | undefined {
-  const { requestCache } = settings;
-  if (!requestCache || !requestCache.enabled) return undefined;
-  if (db) return db;
-  const baseDir = path.resolve(getUserDataPath());
-  const dbPath = path.resolve(baseDir, requestCache.database);
-  if (dbPath !== baseDir && !dbPath.startsWith(baseDir + path.sep)) {
-    debug(`Invalid cache database path: ${requestCache.database}`);
-    return undefined;
-  }
-  fs.mkdirSync(path.dirname(dbPath), { recursive: true });
-  db = new Database(dbPath);
-  db.exec(
-    'CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, response TEXT, timestamp INTEGER)'
-  );
-  return db;
-}
-
-function makeKey(type: string, domain: string): string {
-  return `${type}:${domain}`;
-}
-
-export function getCached(
-  type: string,
-  domain: string,
-  cacheOpts: CacheOptions = {}
-): string | undefined {
-  const { requestCache } = settings;
-  const enabled = cacheOpts.enabled ?? requestCache.enabled;
-  const ttl = cacheOpts.ttl ?? requestCache.ttl;
-  if (!enabled) return undefined;
-  const database = init();
-  if (!database) return undefined;
-  const key = makeKey(type, domain);
-  try {
-    const row = database.prepare('SELECT response, timestamp FROM cache WHERE key = ?').get(key) as
-      | { response: string; timestamp: number }
-      | undefined;
-    if (!row) return undefined;
-    if (Date.now() - row.timestamp > ttl * 1000) {
-      database.prepare('DELETE FROM cache WHERE key = ?').run(key);
+  private init(): DatabaseType | undefined {
+    const { requestCache } = settings;
+    if (!requestCache || !requestCache.enabled) return undefined;
+    if (this.db) return this.db;
+    const baseDir = path.resolve(getUserDataPath());
+    const dbPath = path.resolve(baseDir, requestCache.database);
+    if (dbPath !== baseDir && !dbPath.startsWith(baseDir + path.sep)) {
+      debug(`Invalid cache database path: ${requestCache.database}`);
       return undefined;
     }
-    debug(`Cache hit for ${key}`);
-    return row.response;
-  } catch (e) {
-    debug(`Cache get failed: ${e}`);
-    return undefined;
+    fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+    this.db = new Database(dbPath);
+    this.db.exec(
+      'CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, response TEXT, timestamp INTEGER)'
+    );
+    return this.db;
   }
-}
 
-export function setCached(
-  type: string,
-  domain: string,
-  response: string,
-  cacheOpts: CacheOptions = {}
-): void {
-  const { requestCache } = settings;
-  const enabled = cacheOpts.enabled ?? requestCache.enabled;
-  if (!enabled) return;
-  const database = init();
-  if (!database) return;
-  const key = makeKey(type, domain);
-  try {
-    database
-      .prepare('INSERT OR REPLACE INTO cache(key, response, timestamp) VALUES(?, ?, ?)')
-      .run(key, response, Date.now());
-    debug(`Cached response for ${key}`);
-  } catch (e) {
-    debug(`Cache set failed: ${e}`);
+  private makeKey(type: string, domain: string): string {
+    return `${type}:${domain}`;
   }
-}
 
-export function purgeExpired(): number {
-  const { requestCache } = settings;
-  if (!requestCache.enabled) return 0;
-  const database = init();
-  if (!database) return 0;
-  try {
-    const threshold = Date.now() - requestCache.ttl * 1000;
-    const res = database.prepare('DELETE FROM cache WHERE timestamp <= ?').run(threshold);
-    debug(`Purged ${res.changes} expired entries`);
-    return res.changes ?? 0;
-  } catch (e) {
-    debug(`Cache purge failed: ${e}`);
-    return 0;
-  }
-}
-
-export function clearCache(): void {
-  const { requestCache } = settings;
-  if (!requestCache.enabled) return;
-  const database = init();
-  if (!database) return;
-  try {
-    database.prepare('DELETE FROM cache').run();
-    debug('Cleared all cache entries');
-  } catch (e) {
-    debug(`Cache clear failed: ${e}`);
-  }
-}
-
-export function closeCache(): void {
-  if (db) {
+  get(type: string, domain: string, cacheOpts: CacheOptions = {}): string | undefined {
+    const { requestCache } = settings;
+    const enabled = cacheOpts.enabled ?? requestCache.enabled;
+    const ttl = cacheOpts.ttl ?? requestCache.ttl;
+    if (!enabled) return undefined;
+    const database = this.init();
+    if (!database) return undefined;
+    const key = this.makeKey(type, domain);
     try {
-      db.close();
+      const row = database
+        .prepare('SELECT response, timestamp FROM cache WHERE key = ?')
+        .get(key) as { response: string; timestamp: number } | undefined;
+      if (!row) return undefined;
+      if (Date.now() - row.timestamp > ttl * 1000) {
+        database.prepare('DELETE FROM cache WHERE key = ?').run(key);
+        return undefined;
+      }
+      debug(`Cache hit for ${key}`);
+      return row.response;
     } catch (e) {
-      debug(`Cache close failed: ${e}`);
+      debug(`Cache get failed: ${e}`);
+      return undefined;
     }
-    db = undefined;
+  }
+
+  set(type: string, domain: string, response: string, cacheOpts: CacheOptions = {}): void {
+    const { requestCache } = settings;
+    const enabled = cacheOpts.enabled ?? requestCache.enabled;
+    if (!enabled) return;
+    const database = this.init();
+    if (!database) return;
+    const key = this.makeKey(type, domain);
+    try {
+      database
+        .prepare('INSERT OR REPLACE INTO cache(key, response, timestamp) VALUES(?, ?, ?)')
+        .run(key, response, Date.now());
+      debug(`Cached response for ${key}`);
+    } catch (e) {
+      debug(`Cache set failed: ${e}`);
+    }
+  }
+
+  purgeExpired(): number {
+    const { requestCache } = settings;
+    if (!requestCache.enabled) return 0;
+    const database = this.init();
+    if (!database) return 0;
+    try {
+      const threshold = Date.now() - requestCache.ttl * 1000;
+      const res = database.prepare('DELETE FROM cache WHERE timestamp <= ?').run(threshold);
+      debug(`Purged ${res.changes} expired entries`);
+      return res.changes ?? 0;
+    } catch (e) {
+      debug(`Cache purge failed: ${e}`);
+      return 0;
+    }
+  }
+
+  clear(): void {
+    const { requestCache } = settings;
+    if (!requestCache.enabled) return;
+    const database = this.init();
+    if (!database) return;
+    try {
+      database.prepare('DELETE FROM cache').run();
+      debug('Cleared all cache entries');
+    } catch (e) {
+      debug(`Cache clear failed: ${e}`);
+    }
+  }
+
+  close(): void {
+    if (this.db) {
+      try {
+        this.db.close();
+      } catch (e) {
+        debug(`Cache close failed: ${e}`);
+      }
+      this.db = undefined;
+    }
   }
 }
-
-export default { getCached, setCached, closeCache, purgeExpired, clearCache };

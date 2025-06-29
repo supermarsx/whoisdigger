@@ -5,12 +5,14 @@ import { hideBin } from 'yargs/helpers';
 import JSZip from 'jszip';
 import { lookup as whoisLookup } from './common/lookup.js';
 import { settings } from './common/settings.js';
-import { purgeExpired, clearCache } from './common/requestCache.js';
+import { RequestCache } from './common/requestCache.js';
 import { isDomainAvailable, getDomainParameters, WhoisResult } from './common/availability.js';
 import { toJSON } from './common/parser.js';
 import { generateFilename } from './main/bw/export.js';
 import { downloadModel } from './ai/modelDownloader.js';
 import { suggestWords } from './ai/openaiSuggest.js';
+
+const requestCache = new RequestCache();
 
 export interface CliOptions {
   domains: string[];
@@ -159,10 +161,10 @@ if (require.main === module) {
     }
     if (opts.purgeCache || opts.clearCache) {
       if (opts.clearCache) {
-        clearCache();
+        requestCache.clear();
         console.log('Cache cleared');
       } else {
-        const purged = purgeExpired();
+        const purged = requestCache.purgeExpired();
         console.log(`Purged ${purged} expired entries`);
       }
       return;

@@ -3,10 +3,12 @@ import psl from 'psl';
 import debugModule from 'debug';
 import { convertDomain } from './lookup.js';
 import { settings, Settings } from './settings.js';
-import { getCached, setCached, CacheOptions } from './requestCache.js';
+import { RequestCache, CacheOptions } from './requestCache.js';
 import { DnsLookupError, Result } from './errors.js';
 
 const debug = debugModule('common.dnsLookup');
+
+const requestCache = new RequestCache();
 
 function getSettings(): Settings {
   return settings;
@@ -31,14 +33,14 @@ export async function nsLookup(host: string, cacheOpts: CacheOptions = {}): Prom
     host = clean ? clean.replace(/((\*\.)*)/g, '') : host;
   }
 
-  const cached = getCached('dns', host, cacheOpts);
+  const cached = requestCache.get('dns', host, cacheOpts);
   if (cached !== undefined) {
     return JSON.parse(cached) as string[];
   }
 
   try {
     result = await dns.resolve(host, 'NS');
-    setCached('dns', host, JSON.stringify(result), cacheOpts);
+    requestCache.set('dns', host, JSON.stringify(result), cacheOpts);
   } catch (e) {
     debug(`Lookup failed with error ${e}`);
     throw new DnsLookupError((e as Error).message);

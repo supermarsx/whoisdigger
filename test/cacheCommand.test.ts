@@ -15,8 +15,14 @@ jest.mock('electron', () => ({
 }));
 
 jest.mock('../app/ts/common/requestCache', () => ({
-  purgeExpired: () => purgeMock(),
-  clearCache: () => clearMock()
+  RequestCache: class {
+    purgeExpired() {
+      return purgeMock();
+    }
+    clear() {
+      clearMock();
+    }
+  }
 }));
 
 import '../app/ts/main/cache';

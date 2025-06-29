@@ -4,10 +4,12 @@ import uts46 from 'idna-uts46';
 import whois from 'whois';
 import debugModule from 'debug';
 import { settings, Settings } from './settings.js';
-import { getCached, setCached, CacheOptions } from './requestCache.js';
+import { RequestCache, CacheOptions } from './requestCache.js';
 import { getProxy } from './proxy.js';
 
 const debug = debugModule('common.whoisWrapper');
+
+const requestCache = new RequestCache();
 
 function getSettings(): Settings {
   return settings;
@@ -31,7 +33,7 @@ export async function lookup(
   const { lookupConversion: conversion, lookupGeneral: general } = getSettings();
   let domainResults: string;
 
-  const cached = getCached('whois', domain, cacheOpts);
+  const cached = requestCache.get('whois', domain, cacheOpts);
   if (cached !== undefined) {
     return cached;
   }
@@ -49,7 +51,7 @@ export async function lookup(
     domainResults = `Whois lookup error, ${e}`;
   }
 
-  setCached('whois', domain, domainResults, cacheOpts);
+  requestCache.set('whois', domain, domainResults, cacheOpts);
 
   return domainResults;
 }
