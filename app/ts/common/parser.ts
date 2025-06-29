@@ -1,4 +1,4 @@
-import * as changeCase from 'change-case';
+import * as changeCase from '../../vendor/change-case.js';
 import { decode } from 'html-entities';
 
 export function preStringStrip(str: string): string {

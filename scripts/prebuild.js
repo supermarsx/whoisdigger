@@ -16,6 +16,8 @@ const runtimeSrc = path.join(modulesPath, 'handlebars', 'dist', 'handlebars.runt
 const runtimeDest = path.join(vendorDir, 'handlebars.runtime.js');
 const jquerySrc = path.join(modulesPath, 'jquery', 'dist', 'jquery.js');
 const jqueryDest = path.join(vendorDir, 'jquery.js');
+const changeCaseSrc = path.join(modulesPath, 'change-case', 'dist', 'index.js');
+const changeCaseDest = path.join(vendorDir, 'change-case.js');
 
 if (!fs.existsSync(modulesPath)) {
   debug('node_modules not found. Running "npm install" to install dependencies...');
@@ -33,6 +35,7 @@ if (!fs.existsSync(modulesPath)) {
 fs.mkdirSync(vendorDir, { recursive: true });
 fs.copyFileSync(runtimeSrc, runtimeDest);
 fs.copyFileSync(jquerySrc, jqueryDest);
+fs.copyFileSync(changeCaseSrc, changeCaseDest);
 
 // Precompile Handlebars templates so development builds have them ready
 try {
