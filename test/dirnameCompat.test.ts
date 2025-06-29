@@ -29,4 +29,5 @@ describe('dirnameCompat', () => {
     const result = dirnameCompat();
     expect(result).toBe(process.cwd());
   });
+
 });
