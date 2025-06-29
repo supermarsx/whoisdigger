@@ -11,7 +11,7 @@ const electron = (window as any).electron as {
   on: (channel: string, listener: (...args: any[]) => void) => void;
 };
 import { tableReset } from './auxiliary.js';
-import $ from 'jquery';
+import $ from '../../../vendor/jquery.js';
 
 import { formatString } from '../../common/stringformat.js';
 import { settings } from '../../common/settings.js';

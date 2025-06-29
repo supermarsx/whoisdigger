@@ -3,7 +3,7 @@ import fs from 'fs';
 import Papa from 'papaparse';
 import datatables from 'datatables';
 const dt = datatables();
-import $ from 'jquery';
+import $ from '../../../vendor/jquery.js';
 
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;

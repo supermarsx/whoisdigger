@@ -1,6 +1,6 @@
 import * as conversions from '../../common/conversions.js';
 import defaultExportOptions from './export.defaults.js';
-import $ from 'jquery';
+import $ from '../../../vendor/jquery.js';
 
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;

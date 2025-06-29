@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import $ from '../../vendor/jquery.js';
 import Handlebars from '../../vendor/handlebars.runtime.js';
 
 export async function loadTemplate(

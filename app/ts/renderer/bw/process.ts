@@ -7,7 +7,7 @@ const electron = (window as any).electron as {
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
 };
-import $ from 'jquery';
+import $ from '../../../vendor/jquery.js';
 
 import { formatString } from '../../common/stringformat.js';
 

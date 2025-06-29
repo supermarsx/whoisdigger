@@ -20,7 +20,7 @@ jest.mock('../app/ts/common/settings', () => ({
   }))
 }));
 
-import jQuery from 'jquery';
+import jQuery from '../app/vendor/jquery.js';
 
 describe('renderer jQuery availability', () => {
   test('global $ references jQuery function', () => {

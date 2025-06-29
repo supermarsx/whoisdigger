@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 
-import jQuery from 'jquery';
+import jQuery from '../app/vendor/jquery.js';
 
 const handlers: Record<string, (...args: any[]) => void> = {};
 let invokeMock: jest.Mock;
