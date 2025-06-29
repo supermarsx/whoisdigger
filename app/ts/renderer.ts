@@ -5,6 +5,7 @@ import './renderer/index';
 import { loadSettings, settings, customSettingsLoaded } from './common/settings.js';
 import { loadTranslations, registerTranslationHelpers } from './renderer/i18n.js';
 import { formatString } from './common/stringformat.js';
+import { sendDebug, sendError } from './renderer/logger.js';
 
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
@@ -14,26 +15,6 @@ const electron = (window as any).electron as {
 
 (window as any).$ = $;
 (window as any).jQuery = $;
-
-interface DebugMessage {
-  channel: 'app:debug';
-  message: string;
-}
-
-interface ErrorMessage {
-  channel: 'app:error';
-  message: string;
-}
-
-function sendDebug(message: string): void {
-  const payload: DebugMessage = { channel: 'app:debug', message };
-  electron.send(payload.channel, payload.message);
-}
-
-function sendError(message: string): void {
-  const payload: ErrorMessage = { channel: 'app:error', message };
-  electron.send(payload.channel, payload.message);
-}
 
 /*
   $(document).ready(function() {...});

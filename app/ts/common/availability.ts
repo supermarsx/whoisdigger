@@ -1,11 +1,11 @@
-import debugModule from 'debug';
+import { debugFactory } from './logger.js';
 import { getDate } from './conversions.js';
 import { toJSON } from './parser.js';
 import { settings as appSettings, Settings } from './settings.js';
 import { checkPatterns } from './whoiswrapper/patterns.js';
 import { predict as aiPredict } from '../ai/availabilityModel.js';
 
-const debug = debugModule('common.whoisWrapper');
+const debug = debugFactory('common.whoisWrapper');
 let settings: Settings = appSettings;
 
 export interface WhoisResult {
