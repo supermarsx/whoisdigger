@@ -11,3 +11,4 @@ app/compiled-templates/
 compiled_templates/
 test/e2e/artifacts/
 app/data/history.sqlite
+.husky/_/husky.sh
