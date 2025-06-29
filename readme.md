@@ -193,6 +193,9 @@ node dist/app/ts/cli.js --download-model
 node dist/app/ts/cli.js --suggest "short tech names" --suggest-count 5
 ```
 
+If a lookup fails, the result for that domain is still included with
+`status` set to `error` and an empty `whoisreply` field.
+
 ### Notes on errors
 
 Errors during bulk lookups are pretty common due to sheer request volume, this means that you'll have requests periodically getting blocked, rejected, throttled or delayed (might result in false negatives, false positives in rare cases or errors). Errors may and usually signal that a domain is already registered, at times you can assume that but take into account the domain name, tld and probability of it being registered. Whoisdigger includes assumptions settings that you can tweak for specific scenarios, see assumptions below for more.

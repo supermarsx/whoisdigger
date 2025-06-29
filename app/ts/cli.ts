@@ -75,11 +75,15 @@ export async function lookupDomains(opts: CliOptions): Promise<WhoisResult[]> {
 
   const results: WhoisResult[] = [];
   for (const domain of domains) {
-    const data = await whoisLookup(domain);
-    const json = toJSON(data) as Record<string, unknown>;
-    const status = isDomainAvailable(data);
-    const params = getDomainParameters(domain, status, data, json);
-    results.push(params);
+    try {
+      const data = await whoisLookup(domain);
+      const json = toJSON(data) as Record<string, unknown>;
+      const status = isDomainAvailable(data);
+      const params = getDomainParameters(domain, status, data, json);
+      results.push(params);
+    } catch {
+      results.push({ domain, status: 'error', whoisreply: '' });
+    }
   }
   return results;
 }
