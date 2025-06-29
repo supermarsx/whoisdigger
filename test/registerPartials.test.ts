@@ -22,7 +22,7 @@ const partialNames = [
   'modals'
 ];
 
-jest.mock('handlebars/runtime.js', () => {
+jest.mock('../app/vendor/handlebars.runtime.js', () => {
   const template = jest.fn((pre: any) => `compiled-${pre.name}`);
   const registerPartial = jest.fn();
   return { __esModule: true, default: { template, registerPartial } };
@@ -39,7 +39,7 @@ for (const name of partialNames) {
   );
 }
 
-const handlebars = require('handlebars/runtime.js').default;
+const handlebars = require('../app/vendor/handlebars.runtime.js').default;
 const { registerPartials } = require('../app/ts/renderer/registerPartials');
 
 describe('registerPartials', () => {

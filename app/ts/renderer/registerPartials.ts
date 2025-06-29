@@ -1,4 +1,4 @@
-import Handlebars from 'handlebars/runtime.js';
+import Handlebars from '../../vendor/handlebars.runtime.js';
 
 import bwEntry from '../../compiled-templates/bwEntry.js';
 import bwExport from '../../compiled-templates/bwExport.js';

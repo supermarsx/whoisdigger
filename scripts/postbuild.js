@@ -12,7 +12,15 @@ import './create-esm-links.js';
 const baseDir = dirnameCompat();
 const debug = debugModule('postbuild');
 
-const folders = ['html', 'html/templates', 'fonts', 'icons', 'compiled-templates', 'locales'];
+const folders = [
+  'html',
+  'html/templates',
+  'fonts',
+  'icons',
+  'compiled-templates',
+  'locales',
+  'vendor'
+];
 const rootDir = path.join(baseDir, '..');
 const appDir = path.join(rootDir, 'app');
 const distDir = path.join(rootDir, 'dist', 'app');
