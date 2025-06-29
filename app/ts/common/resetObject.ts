@@ -8,7 +8,7 @@ const defaultValue = {};
     defaultObject (object) - default object
  */
 export function resetObj<T>(defaultObject: T = defaultValue as T): T {
-  return JSON.parse(JSON.stringify(defaultObject));
+  return structuredClone(defaultObject);
 }
 
 export const resetObject = resetObj; // extended function alias
