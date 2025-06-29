@@ -8,5 +8,6 @@ settings.json
 reload.json
 .DS_Store
 app/compiled-templates/
+compiled_templates/
 test/e2e/artifacts/
 app/data/history.sqlite
