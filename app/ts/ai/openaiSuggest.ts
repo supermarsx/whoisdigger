@@ -3,7 +3,15 @@ import { settings } from '../common/settings.js';
 
 const debug = debugModule('ai.openaiSuggest');
 
+async function ensureFetch(): Promise<void> {
+  if (typeof globalThis.fetch === 'undefined') {
+    const { default: fetchImpl } = await import('node-fetch');
+    (globalThis as any).fetch = fetchImpl as unknown as typeof fetch;
+  }
+}
+
 export async function suggestWords(prompt: string, count: number): Promise<string[]> {
+  await ensureFetch();
   const { url, apiKey } = settings.ai.openai ?? {};
   if (!url || !apiKey) {
     debug('OpenAI API disabled');
