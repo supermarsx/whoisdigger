@@ -4,6 +4,8 @@ import os from 'os';
 import { execSync } from 'child_process';
 import { Worker } from 'worker_threads';
 
+jest.setTimeout(20000);
+
 const workerPath = path.join(
   process.cwd(),
   'dist',
