@@ -1,9 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { dirnameCompat } from '../utils/dirnameCompat.js';
-import { app, ipcRenderer } from 'electron';  // Correctly use Electron API
-import * as remote from '@electron/remote';  // Import remote as a whole
+import { app, ipcRenderer } from 'electron'; // Correctly use Electron API
+import * as remote from '@electron/remote'; // Import remote as a whole
 import debugModule from 'debug';
+import appDefaults from '../appsettings.js';
 const debug = debugModule('common.settings');
 
 let watcher: fs.FSWatcher | undefined;
@@ -60,35 +61,8 @@ export interface Settings {
 
 const baseDir = dirnameCompat();
 
-// Dynamically resolve paths
-const localAppSettings = path.join(baseDir, 'appsettings.js');
-const parentAppSettings = path.join(baseDir, '..', 'appsettings.js');
-
-// Check for existence and load the correct module
-let rawModule: { settings: Settings } | any;
-
-try {
-  debug('Checking if appsettings exists...');
-  rawModule = fs.existsSync(`${localAppSettings}.ts`)
-    ? await import(`${localAppSettings}.ts`)  // .ts extension for TypeScript source
-    : fs.existsSync(`${localAppSettings}.js`)
-      ? await import(`${localAppSettings}.js`)  // .js extension if compiled to JS
-      : fs.existsSync(`${parentAppSettings}.ts`)
-        ? await import(`${parentAppSettings}.ts`)  // Look in parent folder if not in local folder
-        : await import(`${parentAppSettings}.js`);  // Fallback to .js in parent folder
-  debug('Successfully loaded appsettings:', rawModule);
-} catch (err) {
-  debug('Error loading appsettings:', err);
-  throw new Error('Appsettings module could not be loaded');
-}
-
-if (!rawModule || !rawModule.settings) {
-  debug('rawModule does not contain "settings". Contents:', rawModule);
-  throw new Error('Settings module could not be loaded or does not contain "settings"');
-}
-
-const settingsModule: { settings: Settings } = rawModule.settings ? rawModule : rawModule.default;
-let { settings } = settingsModule;
+// Static import of application defaults
+let settings: Settings = appDefaults.settings as Settings;
 const defaultSettings: Settings = JSON.parse(JSON.stringify(settings));
 const defaultCustomConfiguration = settings.customConfiguration;
 export { settings };
@@ -104,7 +78,7 @@ export default settings;
   Detect if running in the main Electron process
  */
 const isMainProcess = (() => {
-  if (Electron.app === undefined) {  // Correct use of Electron namespace
+  if (app === undefined) {
     debug('Is renderer');
     return false;
   } else {
