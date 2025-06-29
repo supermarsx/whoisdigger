@@ -16,4 +16,11 @@ describe('resetObj', () => {
     expect(second).toEqual({});
     expect(second).not.toBe(first);
   });
+
+  test('preserves Date instances', () => {
+    const original = { d: new Date('2020-01-01T00:00:00Z') };
+    const copy = resetObj(original);
+    expect(copy).toEqual(original);
+    expect(Object.prototype.toString.call(copy.d)).toBe('[object Date]');
+  });
 });
