@@ -122,7 +122,7 @@ app.on('ready', async function () {
       backgroundThrottling: webPreferences.backgroundThrottling, // Whether to throttle animations and timers when the page becomes background
       offscreen: webPreferences.offscreen, // enable offscreen rendering for the browser window
       spellcheck: webPreferences.spellcheck, // Enable builtin spellchecker
-      preload: path.join(baseDir, 'preload.js')
+      preload: path.resolve(baseDir, 'preload.js')
     }
   });
 
@@ -131,7 +131,7 @@ app.on('ready', async function () {
   // mainWindow, Main window URL load
   const loadPath = path.isAbsolute(appUrl.pathname)
     ? path.normalize(appUrl.pathname)
-    : path.join(baseDir, appUrl.pathname);
+    : path.resolve(baseDir, appUrl.pathname);
   mainWindow.loadFile(loadPath);
 
   // Some more debugging messages
