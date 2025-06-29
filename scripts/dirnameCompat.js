@@ -6,6 +6,13 @@ export function dirnameCompat(metaUrl) {
   if (typeof globalDir === 'string') {
     return globalDir;
   }
+  if (metaUrl) {
+    try {
+      return path.dirname(fileURLToPath(metaUrl));
+    } catch {
+      /* ignore */
+    }
+  }
   if (typeof __dirname !== 'undefined') {
     return __dirname;
   }
