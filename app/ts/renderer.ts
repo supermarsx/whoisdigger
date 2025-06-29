@@ -1,7 +1,7 @@
 // Base path --> assets/html
 import $ from '../vendor/jquery.js';
 
-import './renderer/index';
+import './renderer/index.js';
 import { loadSettings, settings, customSettingsLoaded } from './common/settings.js';
 import { loadTranslations, registerTranslationHelpers } from './renderer/i18n.js';
 import { formatString } from './common/stringformat.js';
