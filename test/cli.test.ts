@@ -40,6 +40,13 @@ describe('cli utility', () => {
     expect(results[0].whoisreply).toBe('data');
   });
 
+  test('lookupDomains handles lookup errors', async () => {
+    mockLookup.mockRejectedValueOnce(new Error('fail'));
+    const opts: CliOptions = { domains: ['bad.com'], tlds: ['com'], format: 'txt' };
+    const results = await lookupDomains(opts);
+    expect(results).toEqual([{ domain: 'bad.com', status: 'error', whoisreply: '' }]);
+  });
+
   test('exportResults writes csv output', async () => {
     const file = path.join(__dirname, 'out.csv');
     const opts: CliOptions = { domains: [], tlds: ['com'], format: 'csv', out: file };
