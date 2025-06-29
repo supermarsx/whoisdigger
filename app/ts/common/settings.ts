@@ -3,9 +3,9 @@ import * as path from 'path';
 import { dirnameCompat } from '../utils/dirnameCompat.js';
 import { app, ipcRenderer } from 'electron'; // Correctly use Electron API
 import * as remote from '@electron/remote'; // Import remote as a whole
-import debugModule from 'debug';
+import { debugFactory } from './logger.js';
 import appDefaults from '../appsettings.js';
-const debug = debugModule('common.settings');
+const debug = debugFactory('common.settings');
 
 let watcher: fs.FSWatcher | undefined;
 

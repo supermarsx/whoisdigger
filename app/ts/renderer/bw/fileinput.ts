@@ -2,8 +2,8 @@ import * as conversions from '../../common/conversions.js';
 import fs from 'fs';
 import path from 'path';
 import type { FileStats } from '../../common/fileStats.js';
-import debugModule from 'debug';
-const debug = debugModule('renderer.bw.fileinput');
+import { debugFactory } from '../../common/logger.js';
+const debug = debugFactory('renderer.bw.fileinput');
 
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
