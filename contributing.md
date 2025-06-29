@@ -18,7 +18,7 @@ If the tests pass and no breaking changes are found, the update can be merged.
 
 ## Automatic formatting
 
-A pre-commit hook runs `npm run format` to automatically format staged files. You can also run the formatter manually:
+A pre-commit hook, managed by `simple-git-hooks`, runs `npm run format` to automatically format staged files. You can also run the formatter manually:
 
 ```bash
 npm run format

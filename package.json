@@ -25,7 +25,7 @@
     "test": "jest",
     "test:e2e": "node test/e2e/run.js",
     "prebuild": "node scripts/prebuild.js",
-    "prepare": "husky install",
+    "postinstall": "simple-git-hooks",
     "clean": "rimraf dist release_builds app/compiled-templates",
     "pretest": "node scripts/prebuild.js"
   },
@@ -87,7 +87,7 @@
     "electronmon": "^2.0.3",
     "eslint": "^9.29.0",
     "eslint-config-prettier": "^10.1.5",
-    "husky": "^9.1.7",
+    "simple-git-hooks": "^2.8.1",
     "jest": "^30.0.3",
     "jest-environment-jsdom": "^30.0.2",
     "postcss": "^8.5.6",
@@ -106,5 +106,8 @@
     "patterns": [
       "!dist/app/data/**"
     ]
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npm run format"
   }
 }
