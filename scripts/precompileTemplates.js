@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { dirnameCompat } from './dirnameCompat.js';
-import { fileURLToPath } from 'url';
 
 const baseDir = dirnameCompat();
 
@@ -31,14 +30,7 @@ export function precompileTemplates(
   }
 }
 
-let moduleUrl;
-try {
-  moduleUrl = eval('import.meta.url');
-} catch {
-  moduleUrl = undefined;
-}
-
-if (moduleUrl && process.argv[1] === fileURLToPath(moduleUrl)) {
+if (path.basename(process.argv[1] || '') === 'precompileTemplates.js') {
   const dir = process.argv[2];
   precompileTemplates(dir && path.resolve(dir));
 }
