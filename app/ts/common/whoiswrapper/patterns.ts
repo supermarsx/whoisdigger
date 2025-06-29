@@ -406,7 +406,8 @@ export function buildPatterns(): void {
   builtPatterns.unavailable = [];
   builtPatterns.error = [];
 
-  for (const spec of Object.values(patterns.special)) {
+  for (const key of Object.keys(patterns.special).sort((a, b) => Number(a) - Number(b))) {
+    const spec = patterns.special[key as keyof typeof patterns.special];
     const res =
       typeof spec !== 'string' && !Array.isArray(spec) && spec.result !== undefined
         ? spec.result
@@ -417,13 +418,15 @@ export function buildPatterns(): void {
   const avail = patterns.available;
   for (const cat of ['notfound', 'nomatch', 'available', 'unique'] as const) {
     const group = avail[cat];
-    for (const spec of Object.values(group)) {
+    for (const key of Object.keys(group).sort((a, b) => Number(a) - Number(b))) {
+      const spec = group[key as keyof typeof group];
       builtPatterns.available.push(compileSpec(spec, 'available'));
     }
   }
 
   const unav = patterns.unavailable;
-  for (const spec of Object.values(unav)) {
+  for (const key of Object.keys(unav).sort((a, b) => Number(a) - Number(b))) {
+    const spec = unav[key as keyof typeof unav];
     builtPatterns.unavailable.push(compileSpec(spec, 'unavailable'));
   }
 
@@ -436,7 +439,8 @@ export function buildPatterns(): void {
   for (const groupKey in err) {
     const group = err[groupKey as keyof typeof err];
     const res = errMap[groupKey];
-    for (const spec of Object.values(group)) {
+    for (const key of Object.keys(group).sort((a, b) => Number(a) - Number(b))) {
+      const spec = group[key as keyof typeof group];
       builtPatterns.error.push(compileSpec(spec, res));
     }
   }

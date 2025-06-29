@@ -36,4 +36,13 @@ describe('whois patterns', () => {
   test('returns error for empty replies', () => {
     expect(checkPatterns('')).toBe('error:nocontent');
   });
+
+  test('patterns are built in numeric order', () => {
+    const ctxBase = { resultsJSON: {}, domainParams: {} as any, controlDate: undefined };
+    const samples = ['NOT FOUND', 'Not found: ', ' not found'];
+    samples.forEach((text, idx) => {
+      const ctx = { ...ctxBase, resultsText: text } as any;
+      expect(builtPatterns.available[idx].fn(ctx)).toBe(true);
+    });
+  });
 });
