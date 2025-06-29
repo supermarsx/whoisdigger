@@ -1,4 +1,4 @@
-const Handlebars = require('handlebars/runtime.js').default;
+import Handlebars from 'handlebars/runtime.js';
 
 import bwEntry from '../../compiled-templates/bwEntry.js';
 import bwExport from '../../compiled-templates/bwExport.js';

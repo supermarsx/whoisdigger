@@ -3,7 +3,7 @@ import path from 'path';
 import { dirnameCompat } from '../utils/dirnameCompat.js';
 
 const baseDir = dirnameCompat();
-const Handlebars = require('handlebars/runtime.js').default;
+import Handlebars from 'handlebars/runtime.js';
 
 let translations: Record<string, string> = {};
 
