@@ -1,8 +1,9 @@
 import { app, BrowserWindow, Menu, ipcMain, dialog } from 'electron';
 import * as path from 'path';
-import { dirnameCompat } from './utils/dirnameCompat.js';
+import { fileURLToPath } from 'url';
 
-const baseDir = dirnameCompat();
+const __filename = fileURLToPath(import.meta.url);
+const baseDir = path.dirname(__filename);
 import debugModule from 'debug';
 import { loadSettings, settings as store } from './common/settings.js';
 import type { Settings as BaseSettings } from './common/settings.js';
