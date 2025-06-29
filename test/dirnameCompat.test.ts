@@ -25,4 +25,9 @@ describe('dirnameCompat', () => {
     const result = dirnameCompat();
     expect(result).toBe(expected);
   });
+
+  test('resolves using provided metaUrl when in ESM context', () => {
+    const result = dirnameCompat('file:///tmp/foo/bar.js');
+    expect(result).toBe('/tmp/foo');
+  });
 });

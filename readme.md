@@ -220,16 +220,18 @@ Run `npm run format` before committing to apply Prettier formatting. CI will ver
 
 Modules within Whoisdigger may execute in both CommonJS and ESM contexts. Use
 `dirnameCompat()` from `app/ts/utils/dirnameCompat.ts` to obtain a directory
-name that works in either environment:
+name that works in either environment. Pass `import.meta.url` when calling from
+an ES module:
 
 ```ts
 import { dirnameCompat } from './utils/dirnameCompat';
-const __dirname = dirnameCompat();
+const __dirname = dirnameCompat(import.meta.url);
 ```
 
-The helper checks for a globally defined `__dirname` or the module
-`__dirname`, then tries `__filename`, `process.mainModule?.filename` or
-`process.argv[1]` before falling back to `process.cwd()`.
+The helper checks for a globally defined `__dirname`, falls back to the provided
+`import.meta.url` (or the current module's `__dirname` in CommonJS), then tries
+`__filename`, `process.mainModule?.filename` or `process.argv[1]` before
+falling back to `process.cwd()`.
 
 ## Settings
 

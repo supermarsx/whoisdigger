@@ -1,10 +1,17 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-export function dirnameCompat(metaUrl?: string): string {
+export function dirnameCompat(metaUrl?: string | URL): string {
   const globalDir = (global as any).__dirname;
   if (typeof globalDir === 'string') {
     return globalDir;
+  }
+  if (metaUrl) {
+    try {
+      return path.dirname(fileURLToPath(metaUrl));
+    } catch {
+      /* ignore */
+    }
   }
   if (typeof __dirname !== 'undefined') {
     return __dirname;
