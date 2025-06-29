@@ -3,6 +3,7 @@ import path from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import JSZip from 'jszip';
+import debugModule from 'debug';
 import { lookup as whoisLookup } from './common/lookup.js';
 import { settings } from './common/settings.js';
 import { purgeExpired, clearCache } from './common/requestCache.js';
@@ -11,6 +12,8 @@ import { toJSON } from './common/parser.js';
 import { generateFilename } from './main/bw/export.js';
 import { downloadModel } from './ai/modelDownloader.js';
 import { suggestWords } from './ai/openaiSuggest.js';
+
+const debug = debugModule('cli');
 
 export interface CliOptions {
   domains: string[];
@@ -143,7 +146,8 @@ if (require.main === module) {
     if (opts.suggest) {
       const words = await suggestWords(opts.suggest, opts.suggestCount ?? 5);
       for (const w of words) {
-        console.log(w);
+        console.info(w);
+        debug(w);
       }
       return;
     }
@@ -154,21 +158,25 @@ if (require.main === module) {
         return;
       }
       await downloadModel(url, settings.ai.modelPath);
-      console.log('Model downloaded');
+      console.info('Model downloaded');
+      debug('Model downloaded');
       return;
     }
     if (opts.purgeCache || opts.clearCache) {
       if (opts.clearCache) {
         clearCache();
-        console.log('Cache cleared');
+        console.info('Cache cleared');
+        debug('Cache cleared');
       } else {
         const purged = purgeExpired();
-        console.log(`Purged ${purged} expired entries`);
+        console.info(`Purged ${purged} expired entries`);
+        debug(`Purged ${purged} expired entries`);
       }
       return;
     }
     const results = await lookupDomains(opts);
     const outPath = await exportResults(results, opts);
-    console.log(`Results written to ${path.resolve(outPath)}`);
+    console.info(`Results written to ${path.resolve(outPath)}`);
+    debug(`Results written to ${path.resolve(outPath)}`);
   })();
 }
