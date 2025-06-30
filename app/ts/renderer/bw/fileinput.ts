@@ -1,6 +1,4 @@
 import * as conversions from '../../common/conversions.js';
-import fs from 'fs';
-import path from 'path';
 import type { FileStats } from '../../common/fileStats.js';
 import { debugFactory } from '../../common/logger.js';
 const debug = debugFactory('renderer.bw.fileinput');
@@ -9,6 +7,10 @@ const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
+  readFile: (p: string, opts?: any) => Promise<any>;
+  stat: (p: string) => Promise<any>;
+  watch: (p: string, opts: any, cb: (evt: string) => void) => Promise<{ close: () => void }>;
+  path: { basename: (p: string) => string };
 };
 import { tableReset } from './auxiliary.js';
 import $ from '../../../vendor/jquery.js';
@@ -17,7 +19,7 @@ import { formatString } from '../../common/stringformat.js';
 import { settings } from '../../common/settings.js';
 
 let bwFileContents: Buffer;
-let bwFileWatcher: fs.FSWatcher | undefined;
+let bwFileWatcher: { close: () => void } | undefined;
 
 async function refreshBwFile(pathToFile: string): Promise<void> {
   try {
@@ -27,10 +29,10 @@ async function refreshBwFile(pathToFile: string): Promise<void> {
         timeBetween: settings.lookupRandomizeTimeBetween
       }
     };
-    const bwFileStats = (await fs.promises.stat(pathToFile)) as FileStats;
-    bwFileStats.filename = path.basename(pathToFile);
+    const bwFileStats = (await electron.stat(pathToFile)) as FileStats;
+    bwFileStats.filename = electron.path.basename(pathToFile);
     bwFileStats.humansize = conversions.byteToHumanFileSize(bwFileStats.size, misc.useStandardSize);
-    bwFileContents = await fs.promises.readFile(pathToFile);
+    bwFileContents = await electron.readFile(pathToFile);
     bwFileStats.linecount = bwFileContents.toString().split('\n').length;
 
     if (lookup.randomize.timeBetween.randomize === true) {
@@ -114,14 +116,14 @@ electron.on(
         $('#bwEntry').addClass('is-hidden');
         $('#bwFileinputloading').removeClass('is-hidden');
         try {
-          bwFileStats = (await fs.promises.stat(filePath as string)) as FileStats;
-          bwFileStats.filename = path.basename(filePath as string);
+          bwFileStats = (await electron.stat(filePath as string)) as FileStats;
+          bwFileStats.filename = electron.path.basename(filePath as string);
           bwFileStats.humansize = conversions.byteToHumanFileSize(
             bwFileStats.size,
             misc.useStandardSize
           );
           $('#bwFileSpanInfo').text('Loading file contents...');
-          bwFileContents = await fs.promises.readFile(filePath as string);
+          bwFileContents = await electron.readFile(filePath as string);
         } catch (e) {
           electron.send('app:error', `Failed to read file: ${e}`);
           $('#bwFileSpanInfo').text('Failed to load file');
@@ -129,14 +131,14 @@ electron.on(
         }
       } else {
         try {
-          bwFileStats = (await fs.promises.stat((filePath as string[])[0])) as FileStats;
-          bwFileStats.filename = path.basename((filePath as string[])[0]);
+          bwFileStats = (await electron.stat((filePath as string[])[0])) as FileStats;
+          bwFileStats.filename = electron.path.basename((filePath as string[])[0]);
           bwFileStats.humansize = conversions.byteToHumanFileSize(
             bwFileStats.size,
             misc.useStandardSize
           );
           $('#bwFileSpanInfo').text('Loading file contents...');
-          bwFileContents = await fs.promises.readFile((filePath as string[])[0]);
+          bwFileContents = await electron.readFile((filePath as string[])[0]);
         } catch (e) {
           electron.send('app:error', `Failed to read file: ${e}`);
           $('#bwFileSpanInfo').text('Failed to load file');
@@ -192,7 +194,7 @@ electron.on(
       debug(bwFileStats.linecount);
 
       if (chosenPath) {
-        bwFileWatcher = fs.watch(chosenPath, { persistent: false }, (evt) => {
+        bwFileWatcher = await electron.watch(chosenPath, { persistent: false }, (evt: string) => {
           if (evt === 'change') void refreshBwFile(chosenPath);
         });
       }

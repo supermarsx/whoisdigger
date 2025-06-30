@@ -1,5 +1,4 @@
 import * as conversions from '../../common/conversions.js';
-import fs from 'fs';
 import Papa from 'papaparse';
 import datatables from 'datatables';
 const dt = datatables();

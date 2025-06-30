@@ -42,7 +42,14 @@ beforeEach(() => {
     invoke: invokeMock,
     openPath: openPathMock,
     send: jest.fn(),
-    on: jest.fn()
+    on: jest.fn(),
+    path: { join: (...args: string[]) => require('path').join(...args) },
+    readdir: jest.fn(async () => []),
+    stat: jest.fn(async () => ({ size: 0, mtime: new Date(), atime: new Date() })),
+    access: jest.fn(async () => {}),
+    exists: jest.fn(async () => false),
+    unlink: jest.fn(async () => {}),
+    watch: jest.fn(async () => ({ close: () => {} }))
   };
   invokeMock.mockClear();
   openPathMock.mockClear();

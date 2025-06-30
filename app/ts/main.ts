@@ -74,7 +74,7 @@ interface MainSettings extends BaseSettings {
   [key: string]: any;
 }
 
-import './main/index.js';
+import './main/fsIpc.js';
 
 let settings: MainSettings;
 let mainWindow: BrowserWindow;

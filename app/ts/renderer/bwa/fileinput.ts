@@ -1,34 +1,28 @@
 import * as conversions from '../../common/conversions.js';
-import fs from 'fs';
 import type { FileStats } from '../../common/fileStats.js';
 import Papa from 'papaparse';
 import datatables from 'datatables';
 const dt = datatables();
-import path from 'path';
 import { settings } from '../../common/settings.js';
 
-const electron = (window as any).electron as {
-  send: (channel: string, ...args: any[]) => void;
-  invoke: (channel: string, ...args: any[]) => Promise<any>;
-  on: (channel: string, listener: (...args: any[]) => void) => void;
-};
+const electron = (window as any).electron as { send: (channel: string, ...args: any[]) => void; invoke: (channel: string, ...args: any[]) => Promise<any>; on: (channel: string, listener: (...args: any[]) => void) => void; readFile: (p: string, opts?: any) => Promise<any>; stat: (p: string) => Promise<any>; watch: (p: string, opts: any, cb: (evt: string) => void) => Promise<{ close: () => void }>; path: { basename: (p: string) => string }; };
 import $ from '../../../vendor/jquery.js';
 
 import { formatString } from '../../common/stringformat.js';
 
 let bwaFileContents: any;
-let bwaFileWatcher: fs.FSWatcher | undefined;
+let bwaFileWatcher: { close: () => void } | undefined;
 
 async function refreshBwaFile(pathToFile: string): Promise<void> {
   try {
-    const bwaFileStats = (await fs.promises.stat(pathToFile)) as FileStats;
-    bwaFileStats.filename = path.basename(pathToFile);
+    const bwaFileStats = (await electron.stat(pathToFile)) as FileStats;
+    bwaFileStats.filename = electron.path.basename(pathToFile);
     bwaFileStats.humansize = conversions.byteToHumanFileSize(
       bwaFileStats.size,
       settings.lookupMisc.useStandardSize
     );
     bwaFileContents = Papa.parse(
-      (await fs.promises.readFile(pathToFile)).toString(),
+      (await electron.readFile(pathToFile)).toString(),
       { header: true }
     );
     bwaFileStats.linecount = bwaFileContents.data.length;
@@ -86,15 +80,15 @@ electron.on(
         $('#bwaEntry').addClass('is-hidden');
         $('#bwaFileinputloading').removeClass('is-hidden');
         try {
-          bwaFileStats = fs.statSync(filePath as string) as FileStats;
-          bwaFileStats.filename = path.basename(filePath as string);
+          bwaFileStats = await electron.stat(filePath as string) as FileStats;
+          bwaFileStats.filename = electron.path.basename(filePath as string);
           bwaFileStats.humansize = conversions.byteToHumanFileSize(
             bwaFileStats.size,
             settings.lookupMisc.useStandardSize
           );
           $('#bwaFileSpanInfo').text('Loading file contents...');
           bwaFileContents = Papa.parse(
-            (await fs.promises.readFile(filePath as string)).toString(),
+            (await electron.readFile(filePath as string)).toString(),
             {
               header: true
             }
@@ -106,15 +100,15 @@ electron.on(
         }
       } else {
         try {
-          bwaFileStats = fs.statSync((filePath as string[])[0]) as FileStats;
-          bwaFileStats.filename = path.basename((filePath as string[])[0]);
+          bwaFileStats = await electron.stat((filePath as string[])[0]) as FileStats;
+          bwaFileStats.filename = electron.path.basename((filePath as string[])[0]);
           bwaFileStats.humansize = conversions.byteToHumanFileSize(
             bwaFileStats.size,
             settings.lookupMisc.useStandardSize
           );
           $('#bwaFileSpanInfo').text('Loading file contents...');
           bwaFileContents = Papa.parse(
-            (await fs.promises.readFile((filePath as string[])[0])).toString(),
+            (await electron.readFile((filePath as string[])[0])).toString(),
             {
               header: true
             }
@@ -151,7 +145,7 @@ electron.on(
       $('#bwaFileTextareaErrors').text(String(bwaFileStats.errors || 'No errors'));
       //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']);
       if (chosenPath) {
-        bwaFileWatcher = fs.watch(chosenPath, { persistent: false }, (evt) => {
+        bwaFileWatcher = await electron.watch(chosenPath, { persistent: false }, (evt: string) => {
           if (evt === 'change') void refreshBwaFile(chosenPath);
         });
       }

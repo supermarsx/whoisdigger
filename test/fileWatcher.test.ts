@@ -2,29 +2,18 @@
 
 import { EventEmitter } from 'events';
 import jQuery from 'jquery';
-
+import path from 'path';
 const ipc = new EventEmitter() as any;
 ipc.send = jest.fn();
-
 const watchEmitter = new EventEmitter() as any;
 watchEmitter.close = jest.fn();
 
 const statMock = jest.fn();
 const readFileMock = jest.fn();
-const statSyncMock = jest.fn();
-const readFileSyncMock = jest.fn();
-const watchMock = jest.fn((path: string, options: any, listener?: (...args: any[]) => void) => {
+const watchMock = jest.fn(async (p: string, _o: any, listener?: (...args: any[]) => void) => {
   if (listener) watchEmitter.on('change', listener);
-  return watchEmitter;
+  return { close: watchEmitter.close };
 });
-
-jest.mock('fs', () => ({
-  ...jest.requireActual('fs'),
-  promises: { stat: statMock, readFile: readFileMock },
-  statSync: statSyncMock,
-  readFileSync: readFileSyncMock,
-  watch: watchMock
-}));
 
 jest.mock('electron', () => ({
   ipcRenderer: {
@@ -39,15 +28,16 @@ beforeAll(() => {
     on: (channel: string, listener: (...args: any[]) => void) => ipc.on(channel, listener),
     send: ipc.send,
     invoke: jest.fn(),
-    openPath: jest.fn()
+    openPath: jest.fn(),
+    stat: statMock,
+    readFile: readFileMock,
+    watch: watchMock,
+    path: { basename: path.basename, join: path.join }
   };
 });
-
 beforeEach(() => {
   statMock.mockReset();
   readFileMock.mockReset();
-  statSyncMock.mockReset();
-  readFileSyncMock.mockReset();
   watchMock.mockClear();
   (watchEmitter.close as jest.Mock).mockClear();
 });
@@ -72,12 +62,6 @@ test('bw watcher updates table on change', async () => {
   } as any;
   statMock.mockResolvedValue(initialStats);
   readFileMock.mockResolvedValue(Buffer.from('a\nb\n'));
-  statSyncMock.mockReturnValue({
-    size: 20,
-    mtime: new Date('2020-01-02'),
-    atime: new Date('2020-01-02')
-  } as any);
-  readFileSyncMock.mockReturnValue(Buffer.from('a\nb\nc\n'));
 
   jest.isolateModules(() => {
     require('../app/ts/renderer/bw/fileinput');
@@ -119,12 +103,6 @@ test('bwa watcher updates table on change', async () => {
   } as any;
   statMock.mockResolvedValue(initialStats);
   readFileMock.mockResolvedValue(Buffer.from('a,b\n1,2\n3,4\n'));
-  statSyncMock.mockReturnValue({
-    size: 8,
-    mtime: new Date('2020-03-02'),
-    atime: new Date('2020-03-02')
-  } as any);
-  readFileSyncMock.mockReturnValue(Buffer.from('a,b\n1,2\n3,4\n5,6\n'));
 
   jest.isolateModules(() => {
     require('../app/ts/renderer/bwa/fileinput');

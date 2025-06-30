@@ -1,16 +1,18 @@
-import fs from 'fs';
-import path from 'path';
 import { dirnameCompat } from '../utils/dirnameCompat.js';
 
 const baseDir = dirnameCompat();
 import Handlebars from '../../vendor/handlebars.runtime.js';
 
+const electron = (window as any).electron as {
+  readFile: (p: string, enc?: any) => Promise<any>;
+  path: { join: (...args: string[]) => string };
+};
 let translations: Record<string, string> = {};
 
 export async function loadTranslations(lang: string): Promise<void> {
-  const file = path.join(baseDir, '..', 'locales', `${lang}.json`);
+  const file = electron.path.join(baseDir, '..', 'locales', `${lang}.json`);
   try {
-    const raw = await fs.promises.readFile(file, 'utf8');
+    const raw = await electron.readFile(file, 'utf8');
     translations = JSON.parse(raw);
   } catch {
     translations = {};
