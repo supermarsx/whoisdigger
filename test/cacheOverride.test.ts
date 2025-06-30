@@ -5,7 +5,7 @@ import whois from 'whois';
 import dns from 'dns/promises';
 import { lookup } from '../app/ts/common/lookup';
 import { nsLookup } from '../app/ts/common/dnsLookup';
-import { settings, getUserDataPath } from '../app/ts/common/settings';
+import { settings, getUserDataPath } from '../app/ts/renderer/settings-renderer';
 
 describe('cache override', () => {
   const dbFile = 'override-cache.sqlite';

@@ -1,7 +1,7 @@
 import { performance } from 'perf_hooks';
 import defaultBulkWhois from '../app/ts/main/bw/process.defaults';
 import { processData } from '../app/ts/main/bw/resultHandler';
-import { settings } from '../app/ts/common/settings';
+import { settings } from '../app/ts/main/settings-main';
 
 jest.mock('../app/ts/common/availability', () => ({
   isDomainAvailable: jest.fn(),

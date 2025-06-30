@@ -15,7 +15,7 @@ jest.mock('electron', () => ({
   clipboard: { writeText: jest.fn() }
 }));
 
-import { settings } from '../app/ts/common/settings';
+import { settings } from '../app/ts/main/settings-main';
 import '../app/ts/main/singlewhois';
 
 describe('openUrl', () => {

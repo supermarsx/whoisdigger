@@ -16,7 +16,7 @@ import { tableReset } from './auxiliary.js';
 import $ from '../../../vendor/jquery.js';
 
 import { formatString } from '../../common/stringformat.js';
-import { settings } from '../../common/settings.js';
+import { settings } from '../settings-renderer.js';
 
 let bwFileContents: Buffer;
 let bwFileWatcher: { close: () => void } | undefined;

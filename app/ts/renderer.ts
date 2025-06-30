@@ -2,7 +2,7 @@
 import $ from '../vendor/jquery.js';
 
 import './renderer/index.js';
-import { loadSettings, settings, customSettingsLoaded } from './common/settings.js';
+import { loadSettings, settings, customSettingsLoaded } from './renderer/settings-renderer.js';
 import { loadTranslations, registerTranslationHelpers } from './renderer/i18n.js';
 import { formatString } from './common/stringformat.js';
 import { sendDebug, sendError } from './renderer/logger.js';

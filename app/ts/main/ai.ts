@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron';
 import debugModule from 'debug';
-import { settings } from '../common/settings.js';
+import { settings } from './settings-main.js';
 import { downloadModel } from '../ai/modelDownloader.js';
 import { suggestWords } from '../ai/openaiSuggest.js';
 

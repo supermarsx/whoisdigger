@@ -17,7 +17,7 @@ jest.mock('../app/ts/main/bw/resultHandler', () => ({
 import defaultBulkWhois from '../app/ts/main/bw/process.defaults';
 import { compileQueue, getDomainSetup } from '../app/ts/main/bw/queue';
 import { processDomain } from '../app/ts/main/bw/scheduler';
-import { settings } from '../app/ts/common/settings';
+import { settings } from '../app/ts/main/settings-main';
 
 const { processData } = require('../app/ts/main/bw/resultHandler');
 

@@ -15,8 +15,8 @@ jest.mock('worker_threads', () => ({
 
 const saveSettingsMock = jest.fn().mockResolvedValue('SAVED');
 
-jest.mock('../app/ts/common/settings', () => {
-  const actual = jest.requireActual('../app/ts/common/settings');
+jest.mock('../app/ts/renderer/settings-renderer', () => {
+  const actual = jest.requireActual('../app/ts/renderer/settings-renderer');
   return { ...actual, saveSettings: saveSettingsMock };
 });
 
@@ -59,7 +59,7 @@ beforeEach(() => {
 test('changing setting updates configuration', async () => {
   jQuery = require('../app/vendor/jquery.js');
   (window as any).$ = (window as any).jQuery = jQuery;
-  settingsModule = require('../app/ts/common/settings');
+  settingsModule = require('../app/ts/renderer/settings-renderer');
   require('../app/ts/renderer/options');
   jQuery.ready();
   const { settings } = settingsModule;

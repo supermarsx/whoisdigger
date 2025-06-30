@@ -9,7 +9,7 @@ import { formatString } from '../../common/stringformat.js';
 
 const { app, BrowserWindow, Menu, ipcMain, dialog, remote, shell } = electron;
 
-import { getSettings } from '../../common/settings.js';
+import { getSettings } from '../settings-main.js';
 import { generateFilename } from '../../cli/export.js';
 
 /*

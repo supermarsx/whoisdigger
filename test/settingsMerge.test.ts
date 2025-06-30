@@ -1,5 +1,5 @@
 import '../test/electronMock';
-import { mergeDefaults, settings } from '../app/ts/common/settings';
+import { mergeDefaults, settings } from '../app/ts/renderer/settings-renderer';
 
 describe('mergeDefaults', () => {
   test('overrides array values', () => {

@@ -5,7 +5,7 @@ const debug = debugModule('main.bw.fileinput');
 const { app, BrowserWindow, Menu, ipcMain, dialog } = electron;
 import { formatString } from '../../common/stringformat.js';
 
-import { getSettings } from '../../common/settings.js';
+import { getSettings } from '../settings-main.js';
 
 /*
   ipcMain.on('bw:input.file', function(...) {...});

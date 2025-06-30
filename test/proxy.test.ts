@@ -1,5 +1,5 @@
 import './electronMock';
-import { settings } from '../app/ts/common/settings';
+import { settings } from '../app/ts/renderer/settings-renderer';
 import { getProxy, resetProxyRotation } from '../app/ts/common/proxy';
 
 describe('proxy helper', () => {

@@ -1,5 +1,5 @@
 import * as conversions from '../../common/conversions.js';
-import { settings } from '../../common/settings.js';
+import { settings } from '../settings-renderer.js';
 
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;

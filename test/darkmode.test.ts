@@ -31,7 +31,7 @@ beforeEach(() => {
 async function loadDarkmode(): Promise<any> {
   jQuery = require('../app/vendor/jquery.js');
   (window as any).$ = (window as any).jQuery = jQuery;
-  const settingsModule = require('../app/ts/common/settings');
+  const settingsModule = require('../app/ts/renderer/settings-renderer');
   settingsModule.settings.theme.followSystem = true;
   settingsModule.settings.theme.darkMode = false;
   require('../app/ts/renderer/darkmode');

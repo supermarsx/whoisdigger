@@ -11,8 +11,8 @@ const debug = debugModule('main.singlewhois');
 const { app, Menu, ipcMain, dialog, remote, clipboard, shell } = electron;
 import { formatString } from '../common/stringformat.js';
 
-import { settings } from '../common/settings.js';
-import type { Settings } from '../common/settings.js';
+import { settings } from './settings-main.js';
+import type { Settings } from './settings-main.js';
 
 /*
   ipcMain.on('singlewhois:lookup', function(...) {...});

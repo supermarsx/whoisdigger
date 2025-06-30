@@ -1,5 +1,5 @@
 import '../test/electronMock';
-import { settings, getUserDataPath } from '../app/ts/common/settings';
+import { settings, getUserDataPath } from '../app/ts/renderer/settings-renderer';
 import { RequestCache } from '../app/ts/common/requestCache';
 import fs from 'fs';
 import path from 'path';

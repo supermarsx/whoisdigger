@@ -10,7 +10,7 @@ import { processDomain, counter } from './scheduler.js';
 import { resetObject } from '../../common/resetObject.js';
 import { resetUiCounters } from './auxiliary.js';
 
-import { getSettings } from '../../common/settings.js';
+import { getSettings } from '../settings-main.js';
 
 const { app, BrowserWindow, Menu, ipcMain, dialog, remote } = electron;
 import { formatString } from '../../common/stringformat.js';
