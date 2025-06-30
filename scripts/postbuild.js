@@ -24,6 +24,7 @@ const folders = [
 const rootDir = path.join(baseDir, '..');
 const appDir = path.join(rootDir, 'app');
 const distDir = path.join(rootDir, 'dist', 'app');
+const distRoot = path.join(rootDir, 'dist');
 
 for (const folder of folders) {
   const src = path.join(appDir, folder);
@@ -46,6 +47,26 @@ const bulmaSrc = path.join(rootDir, 'node_modules', 'bulma', 'css');
 const bulmaDest = path.join(distDir, 'css', 'bulma', 'css');
 if (fs.existsSync(bulmaSrc)) {
   copyRecursiveSync(bulmaSrc, bulmaDest);
+}
+
+// Move compiled TypeScript outputs to top-level dist folders
+const builtMain = path.join(distDir, 'ts', 'main');
+const builtRenderer = path.join(distDir, 'ts', 'renderer');
+const finalMain = path.join(distRoot, 'main');
+const finalRenderer = path.join(distRoot, 'renderer');
+const builtMainFile = path.join(distDir, 'ts', 'main.js');
+const finalMainFile = path.join(finalMain, 'main.js');
+fs.rmSync(finalMain, { recursive: true, force: true });
+fs.rmSync(finalRenderer, { recursive: true, force: true });
+if (fs.existsSync(builtMain)) {
+  fs.renameSync(builtMain, finalMain);
+}
+if (fs.existsSync(builtRenderer)) {
+  fs.renameSync(builtRenderer, finalRenderer);
+}
+if (fs.existsSync(builtMainFile)) {
+  fs.mkdirSync(finalMain, { recursive: true });
+  fs.renameSync(builtMainFile, finalMainFile);
 }
 
 // Precompile Handlebars templates into dist/app/compiled-templates
