@@ -46,7 +46,7 @@
     "@electron/packager": "^18.3.6",
     "@electron/remote": "^2.1.2",
     "@fortawesome/fontawesome-free": "^6.7.2",
-    "better-sqlite3": "^12.1.1",
+    "better-sqlite3": "^12.2.0",
     "bulma": "^1.0.4",
     "change-case": "^5.4.4",
     "cp": "^0.2.0",
