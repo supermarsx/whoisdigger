@@ -1,7 +1,7 @@
 import './electronMainMock';
 import fs from 'fs';
 import { ipcMainHandlers, mockShowSaveDialogSync, openPathMock } from './electronMainMock';
-import { settings } from '../app/ts/common/settings';
+import { settings } from '../app/ts/main/settings-main';
 import '../app/ts/main/bw/export';
 
 const results = {

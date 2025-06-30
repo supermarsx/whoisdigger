@@ -4,7 +4,9 @@ import '../test/electronMock';
 
 describe('settings partial load', () => {
   test('missing fields fall back to defaults', async () => {
-    const { loadSettings, settings, getUserDataPath } = await import('../app/ts/common/settings');
+    const { loadSettings, settings, getUserDataPath } = await import(
+      '../app/ts/renderer/settings-renderer'
+    );
     const dir = getUserDataPath();
     fs.mkdirSync(dir, { recursive: true });
 

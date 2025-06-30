@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { mockGetPath } from '../test/electronMock';
 
-import { loadSettings, settings } from '../app/ts/common/settings';
+import { loadSettings, settings } from '../app/ts/renderer/settings-renderer';
 
 describe('settings load', () => {
   test('falls back to defaults when config is corrupt', async () => {

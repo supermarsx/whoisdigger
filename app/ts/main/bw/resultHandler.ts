@@ -2,7 +2,7 @@ import debugModule from 'debug';
 import { isDomainAvailable, getDomainParameters } from '../../common/availability.js';
 import { toJSON } from '../../common/parser.js';
 import { performance } from 'perf_hooks';
-import { getSettings } from '../../common/settings.js';
+import { getSettings } from '../settings-main.js';
 import { formatString } from '../../common/stringformat.js';
 import type { BulkWhois, ProcessedResult } from './types.js';
 import * as dns from '../../common/dnsLookup.js';
