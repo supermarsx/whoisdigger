@@ -1,6 +1,6 @@
-import type { Stats } from 'fs';
+import fs from 'fs';
 
-export interface FileStats extends Stats {
+export interface FileStats extends fs.Stats {
   filename?: string;
   humansize?: string;
   linecount?: number;
