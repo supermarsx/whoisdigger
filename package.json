@@ -85,7 +85,7 @@
     "electron": "^37.1.0",
     "electron-chromedriver": "^37.0.0",
     "electronmon": "^2.0.3",
-    "eslint": "^9.29.0",
+    "eslint": "^9.30.0",
     "eslint-config-prettier": "^10.1.5",
     "simple-git-hooks": "^2.8.1",
     "jest": "^30.0.3",
