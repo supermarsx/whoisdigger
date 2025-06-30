@@ -6,16 +6,7 @@ const api = {
   on: (channel: string, listener: (...args: unknown[]) => void) => {
     ipcRenderer.on(channel, (_event, ...args) => listener(...args));
   },
-  openPath: (path: string) => shell.openPath(path),
-  fsReadFile: (file: string, encoding?: string) =>
-    ipcRenderer.invoke('fs:readFile', file, encoding),
-  fsStat: (file: string) => ipcRenderer.invoke('fs:stat', file),
-  fsReaddir: (dir: string) => ipcRenderer.invoke('fs:readdir', dir),
-  fsAccess: (file: string, mode?: number) => ipcRenderer.invoke('fs:access', file, mode),
-  fsUnlink: (file: string) => ipcRenderer.invoke('fs:unlink', file),
-  fsExists: (file: string) => ipcRenderer.invoke('fs:exists', file),
-  pathJoin: (...parts: string[]) => ipcRenderer.invoke('path:join', ...parts),
-  pathBasename: (p: string) => ipcRenderer.invoke('path:basename', p)
+  openPath: (path: string) => shell.openPath(path)
 };
 
 if (process.contextIsolated) {

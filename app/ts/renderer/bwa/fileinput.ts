@@ -1,4 +1,5 @@
 import * as conversions from '../../common/conversions.js';
+import fs from 'fs';
 import type { FileStats } from '../../common/fileStats.js';
 import Papa from 'papaparse';
 import datatables from 'datatables';
@@ -10,34 +11,26 @@ const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
-  fsReadFile: (file: string, encoding?: string) => Promise<string>;
-  fsStat: (file: string) => Promise<any>;
 };
 import $ from '../../../vendor/jquery.js';
 
 import { formatString } from '../../common/stringformat.js';
 
 let bwaFileContents: any;
-let bwaFileWatcher: any | undefined;
+let bwaFileWatcher: fs.FSWatcher | undefined;
 
 async function refreshBwaFile(pathToFile: string): Promise<void> {
   try {
-    const bwaFileStats = (
-      await (electron.fsStat
-        ? electron.fsStat(pathToFile)
-        : require('fs').promises.stat(pathToFile))
-    ) as FileStats;
+    const bwaFileStats = (await fs.promises.stat(pathToFile)) as FileStats;
     bwaFileStats.filename = path.basename(pathToFile);
     bwaFileStats.humansize = conversions.byteToHumanFileSize(
       bwaFileStats.size,
       settings.lookupMisc.useStandardSize
     );
-    const raw = electron.fsReadFile
-      ? await electron.fsReadFile(pathToFile, 'utf8')
-      : await require('fs').promises.readFile(pathToFile, 'utf8');
-    bwaFileContents = Papa.parse(typeof raw === 'string' ? raw : raw.toString(), {
-      header: true
-    });
+    bwaFileContents = Papa.parse(
+      (await fs.promises.readFile(pathToFile)).toString(),
+      { header: true }
+    );
     bwaFileStats.linecount = bwaFileContents.data.length;
     try {
       bwaFileStats.filepreview = JSON.stringify(bwaFileContents.data[0], null, '\t').substring(
@@ -72,6 +65,7 @@ electron.on(
     let bwaFileStats: FileStats; // File stats, size, last changed, etc
 
     if (bwaFileWatcher) {
+      bwaFileWatcher.close();
       bwaFileWatcher = undefined;
     }
 
@@ -92,23 +86,19 @@ electron.on(
         $('#bwaEntry').addClass('is-hidden');
         $('#bwaFileinputloading').removeClass('is-hidden');
         try {
-          bwaFileStats = (
-            await (electron.fsStat
-              ? electron.fsStat(filePath as string)
-              : require('fs').promises.stat(filePath as string))
-          ) as FileStats;
+          bwaFileStats = fs.statSync(filePath as string) as FileStats;
           bwaFileStats.filename = path.basename(filePath as string);
           bwaFileStats.humansize = conversions.byteToHumanFileSize(
             bwaFileStats.size,
             settings.lookupMisc.useStandardSize
           );
           $('#bwaFileSpanInfo').text('Loading file contents...');
-          const r1 = electron.fsReadFile
-            ? await electron.fsReadFile(filePath as string, 'utf8')
-            : await require('fs').promises.readFile(filePath as string, 'utf8');
-          bwaFileContents = Papa.parse(typeof r1 === 'string' ? r1 : r1.toString(), {
-            header: true
-          });
+          bwaFileContents = Papa.parse(
+            (await fs.promises.readFile(filePath as string)).toString(),
+            {
+              header: true
+            }
+          );
         } catch (e) {
           electron.send('app:error', `Failed to read file: ${e}`);
           $('#bwaFileSpanInfo').text('Failed to load file');
@@ -116,23 +106,19 @@ electron.on(
         }
       } else {
         try {
-          bwaFileStats = (
-            await (electron.fsStat
-              ? electron.fsStat((filePath as string[])[0])
-              : require('fs').promises.stat((filePath as string[])[0]))
-          ) as FileStats;
+          bwaFileStats = fs.statSync((filePath as string[])[0]) as FileStats;
           bwaFileStats.filename = path.basename((filePath as string[])[0]);
           bwaFileStats.humansize = conversions.byteToHumanFileSize(
             bwaFileStats.size,
             settings.lookupMisc.useStandardSize
           );
           $('#bwaFileSpanInfo').text('Loading file contents...');
-          const r2 = electron.fsReadFile
-            ? await electron.fsReadFile((filePath as string[])[0], 'utf8')
-            : await require('fs').promises.readFile((filePath as string[])[0], 'utf8');
-          bwaFileContents = Papa.parse(typeof r2 === 'string' ? r2 : r2.toString(), {
-            header: true
-          });
+          bwaFileContents = Papa.parse(
+            (await fs.promises.readFile((filePath as string[])[0])).toString(),
+            {
+              header: true
+            }
+          );
         } catch (e) {
           electron.send('app:error', `Failed to read file: ${e}`);
           $('#bwaFileSpanInfo').text('Failed to load file');
@@ -165,8 +151,7 @@ electron.on(
       $('#bwaFileTextareaErrors').text(String(bwaFileStats.errors || 'No errors'));
       //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']);
       if (chosenPath) {
-        const fs = require('fs');
-        bwaFileWatcher = fs.watch(chosenPath, { persistent: false }, (evt: string) => {
+        bwaFileWatcher = fs.watch(chosenPath, { persistent: false }, (evt) => {
           if (evt === 'change') void refreshBwaFile(chosenPath);
         });
       }
@@ -195,6 +180,7 @@ $(document).on('click', '#bwaEntryButtonOpen', function () {
  */
 $('#bwaFileinputconfirmButtonCancel').click(function () {
   if (bwaFileWatcher) {
+    bwaFileWatcher.close();
     bwaFileWatcher = undefined;
   }
   $('#bwaFileinputconfirm').addClass('is-hidden');
@@ -209,6 +195,7 @@ $('#bwaFileinputconfirmButtonCancel').click(function () {
  */
 $('#bwaFileinputconfirmButtonStart').click(function () {
   if (bwaFileWatcher) {
+    bwaFileWatcher.close();
     bwaFileWatcher = undefined;
   }
   electron.send('bwa:analyser.start', bwaFileContents);
