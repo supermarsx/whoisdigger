@@ -25,6 +25,7 @@
     "test": "jest",
     "test:e2e": "node test/e2e/run.js",
     "prebuild": "node scripts/prebuild.js",
+    "regen:vendor": "node scripts/regenerateVendor.js",
     "postinstall": "simple-git-hooks",
     "clean": "rimraf dist release_builds app/compiled-templates",
     "pretest": "node scripts/prebuild.js"
