@@ -1,4 +1,3 @@
-import './electronMainMock';
 import fs from 'fs';
 import path from 'path';
 import { parseArgs, lookupDomains, exportResults, CliOptions } from '../app/ts/cli';

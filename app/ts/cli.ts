@@ -9,14 +9,13 @@ import { settings } from './common/settings.js';
 import { RequestCache } from './common/requestCache.js';
 import { isDomainAvailable, getDomainParameters, WhoisResult } from './common/availability.js';
 import { toJSON } from './common/parser.js';
-import { generateFilename } from './main/bw/export.js';
+import { generateFilename } from './cli/export.js';
 import { downloadModel } from './ai/modelDownloader.js';
 import { suggestWords } from './ai/openaiSuggest.js';
 
 const requestCache = new RequestCache();
 
 const debug = debugModule('cli');
-
 
 export interface CliOptions {
   domains: string[];
