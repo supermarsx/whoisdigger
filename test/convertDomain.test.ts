@@ -1,7 +1,7 @@
 import '../test/electronMock';
 
 import { convertDomain } from '../app/ts/common/lookup';
-import { settings } from '../app/ts/common/settings';
+import { settings } from '../app/ts/renderer/settings-renderer';
 
 describe('convertDomain', () => {
   test('punycode conversion handles unicode domains', () => {

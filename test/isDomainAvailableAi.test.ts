@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import '../test/electronMock';
-import { settings, getUserDataPath } from '../app/ts/common/settings';
+import { settings, getUserDataPath } from '../app/ts/renderer/settings-renderer';
 import { loadModel } from '../app/ts/ai/availabilityModel';
 import { trainFromSamples } from '../scripts/train-ai';
 import { isDomainAvailable } from '../app/ts/common/availability';
