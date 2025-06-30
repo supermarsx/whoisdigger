@@ -1,5 +1,4 @@
 import $ from '../../vendor/jquery.js';
-import fs from 'fs';
 import path from 'path';
 import { dirnameCompat } from '../utils/dirnameCompat.js';
 
@@ -9,6 +8,13 @@ const electron = (window as any).electron as {
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
   openPath: (path: string) => Promise<string>;
+  fsReadFile: (file: string, encoding?: string) => Promise<string>;
+  fsStat: (file: string) => Promise<any>;
+  fsReaddir: (dir: string) => Promise<Array<{ name: string; isDirectory: boolean }>>;
+  fsAccess: (file: string, mode?: number) => Promise<boolean>;
+  fsUnlink: (file: string) => Promise<void>;
+  fsExists: (file: string) => Promise<boolean>;
+  pathJoin: (...parts: string[]) => Promise<string>;
 };
 import { Worker } from 'worker_threads';
 import chokidar from 'chokidar';
@@ -58,14 +64,15 @@ let statsDataDir = '';
 
 async function dirSize(dir: string): Promise<number> {
   let total = 0;
-  const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+  const entries = await electron.fsReaddir(dir);
   for (const entry of entries) {
     const full = path.join(dir, entry.name);
     try {
-      if (entry.isDirectory()) {
+      if (entry.isDirectory) {
         total += await dirSize(full);
       } else {
-        total += (await fs.promises.stat(full)).size;
+        const st = await electron.fsStat(full);
+        total += st.size;
       }
     } catch {
       // ignore errors from deleted files
@@ -80,12 +87,12 @@ async function sendStats(): Promise<void> {
   let cfgSize = 0;
   let readWrite = false;
   try {
-    const st = await fs.promises.stat(statsConfigPath);
+    const st = await electron.fsStat(statsConfigPath);
     mtime = st.mtimeMs;
     cfgSize = st.size;
     loaded = true;
     try {
-      await fs.promises.access(statsConfigPath, fs.constants.R_OK | fs.constants.W_OK);
+      await electron.fsAccess(statsConfigPath);
       readWrite = true;
     } catch {
       readWrite = false;
@@ -359,7 +366,7 @@ $(document).ready(() => {
     sessionStorage.setItem('customSettingsLoaded', customSettingsLoaded ? 'true' : 'false');
     populateInputs();
     const filePath = path.join(getUserDataPath(), settings.customConfiguration.filepath);
-    const exists = fs.existsSync(filePath);
+    const exists = await electron.fsExists(filePath);
     const success = customSettingsLoaded || !exists;
     showToast(success ? 'Configuration reloaded' : 'Failed to reload configuration', success);
     refreshStats();
@@ -407,15 +414,18 @@ $(document).ready(() => {
     $('#deleteConfigModal').addClass('is-active');
   });
 
-  $('#deleteConfigYes').on('click', () => {
+  $('#deleteConfigYes').on('click', async () => {
     const filePath = path.join(getUserDataPath(), settings.customConfiguration.filepath);
-    fs.unlink(filePath, (err) => {
+    try {
+      await electron.fsUnlink(filePath);
+      showToast('Configuration deleted', true);
+    } catch (err: any) {
       if (err && err.code !== 'ENOENT') {
         showToast('Failed to delete configuration', false);
       } else {
         showToast('Configuration deleted', true);
       }
-    });
+    }
     refreshStats();
     $('#deleteConfigModal').removeClass('is-active');
   });
