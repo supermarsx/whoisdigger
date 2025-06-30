@@ -1,5 +1,4 @@
-import './electronMainMock';
-import { generateFilename } from '../app/ts/main/bw/export';
+import { generateFilename } from '../app/ts/cli/export';
 
 describe('generateFilename', () => {
   const RealDate = Date;
