@@ -4,16 +4,15 @@ const debug = debugModule('main.bw.fileinput');
 
 const { app, BrowserWindow, Menu, ipcMain, dialog } = electron;
 import { formatString } from '../../common/stringformat.js';
+import { IpcChannel } from '../../common/ipcChannels.js';
 
 import { getSettings } from '../settings-main.js';
 
 /*
-  ipcMain.on('bw:input.file', function(...) {...});
-    On event: Bulk whois input file, select file dialog
-  parameters
-    event (object) - renderer object
- */
-ipcMain.on('bw:input.file', function (event) {
+  ipcMain.handle('bw:input.file', function() {...});
+    Open file dialog for bulk whois input
+*/
+ipcMain.handle(IpcChannel.BwInputFile, async () => {
   debug('Waiting for file selection');
   const filePath = dialog.showOpenDialogSync({
     title: 'Select wordlist file',
@@ -21,10 +20,8 @@ ipcMain.on('bw:input.file', function (event) {
     properties: ['openFile', 'showHiddenFiles']
   });
 
-  const { sender } = event;
-
   debug(formatString('Using selected file at {0}', filePath));
-  sender.send('bw:fileinput.confirmation', filePath);
+  return filePath;
 });
 
 /*
