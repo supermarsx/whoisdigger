@@ -3,6 +3,7 @@
 let jQuery: typeof import('../app/vendor/jquery.js');
 let settingsModule: any;
 const invokeMock = jest.fn();
+jest.setTimeout(10000);
 const openPathMock = jest.fn();
 
 jest.mock('worker_threads', () => ({

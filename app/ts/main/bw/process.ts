@@ -1,5 +1,5 @@
 import electron from 'electron';
-import type { IpcMainEvent } from 'electron';
+import type { IpcMainInvokeEvent, IpcMainEvent } from 'electron';
 import debugModule from 'debug';
 const debug = debugModule('main.bw.process');
 import defaultBulkWhois from './process.defaults.js';
@@ -14,20 +14,22 @@ import { getSettings } from '../settings-main.js';
 
 const { app, BrowserWindow, Menu, ipcMain, dialog, remote } = electron;
 import { formatString } from '../../common/stringformat.js';
+import { IpcChannel } from '../../common/ipcChannels.js';
 
 let bulkWhois: BulkWhois; // BulkWhois object
 let reqtime: number[] = [];
 
 /*
-  ipcMain.on('bw:lookup', function(...) {...});
-    On event: bulk whois lookup startup
+  ipcMain.handle('bw:lookup', function(...) {...});
+    Start bulk WHOIS lookup
   parameters
     event (object) - renderer event
     domains (array) - domains to request whois for
     tlds (array) - tlds to look for
- */
-ipcMain.on('bw:lookup', function (event: IpcMainEvent, domains: string[], tlds: string[]) {
-  resetUiCounters(event); // Reset UI counters, pass window param
+*/
+ipcMain.handle(IpcChannel.BwLookup, async function (event: IpcMainInvokeEvent, domains: string[], tlds: string[]) {
+  const evt = event as unknown as IpcMainEvent;
+  resetUiCounters(evt); // Reset UI counters, pass window param
   bulkWhois = resetObject(defaultBulkWhois); // Resets the bulkWhois object to default
   reqtime = [];
 
@@ -46,7 +48,7 @@ ipcMain.on('bw:lookup', function (event: IpcMainEvent, domains: string[], tlds: 
     status // request
   } = stats;
 
-  const { sender } = event;
+  const { sender } = evt;
 
   let domainSetup;
 
@@ -92,7 +94,7 @@ ipcMain.on('bw:lookup', function (event: IpcMainEvent, domains: string[], tlds: 
     );
 
     cumulativeDelay += domainSetup.timebetween;
-    processDomain(bulkWhois, reqtime, domainSetup, event, cumulativeDelay);
+    processDomain(bulkWhois, reqtime, domainSetup, evt, cumulativeDelay);
 
     stats.domains.processed = domainSetup.index + 1;
     sender.send('bw:status.update', 'domains.processed', stats.domains.processed);
@@ -107,7 +109,8 @@ ipcMain.on('bw:lookup', function (event: IpcMainEvent, domains: string[], tlds: 
     ? (stats.time.remainingcounter += settings.lookupRandomizeTimeout.maximum)
     : (stats.time.remainingcounter += settings.lookupGeneral.timeout);
 
-  counter(bulkWhois, event);
+  counter(bulkWhois, evt);
+  return;
 });
 
 /*
