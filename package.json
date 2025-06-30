@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "type": "module",
   "description": "Bulk whois lookup tool",
-  "main": "./dist/app/ts/main.js",
+  "main": "./dist/main/main.js",
   "scripts": {
     "start": "npm run build && npm run postbuild && cross-env NODE_OPTIONS=--experimental-specifier-resolution=node electron .",
     "debug-powershell": "@powershell -Command $env:DEBUG='*';npm start;",

@@ -3,7 +3,11 @@ import path from 'path';
 import { dirnameCompat } from './dirnameCompat.js';
 const baseDir = dirnameCompat();
 
-const distDir = path.join(baseDir, '..', 'dist', 'app', 'ts');
+const distDirs = [
+  path.join(baseDir, '..', 'dist', 'app', 'ts'),
+  path.join(baseDir, '..', 'dist', 'main'),
+  path.join(baseDir, '..', 'dist', 'renderer')
+];
 
 function processDir(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -19,4 +23,8 @@ function processDir(dir) {
   }
 }
 
-processDir(distDir);
+for (const dir of distDirs) {
+  if (fs.existsSync(dir)) {
+    processDir(dir);
+  }
+}
