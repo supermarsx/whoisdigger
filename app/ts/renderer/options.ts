@@ -1,10 +1,16 @@
 import $ from '../../vendor/jquery.js';
-import fs from 'fs';
-import path from 'path';
 import { dirnameCompat } from '../utils/dirnameCompat.js';
 
 const baseDir = dirnameCompat();
 const electron = (window as any).electron as {
+  readFile: (p: string, opts?: any) => Promise<any>;
+  stat: (p: string) => Promise<any>;
+  readdir: (p: string, opts?: any) => Promise<any>;
+  unlink: (p: string) => Promise<any>;
+  access: (p: string, mode?: number) => Promise<any>;
+  exists: (p: string) => Promise<any>;
+  watch: (p: string, opts: any, cb: (evt: string) => void) => Promise<{ close: () => void }>;
+  path: { join: (...args: string[]) => string; basename: (p: string) => string };
   send: (channel: string, ...args: any[]) => void;
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
@@ -58,14 +64,14 @@ let statsDataDir = '';
 
 async function dirSize(dir: string): Promise<number> {
   let total = 0;
-  const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+  const entries = await electron.readdir(dir, { withFileTypes: true });
   for (const entry of entries) {
-    const full = path.join(dir, entry.name);
+    const full = electron.path.join(dir, entry.name);
     try {
       if (entry.isDirectory()) {
         total += await dirSize(full);
       } else {
-        total += (await fs.promises.stat(full)).size;
+        total += (await electron.stat(full)).size;
       }
     } catch {
       // ignore errors from deleted files
@@ -80,12 +86,12 @@ async function sendStats(): Promise<void> {
   let cfgSize = 0;
   let readWrite = false;
   try {
-    const st = await fs.promises.stat(statsConfigPath);
+    const st = await electron.stat(statsConfigPath);
     mtime = st.mtimeMs;
     cfgSize = st.size;
     loaded = true;
     try {
-      await fs.promises.access(statsConfigPath, fs.constants.R_OK | fs.constants.W_OK);
+      await electron.access(statsConfigPath, 6);
       readWrite = true;
     } catch {
       readWrite = false;
@@ -120,10 +126,10 @@ function startStatsWorker(): void {
     statsWatcher.close();
     statsWatcher = null;
   }
-  statsConfigPath = path.join(getUserDataPath(), settings.customConfiguration.filepath);
+  statsConfigPath = electron.path.join(getUserDataPath(), settings.customConfiguration.filepath);
   statsDataDir = getUserDataPath();
   try {
-    const workerPath = path.join(baseDir, 'renderer', 'workers', 'statsWorker.js');
+    const workerPath = electron.path.join(baseDir, 'renderer', 'workers', 'statsWorker.js');
     statsWorker = new Worker(workerPath, {
       workerData: {
         configPath: statsConfigPath,
@@ -358,8 +364,8 @@ $(document).ready(() => {
     await loadSettings();
     sessionStorage.setItem('customSettingsLoaded', customSettingsLoaded ? 'true' : 'false');
     populateInputs();
-    const filePath = path.join(getUserDataPath(), settings.customConfiguration.filepath);
-    const exists = fs.existsSync(filePath);
+    const filePath = electron.path.join(getUserDataPath(), settings.customConfiguration.filepath);
+    const exists = await electron.exists(filePath);
     const success = customSettingsLoaded || !exists;
     showToast(success ? 'Configuration reloaded' : 'Failed to reload configuration', success);
     refreshStats();
@@ -407,15 +413,18 @@ $(document).ready(() => {
     $('#deleteConfigModal').addClass('is-active');
   });
 
-  $('#deleteConfigYes').on('click', () => {
-    const filePath = path.join(getUserDataPath(), settings.customConfiguration.filepath);
-    fs.unlink(filePath, (err) => {
-      if (err && err.code !== 'ENOENT') {
+  $('#deleteConfigYes').on('click', async () => {
+    const filePath = electron.path.join(getUserDataPath(), settings.customConfiguration.filepath);
+    try {
+      await electron.unlink(filePath);
+      showToast('Configuration deleted', true);
+    } catch (err) {
+      if ((err as any).code !== 'ENOENT') {
         showToast('Failed to delete configuration', false);
       } else {
         showToast('Configuration deleted', true);
       }
-    });
+    }
     refreshStats();
     $('#deleteConfigModal').removeClass('is-active');
   });
