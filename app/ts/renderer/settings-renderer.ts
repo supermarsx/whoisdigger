@@ -1,5 +1,9 @@
-import fs from 'fs';
-import path from 'path';
+const electron = (window as any).electron as {
+  readFile: (p: string, opts?: any) => Promise<string>;
+  watch: (p: string, opts: any, cb: (event: string) => void) => Promise<{ close: () => void }>;
+  exists: (p: string) => Promise<boolean>;
+  path: { join: (...args: string[]) => string };
+};
 import { debugFactory } from '../common/logger.js';
 import appDefaults from '../appsettings.js';
 import {
@@ -18,7 +22,7 @@ import {
 const debug = debugFactory('renderer.settings');
 const defaultSettings: Settings = JSON.parse(JSON.stringify(appDefaults.settings as Settings));
 const defaultCustomConfiguration = settings.customConfiguration;
-let watcher: fs.FSWatcher | undefined;
+let watcher: { close: () => void } | undefined;
 
 function getCustomConfiguration() {
   return settings.customConfiguration ?? defaultCustomConfiguration;
@@ -26,21 +30,21 @@ function getCustomConfiguration() {
 
 function getConfigFile(): string {
   const { filepath } = getCustomConfiguration();
-  return path.join(getUserDataPath(), filepath);
+  return electron.path.join(getUserDataPath(), filepath);
 }
 
-function watchConfig(): void {
+async function watchConfig(): Promise<void> {
   if (watcher) {
     watcher.close();
   }
   const cfg = getConfigFile();
-  if (!fs.existsSync(cfg)) {
+  if (!(await electron.exists(cfg))) {
     return;
   }
-  watcher = fs.watch(cfg, { persistent: false }, async (event) => {
+  watcher = await electron.watch(cfg, { persistent: false }, async (event) => {
     if (event !== 'change') return;
     try {
-      const raw = await fs.promises.readFile(cfg, 'utf8');
+      const raw = await electron.readFile(cfg, 'utf8');
       const parsed = JSON.parse(raw) as Partial<Settings>;
       try {
         const merged = mergeDefaults(parsed);
@@ -71,7 +75,7 @@ function watchConfig(): void {
 
 export async function loadSettings(): Promise<Settings> {
   const result = await baseLoad();
-  watchConfig();
+  await watchConfig();
   return result;
 }
 

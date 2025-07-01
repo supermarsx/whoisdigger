@@ -5,6 +5,9 @@ jest.mock('electron', () => ({
   ipcMain: {
     on: (channel: string, listener: (...args: any[]) => void) => {
       ipcMainHandlers[channel] = listener;
+    },
+    handle: (channel: string, listener: (...args: any[]) => any) => {
+      ipcMainHandlers[channel] = listener;
     }
   },
   shell: { openExternal: openExternalMock },
