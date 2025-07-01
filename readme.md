@@ -285,7 +285,9 @@ If you need a fresh build, run `npm run clean` first to remove the `dist`, `rele
 which minifies files from `app/css` into `dist/app/css`.
 It also precompiles Handlebars templates and writes `dist/app/html/mainPanel.html`
 from `app/html/templates/mainPanel.hbs`.
-Use `npm run regen:vendor` to regenerate the scripts in `app/vendor` after updating dependencies.
+The prebuild step automatically regenerates vendor scripts under `app/vendor`. Run
+`npm run regen:vendor` if you need to refresh them without a full build.
+
 
 MacOS
 
