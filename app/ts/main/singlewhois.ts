@@ -13,31 +13,28 @@ import { formatString } from '../common/stringformat.js';
 
 import { settings } from './settings-main.js';
 import type { Settings } from './settings-main.js';
+import { IpcChannel } from '../common/ipcChannels.js';
 
 /*
   ipcMain.on('singlewhois:lookup', function(...) {...});
     Single whois lookup
  */
-ipcMain.on('singlewhois:lookup', async function (event, domain) {
-  const { sender } = event;
-
+ipcMain.handle(IpcChannel.SingleWhoisLookup, async (_event, domain) => {
   debug('Starting whois lookup');
-  whoisLookup(domain)
-    .then(function (data) {
-      debug('Sending back whois reply');
-      sender.send('singlewhois:results', data);
-      try {
-        const status = isDomainAvailable(data);
-        addHistoryEntry(domain, status);
-      } catch {
-        addHistoryEntry(domain, 'error');
-      }
-    })
-    .catch(function (err) {
-      debug('Whois lookup threw an error');
-      sender.send('singlewhois:results', err);
+  try {
+    const data = await whoisLookup(domain);
+    try {
+      const status = isDomainAvailable(data);
+      addHistoryEntry(domain, status);
+    } catch {
       addHistoryEntry(domain, 'error');
-    });
+    }
+    return data;
+  } catch (err) {
+    debug('Whois lookup threw an error');
+    addHistoryEntry(domain, 'error');
+    throw err;
+  }
 });
 
 /*

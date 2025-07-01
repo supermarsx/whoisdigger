@@ -2,7 +2,7 @@ const ipcMainHandlers: Record<string, (...args: any[]) => any> = {};
 
 jest.mock('electron', () => ({
   ipcMain: {
-    on: (channel: string, listener: (...args: any[]) => void) => {
+    handle: (channel: string, listener: (...args: any[]) => any) => {
       ipcMainHandlers[channel] = listener;
     }
   },
@@ -15,13 +15,12 @@ jest.mock('electron', () => ({
 import '../app/ts/main/bwa/analyser';
 
 describe('bwa analyser handler', () => {
-  test('forwards results to renderer', () => {
+  test('returns analyser contents', async () => {
     const handler = ipcMainHandlers['bwa:analyser.start'];
-    const send = jest.fn();
     const contents = { id: [1], domain: ['example.com'] } as any;
 
-    handler({ sender: { send } } as any, contents);
+    const result = await handler({}, contents);
 
-    expect(send).toHaveBeenCalledWith('bwa:analyser.tablegen', contents);
+    expect(result).toBe(contents);
   });
 });

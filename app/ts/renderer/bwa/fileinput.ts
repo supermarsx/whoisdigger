@@ -9,6 +9,8 @@ const electron = (window as any).electron as { send: (channel: string, ...args: 
 import $ from '../../../vendor/jquery.js';
 
 import { formatString } from '../../common/stringformat.js';
+import { IpcChannel } from '../../common/ipcChannels.js';
+import { renderAnalyser } from './analyser.js';
 
 let bwaFileContents: any;
 let bwaFileWatcher: { close: () => void } | undefined;
@@ -53,9 +55,10 @@ async function refreshBwaFile(pathToFile: string): Promise<void> {
   electron.on('bwa:fileinput.confirmation', function(...) {...});
     File input, path and information confirmation container
  */
-electron.on(
-  'bwa:fileinput.confirmation',
-  async function (event, filePath: string | string[] | null = null, isDragDrop = false) {
+async function handleFileConfirmation(
+  filePath: string | string[] | null = null,
+  isDragDrop = false
+) {
     let bwaFileStats: FileStats; // File stats, size, last changed, etc
 
     if (bwaFileWatcher) {
@@ -153,7 +156,10 @@ electron.on(
 
     return;
   }
-);
+
+electron.on('bwa:fileinput.confirmation', (_e, filePath, isDragDrop) => {
+  void handleFileConfirmation(filePath, isDragDrop);
+});
 
 /*
   $('#bwaEntryButtonOpen').click(function() {...});
@@ -162,7 +168,10 @@ electron.on(
 $(document).on('click', '#bwaEntryButtonOpen', function () {
   $('#bwaEntry').addClass('is-hidden');
   $.when($('#bwaFileinputloading').removeClass('is-hidden').delay(10)).done(function () {
-    electron.send('bwa:input.file');
+    void (async () => {
+      const path = await electron.invoke(IpcChannel.BwaInputFile);
+      void handleFileConfirmation(path);
+    })();
   });
 
   return;
@@ -192,7 +201,10 @@ $('#bwaFileinputconfirmButtonStart').click(function () {
     bwaFileWatcher.close();
     bwaFileWatcher = undefined;
   }
-  electron.send('bwa:analyser.start', bwaFileContents);
+  void (async () => {
+    const data = await electron.invoke(IpcChannel.BwaAnalyserStart, bwaFileContents);
+    renderAnalyser(data);
+  })();
   /*
   $('#bwaFileinputconfirm').addClass('is-hidden');
   $.when($('#bwaProcess').removeClass('is-hidden').delay(10)).done(function() {

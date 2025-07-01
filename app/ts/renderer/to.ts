@@ -1,23 +1,19 @@
 import { ipcRenderer } from 'electron';
+import { IpcChannel } from '../common/ipcChannels.js';
 import $ from '../../vendor/jquery.js';
 
 let filePath: string | null = null;
-
-/*
-  ipcRenderer.on('to:fileinput.confirmation', function(event, path) {...});
-    Confirm selected file for tools module
-*/
-ipcRenderer.on('to:fileinput.confirmation', function (event, path) {
-  filePath = Array.isArray(path) ? path[0] : path;
-  $('#toFileSelected').text(filePath ?? '');
-});
 
 /*
   $('#toButtonSelect').click(function() {...});
     Open file selection dialog
 */
 $(document).on('click', '#toButtonSelect', function () {
-  ipcRenderer.send('to:input.file');
+  void (async () => {
+    const result = await ipcRenderer.invoke(IpcChannel.ToInputFile);
+    filePath = Array.isArray(result) ? result[0] : result;
+    $('#toFileSelected').text(filePath ?? '');
+  })();
 });
 
 /*
@@ -28,18 +24,11 @@ $(document).on('click', '#toButtonProcess', async function () {
   if (!filePath) return;
   const options = collectOptions();
   try {
-    await ipcRenderer.invoke('to:process', filePath, options);
+    const result = await ipcRenderer.invoke(IpcChannel.ToProcess, filePath, options);
+    $('#toOutput').text(result);
   } catch (e) {
     ipcRenderer.send('app:error', `Processing failed: ${e}`);
   }
-});
-
-/*
-  ipcRenderer.on('to:process.result', function(event, result) {...});
-    Display processed output
-*/
-ipcRenderer.on('to:process.result', function (event, result: string) {
-  $('#toOutput').text(result);
 });
 
 function collectOptions() {

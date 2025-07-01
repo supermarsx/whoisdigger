@@ -3,12 +3,10 @@ const showDialogMock = jest.fn();
 
 jest.mock('electron', () => ({
   ipcMain: {
-    on: (channel: string, listener: (...args: any[]) => void) => {
-      ipcMainHandlers[channel] = listener;
-    },
     handle: (channel: string, listener: (...args: any[]) => any) => {
       ipcMainHandlers[channel] = listener;
-    }
+    },
+    on: jest.fn()
   },
   dialog: { showOpenDialogSync: showDialogMock },
   app: undefined,
@@ -30,7 +28,8 @@ jest.mock('../app/ts/common/tools.js', () => ({
 }));
 import '../app/ts/main/to';
 
-const handler = () => ipcMainHandlers['to:process'];
+const processHandler = () => ipcMainHandlers['to:process'];
+const inputHandler = () => ipcMainHandlers['to:input.file'];
 
 describe('to main handler', () => {
   beforeEach(() => {
@@ -39,22 +38,30 @@ describe('to main handler', () => {
     showDialogMock.mockReset();
   });
 
-  test('processes file and sends result', async () => {
+  test('returns processed result', async () => {
     readFileMock.mockResolvedValue('a\nb');
     processLinesMock.mockReturnValue(['x', 'y']);
-    const send = jest.fn();
-    await handler()({ sender: { send } } as any, '/tmp/list.txt', { opt: 1 } as any);
+    const result = await processHandler()({} as any, '/tmp/list.txt', { opt: 1 } as any);
 
     expect(readFileMock).toHaveBeenCalledWith('/tmp/list.txt', 'utf8');
     expect(processLinesMock).toHaveBeenCalledWith(['a', 'b'], { opt: 1 });
-    expect(send).toHaveBeenCalledWith('to:process.result', 'x\ny');
+    expect(result).toBe('x\ny');
   });
 
-  test('sends error when read fails', async () => {
+  test('throws error when read fails', async () => {
     readFileMock.mockRejectedValue(new Error('fail'));
-    const send = jest.fn();
-    await handler()({ sender: { send } } as any, '/tmp/list.txt', {});
+    await expect(processHandler()({} as any, '/tmp/list.txt', {})).rejects.toThrow('fail');
+  });
 
-    expect(send).toHaveBeenCalledWith('to:process.error', 'fail');
+  test('returns selected input path', async () => {
+    showDialogMock.mockReturnValue('/tmp/list.txt');
+    const result = await inputHandler()({} as any);
+    expect(result).toBe('/tmp/list.txt');
+  });
+
+  test('returns undefined when canceled', async () => {
+    showDialogMock.mockReturnValue(undefined);
+    const result = await inputHandler()({} as any);
+    expect(result).toBeUndefined();
   });
 });
