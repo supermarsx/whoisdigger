@@ -12,6 +12,7 @@ const debug = debugModule('prebuild');
 const rootDir = path.join(baseDir, '..');
 const modulesPath = path.join(rootDir, 'node_modules');
 const vendorDir = path.join(rootDir, 'app', 'vendor');
+const distCliDir = path.join(rootDir, 'dist', 'app', 'ts', 'cli');
 const runtimeSrc = path.join(modulesPath, 'handlebars', 'dist', 'handlebars.runtime.js');
 const runtimeDest = path.join(vendorDir, 'handlebars.runtime.js');
 const jquerySrc = path.join(modulesPath, 'jquery', 'dist', 'jquery.js');
@@ -36,6 +37,7 @@ fs.mkdirSync(vendorDir, { recursive: true });
 fs.copyFileSync(runtimeSrc, runtimeDest);
 fs.copyFileSync(jquerySrc, jqueryDest);
 fs.copyFileSync(changeCaseSrc, changeCaseDest);
+fs.mkdirSync(distCliDir, { recursive: true });
 
 // Precompile Handlebars templates so development builds have them ready
 try {
