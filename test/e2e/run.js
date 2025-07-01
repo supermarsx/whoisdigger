@@ -14,7 +14,7 @@ const debug = debugModule('test:e2e');
 
 (async () => {
   const electronPath = electron;
-  const appPath = path.resolve(baseDir, '..', '..', 'dist', 'app', 'ts', 'main.js');
+  const appPath = path.resolve(baseDir, '..', '..', 'dist', 'main', 'main.js');
 
   const artifactsDir = path.join(baseDir, 'artifacts');
   fs.mkdirSync(artifactsDir, { recursive: true });

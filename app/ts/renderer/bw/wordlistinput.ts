@@ -1,5 +1,5 @@
 import * as conversions from '../../common/conversions.js';
-import { settings } from '../../common/settings.js';
+import { settings } from '../settings-renderer.js';
 
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
@@ -10,6 +10,7 @@ import { tableReset } from './auxiliary.js';
 import $ from '../../../vendor/jquery.js';
 
 import { formatString } from '../../common/stringformat.js';
+import { IpcChannel } from '../../common/ipcChannels.js';
 
 let bwWordlistContents = ''; // Global wordlist input contents
 
@@ -33,7 +34,7 @@ $(document).on('click', '#bwSuggestButton', async () => {
   electron.on('bw:wordlistinput.confirmation', function() {...});
     Wordlist input, contents confirmation container
  */
-electron.on('bw:wordlistinput.confirmation', function () {
+function handleWordlistConfirmation(): void {
   const bwFileStats: Record<string, any> = {};
 
   bwWordlistContents = String($('#bwWordlistTextareaDomains').val() ?? '');
@@ -80,6 +81,10 @@ electron.on('bw:wordlistinput.confirmation', function () {
   }
 
   return;
+}
+
+electron.on('bw:wordlistinput.confirmation', () => {
+  handleWordlistConfirmation();
 });
 
 /*
@@ -110,7 +115,10 @@ $(document).on('click', '#bwWordlistinputButtonCancel', function () {
  */
 $(document).on('click', '#bwWordlistinputButtonConfirm', function () {
   $('#bwWordlistinput').addClass('is-hidden');
-  electron.send('bw:input.wordlist');
+  void (async () => {
+    await electron.invoke(IpcChannel.BwInputWordlist);
+    handleWordlistConfirmation();
+  })();
 
   return;
 });
@@ -145,7 +153,7 @@ $(document).on('click', '#bwWordlistconfirmButtonStart', function () {
   $('#bwWordlistconfirm').addClass('is-hidden');
   $('#bwProcessing').removeClass('is-hidden');
 
-  electron.send('bw:lookup', bwDomainArray, bwTldsArray);
+  void electron.invoke(IpcChannel.BwLookup, bwDomainArray, bwTldsArray);
 
   return;
 });

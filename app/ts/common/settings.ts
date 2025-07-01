@@ -1,13 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { dirnameCompat } from '../utils/dirnameCompat.js';
-import { app, ipcRenderer } from 'electron'; // Correctly use Electron API
-import * as remote from '@electron/remote'; // Import remote as a whole
 import { debugFactory } from './logger.js';
 import appDefaults from '../appsettings.js';
 const debug = debugFactory('common.settings');
-
-let watcher: fs.FSWatcher | undefined;
 
 export interface Settings {
   lookupConversion: { enabled: boolean; algorithm: string };
@@ -71,21 +67,12 @@ export function getSettings(): Settings {
   return settings;
 }
 
+export function setSettings(newSettings: Settings): void {
+  settings = newSettings;
+}
+
 export let customSettingsLoaded = false;
 export default settings;
-
-/*
-  Detect if running in the main Electron process
- */
-const isMainProcess = (() => {
-  if (app === undefined) {
-    debug('Is renderer');
-    return false;
-  } else {
-    debug('Is main');
-    return true;
-  }
-})();
 
 const userDataPath = path.join(baseDir, '..', '..', 'data');
 
@@ -129,45 +116,6 @@ export function mergeDefaults(partial: Partial<Settings>): Settings {
 }
 
 export const validateSettings = mergeDefaults;
-
-function watchConfig(): void {
-  if (watcher) {
-    watcher.close();
-  }
-  const cfg = getConfigFile();
-  if (!fs.existsSync(cfg)) {
-    return;
-  }
-  watcher = fs.watch(cfg, { persistent: false }, async (event) => {
-    if (event !== 'change') return;
-    try {
-      const raw = await fs.promises.readFile(cfg, 'utf8');
-      const parsed = JSON.parse(raw) as Partial<Settings>;
-      try {
-        settings = mergeDefaults(parsed);
-        if ((settings as any).appWindowWebPreferences) {
-          // Always enforce context isolation when reloading settings
-          (settings as any).appWindowWebPreferences.contextIsolation = true;
-        }
-        debug(`Reloaded custom configuration at ${cfg}`);
-        if (typeof window !== 'undefined' && settings.ui?.liveReload) {
-          window.dispatchEvent(new Event('settings-reloaded'));
-        }
-      } catch (mergeError) {
-        settings = JSON.parse(JSON.stringify(defaultSettings));
-        if ((settings as any).appWindowWebPreferences) {
-          (settings as any).appWindowWebPreferences.contextIsolation = true;
-        }
-        debug(`Failed to merge configuration with error: ${mergeError}`);
-        if (typeof window !== 'undefined' && settings.ui?.liveReload) {
-          window.dispatchEvent(new Event('settings-reloaded'));
-        }
-      }
-    } catch (e) {
-      debug(`Failed to reload configuration with error: ${e}`);
-    }
-  });
-}
 
 /*
   load
@@ -213,7 +161,6 @@ export async function load(): Promise<Settings> {
     }
   }
 
-  watchConfig();
   if (!customSettingsLoaded) customSettingsLoaded = false;
   if ((settings as any).appWindowWebPreferences) {
     // Enforce context isolation regardless of loaded configuration

@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import { _test } from '../app/ts/renderer/options';
-import { settings } from '../app/ts/common/settings';
+import { settings } from '../app/ts/renderer/settings-renderer';
 import appDefaults from '../app/ts/appsettings';
 
 const { getValue, setValue, parseValue, getDefault } = _test;

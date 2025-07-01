@@ -5,8 +5,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const baseDir = path.dirname(__filename);
 import debugModule from 'debug';
-import { loadSettings, settings as store } from './common/settings.js';
-import type { Settings as BaseSettings } from './common/settings.js';
+import { loadSettings, settings as store } from './main/settings-main.js';
+import type { Settings as BaseSettings } from './main/settings-main.js';
 import { formatString } from './common/stringformat.js';
 import { RequestCache } from './common/requestCache.js';
 import {

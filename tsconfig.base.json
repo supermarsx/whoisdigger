@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowJs": false,
+    "noEmit": false,
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleDetection": "force",
+    "types": ["node", "jest", "better-sqlite3", "express"],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./types",
+      "./types/fontawesome-free.d.ts",
+      "./types/compiled-templates.d.ts"
+    ],
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitThis": true,
+    "resolveJsonModule": true
+  }
+}

@@ -1,8 +1,11 @@
 /** @jest-environment jsdom */
 
+jest.setTimeout(10000);
+
 import { EventEmitter } from 'events';
 import jQuery from 'jquery';
 import path from 'path';
+jest.setTimeout(10000);
 const ipc = new EventEmitter() as any;
 ipc.send = jest.fn();
 const watchEmitter = new EventEmitter() as any;

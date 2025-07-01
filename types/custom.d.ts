@@ -46,6 +46,10 @@ declare module 'electron' {
     ondragstart: [string];
     'singlewhois:lookup': [string];
     'singlewhois:openlink': [string];
+    'options:start-stats': [string, string];
+    'options:refresh-stats': [number];
+    'options:stop-stats': [number];
+    'options:get-stats': [string, string];
   }
 
   interface MainToRendererIpc {
@@ -56,6 +60,7 @@ declare module 'electron' {
     'bw:export.error': [string];
     'singlewhois:results': [any];
     'singlewhois:copied': [];
+    'options:stats': [any];
   }
 
   export interface IpcMain {
@@ -162,6 +167,10 @@ declare global {
       invoke: (channel: string, ...args: any[]) => Promise<any>;
       on: (channel: string, listener: (...args: any[]) => void) => void;
       openPath: (path: string) => Promise<string>;
+      startOptionsStats: (cfg: string, dir: string) => Promise<number>;
+      refreshOptionsStats: (id: number) => Promise<void>;
+      stopOptionsStats: (id: number) => Promise<void>;
+      getOptionsStats: (cfg: string, dir: string) => Promise<any>;
     };
   }
 }

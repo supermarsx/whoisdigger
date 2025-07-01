@@ -288,6 +288,7 @@ from `app/html/templates/mainPanel.hbs`.
 The prebuild step automatically regenerates vendor scripts under `app/vendor`. Run
 `npm run regen:vendor` if you need to refresh them without a full build.
 
+
 MacOS
 
 ```

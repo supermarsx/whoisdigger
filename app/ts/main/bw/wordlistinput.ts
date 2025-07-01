@@ -3,16 +3,13 @@ import debugModule from 'debug';
 const debug = debugModule('main.bw.wordlistinput');
 
 const { app, BrowserWindow, Menu, ipcMain, dialog, remote } = electron;
+import { IpcChannel } from '../../common/ipcChannels.js';
 
 /*
-  ipcMain.on('bw:input.wordlist', function(...) {...});
-    On event: Bulk domain, wordlist input
-  parameters
-    event (object) - renderer object
- */
-ipcMain.on('bw:input.wordlist', function (event) {
-  const { sender } = event;
-
+  ipcMain.handle('bw:input.wordlist', function() {...});
+    Renderer requests wordlist mode
+*/
+ipcMain.handle(IpcChannel.BwInputWordlist, async () => {
   debug('Using wordlist input');
-  sender.send('bw:wordlistinput.confirmation');
+  return;
 });
