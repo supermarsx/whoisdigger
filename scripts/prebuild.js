@@ -28,7 +28,20 @@ if (!fs.existsSync(modulesPath)) {
 }
 
 fs.mkdirSync(vendorDir, { recursive: true });
-fs.mkdirSync(distCliDir, { recursive: true });
+// Ensure CLI dist directory exists and is a directory
+try {
+  fs.mkdirSync(distCliDir, { recursive: true });
+} catch (err) {
+  if (err?.code === 'EEXIST') {
+    const stats = fs.statSync(distCliDir);
+    if (!stats.isDirectory()) {
+      fs.rmSync(distCliDir, { force: true });
+      fs.mkdirSync(distCliDir, { recursive: true });
+    }
+  } else {
+    throw err;
+  }
+}
 regenerateVendor();
 
 // Precompile Handlebars templates so development builds have them ready
