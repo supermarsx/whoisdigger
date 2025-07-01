@@ -12,6 +12,7 @@ const debug = debugModule('prebuild');
 const rootDir = path.join(baseDir, '..');
 const modulesPath = path.join(rootDir, 'node_modules');
 const vendorDir = path.join(rootDir, 'app', 'vendor');
+const distCliDir = path.join(rootDir, 'dist', 'app', 'ts', 'cli');
 
 if (!fs.existsSync(modulesPath)) {
   debug('node_modules not found. Running "npm install" to install dependencies...');
@@ -27,8 +28,8 @@ if (!fs.existsSync(modulesPath)) {
 }
 
 fs.mkdirSync(vendorDir, { recursive: true });
+fs.mkdirSync(distCliDir, { recursive: true });
 regenerateVendor();
-
 
 // Precompile Handlebars templates so development builds have them ready
 try {
