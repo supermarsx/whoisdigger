@@ -6,14 +6,6 @@ const invokeMock = jest.fn();
 jest.setTimeout(10000);
 const openPathMock = jest.fn();
 
-jest.mock('worker_threads', () => ({
-  Worker: jest.fn().mockImplementation(() => ({
-    on: jest.fn(),
-    postMessage: jest.fn(),
-    terminate: jest.fn()
-  }))
-}));
-
 const saveSettingsMock = jest.fn().mockResolvedValue('SAVED');
 
 jest.mock('../app/ts/renderer/settings-renderer', () => {
@@ -44,6 +36,10 @@ beforeEach(() => {
     openPath: openPathMock,
     send: jest.fn(),
     on: jest.fn(),
+    startOptionsStats: (...args: any[]) => invokeMock('options:start-stats', ...args),
+    refreshOptionsStats: (...args: any[]) => invokeMock('options:refresh-stats', ...args),
+    stopOptionsStats: (...args: any[]) => invokeMock('options:stop-stats', ...args),
+    getOptionsStats: (...args: any[]) => invokeMock('options:get-stats', ...args),
     path: { join: (...args: string[]) => require('path').join(...args) },
     readdir: jest.fn(async () => []),
     stat: jest.fn(async () => ({ size: 0, mtime: new Date(), atime: new Date() })),
@@ -79,6 +75,15 @@ test('reloadApp invokes ipcRenderer', async () => {
   (window as any).$ = (window as any).jQuery = jQuery;
   require('../app/ts/renderer/options');
   jQuery.ready();
+
+  await new Promise((r) => setTimeout(r, 0));
+  expect(invokeMock).toHaveBeenCalledWith(
+    'options:start-stats',
+    expect.any(String),
+    expect.any(String)
+  );
+
+  invokeMock.mockClear();
 
   await new Promise((r) => setTimeout(r, 0));
 

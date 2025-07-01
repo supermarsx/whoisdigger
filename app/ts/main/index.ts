@@ -5,3 +5,4 @@ import './to.js';
 import './cache.js';
 import './ai.js';
 import './history.js';
+import './options.js';

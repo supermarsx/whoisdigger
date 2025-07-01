@@ -16,8 +16,6 @@ const electron = (window as any).electron as {
   on: (channel: string, listener: (...args: any[]) => void) => void;
   openPath: (path: string) => Promise<string>;
 };
-import { Worker } from 'worker_threads';
-import chokidar from 'chokidar';
 import {
   settings,
   saveSettings,
@@ -57,101 +55,24 @@ function getDefault(path: string): any {
     .reduce((obj: any, key: string) => (obj ? obj[key] : undefined), appDefaults.settings);
 }
 
-let statsWorker: Worker | null = null;
-let statsWatcher: chokidar.FSWatcher | null = null;
+let statsWatcherId: number | null = null;
 let statsConfigPath = '';
 let statsDataDir = '';
 
-async function dirSize(dir: string): Promise<number> {
-  let total = 0;
-  const entries = await electron.readdir(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    const full = electron.path.join(dir, entry.name);
-    try {
-      if (entry.isDirectory()) {
-        total += await dirSize(full);
-      } else {
-        total += (await electron.stat(full)).size;
-      }
-    } catch {
-      // ignore errors from deleted files
-    }
-  }
-  return total;
-}
-
-async function sendStats(): Promise<void> {
-  let mtime: number | null = null;
-  let loaded = false;
-  let cfgSize = 0;
-  let readWrite = false;
-  try {
-    const st = await electron.stat(statsConfigPath);
-    mtime = st.mtimeMs;
-    cfgSize = st.size;
-    loaded = true;
-    try {
-      await electron.access(statsConfigPath, 6);
-      readWrite = true;
-    } catch {
-      readWrite = false;
-    }
-  } catch {
-    loaded = false;
-    cfgSize = 0;
-  }
-  let size = 0;
-  try {
-    size = await dirSize(statsDataDir);
-  } catch {
-    size = 0;
-  }
-  updateStats({
-    mtime,
-    loaded,
-    size,
-    configPath: statsConfigPath,
-    configSize: cfgSize,
-    readWrite,
-    dataPath: statsDataDir
-  });
-}
-
-function startStatsWorker(): void {
-  if (statsWorker) {
-    statsWorker.terminate();
-    statsWorker = null;
-  }
-  if (statsWatcher) {
-    statsWatcher.close();
-    statsWatcher = null;
+async function startStatsWorker(): Promise<void> {
+  if (statsWatcherId !== null) {
+    void electron.invoke('options:stop-stats', statsWatcherId);
+    statsWatcherId = null;
   }
   statsConfigPath = electron.path.join(getUserDataPath(), settings.customConfiguration.filepath);
   statsDataDir = getUserDataPath();
-  try {
-    const workerPath = electron.path.join(baseDir, 'renderer', 'workers', 'statsWorker.js');
-    statsWorker = new Worker(workerPath, {
-      workerData: {
-        configPath: statsConfigPath,
-        dataDir: statsDataDir
-      }
-    });
-    statsWorker.on('message', updateStats);
-  } catch (err) {
-    console.error('Failed to start worker, falling back to main thread:', err);
-    statsWatcher = chokidar.watch([statsConfigPath, statsDataDir], { ignoreInitial: true });
-    statsWatcher.on('all', () => {
-      void sendStats();
-    });
-    void sendStats();
-  }
+  statsWatcherId = await electron.invoke('options:start-stats', statsConfigPath, statsDataDir);
+  electron.on('options:stats', (_e, data) => updateStats(data));
 }
 
 function refreshStats(): void {
-  if (statsWorker) {
-    statsWorker.postMessage('refresh');
-  } else {
-    void sendStats();
+  if (statsWatcherId !== null) {
+    void electron.invoke('options:refresh-stats', statsWatcherId);
   }
 }
 
@@ -299,7 +220,7 @@ $(document).ready(() => {
   });
   // Wait for the final settings to load before populating fields
 
-  startStatsWorker();
+  void startStatsWorker();
 
   if (sessionStorage.getItem('settingsLoaded') !== 'true') {
     $('#settings-not-loaded').removeClass('is-hidden');
@@ -308,12 +229,12 @@ $(document).ready(() => {
   window.addEventListener('settings-loaded', () => {
     $('#settings-not-loaded').addClass('is-hidden');
     populateInputs();
-    startStatsWorker();
+    void startStatsWorker();
   });
 
   window.addEventListener('settings-reloaded', () => {
     populateInputs();
-    startStatsWorker();
+    void startStatsWorker();
   });
 
   container.on('change', 'input[id], select[id]', function () {
