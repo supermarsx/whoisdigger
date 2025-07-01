@@ -4,6 +4,7 @@ const debug = debugModule('main.bwa.fileinput');
 
 const { app, BrowserWindow, Menu, ipcMain, dialog } = electron;
 import { formatString } from '../../common/stringformat.js';
+import { IpcChannel } from '../../common/ipcChannels.js';
 
 /*
   ipcMain.on('bwa:input.file', function(...) {...});
@@ -11,9 +12,7 @@ import { formatString } from '../../common/stringformat.js';
   parameters
     event
  */
-ipcMain.on('bwa:input.file', function (event) {
-  const { sender } = event;
-
+ipcMain.handle(IpcChannel.BwaInputFile, async () => {
   debug('Waiting for file selection');
   const filePath = dialog.showOpenDialogSync({
     title: 'Select wordlist file',
@@ -21,7 +20,7 @@ ipcMain.on('bwa:input.file', function (event) {
     properties: ['openFile', 'showHiddenFiles']
   });
   debug(formatString('Using selected file at {0}', filePath));
-  sender.send('bwa:fileinput.confirmation', filePath);
+  return filePath;
 });
 
 /*

@@ -45,10 +45,10 @@ afterEach(() => {
 });
 
 test('select and process file flow', async () => {
+  invokeMock.mockResolvedValueOnce('/tmp/list.txt');
   jQuery('#toButtonSelect').trigger('click');
-  expect(sendMock).toHaveBeenCalledWith('to:input.file');
-
-  handlers['to:fileinput.confirmation']?.({}, '/tmp/list.txt');
+  await new Promise((r) => setTimeout(r, 0));
+  expect(invokeMock).toHaveBeenCalledWith('to:input.file');
   expect(jQuery('#toFileSelected').text()).toBe('/tmp/list.txt');
 
   jQuery('#toPrefix').val('pre');
@@ -58,6 +58,7 @@ test('select and process file flow', async () => {
   jQuery('#toDedupe').prop('checked', true);
   jQuery('#radioAsc').prop('checked', true);
 
+  invokeMock.mockResolvedValueOnce('ok');
   jQuery('#toButtonProcess').trigger('click');
   await new Promise((r) => setTimeout(r, 0));
 
@@ -69,7 +70,5 @@ test('select and process file flow', async () => {
     dedupe: true,
     sort: 'asc'
   });
-
-  handlers['to:process.result']?.({}, 'ok');
   expect(jQuery('#toOutput').text()).toBe('ok');
 });

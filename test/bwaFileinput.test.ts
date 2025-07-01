@@ -3,9 +3,10 @@ export const mockShowOpenDialogSync = jest.fn();
 
 jest.mock('electron', () => ({
   ipcMain: {
-    on: (channel: string, listener: (...args: any[]) => void) => {
+    handle: (channel: string, listener: (...args: any[]) => any) => {
       ipcMainHandlers[channel] = listener;
-    }
+    },
+    on: jest.fn()
   },
   dialog: { showOpenDialogSync: mockShowOpenDialogSync },
   app: undefined,
@@ -20,28 +21,26 @@ describe('bwa fileinput handler', () => {
     mockShowOpenDialogSync.mockReset();
   });
 
-  test('sends selected file path to renderer', () => {
+  test('returns selected file path', async () => {
     const handler = ipcMainHandlers['bwa:input.file'];
     mockShowOpenDialogSync.mockReturnValue('/tmp/test.txt');
-    const send = jest.fn();
 
-    handler({ sender: { send } } as any);
+    const result = await handler({} as any);
 
     expect(mockShowOpenDialogSync).toHaveBeenCalledWith({
       title: 'Select wordlist file',
       buttonLabel: 'Open',
       properties: ['openFile', 'showHiddenFiles']
     });
-    expect(send).toHaveBeenCalledWith('bwa:fileinput.confirmation', '/tmp/test.txt');
+    expect(result).toBe('/tmp/test.txt');
   });
 
-  test('forwards undefined when no file selected', () => {
+  test('returns undefined when no file selected', async () => {
     const handler = ipcMainHandlers['bwa:input.file'];
     mockShowOpenDialogSync.mockReturnValue(undefined);
-    const send = jest.fn();
 
-    handler({ sender: { send } } as any);
+    const result = await handler({} as any);
 
-    expect(send).toHaveBeenCalledWith('bwa:fileinput.confirmation', undefined);
+    expect(result).toBeUndefined();
   });
 });
