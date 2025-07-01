@@ -1,5 +1,4 @@
 import { contextBridge, ipcRenderer, shell } from 'electron';
-import fs from 'fs';
 import path from 'path';
 
 const api = {
