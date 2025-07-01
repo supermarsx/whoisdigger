@@ -67,10 +67,6 @@ if (fs.existsSync(builtRenderer)) {
 if (fs.existsSync(builtMainFile)) {
   fs.mkdirSync(finalMain, { recursive: true });
   fs.renameSync(builtMainFile, finalMainFile);
-  // Adjust import paths in the relocated main.js to match the new layout
-  let mainJs = fs.readFileSync(finalMainFile, 'utf8');
-  mainJs = mainJs.replaceAll('./main/', './');
-  fs.writeFileSync(finalMainFile, mainJs);
 }
 
 // Precompile Handlebars templates into dist/app/compiled-templates
