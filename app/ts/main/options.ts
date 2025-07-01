@@ -78,9 +78,25 @@ function launchWorker(state: WatchState) {
     state.worker = new Worker(workerPath, {
       workerData: { configPath: state.configPath, dataDir: state.dataDir }
     });
-    state.worker.on('message', (msg) => {
-      state.sender.send('options:stats', msg);
+    state.worker.on('message', async (msg) => {
+      if (msg && msg.type === 'get-stats') {
+        const stats = await computeStats(state.configPath, state.dataDir);
+        state.worker?.postMessage({ type: 'stats', data: stats });
+        state.sender.send('options:stats', stats);
+      } else {
+        state.sender.send('options:stats', msg);
+      }
     });
+    state.watcher = chokidar.watch([state.configPath, state.dataDir], { ignoreInitial: true });
+    const send = async () => {
+      const stats = await computeStats(state.configPath, state.dataDir);
+      state.worker?.postMessage({ type: 'stats', data: stats });
+      state.sender.send('options:stats', stats);
+    };
+    state.watcher.on('all', () => {
+      void send();
+    });
+    void send();
   } catch {
     state.watcher = chokidar.watch([state.configPath, state.dataDir], { ignoreInitial: true });
     const send = async () => {
