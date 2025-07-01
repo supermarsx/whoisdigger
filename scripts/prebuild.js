@@ -4,7 +4,7 @@ import { spawnSync } from 'child_process';
 import debugModule from 'debug';
 import { precompileTemplates } from './precompileTemplates.js';
 import { dirnameCompat } from './dirnameCompat.js';
-import { fileURLToPath } from 'url';
+import { regenerateVendor } from './regenerateVendor.mjs';
 
 const baseDir = dirnameCompat();
 const debug = debugModule('prebuild');
@@ -12,12 +12,6 @@ const debug = debugModule('prebuild');
 const rootDir = path.join(baseDir, '..');
 const modulesPath = path.join(rootDir, 'node_modules');
 const vendorDir = path.join(rootDir, 'app', 'vendor');
-const runtimeSrc = path.join(modulesPath, 'handlebars', 'dist', 'handlebars.runtime.js');
-const runtimeDest = path.join(vendorDir, 'handlebars.runtime.js');
-const jquerySrc = path.join(modulesPath, 'jquery', 'dist', 'jquery.js');
-const jqueryDest = path.join(vendorDir, 'jquery.js');
-const changeCaseSrc = path.join(modulesPath, 'change-case', 'dist', 'index.js');
-const changeCaseDest = path.join(vendorDir, 'change-case.js');
 
 if (!fs.existsSync(modulesPath)) {
   debug('node_modules not found. Running "npm install" to install dependencies...');
@@ -33,9 +27,7 @@ if (!fs.existsSync(modulesPath)) {
 }
 
 fs.mkdirSync(vendorDir, { recursive: true });
-fs.copyFileSync(runtimeSrc, runtimeDest);
-fs.copyFileSync(jquerySrc, jqueryDest);
-fs.copyFileSync(changeCaseSrc, changeCaseDest);
+regenerateVendor();
 
 // Precompile Handlebars templates so development builds have them ready
 try {
