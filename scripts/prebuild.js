@@ -29,6 +29,7 @@ if (!fs.existsSync(modulesPath)) {
 fs.mkdirSync(vendorDir, { recursive: true });
 regenerateVendor();
 
+
 // Precompile Handlebars templates so development builds have them ready
 try {
   debug('Precompiling Handlebars templates...');
