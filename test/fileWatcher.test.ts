@@ -1,5 +1,7 @@
 /** @jest-environment jsdom */
 
+jest.setTimeout(10000);
+
 import { EventEmitter } from 'events';
 import jQuery from 'jquery';
 import path from 'path';

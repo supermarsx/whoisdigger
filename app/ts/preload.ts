@@ -15,6 +15,11 @@ const api = {
   unlink: (p: string) => ipcRenderer.invoke('fs:unlink', p),
   access: (p: string, mode?: number) => ipcRenderer.invoke('fs:access', p, mode),
   exists: (p: string) => ipcRenderer.invoke('fs:exists', p),
+  startOptionsStats: (cfg: string, dir: string) =>
+    ipcRenderer.invoke('options:start-stats', cfg, dir),
+  refreshOptionsStats: (id: number) => ipcRenderer.invoke('options:refresh-stats', id),
+  stopOptionsStats: (id: number) => ipcRenderer.invoke('options:stop-stats', id),
+  getOptionsStats: (cfg: string, dir: string) => ipcRenderer.invoke('options:get-stats', cfg, dir),
   watch: async (p: string, opts: any, cb: (evt: string) => void) => {
     const id = await ipcRenderer.invoke('fs:watch', p, opts);
     const chan = `fs:watch:${id}`;
