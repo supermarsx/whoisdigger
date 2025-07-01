@@ -21,12 +21,10 @@ let bwaFileContents: any;
     event
     contents
  */
-electron.on('bwa:analyser.tablegen', function (event, contents) {
+export function renderAnalyser(contents: any): void {
   bwaFileContents = contents;
   showTable();
-
-  return;
-});
+}
 
 /*
   $('#bwaAnalyserButtonClose').click(function() {...});

@@ -7,6 +7,7 @@ const electron = (window as any).electron as {
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
 };
+import { IpcChannel } from '../common/ipcChannels.js';
 import { formatString } from '../common/stringformat.js';
 
 import $ from '../../vendor/jquery.js';
@@ -27,13 +28,12 @@ const singleWhois: SingleWhois = {
 };
 
 /*
-  electron.on('singlewhois:results', function(...) {...});
-    On event: Single whois results, whois reply processing
+  handleResults
+    Process returned whois data
   parameters
-    event (object) - Event object
     domainResults (object) - Domain results object
- */
-electron.on('singlewhois:results', function (event, domainResults: string) {
+*/
+function handleResults(domainResults: string) {
   let domainName: string;
   let domainStatus: string;
   let domainResultsJSON: Record<string, unknown>;
@@ -94,9 +94,7 @@ electron.on('singlewhois:results', function (event, domainResults: string) {
 
   $('#singlewhoisSearchButtonSearch').removeClass('is-loading');
   $('#singlewhoisSearchInputDomain').removeAttr('readonly');
-
-  return;
-});
+}
 
 /*
   electron.on('singlewhois:copied', function() {...});
@@ -152,7 +150,16 @@ $(document).on('click', '#singlewhoisSearchButtonSearch', function () {
   $('.notification:not(.is-hidden)').addClass('is-hidden');
   $('#singlewhoisTableWhoisinfo:not(.is-hidden)').addClass('is-hidden');
   tableReset();
-  electron.send('singlewhois:lookup', domain);
+  void (async () => {
+    try {
+      const result = await electron.invoke(IpcChannel.SingleWhoisLookup, domain);
+      handleResults(result);
+    } catch (e) {
+      electron.send('app:error', `Lookup failed: ${e}`);
+      $('#singlewhoisSearchButtonSearch').removeClass('is-loading');
+      $('#singlewhoisSearchInputDomain').removeAttr('readonly');
+    }
+  })();
   return undefined;
 });
 

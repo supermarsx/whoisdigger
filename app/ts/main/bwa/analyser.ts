@@ -3,6 +3,7 @@ import debugModule from 'debug';
 const debug = debugModule('main.bwa.analyser');
 
 const { app, BrowserWindow, Menu, ipcMain, dialog } = electron;
+import { IpcChannel } from '../../common/ipcChannels.js';
 
 /*
   ipcMain.on('bwa:analyser.start', function(...) {...});
@@ -11,8 +12,7 @@ const { app, BrowserWindow, Menu, ipcMain, dialog } = electron;
     event (object) - renderer object
     contents (object) - bulk whois lookup results object
  */
-ipcMain.on('bwa:analyser.start', function (event, contents) {
-  const { sender } = event;
-
-  sender.send('bwa:analyser.tablegen', contents);
+ipcMain.handle(IpcChannel.BwaAnalyserStart, async (_event, contents) => {
+  debug('Generating analyser table');
+  return contents;
 });
