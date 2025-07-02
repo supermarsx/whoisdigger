@@ -1,7 +1,9 @@
 const electron = (window as any).electron as {
+  invoke: (channel: string, ...args: any[]) => Promise<any>;
   readFile: (p: string, opts?: any) => Promise<string>;
   watch: (p: string, opts: any, cb: (event: string) => void) => Promise<{ close: () => void }>;
   exists: (p: string) => Promise<boolean>;
+  on: (channel: string, listener: (...args: any[]) => void) => void;
   path: { join: (...args: string[]) => string };
 };
 import { debugFactory } from '../common/logger.js';
@@ -9,81 +11,46 @@ import appDefaults from '../appsettings.js';
 import {
   settings,
   customSettingsLoaded,
-  getUserDataPath,
   getSettings,
   mergeDefaults,
   validateSettings,
   setSettings,
-  load as baseLoad,
-  save as baseSave,
   type Settings
-} from '../common/settings.js';
+} from '../common/settings-base.js';
 
 const debug = debugFactory('renderer.settings');
 const defaultSettings: Settings = JSON.parse(JSON.stringify(appDefaults.settings as Settings));
 const defaultCustomConfiguration = settings.customConfiguration;
-let watcher: { close: () => void } | undefined;
+let userDataPath = (electron as any)?.remote?.app?.getPath('userData') ?? '';
 
-function getCustomConfiguration() {
-  return settings.customConfiguration ?? defaultCustomConfiguration;
-}
-
-function getConfigFile(): string {
-  const { filepath } = getCustomConfiguration();
-  return electron.path.join(getUserDataPath(), filepath);
-}
-
-async function watchConfig(): Promise<void> {
-  if (watcher) {
-    watcher.close();
-  }
-  const cfg = getConfigFile();
-  if (!(await electron.exists(cfg))) {
-    return;
-  }
-  watcher = await electron.watch(cfg, { persistent: false }, async (event) => {
-    if (event !== 'change') return;
-    try {
-      const raw = await electron.readFile(cfg, 'utf8');
-      const parsed = JSON.parse(raw) as Partial<Settings>;
-      try {
-        const merged = mergeDefaults(parsed);
-        if ((merged as any).appWindowWebPreferences) {
-          (merged as any).appWindowWebPreferences.contextIsolation = true;
-        }
-        setSettings(merged);
-        debug(`Reloaded custom configuration at ${cfg}`);
-        if (typeof window !== 'undefined' && settings.ui?.liveReload) {
-          window.dispatchEvent(new Event('settings-reloaded'));
-        }
-      } catch (mergeError) {
-        const defaults = JSON.parse(JSON.stringify(defaultSettings));
-        if ((defaults as any).appWindowWebPreferences) {
-          (defaults as any).appWindowWebPreferences.contextIsolation = true;
-        }
-        setSettings(defaults);
-        debug(`Failed to merge configuration with error: ${mergeError}`);
-        if (typeof window !== 'undefined' && settings.ui?.liveReload) {
-          window.dispatchEvent(new Event('settings-reloaded'));
-        }
-      }
-    } catch (e) {
-      debug(`Failed to reload configuration with error: ${e}`);
-    }
-  });
+export function getUserDataPath(): string {
+  return userDataPath;
 }
 
 export async function loadSettings(): Promise<Settings> {
-  const result = await baseLoad();
-  await watchConfig();
-  return result;
+  const { settings: loaded, userDataPath: path } = (await electron.invoke('settings:load')) as {
+    settings: Settings;
+    userDataPath: string;
+  };
+  setSettings(loaded);
+  userDataPath = path;
+  electron.on('settings:reloaded', (_e: any, newSettings: Settings) => {
+    setSettings(newSettings);
+    window.dispatchEvent(new Event('settings-reloaded'));
+  });
+  return loaded;
 }
 
-export const saveSettings = baseSave;
+export async function saveSettings(newSettings: Settings): Promise<string | Error | undefined> {
+  const res = (await electron.invoke('settings:save', newSettings)) as string | Error | undefined;
+  if (res === 'SAVED') {
+    setSettings(newSettings);
+  }
+  return res;
+}
 export {
   settings,
   customSettingsLoaded,
-  getUserDataPath,
   getSettings,
   mergeDefaults,
   validateSettings,

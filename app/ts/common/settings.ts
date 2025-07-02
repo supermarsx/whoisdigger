@@ -2,77 +2,22 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { dirnameCompat } from '../utils/dirnameCompat.js';
 import { debugFactory } from './logger.js';
-import appDefaults from '../appsettings.js';
+import {
+  settings,
+  defaultSettings,
+  defaultCustomConfiguration,
+  customSettingsLoaded,
+  getSettings,
+  setSettings,
+  setCustomSettingsLoaded,
+  mergeDefaults,
+  validateSettings,
+  type Settings
+} from './settings-base.js';
+
 const debug = debugFactory('common.settings');
 
-export interface Settings {
-  lookupConversion: { enabled: boolean; algorithm: string };
-  lookupGeneral: {
-    type: 'dns' | 'whois';
-    psl: boolean;
-    server: string;
-    verbose: boolean;
-    follow: number;
-    timeout: number;
-    timeBetween: number;
-    dnsTimeBetweenOverride: boolean;
-    dnsTimeBetween: number;
-  };
-  lookupRandomizeFollow: { randomize: boolean; minimumDepth: number; maximumDepth: number };
-  lookupRandomizeTimeout: { randomize: boolean; minimum: number; maximum: number };
-  lookupRandomizeTimeBetween: { randomize: boolean; minimum: number; maximum: number };
-  lookupProxy: {
-    enable: boolean;
-    mode: 'single' | 'multi';
-    multimode: 'sequential' | 'random' | 'ascending' | 'descending';
-    check: boolean;
-    checktype: 'ping' | 'request' | 'ping+request';
-    single?: string;
-    list?: string[];
-  };
-  lookupAssumptions: {
-    uniregistry: boolean;
-    ratelimit: boolean;
-    unparsable: boolean;
-    dnsFailureUnavailable: boolean;
-    expired?: boolean;
-  };
-  requestCache: {
-    enabled: boolean;
-    database: string;
-    ttl: number;
-  };
-  customConfiguration: { filepath: string; load: boolean; save: boolean };
-  theme: { darkMode: boolean; followSystem: boolean };
-  ui: { liveReload: boolean; confirmExit: boolean; language: string };
-  ai: {
-    enabled: boolean;
-    modelPath: string;
-    dataPath: string;
-    modelURL: string;
-    openai: { url: string; apiKey: string };
-  };
-  [key: string]: any;
-}
-
 const baseDir = dirnameCompat();
-
-// Static import of application defaults
-let settings: Settings = appDefaults.settings as Settings;
-const defaultSettings: Settings = JSON.parse(JSON.stringify(settings));
-const defaultCustomConfiguration = settings.customConfiguration;
-export { settings };
-
-export function getSettings(): Settings {
-  return settings;
-}
-
-export function setSettings(newSettings: Settings): void {
-  settings = newSettings;
-}
-
-export let customSettingsLoaded = false;
-export default settings;
 
 const userDataPath = path.join(baseDir, '..', '..', 'data');
 
@@ -88,34 +33,6 @@ function getConfigFile(): string {
   const { filepath } = getCustomConfiguration();
   return path.join(getUserDataPath(), filepath);
 }
-
-export function mergeDefaults(partial: Partial<Settings>): Settings {
-  function merge(target: any, source: any, path: string[] = []): void {
-    for (const key of Object.keys(source)) {
-      const src = (source as any)[key];
-      if (src === undefined) continue;
-      const tgt = target[key];
-      if (src && typeof src === 'object' && !Array.isArray(src)) {
-        if (tgt !== undefined && typeof tgt !== 'object') {
-          throw new TypeError(`Invalid type at ${[...path, key].join('.')}`);
-        }
-        if (tgt === undefined) target[key] = {};
-        merge(target[key], src, [...path, key]);
-      } else {
-        if (tgt !== undefined && typeof src !== typeof tgt) {
-          throw new TypeError(`Invalid type at ${[...path, key].join('.')}`);
-        }
-        target[key] = src;
-      }
-    }
-  }
-
-  const clone = JSON.parse(JSON.stringify(defaultSettings));
-  merge(clone, partial);
-  return clone as Settings;
-}
-
-export const validateSettings = mergeDefaults;
 
 /*
   load
@@ -133,27 +50,27 @@ export async function load(): Promise<Settings> {
       try {
         const parsed = JSON.parse(raw) as Partial<Settings>;
         try {
-          settings = mergeDefaults(parsed);
+          setSettings(mergeDefaults(parsed));
           if ((settings as any).appWindowWebPreferences) {
             (settings as any).appWindowWebPreferences.contextIsolation = true;
           }
-          customSettingsLoaded = true;
+          setCustomSettingsLoaded(true);
           debug(`Loaded custom configuration at ${filePath}`);
         } catch (mergeError) {
-          settings = JSON.parse(JSON.stringify(defaultSettings));
+          setSettings(JSON.parse(JSON.stringify(defaultSettings)));
           if ((settings as any).appWindowWebPreferences) {
             (settings as any).appWindowWebPreferences.contextIsolation = true;
           }
-          customSettingsLoaded = false;
+          setCustomSettingsLoaded(false);
           debug(`Failed to merge custom configuration with error: ${mergeError}`);
         }
       } catch (parseError) {
-        customSettingsLoaded = false;
+        setCustomSettingsLoaded(false);
         debug(`Failed to parse custom configuration with error: ${parseError}`);
       }
     } catch (e) {
       debug(`Failed to load custom configuration with error: ${e}`);
-      customSettingsLoaded = false;
+      setCustomSettingsLoaded(false);
       if ((settings as any).appWindowWebPreferences) {
         (settings as any).appWindowWebPreferences.contextIsolation = true;
       }
@@ -161,7 +78,7 @@ export async function load(): Promise<Settings> {
     }
   }
 
-  if (!customSettingsLoaded) customSettingsLoaded = false;
+  if (!customSettingsLoaded) setCustomSettingsLoaded(false);
   if ((settings as any).appWindowWebPreferences) {
     // Enforce context isolation regardless of loaded configuration
     (settings as any).appWindowWebPreferences.contextIsolation = true;
@@ -184,15 +101,29 @@ export async function save(newSettings: Settings): Promise<string | Error | unde
       await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
       await fs.promises.writeFile(filePath, JSON.stringify(newSettings, null, 2));
       debug(`Saved custom configuration at ${filePath}`);
-      settings = newSettings;
+      setSettings(newSettings);
       return 'SAVED';
     } catch (e) {
       debug(`Failed to save custom configuration with error: ${e}`);
       return e as Error;
     }
   }
-  settings = newSettings;
+  setSettings(newSettings);
 }
 
 export const loadSettings = load;
 export const saveSettings = save;
+
+export {
+  settings,
+  defaultSettings,
+  defaultCustomConfiguration,
+  customSettingsLoaded,
+  getSettings,
+  setSettings,
+  setCustomSettingsLoaded,
+  mergeDefaults,
+  validateSettings
+};
+export default settings;
+export type { Settings } from './settings-base.js';

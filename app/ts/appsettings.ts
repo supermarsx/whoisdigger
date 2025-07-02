@@ -1,5 +1,3 @@
-import * as path from 'path';
-
 // Default application settings
 const appSettings = {
   settings: {

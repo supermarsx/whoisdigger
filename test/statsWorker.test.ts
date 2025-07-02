@@ -54,7 +54,11 @@ async function computeStats(configPath: string, dataDir: string) {
   return { mtime, loaded, size, configPath, configSize: cfgSize, readWrite, dataPath: dataDir };
 }
 
-const workerPath = path.join(process.cwd(), 'dist', 'renderer', 'workers', 'statsWorker.js');
+const workerPath = fs.existsSync(
+  path.join(process.cwd(), 'dist', 'renderer', 'workers', 'statsWorker.js')
+)
+  ? path.join(process.cwd(), 'dist', 'renderer', 'workers', 'statsWorker.js')
+  : path.join(process.cwd(), 'dist', 'app', 'ts', 'renderer', 'workers', 'statsWorker.js');
 
 beforeAll(() => {
   if (!fs.existsSync(workerPath)) {
