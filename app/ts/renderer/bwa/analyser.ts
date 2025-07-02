@@ -1,8 +1,7 @@
 import * as conversions from '../../common/conversions.js';
-import Papa from 'papaparse';
-import datatables from 'datatables';
-const dt = datatables();
 import $ from '../../../vendor/jquery.js';
+import datatables from '../../../vendor/datatables.js';
+datatables();
 
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;

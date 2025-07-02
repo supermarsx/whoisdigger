@@ -1,4 +1,4 @@
-import { isDomainAvailable, getDomainParameters, WhoisResult } from '../common/availability.js';
+import type { WhoisResult } from '../common/availability.js';
 import { preStringStrip, toJSON } from '../common/parser.js';
 
 import { getDate } from '../common/conversions.js';
@@ -33,7 +33,7 @@ const singleWhois: SingleWhois = {
   parameters
     domainResults (object) - Domain results object
 */
-function handleResults(domainResults: string) {
+async function handleResults(domainResults: string) {
   let domainName: string;
   let domainStatus: string;
   let domainResultsJSON: Record<string, unknown>;
@@ -50,8 +50,14 @@ function handleResults(domainResults: string) {
     (domainResultsJSON.domain as string | undefined) ||
     '';
 
-  domainStatus = isDomainAvailable(domainResults);
-  resultFilter = getDomainParameters(domainName, domainStatus, domainResults, domainResultsJSON);
+  domainStatus = await electron.invoke(IpcChannel.AvailabilityCheck, domainResults);
+  resultFilter = await electron.invoke(
+    IpcChannel.DomainParameters,
+    domainName,
+    domainStatus,
+    domainResults,
+    domainResultsJSON
+  );
 
   const { domain, updateDate, registrar, creationDate, company, expiryDate } = resultFilter;
 
@@ -153,7 +159,7 @@ $(document).on('click', '#singlewhoisSearchButtonSearch', function () {
   void (async () => {
     try {
       const result = await electron.invoke(IpcChannel.SingleWhoisLookup, domain);
-      handleResults(result);
+      await handleResults(result);
     } catch (e) {
       electron.send('app:error', `Lookup failed: ${e}`);
       $('#singlewhoisSearchButtonSearch').removeClass('is-loading');
