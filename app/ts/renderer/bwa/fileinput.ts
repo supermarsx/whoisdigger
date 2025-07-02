@@ -1,12 +1,11 @@
 import * as conversions from '../../common/conversions.js';
 import type { FileStats } from '../../common/fileStats.js';
-import Papa from 'papaparse';
-import datatables from 'datatables';
-const dt = datatables();
+import $ from '../../../vendor/jquery.js';
+import datatables from '../../../vendor/datatables.js';
+datatables();
 import { settings } from '../settings-renderer.js';
 
 const electron = (window as any).electron as { send: (channel: string, ...args: any[]) => void; invoke: (channel: string, ...args: any[]) => Promise<any>; on: (channel: string, listener: (...args: any[]) => void) => void; readFile: (p: string, opts?: any) => Promise<any>; stat: (p: string) => Promise<any>; watch: (p: string, opts: any, cb: (evt: string) => void) => Promise<{ close: () => void }>; path: { basename: (p: string) => string }; };
-import $ from '../../../vendor/jquery.js';
 
 import { formatString } from '../../common/stringformat.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
@@ -23,9 +22,9 @@ async function refreshBwaFile(pathToFile: string): Promise<void> {
       bwaFileStats.size,
       settings.lookupMisc.useStandardSize
     );
-    bwaFileContents = Papa.parse(
-      (await electron.readFile(pathToFile)).toString(),
-      { header: true }
+    bwaFileContents = await electron.invoke(
+      IpcChannel.ParseCsv,
+      (await electron.readFile(pathToFile)).toString()
     );
     bwaFileStats.linecount = bwaFileContents.data.length;
     try {
@@ -90,11 +89,9 @@ async function handleFileConfirmation(
             settings.lookupMisc.useStandardSize
           );
           $('#bwaFileSpanInfo').text('Loading file contents...');
-          bwaFileContents = Papa.parse(
-            (await electron.readFile(filePath as string)).toString(),
-            {
-              header: true
-            }
+          bwaFileContents = await electron.invoke(
+            IpcChannel.ParseCsv,
+            (await electron.readFile(filePath as string)).toString()
           );
         } catch (e) {
           electron.send('app:error', `Failed to read file: ${e}`);
@@ -110,11 +107,9 @@ async function handleFileConfirmation(
             settings.lookupMisc.useStandardSize
           );
           $('#bwaFileSpanInfo').text('Loading file contents...');
-          bwaFileContents = Papa.parse(
-            (await electron.readFile((filePath as string[])[0])).toString(),
-            {
-              header: true
-            }
+          bwaFileContents = await electron.invoke(
+            IpcChannel.ParseCsv,
+            (await electron.readFile((filePath as string[])[0])).toString()
           );
         } catch (e) {
           electron.send('app:error', `Failed to read file: ${e}`);

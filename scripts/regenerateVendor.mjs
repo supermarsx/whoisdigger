@@ -39,6 +39,15 @@ export function regenerateVendor() {
   );
   writeFile(path.join(vendorDir, 'change-case.d.ts'), "export * from 'change-case';\n");
 
+  copyFile(
+    path.join(modulesDir, 'datatables', 'media', 'js', 'jquery.dataTables.js'),
+    path.join(vendorDir, 'datatables.js')
+  );
+  writeFile(
+    path.join(vendorDir, 'datatables.d.ts'),
+    'const datatables: any;\nexport default datatables;\n'
+  );
+
   const htmlSrcDir = path.join(modulesDir, 'html-entities', 'dist', 'esm');
   const htmlDestDir = path.join(vendorDir, 'html-entities');
   fs.mkdirSync(htmlDestDir, { recursive: true });

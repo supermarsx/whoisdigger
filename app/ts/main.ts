@@ -75,6 +75,7 @@ interface MainSettings extends BaseSettings {
 }
 
 import './main/fsIpc.js';
+import './main/utils.js';
 
 let settings: MainSettings;
 let mainWindow: BrowserWindow;

@@ -30,7 +30,7 @@ beforeAll(() => {
   (window as any).electron = {
     on: (channel: string, listener: (...args: any[]) => void) => ipc.on(channel, listener),
     send: ipc.send,
-    invoke: jest.fn(),
+    invoke: jest.fn().mockResolvedValue({ data: [], errors: [] }),
     openPath: jest.fn(),
     stat: statMock,
     readFile: readFileMock,

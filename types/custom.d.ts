@@ -192,8 +192,3 @@ declare module 'papaparse' {
   const Papa: any;
   export default Papa;
 }
-
-declare module 'datatables' {
-  const datatables: any;
-  export default datatables;
-}

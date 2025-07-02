@@ -9,5 +9,8 @@ export enum IpcChannel {
   BwaAnalyserStart = 'bwa:analyser.start',
   ToInputFile = 'to:input.file',
   ToProcess = 'to:process',
-  SingleWhoisLookup = 'singlewhois:lookup'
+  SingleWhoisLookup = 'singlewhois:lookup',
+  ParseCsv = 'csv:parse',
+  AvailabilityCheck = 'availability:check',
+  DomainParameters = 'availability:params'
 }
