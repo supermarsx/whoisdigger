@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-export const mockGetPath = jest.fn().mockReturnValue('');
+export const mockGetPath = jest.fn().mockReturnValue(path.join(__dirname, '../app/data'));
 export const mockIpcSend = jest.fn();
 
 jest.mock('electron', () => ({
@@ -17,7 +17,17 @@ if (!(global as any).window) {
 
 (global as any).window.electron = {
   send: jest.fn(),
-  invoke: jest.fn(),
+  invoke: jest.fn((channel: string, ...args: any[]) => {
+    if (channel === 'settings:load') {
+      const { load, getUserDataPath } = require('../app/ts/common/settings');
+      return { settings: load(), userDataPath: getUserDataPath() };
+    }
+    if (channel === 'settings:save') {
+      const { save } = require('../app/ts/common/settings');
+      return save(args[0]);
+    }
+    return Promise.resolve(undefined);
+  }),
   on: jest.fn(),
   openPath: jest.fn(),
   readFile: (p: string, opts?: any) => fs.promises.readFile(p, opts),

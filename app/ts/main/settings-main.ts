@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { ipcMain, BrowserWindow } from 'electron';
 import { debugFactory } from '../common/logger.js';
 import appDefaults from '../appsettings.js';
 import {
@@ -49,8 +50,10 @@ function watchConfig(): void {
         }
         setSettings(merged);
         debug(`Reloaded custom configuration at ${cfg}`);
-        if (typeof window !== 'undefined' && settings.ui?.liveReload) {
-          window.dispatchEvent(new Event('settings-reloaded'));
+        if (settings.ui?.liveReload) {
+          for (const w of BrowserWindow.getAllWindows()) {
+            w.webContents.send('settings:reloaded', getSettings());
+          }
         }
       } catch (mergeError) {
         const defaults = JSON.parse(JSON.stringify(defaultSettings));
@@ -59,8 +62,10 @@ function watchConfig(): void {
         }
         setSettings(defaults);
         debug(`Failed to merge configuration with error: ${mergeError}`);
-        if (typeof window !== 'undefined' && settings.ui?.liveReload) {
-          window.dispatchEvent(new Event('settings-reloaded'));
+        if (settings.ui?.liveReload) {
+          for (const w of BrowserWindow.getAllWindows()) {
+            w.webContents.send('settings:reloaded', getSettings());
+          }
         }
       }
     } catch (e) {
@@ -76,6 +81,23 @@ export async function loadSettings(): Promise<Settings> {
 }
 
 export const saveSettings = baseSave;
+
+if (ipcMain && typeof ipcMain.handle === 'function') {
+  ipcMain.handle('settings:load', async () => {
+    const loaded = await loadSettings();
+    return { settings: loaded, userDataPath: getUserDataPath() };
+  });
+
+  ipcMain.handle('settings:save', async (_e, newSettings: Settings) => {
+    const res = await saveSettings(newSettings);
+    if (res === 'SAVED' && settings.ui?.liveReload) {
+      for (const w of BrowserWindow.getAllWindows()) {
+        w.webContents.send('settings:reloaded', getSettings());
+      }
+    }
+    return res;
+  });
+}
 export {
   settings,
   customSettingsLoaded,

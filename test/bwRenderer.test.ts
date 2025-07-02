@@ -84,4 +84,3 @@ test('invokes bw:input.wordlist and lookup', async () => {
   await new Promise((r) => setTimeout(r, 0));
   expect(invokeMock).toHaveBeenCalledWith('bw:lookup', ['c', 'd'], ['net']);
 });
-
