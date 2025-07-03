@@ -24,7 +24,7 @@ const appSettings = {
     },
     appWindowWebPreferences: {
       // Web preferences
-      nodeIntegration: true, // Enable node integration
+      nodeIntegration: false, // Enable Node.js integration
       contextIsolation: true, // Enable context isolation
       zoomFactor: 1.0, // Page zoom factor
       images: true, // Image support
@@ -208,7 +208,7 @@ export const appSettingsDescriptions: Record<string, string> = {
   'appWindow.kiosk': 'Enable kiosk mode',
   'appWindow.darkTheme': 'Use GTK dark theme',
   'appWindow.thickFrame': 'Use thick frame on Windows',
-  'appWindowWebPreferences.nodeIntegration': 'Enable Node integration',
+  'appWindowWebPreferences.nodeIntegration': 'Enable Node integration (renderer access to Node.js)',
   'appWindowWebPreferences.contextIsolation': 'Enable context isolation',
   'appWindowWebPreferences.zoomFactor': 'Page zoom factor',
   'appWindowWebPreferences.images': 'Allow images',

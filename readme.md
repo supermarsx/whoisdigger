@@ -240,7 +240,7 @@ falling back to `process.cwd()`.
 
 Whoisdigger uses a settings file that rules how the application behaves overall, this can be achieved by either using the preload settings file or change the `appsettings.ts` inside `js`.
 
-Context isolation is always enabled for security purposes and cannot be disabled in configuration.
+Context isolation is always enabled for security purposes and cannot be disabled in configuration. Node integration is disabled by default, so renderer scripts can access Electron only through the preload API.
 
 ### Theme
 
@@ -287,7 +287,6 @@ It also precompiles Handlebars templates and writes `dist/app/html/mainPanel.htm
 from `app/html/templates/mainPanel.hbs`.
 The prebuild step automatically regenerates vendor scripts under `app/vendor`. Run
 `npm run regen:vendor` if you need to refresh them without a full build.
-
 
 MacOS
 
