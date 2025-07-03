@@ -3,7 +3,7 @@ import type { FileStats } from '../../common/fileStats.js';
 import Papa from 'papaparse';
 import datatables from 'datatables';
 const dt = datatables();
-import { settings } from '../../common/settings.js';
+import { settings } from '../settings-renderer.js';
 
 const electron = (window as any).electron as { send: (channel: string, ...args: any[]) => void; invoke: (channel: string, ...args: any[]) => Promise<any>; on: (channel: string, listener: (...args: any[]) => void) => void; readFile: (p: string, opts?: any) => Promise<any>; stat: (p: string) => Promise<any>; watch: (p: string, opts: any, cb: (evt: string) => void) => Promise<{ close: () => void }>; path: { basename: (p: string) => string }; };
 import $ from '../../../vendor/jquery.js';

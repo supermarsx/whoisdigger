@@ -6,7 +6,7 @@ import { mockGetPath } from '../test/electronMock';
 
 import { convertDomain } from '../app/ts/common/lookup';
 import { nsLookup } from '../app/ts/common/dnsLookup';
-import { loadSettings, saveSettings, settings } from '../app/ts/common/settings';
+import { loadSettings, saveSettings, settings } from '../app/ts/renderer/settings-renderer';
 
 describe('settings reload', () => {
   test('convertDomain reflects saved settings', async () => {

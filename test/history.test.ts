@@ -1,5 +1,5 @@
 import '../test/electronMock';
-import { getUserDataPath } from '../app/ts/common/settings';
+import { getUserDataPath } from '../app/ts/renderer/settings-renderer';
 import * as fs from 'fs';
 import * as path from 'path';
 

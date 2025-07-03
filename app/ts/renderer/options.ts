@@ -25,7 +25,7 @@ import {
   loadSettings,
   customSettingsLoaded,
   getUserDataPath
-} from '../common/settings.js';
+} from './settings-renderer.js';
 import { byteToHumanFileSize } from '../common/conversions.js';
 import appDefaults, { appSettingsDescriptions } from '../appsettings.js';
 

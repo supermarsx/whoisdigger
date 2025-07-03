@@ -1,6 +1,6 @@
 import './electronMainMock';
 import { getDomainSetup } from '../app/ts/main/bw/process';
-import { settings } from '../app/ts/common/settings';
+import { settings } from '../app/ts/main/settings-main';
 
 describe('getDomainSetup', () => {
   test('returns randomized values within configured bounds', () => {

@@ -5,7 +5,7 @@ import * as dns from '../../common/dnsLookup.js';
 import { Result, DnsLookupError } from '../../common/errors.js';
 import { formatString } from '../../common/stringformat.js';
 import { msToHumanTime } from '../../common/conversions.js';
-import { getSettings } from '../../common/settings.js';
+import { getSettings } from '../settings-main.js';
 import type { BulkWhois, DomainSetup } from './types.js';
 import { processData } from './resultHandler.js';
 import type { IpcMainEvent } from 'electron';

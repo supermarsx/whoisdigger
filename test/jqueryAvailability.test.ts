@@ -9,7 +9,7 @@ jest.mock('@electron/remote', () => ({
 jest.mock('../app/ts/renderer/index', () => ({}));
 jest.mock('../app/ts/renderer/navigation', () => ({}));
 
-jest.mock('../app/ts/common/settings', () => ({
+jest.mock('../app/ts/renderer/settings-renderer', () => ({
   loadSettings: jest.fn(() => ({
     customConfiguration: { filepath: 'test.json', load: false, save: false },
     appWindowNavigation: {
