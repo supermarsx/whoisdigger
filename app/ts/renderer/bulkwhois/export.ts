@@ -20,13 +20,13 @@ let results: any;
 let options: any;
 
 /*
-  electron.on('bw:result.receive', function(...) {...});
+  electron.on('bulkwhois:result.receive', function(...) {...});
     ipsum
   parameters
     event
     rcvResults
  */
-electron.on('bw:result.receive', function (event, rcvResults) {
+electron.on('bulkwhois:result.receive', function (event, rcvResults) {
   electron.send('app:debug', formatString('Results are ready for export {0}', rcvResults));
 
   results = rcvResults;
@@ -35,10 +35,10 @@ electron.on('bw:result.receive', function (event, rcvResults) {
 });
 
 /*
-  electron.on('bw:export.cancel', function() {...});
+  electron.on('bulkwhois:export.cancel', function() {...});
     Bulk whois export cancel
  */
-electron.on('bw:export.cancel', function () {
+electron.on('bulkwhois:export.cancel', function () {
   $('#bwExportloading').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 
@@ -54,7 +54,7 @@ $(document).on('click', '#bwExportButtonExport', async function () {
   options = getExportOptions();
   $.when($('#bwExportloading').removeClass('is-hidden').delay(10)).done(async function () {
     try {
-      await electron.invoke('bw:export', results, options);
+      await electron.invoke('bulkwhois:export', results, options);
     } catch (err) {
       $('#bwExportErrorText').text((err as Error).message);
       $('#bwExportMessageError').removeClass('is-hidden');

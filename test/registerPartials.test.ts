@@ -1,13 +1,13 @@
 const partialNames = [
-  'bwEntry',
-  'bwExport',
-  'bwExportLoading',
-  'bwFileInputConfirm',
-  'bwFileInputLoading',
-  'bwProcessing',
-  'bwWordlistConfirm',
-  'bwWordlistInput',
-  'bwWordlistLoading',
+  'bulkwhoisEntry',
+  'bulkwhoisExport',
+  'bulkwhoisExportLoading',
+  'bulkwhoisFileInputConfirm',
+  'bulkwhoisFileInputLoading',
+  'bulkwhoisProcessing',
+  'bulkwhoisWordlistConfirm',
+  'bulkwhoisWordlistInput',
+  'bulkwhoisWordlistLoading',
   'bwaAnalyser',
   'bwaEntry',
   'bwaFileInputLoading',
@@ -57,8 +57,9 @@ describe('registerPartials', () => {
     partialNames.forEach((name, index) => {
       const precompiled = { name };
       expect((handlebars.template as jest.Mock).mock.calls[index][0]).toEqual(precompiled);
+      const partialName = name.replace('bulkwhois', 'bw');
       expect((handlebars.registerPartial as jest.Mock).mock.calls[index]).toEqual([
-        name,
+        partialName,
         `compiled-${name}`
       ]);
     });

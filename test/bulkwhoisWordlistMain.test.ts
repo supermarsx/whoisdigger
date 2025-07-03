@@ -11,9 +11,9 @@ jest.mock('electron', () => ({
   Menu: {}
 }));
 
-import '../app/ts/main/bw/wordlistinput';
+import '../app/ts/main/bulkwhois/wordlistinput';
 
-const handler = () => ipcMainHandlers['bw:input.wordlist'];
+const handler = () => ipcMainHandlers['bulkwhois:input.wordlist'];
 
 describe('bw wordlist handler', () => {
   test('resolves without value', async () => {

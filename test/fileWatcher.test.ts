@@ -67,10 +67,10 @@ test('bw watcher updates table on change', async () => {
   readFileMock.mockResolvedValue(Buffer.from('a\nb\n'));
 
   jest.isolateModules(() => {
-    require('../app/ts/renderer/bw/fileinput');
+    require('../app/ts/renderer/bulkwhois/fileinput');
   });
 
-  ipc.emit('bw:fileinput.confirmation', {}, '/tmp/test.txt', true);
+  ipc.emit('bulkwhois:fileinput.confirmation', {}, '/tmp/test.txt', true);
   for (let i = 0; i < 5; i++) await new Promise((res) => setTimeout(res, 0));
 
   expect(watchMock).toHaveBeenCalledWith(

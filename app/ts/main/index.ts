@@ -1,5 +1,5 @@
 import './singlewhois.js';
-import './bw.js';
+import './bulkwhois.js';
 import './bwa.js';
 import './to.js';
 import './cache.js';
