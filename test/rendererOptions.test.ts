@@ -4,7 +4,6 @@ let jQuery: typeof import('../app/vendor/jquery.js');
 let settingsModule: any;
 const invokeMock = jest.fn();
 jest.setTimeout(10000);
-const openPathMock = jest.fn();
 
 const saveSettingsMock = jest.fn().mockResolvedValue('SAVED');
 
@@ -34,7 +33,6 @@ beforeEach(() => {
   (window as any).electron = {
     dirnameCompat: () => __dirname,
     invoke: invokeMock,
-    openPath: openPathMock,
     send: jest.fn(),
     on: jest.fn(),
     startOptionsStats: (...args: any[]) => invokeMock('options:start-stats', ...args),
@@ -50,7 +48,6 @@ beforeEach(() => {
     watch: jest.fn(async () => ({ close: () => {} }))
   };
   invokeMock.mockClear();
-  openPathMock.mockClear();
   saveSettingsMock.mockClear();
 });
 
@@ -95,7 +92,7 @@ test('reloadApp invokes ipcRenderer', async () => {
   expect(invokeMock).toHaveBeenCalledWith('app:reload');
 });
 
-test('openDataFolder calls shell.openPath', async () => {
+test('openDataFolder invokes shell:openPath', async () => {
   jQuery = require('../app/vendor/jquery.js');
   (window as any).$ = (window as any).jQuery = jQuery;
   require('../app/ts/renderer/options');
@@ -107,5 +104,5 @@ test('openDataFolder calls shell.openPath', async () => {
 
   await Promise.resolve();
 
-  expect(openPathMock).toHaveBeenCalled();
+  expect(invokeMock).toHaveBeenCalledWith('shell:openPath', expect.any(String));
 });

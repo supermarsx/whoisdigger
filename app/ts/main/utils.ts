@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron';
+import { ipcMain, shell } from 'electron';
 import Papa from 'papaparse';
 import { isDomainAvailable, getDomainParameters } from '../common/availability.js';
 import { IpcChannel } from '../common/ipcChannels.js';
@@ -29,3 +29,7 @@ ipcMain.handle(
     );
   }
 );
+
+ipcMain.handle(IpcChannel.OpenPath, async (_e, p: string) => {
+  return shell.openPath(p);
+});

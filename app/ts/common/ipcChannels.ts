@@ -12,5 +12,6 @@ export enum IpcChannel {
   SingleWhoisLookup = 'singlewhois:lookup',
   ParseCsv = 'csv:parse',
   AvailabilityCheck = 'availability:check',
-  DomainParameters = 'availability:params'
+  DomainParameters = 'availability:params',
+  OpenPath = 'shell:openPath'
 }

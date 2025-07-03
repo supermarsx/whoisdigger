@@ -45,9 +45,6 @@ describe('preload', () => {
     const onHandler = ipcOnMock.mock.calls[0][1];
     onHandler({}, 'a', 'b');
     expect(listener).toHaveBeenCalledWith('a', 'b');
-    expect(typeof api.openPath).toBe('function');
-    api.openPath('/tmp');
-    expect(shellOpenPathMock).toHaveBeenCalledWith('/tmp');
   });
 
   test('assigns api to window when not contextIsolated', () => {
