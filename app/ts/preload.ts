@@ -1,12 +1,15 @@
-import { contextBridge, ipcRenderer, shell } from 'electron';
-import path from 'path';
-import { dirnameCompat } from './utils/dirnameCompat.js';
+// Use CommonJS imports so the compiled preload script works when loaded via
+// Electron's `require` mechanism.
+const { contextBridge, ipcRenderer, shell } = require('electron');
+const path = require('path');
+const { dirnameCompat } = require('./utils/dirnameCompat.js');
+import type { IpcRendererEvent } from 'electron';
 
 const api = {
   send: (channel: string, ...args: unknown[]) => ipcRenderer.send(channel, ...args),
   invoke: (channel: string, ...args: unknown[]) => ipcRenderer.invoke(channel, ...args),
   on: (channel: string, listener: (...args: unknown[]) => void) => {
-    ipcRenderer.on(channel, (_event, ...args) => listener(...args));
+    ipcRenderer.on(channel, (_event: IpcRendererEvent, ...args: unknown[]) => listener(...args));
   },
   openPath: (path: string) => shell.openPath(path),
   readFile: (p: string, opts?: any) => ipcRenderer.invoke('fs:readFile', p, opts),
@@ -23,7 +26,7 @@ const api = {
   watch: async (p: string, opts: any, cb: (evt: string) => void) => {
     const id = await ipcRenderer.invoke('fs:watch', p, opts);
     const chan = `fs:watch:${id}`;
-    const handler = (_e: any, ev: string) => cb(ev);
+    const handler = (_e: IpcRendererEvent, ev: string) => cb(ev);
     ipcRenderer.on(chan, handler);
     return {
       close: () => {

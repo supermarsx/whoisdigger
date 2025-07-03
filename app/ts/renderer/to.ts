@@ -1,4 +1,6 @@
-import { ipcRenderer } from 'electron';
+// In the renderer process we access IPC methods exposed from the preload script
+// via the `window.electron` bridge instead of importing from 'electron'.
+const { invoke, send } = (window as any).electron;
 import { IpcChannel } from '../common/ipcChannels.js';
 import $ from '../../vendor/jquery.js';
 import { debugFactory } from '../common/logger.js';
@@ -14,7 +16,7 @@ let filePath: string | null = null;
 */
 $(document).on('click', '#toButtonSelect', function () {
   void (async () => {
-    const result = await ipcRenderer.invoke(IpcChannel.ToInputFile);
+    const result = await invoke(IpcChannel.ToInputFile);
     filePath = Array.isArray(result) ? result[0] : result;
     $('#toFileSelected').text(filePath ?? '');
   })();
@@ -28,10 +30,10 @@ $(document).on('click', '#toButtonProcess', async function () {
   if (!filePath) return;
   const options = collectOptions();
   try {
-    const result = await ipcRenderer.invoke(IpcChannel.ToProcess, filePath, options);
+    const result = await invoke(IpcChannel.ToProcess, filePath, options);
     $('#toOutput').text(result);
   } catch (e) {
-    ipcRenderer.send('app:error', `Processing failed: ${e}`);
+    send('app:error', `Processing failed: ${e}`);
   }
 });
 
