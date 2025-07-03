@@ -22,6 +22,10 @@ export function regenerateVendor() {
     path.join(modulesDir, 'handlebars', 'dist', 'handlebars.runtime.js'),
     path.join(vendorDir, 'handlebars.runtime.js')
   );
+  fs.appendFileSync(
+    path.join(vendorDir, 'handlebars.runtime.js'),
+    '\nexport default globalThis.Handlebars;\n'
+  );
   writeFile(
     path.join(vendorDir, 'handlebars.runtime.d.ts'),
     "import Handlebars from 'handlebars';\nexport default Handlebars;\n"
