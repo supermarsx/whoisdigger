@@ -1,5 +1,9 @@
 import $ from '../../vendor/jquery.js';
 import Handlebars from '../../vendor/handlebars.runtime.js';
+import { debugFactory } from '../common/logger.js';
+
+const debug = debugFactory('renderer.templateLoader');
+debug('loaded');
 
 export async function loadTemplate(
   selector: string,

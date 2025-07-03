@@ -4,8 +4,12 @@ import $ from '../../../vendor/jquery.js';
 import datatables from '../../../vendor/datatables.js';
 datatables();
 import { settings } from '../settings-renderer.js';
+import { debugFactory } from '../../common/logger.js';
 
 const electron = (window as any).electron as { send: (channel: string, ...args: any[]) => void; invoke: (channel: string, ...args: any[]) => Promise<any>; on: (channel: string, listener: (...args: any[]) => void) => void; readFile: (p: string, opts?: any) => Promise<any>; stat: (p: string) => Promise<any>; watch: (p: string, opts: any, cb: (evt: string) => void) => Promise<{ close: () => void }>; path: { basename: (p: string) => string }; };
+
+const debug = debugFactory('renderer.bwa.fileinput');
+debug('loaded');
 
 import { formatString } from '../../common/stringformat.js';
 import { IpcChannel } from '../../common/ipcChannels.js';

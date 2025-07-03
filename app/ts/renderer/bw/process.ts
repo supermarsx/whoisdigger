@@ -1,5 +1,6 @@
 import * as conversions from '../../common/conversions.js';
 import parseRawData from '../../common/parser.js';
+import { debugFactory } from '../../common/logger.js';
 const base = 10;
 
 const electron = (window as any).electron as {
@@ -8,6 +9,9 @@ const electron = (window as any).electron as {
   on: (channel: string, listener: (...args: any[]) => void) => void;
 };
 import $ from '../../../vendor/jquery.js';
+
+const debug = debugFactory('renderer.bw.process');
+debug('loaded');
 
 import { formatString } from '../../common/stringformat.js';
 

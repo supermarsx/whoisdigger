@@ -1,6 +1,10 @@
 import { ipcRenderer } from 'electron';
 import { IpcChannel } from '../common/ipcChannels.js';
 import $ from '../../vendor/jquery.js';
+import { debugFactory } from '../common/logger.js';
+
+const debug = debugFactory('renderer.to');
+debug('loaded');
 
 let filePath: string | null = null;
 

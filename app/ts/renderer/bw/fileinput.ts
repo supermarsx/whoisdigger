@@ -2,6 +2,7 @@ import * as conversions from '../../common/conversions.js';
 import type { FileStats } from '../../common/fileStats.js';
 import { debugFactory } from '../../common/logger.js';
 const debug = debugFactory('renderer.bw.fileinput');
+debug('loaded');
 
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;

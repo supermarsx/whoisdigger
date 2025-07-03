@@ -12,6 +12,10 @@ import { formatString } from '../common/stringformat.js';
 
 import $ from '../../vendor/jquery.js';
 (window as any).$ = (window as any).jQuery = $;
+import { debugFactory } from '../common/logger.js';
+
+const debug = debugFactory('renderer.singlewhois');
+debug('loaded');
 
 interface SingleWhois {
   input: {

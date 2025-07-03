@@ -1,4 +1,8 @@
 import Handlebars from '../../vendor/handlebars.runtime.js';
+import { debugFactory } from '../common/logger.js';
+
+const debug = debugFactory('renderer.registerPartials');
+debug('loaded');
 
 import bwEntry from '../../compiled-templates/bwEntry.js';
 import bwExport from '../../compiled-templates/bwExport.js';

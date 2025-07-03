@@ -1,12 +1,16 @@
 import * as conversions from '../../common/conversions.js';
 import defaultExportOptions from './export.defaults.js';
 import $ from '../../../vendor/jquery.js';
+import { debugFactory } from '../../common/logger.js';
 
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
 };
+
+const debug = debugFactory('renderer.bw.export');
+debug('loaded');
 import { resetObject } from '../../common/resetObject.js';
 import { getExportOptions, setExportOptions, setExportOptionsEx } from './auxiliary.js';
 

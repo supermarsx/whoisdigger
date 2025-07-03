@@ -3,6 +3,11 @@ import $ from '../../vendor/jquery.js';
 import { populateInputs } from './options.js';
 import { settings } from './settings-renderer.js';
 
+import { debugFactory } from '../common/logger.js';
+
+const debug = debugFactory('renderer.navigation');
+debug('loaded');
+
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
   invoke: (channel: string, ...args: any[]) => Promise<any>;

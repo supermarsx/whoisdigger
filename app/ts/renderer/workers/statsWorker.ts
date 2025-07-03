@@ -1,4 +1,8 @@
 import { parentPort, workerData } from 'worker_threads';
+import { debugFactory } from '../../common/logger.js';
+
+const debug = debugFactory('renderer.workers.statsWorker');
+debug('loaded');
 
 interface WorkerData {
   configPath: string;

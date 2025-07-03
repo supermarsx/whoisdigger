@@ -2,12 +2,16 @@ import * as conversions from '../../common/conversions.js';
 import $ from '../../../vendor/jquery.js';
 import datatables from '../../../vendor/datatables.js';
 datatables();
+import { debugFactory } from '../../common/logger.js';
 
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
 };
+
+const debug = debugFactory('renderer.bwa.analyser');
+debug('loaded');
 
 import { formatString } from '../../common/stringformat.js';
 

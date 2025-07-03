@@ -1,5 +1,9 @@
 import { resetObject } from '../../common/resetObject.js';
 import $ from '../../../vendor/jquery.js';
+import { debugFactory } from '../../common/logger.js';
+
+const debug = debugFactory('renderer.bw.auxiliary');
+debug('loaded');
 
 /*
   tableReset

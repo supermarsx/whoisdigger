@@ -2,6 +2,10 @@ import { dirnameCompat } from '../utils/dirnameCompat.js';
 
 const baseDir = dirnameCompat();
 import Handlebars from '../../vendor/handlebars.runtime.js';
+import { debugFactory } from '../common/logger.js';
+
+const debug = debugFactory('renderer.i18n');
+debug('loaded');
 
 const electron = (window as any).electron as {
   readFile: (p: string, enc?: any) => Promise<any>;
