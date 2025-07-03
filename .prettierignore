@@ -15,3 +15,7 @@ app/ts/renderer/bwa/fileinput.ts
 app/ts/renderer/darkmode.ts
 app/ts/renderer/navigation.ts
 app/ts/renderer/singlewhois.ts
+app/ts/common/logger.ts
+app/vendor/datatables.js
+app/vendor/handlebars.runtime.js
+package.json
