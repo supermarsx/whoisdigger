@@ -49,7 +49,7 @@ if (fs.existsSync(bulmaSrc)) {
   copyRecursiveSync(bulmaSrc, bulmaDest);
 }
 
-debug('Moving things around...');
+/*
 // Move compiled TypeScript outputs to top-level dist folders
 const builtMain = path.join(distDir, 'ts', 'main');
 const builtRenderer = path.join(distDir, 'ts', 'renderer');
@@ -73,6 +73,7 @@ if (fs.existsSync(builtMainFile)) {
   mainJs = mainJs.replaceAll('./main/', './');
   fs.writeFileSync(finalMainFile, mainJs);
 }
+*/
 
 // Precompile Handlebars templates into dist/app/compiled-templates
 precompileTemplates(path.join(distDir, 'compiled-templates'));
