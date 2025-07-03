@@ -1,5 +1,9 @@
 import $ from '../../vendor/jquery.js';
 import { settings, saveSettings } from './settings-renderer.js';
+import { debugFactory } from '../common/logger.js';
+
+const debug = debugFactory('renderer.darkmode');
+debug('loaded');
 
 function applyDarkMode(enabled: boolean): void {
   const html = document.documentElement;

@@ -1,4 +1,9 @@
 // Default export options values
+import { debugFactory } from '../../common/logger.js';
+
+const debug = debugFactory('renderer.bw.export.defaults');
+debug('loaded');
+
 const defaultExportOptions = {
   filetype: 'csv', // Filetype to export
   domains: 'available', // Export only available domains

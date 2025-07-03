@@ -6,12 +6,16 @@ import { loadSettings, settings, customSettingsLoaded } from './renderer/setting
 import { loadTranslations, registerTranslationHelpers } from './renderer/i18n.js';
 import { formatString } from './common/stringformat.js';
 import { sendDebug, sendError } from './renderer/logger.js';
+import { debugFactory } from './common/logger.js';
 
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
 };
+
+const debug = debugFactory('renderer.entry');
+debug('loaded');
 
 (window as any).$ = $;
 (window as any).jQuery = $;

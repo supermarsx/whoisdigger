@@ -2,6 +2,10 @@ import $ from '../../vendor/jquery.js';
 const electron = (window as any).electron as {
   invoke: (channel: string, ...args: any[]) => Promise<any>;
 };
+import { debugFactory } from '../common/logger.js';
+
+const debug = debugFactory('renderer.history');
+debug('loaded');
 
 function formatDate(ts: number): string {
   return new Date(ts).toLocaleString();

@@ -19,6 +19,7 @@ import {
 } from '../common/settings-base.js';
 
 const debug = debugFactory('renderer.settings');
+debug('loaded');
 const defaultSettings: Settings = JSON.parse(JSON.stringify(appDefaults.settings as Settings));
 const defaultCustomConfiguration = settings.customConfiguration;
 let userDataPath = (electron as any)?.remote?.app?.getPath('userData') ?? '';
