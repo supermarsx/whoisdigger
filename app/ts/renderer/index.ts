@@ -1,5 +1,5 @@
 import './singlewhois.js';
-import './bw.js';
+import './bulkwhois.js';
 import './bwa.js';
 import './darkmode.js';
 import './options.js';
