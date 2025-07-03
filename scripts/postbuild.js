@@ -87,7 +87,8 @@ for (const file of fs.readdirSync(partialDir)) {
   if (file === 'mainPanel.js' || !file.endsWith('.js')) continue;
   const specPath = path.join(partialDir, file);
   const spec = (await import(pathToFileURL(specPath).href)).default;
-  Handlebars.registerPartial(path.basename(file, '.js'), Handlebars.template(spec));
+  const alias = path.basename(file, '.js').replace('bulkwhois', 'bw');
+  Handlebars.registerPartial(alias, Handlebars.template(spec));
 }
 
 const mainSpecPath = path.join(partialDir, 'mainPanel.js');
