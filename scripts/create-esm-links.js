@@ -14,10 +14,22 @@ function processDir(dir) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       processDir(full);
-    } else if (entry.isFile() && entry.name.endsWith('.js')) {
-      const base = full.slice(0, -3);
-      if (!fs.existsSync(base)) {
-        fs.symlinkSync(entry.name, base); // relative link within same dir
+    } else if (entry.isFile()) {
+      if (entry.name.endsWith('.cjs')) {
+        const jsName = entry.name.replace(/\.cjs$/, '.js');
+        const jsPath = path.join(dir, jsName);
+        if (!fs.existsSync(jsPath)) {
+          fs.symlinkSync(entry.name, jsPath);
+        }
+        const base = jsPath.slice(0, -3);
+        if (!fs.existsSync(base)) {
+          fs.symlinkSync(jsName, base);
+        }
+      } else if (entry.name.endsWith('.js')) {
+        const base = full.slice(0, -3);
+        if (!fs.existsSync(base)) {
+          fs.symlinkSync(entry.name, base); // relative link within same dir
+        }
       }
     }
   }

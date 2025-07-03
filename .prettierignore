@@ -18,4 +18,8 @@ app/ts/renderer/singlewhois.ts
 app/ts/common/logger.ts
 app/vendor/datatables.js
 app/vendor/handlebars.runtime.js
+app/vendor/change-case.js
+app/vendor/jquery.js
+app/vendor/html-entities/*.js
+app/vendor/html-entities/index.d.ts
 package.json
