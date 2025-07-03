@@ -3,7 +3,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 const path = require('path');
 const { dirnameCompat } = require('./utils/dirnameCompat.js');
-import type { IpcRendererEvent } from 'electron';
+type IpcRendererEvent = import('electron').IpcRendererEvent;
 
 const api = {
   send: (channel: string, ...args: unknown[]) => ipcRenderer.send(channel, ...args),

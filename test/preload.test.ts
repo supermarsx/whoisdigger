@@ -27,7 +27,7 @@ describe('preload', () => {
 
   test('uses contextBridge when contextIsolated', () => {
     (process as any).contextIsolated = true;
-    require('../app/ts/preload');
+    require('../app/ts/preload.cts');
 
     expect(exposeMock).toHaveBeenCalledTimes(1);
     const api = exposeMock.mock.calls[0][1];
@@ -50,7 +50,7 @@ describe('preload', () => {
   test('assigns api to window when not contextIsolated', () => {
     (process as any).contextIsolated = false;
     (global as any).window = {};
-    require('../app/ts/preload');
+    require('../app/ts/preload.cts');
 
     expect(exposeMock).not.toHaveBeenCalled();
     expect((global as any).window.electron).toBeDefined();
