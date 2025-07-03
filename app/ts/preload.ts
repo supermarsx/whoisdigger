@@ -1,6 +1,6 @@
 // Use CommonJS imports so the compiled preload script works when loaded via
 // Electron's `require` mechanism.
-const { contextBridge, ipcRenderer, shell } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron');
 const path = require('path');
 const { dirnameCompat } = require('./utils/dirnameCompat.js');
 import type { IpcRendererEvent } from 'electron';
@@ -11,7 +11,6 @@ const api = {
   on: (channel: string, listener: (...args: unknown[]) => void) => {
     ipcRenderer.on(channel, (_event: IpcRendererEvent, ...args: unknown[]) => listener(...args));
   },
-  openPath: (path: string) => shell.openPath(path),
   readFile: (p: string, opts?: any) => ipcRenderer.invoke('fs:readFile', p, opts),
   stat: (p: string) => ipcRenderer.invoke('fs:stat', p),
   readdir: (p: string, opts?: any) => ipcRenderer.invoke('fs:readdir', p, opts),

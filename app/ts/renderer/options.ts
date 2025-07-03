@@ -1,5 +1,6 @@
 import $ from '../../vendor/jquery.js';
 import { debugFactory } from '../common/logger.js';
+import { IpcChannel } from '../common/ipcChannels.js';
 
 const electron = (window as any).electron as {
   dirnameCompat: (metaUrl?: string | URL) => string;
@@ -14,7 +15,6 @@ const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
-  openPath: (path: string) => Promise<string>;
 };
 
 const baseDir = electron.dirnameCompat();
@@ -308,7 +308,7 @@ $(document).ready(() => {
 
   $('#openDataFolder').on('click', async () => {
     const dataDir = getUserDataPath();
-    const result = await electron.openPath(dataDir);
+    const result = await electron.invoke(IpcChannel.OpenPath, dataDir);
     if (result) {
       showToast('Failed to open data directory', false);
     }

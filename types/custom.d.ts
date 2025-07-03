@@ -166,7 +166,6 @@ declare global {
       send: (channel: string, ...args: any[]) => void;
       invoke: (channel: string, ...args: any[]) => Promise<any>;
       on: (channel: string, listener: (...args: any[]) => void) => void;
-      openPath: (path: string) => Promise<string>;
       startOptionsStats: (cfg: string, dir: string) => Promise<number>;
       refreshOptionsStats: (id: number) => Promise<void>;
       stopOptionsStats: (id: number) => Promise<void>;
