@@ -37,6 +37,7 @@ describe('preload', () => {
     expect(typeof api.invoke).toBe('function');
     api.invoke('chan', 2);
     expect(ipcInvokeMock).toHaveBeenCalledWith('chan', 2);
+    expect(typeof api.dirnameCompat).toBe('function');
     expect(typeof api.on).toBe('function');
     const listener = jest.fn();
     api.on('chan', listener);
@@ -59,5 +60,6 @@ describe('preload', () => {
     const api = (global as any).window.electron;
     api.send('chan2');
     expect(ipcSendMock).toHaveBeenCalledWith('chan2');
+    expect(typeof api.dirnameCompat).toBe('function');
   });
 });

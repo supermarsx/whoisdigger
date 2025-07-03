@@ -1,5 +1,7 @@
 /** @jest-environment jsdom */
 
+(window as any).electron = { dirnameCompat: () => __dirname };
+
 import { _test } from '../app/ts/renderer/options';
 import { settings } from '../app/ts/renderer/settings-renderer';
 import appDefaults from '../app/ts/appsettings';

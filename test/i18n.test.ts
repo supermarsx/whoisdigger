@@ -12,6 +12,7 @@ describe('i18n loader', () => {
   beforeEach(() => {
     readFileMock.mockReset();
     (window as any).electron = {
+      dirnameCompat: () => __dirname,
       readFile: readFileMock,
       path: { join: (...args: string[]) => require('path').join(...args) }
     };

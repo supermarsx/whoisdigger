@@ -1,10 +1,8 @@
 import $ from '../../vendor/jquery.js';
-import { dirnameCompat } from '../utils/dirnameCompat.js';
-
 import { debugFactory } from '../common/logger.js';
 
-const baseDir = dirnameCompat();
 const electron = (window as any).electron as {
+  dirnameCompat: (metaUrl?: string | URL) => string;
   readFile: (p: string, opts?: any) => Promise<any>;
   stat: (p: string) => Promise<any>;
   readdir: (p: string, opts?: any) => Promise<any>;
@@ -18,6 +16,8 @@ const electron = (window as any).electron as {
   on: (channel: string, listener: (...args: any[]) => void) => void;
   openPath: (path: string) => Promise<string>;
 };
+
+const baseDir = electron.dirnameCompat();
 
 const debug = debugFactory('renderer.options');
 debug('loaded');
