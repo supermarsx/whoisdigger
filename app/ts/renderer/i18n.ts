@@ -13,7 +13,7 @@ debug('loaded');
 let translations: Record<string, string> = {};
 
 export async function loadTranslations(lang: string): Promise<void> {
-  const file = electron.path.join(baseDir, '..', 'locales', `${lang}.json`);
+  const file = await electron.path.join(baseDir, '..', 'locales', `${lang}.json`);
   try {
     const raw = await electron.readFile(file, 'utf8');
     translations = JSON.parse(raw);
