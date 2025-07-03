@@ -18,20 +18,27 @@ function writeFile(dest, content) {
 }
 
 export function regenerateVendor() {
-  copyFile(
-    path.join(modulesDir, 'handlebars', 'dist', 'handlebars.runtime.js'),
-    path.join(vendorDir, 'handlebars.runtime.js')
-  );
-  fs.appendFileSync(
-    path.join(vendorDir, 'handlebars.runtime.js'),
-    '\nexport default globalThis.Handlebars;\n'
-  );
+  const hbSrc = path.join(modulesDir, 'handlebars', 'dist', 'handlebars.runtime.js');
+  const hbDest = path.join(vendorDir, 'handlebars.runtime.js');
+  copyFile(hbSrc, hbDest);
+  const hbExport = '\nexport default globalThis.Handlebars;\n';
+  const hbContent = fs.readFileSync(hbDest, 'utf8');
+  if (!hbContent.includes('export default globalThis.Handlebars')) {
+    fs.appendFileSync(hbDest, hbExport);
+  }
   writeFile(
     path.join(vendorDir, 'handlebars.runtime.d.ts'),
     "import Handlebars from 'handlebars';\nexport default Handlebars;\n"
   );
 
-  copyFile(path.join(modulesDir, 'jquery', 'dist', 'jquery.js'), path.join(vendorDir, 'jquery.js'));
+  const jqSrc = path.join(modulesDir, 'jquery', 'dist', 'jquery.js');
+  const jqDest = path.join(vendorDir, 'jquery.js');
+  copyFile(jqSrc, jqDest);
+  const jqExport = '\nexport default window.jQuery;\n';
+  const jqContent = fs.readFileSync(jqDest, 'utf8');
+  if (!jqContent.includes('export default')) {
+    fs.appendFileSync(jqDest, jqExport);
+  }
   writeFile(
     path.join(vendorDir, 'jquery.d.ts'),
     "import jQuery from 'jquery';\nexport default jQuery;\n"
