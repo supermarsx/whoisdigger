@@ -51,36 +51,36 @@ beforeEach(() => {
   readFileMock.mockResolvedValue(Buffer.from('a\nb'));
 });
 
-test('invokes bw:input.file and bw:lookup', async () => {
+test('invokes bulkwhois:input.file and bulkwhois:lookup', async () => {
   jest.isolateModules(() => {
-    require('../app/ts/renderer/bw/fileinput');
+    require('../app/ts/renderer/bulkwhois/fileinput');
   });
   jQuery('#bwEntryButtonFile').trigger('click');
   await new Promise((r) => setTimeout(r, 20));
-  expect(invokeMock).toHaveBeenCalledWith('bw:input.file');
+  expect(invokeMock).toHaveBeenCalledWith('bulkwhois:input.file');
   invokeMock.mockClear();
-  handlers['bw:fileinput.confirmation']?.({}, '/tmp/list.txt', false);
+  handlers['bulkwhois:fileinput.confirmation']?.({}, '/tmp/list.txt', false);
   await new Promise((r) => setTimeout(r, 0));
   jQuery('#bwFileInputTlds').val('com');
 
   jQuery('#bwFileButtonConfirm').trigger('click');
   await new Promise((r) => setTimeout(r, 0));
 
-  expect(invokeMock).toHaveBeenCalledWith('bw:lookup', ['a', 'b'], ['com']);
+  expect(invokeMock).toHaveBeenCalledWith('bulkwhois:lookup', ['a', 'b'], ['com']);
 });
 
-test('invokes bw:input.wordlist and lookup', async () => {
+test('invokes bulkwhois:input.wordlist and lookup', async () => {
   jest.isolateModules(() => {
-    require('../app/ts/renderer/bw/wordlistinput');
+    require('../app/ts/renderer/bulkwhois/wordlistinput');
   });
   jQuery('#bwWordlistTextareaDomains').val('c\nd');
   jQuery('#bwWordlistInputTlds').val('net');
   jQuery('#bwWordlistinputButtonConfirm').trigger('click');
   await new Promise((r) => setTimeout(r, 0));
-  expect(invokeMock).toHaveBeenCalledWith('bw:input.wordlist');
+  expect(invokeMock).toHaveBeenCalledWith('bulkwhois:input.wordlist');
   invokeMock.mockClear();
-  handlers['bw:wordlistinput.confirmation']?.();
+  handlers['bulkwhois:wordlistinput.confirmation']?.();
   jQuery('#bwWordlistconfirmButtonStart').trigger('click');
   await new Promise((r) => setTimeout(r, 0));
-  expect(invokeMock).toHaveBeenCalledWith('bw:lookup', ['c', 'd'], ['net']);
+  expect(invokeMock).toHaveBeenCalledWith('bulkwhois:lookup', ['c', 'd'], ['net']);
 });

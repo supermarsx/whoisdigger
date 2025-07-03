@@ -40,12 +40,12 @@ afterEach(() => {
 });
 
 function loadModule(): void {
-  require('../app/ts/renderer/bw/export');
+  require('../app/ts/renderer/bulkwhois/export');
   jQuery.ready();
 }
 
 function setResults(data: any): void {
-  handlers['bw:result.receive']?.({}, data);
+  handlers['bulkwhois:result.receive']?.({}, data);
 }
 
 it('invokes export and shows loading', async () => {
@@ -56,7 +56,7 @@ it('invokes export and shows loading', async () => {
   await new Promise((r) => setTimeout(r, 20));
 
   expect(invokeMock).toHaveBeenCalledWith(
-    'bw:export',
+    'bulkwhois:export',
     { id: [1] },
     {
       filetype: 'csv',

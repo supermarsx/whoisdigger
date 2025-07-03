@@ -10,16 +10,16 @@ jest.mock('../app/ts/common/dnsLookup', () => ({
   hasNsServers: jest.fn(async () => ({ ok: true, value: true }))
 }));
 
-jest.mock('../app/ts/main/bw/resultHandler', () => ({
+jest.mock('../app/ts/main/bulkwhois/resultHandler', () => ({
   processData: jest.fn(async () => {})
 }));
 
-import defaultBulkWhois from '../app/ts/main/bw/process.defaults';
-import { compileQueue, getDomainSetup } from '../app/ts/main/bw/queue';
-import { processDomain } from '../app/ts/main/bw/scheduler';
+import defaultBulkWhois from '../app/ts/main/bulkwhois/process.defaults';
+import { compileQueue, getDomainSetup } from '../app/ts/main/bulkwhois/queue';
+import { processDomain } from '../app/ts/main/bulkwhois/scheduler';
 import { settings } from '../app/ts/main/settings-main';
 
-const { processData } = require('../app/ts/main/bw/resultHandler');
+const { processData } = require('../app/ts/main/bulkwhois/resultHandler');
 
 describe('bulk scheduling', () => {
   beforeEach(() => {

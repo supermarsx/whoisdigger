@@ -6,10 +6,10 @@ const { app, BrowserWindow, Menu, ipcMain, dialog, remote } = electron;
 import { IpcChannel } from '../../common/ipcChannels.js';
 
 /*
-  ipcMain.handle('bw:input.wordlist', function() {...});
+  ipcMain.handle('bulkwhois:input.wordlist', function() {...});
     Renderer requests wordlist mode
 */
-ipcMain.handle(IpcChannel.BwInputWordlist, async () => {
+ipcMain.handle(IpcChannel.BulkwhoisInputWordlist, async () => {
   debug('Using wordlist input');
   return;
 });

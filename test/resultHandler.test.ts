@@ -1,6 +1,6 @@
 import { performance } from 'perf_hooks';
-import defaultBulkWhois from '../app/ts/main/bw/process.defaults';
-import { processData } from '../app/ts/main/bw/resultHandler';
+import defaultBulkWhois from '../app/ts/main/bulkwhois/process.defaults';
+import { processData } from '../app/ts/main/bulkwhois/resultHandler';
 import { settings } from '../app/ts/main/settings-main';
 
 jest.mock('../app/ts/common/availability', () => ({

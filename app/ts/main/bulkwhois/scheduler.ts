@@ -35,9 +35,9 @@ export function processDomain(
     let data: any;
     const settings = getSettings();
     stats.domains.sent++;
-    sender.send('bw:status.update', 'domains.sent', stats.domains.sent);
+    sender.send('bulkwhois:status.update', 'domains.sent', stats.domains.sent);
     stats.domains.waiting++;
-    sender.send('bw:status.update', 'domains.waiting', stats.domains.waiting);
+    sender.send('bulkwhois:status.update', 'domains.waiting', stats.domains.waiting);
 
     reqtime[domainSetup.index!] = await performance.now();
 
@@ -83,12 +83,12 @@ export function counter(bulkWhois: BulkWhois, event: IpcMainEvent, start = true)
         stats.time.remaining = msToHumanTime(stats.time.remainingcounter);
       }
       stats.time.current = msToHumanTime(stats.time.currentcounter);
-      sender.send('bw:status.update', 'time.current', stats.time.current);
-      sender.send('bw:status.update', 'time.remaining', stats.time.remaining);
+      sender.send('bulkwhois:status.update', 'time.current', stats.time.current);
+      sender.send('bulkwhois:status.update', 'time.remaining', stats.time.remaining);
       if (stats.domains.total == stats.domains.sent && stats.domains.waiting === 0) {
         clearInterval(stats.time.counter!);
-        sender.send('bw:result.receive', results);
-        sender.send('bw:status.update', 'finished');
+        sender.send('bulkwhois:result.receive', results);
+        sender.send('bulkwhois:status.update', 'finished');
       }
     }, 1000);
   } else {

@@ -10,18 +10,18 @@ jest.mock('../app/ts/common/dnsLookup', () => ({
   hasNsServers: jest.fn(async () => ({ ok: true, value: true }))
 }));
 
-jest.mock('../app/ts/main/bw/resultHandler', () => ({
+jest.mock('../app/ts/main/bulkwhois/resultHandler', () => ({
   processData: jest.fn(async () => {})
 }));
 
-import defaultBulkWhois from '../app/ts/main/bw/process.defaults';
-import { processDomain } from '../app/ts/main/bw/scheduler';
+import defaultBulkWhois from '../app/ts/main/bulkwhois/process.defaults';
+import { processDomain } from '../app/ts/main/bulkwhois/scheduler';
 import { settings } from '../app/ts/main/settings-main';
-import type { DomainSetup } from '../app/ts/main/bw/types';
+import type { DomainSetup } from '../app/ts/main/bulkwhois/types';
 
 const { lookup } = require('../app/ts/common/lookup');
 const { hasNsServers } = require('../app/ts/common/dnsLookup');
-const { processData } = require('../app/ts/main/bw/resultHandler');
+const { processData } = require('../app/ts/main/bulkwhois/resultHandler');
 
 describe('processDomain', () => {
   beforeEach(() => {
@@ -67,8 +67,8 @@ describe('processDomain', () => {
 
     expect(bulkWhois.stats.domains.sent).toBe(1);
     expect(bulkWhois.stats.domains.waiting).toBe(1);
-    expect(event.sender.send).toHaveBeenCalledWith('bw:status.update', 'domains.sent', 1);
-    expect(event.sender.send).toHaveBeenCalledWith('bw:status.update', 'domains.waiting', 1);
+    expect(event.sender.send).toHaveBeenCalledWith('bulkwhois:status.update', 'domains.sent', 1);
+    expect(event.sender.send).toHaveBeenCalledWith('bulkwhois:status.update', 'domains.waiting', 1);
     expect(reqtime[0]).toBe(42);
 
     timerSpy.mockRestore();
@@ -112,8 +112,8 @@ describe('processDomain', () => {
       false
     );
 
-    expect(event.sender.send).toHaveBeenCalledWith('bw:status.update', 'domains.sent', 1);
-    expect(event.sender.send).toHaveBeenCalledWith('bw:status.update', 'domains.waiting', 1);
+    expect(event.sender.send).toHaveBeenCalledWith('bulkwhois:status.update', 'domains.sent', 1);
+    expect(event.sender.send).toHaveBeenCalledWith('bulkwhois:status.update', 'domains.waiting', 1);
     expect(bulkWhois.stats.domains.sent).toBe(1);
     expect(bulkWhois.stats.domains.waiting).toBe(1);
     expect(reqtime[1]).toBe(100);

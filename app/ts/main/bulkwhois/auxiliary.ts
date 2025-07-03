@@ -41,7 +41,7 @@ function resetUiCounters(event: IpcMainEvent): void {
         'status.error' // Number stats
       ]
     },
-    channel = 'bw:status.update';
+    channel = 'bulkwhois:status.update';
 
   // Loop through events and send default values
   (Object.keys(events) as Array<keyof typeof events>).forEach((eventType) => {

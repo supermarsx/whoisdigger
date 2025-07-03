@@ -9,10 +9,10 @@ import { IpcChannel } from '../../common/ipcChannels.js';
 import { getSettings } from '../settings-main.js';
 
 /*
-  ipcMain.handle('bw:input.file', function() {...});
+  ipcMain.handle('bulkwhois:input.file', function() {...});
     Open file dialog for bulk whois input
 */
-ipcMain.handle(IpcChannel.BwInputFile, async () => {
+ipcMain.handle(IpcChannel.BulkwhoisInputFile, async () => {
   debug('Waiting for file selection');
   const filePath = dialog.showOpenDialogSync({
     title: 'Select wordlist file',
@@ -42,5 +42,5 @@ ipcMain.on('ondragstart', function (event, filePath) {
   });
 
   debug(formatString('File drag filepath: {0}', filePath));
-  sender.send('bw:fileinput.confirmation', filePath, true);
+  sender.send('bulkwhois:fileinput.confirmation', filePath, true);
 });

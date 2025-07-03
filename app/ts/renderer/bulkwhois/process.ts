@@ -47,14 +47,14 @@ electron.on('bulkwhois:resultreceive', function(event, results) {
 */
 
 /*
-  electron.on('bw:status.update', function(...) {...});
+  electron.on('bulkwhois:status.update', function(...) {...});
     Bulk whois processing, ui status update
   parameters
     event
     stat
     value
  */
-electron.on('bw:status.update', function (event, stat, value) {
+electron.on('bulkwhois:status.update', function (event, stat, value) {
   electron.send('app:debug', formatString('{0}, value update to {1}', stat, value)); // status update
   let percent;
   switch (stat) {
@@ -158,13 +158,13 @@ $(document).on('click', '#bwProcessingButtonPause', function () {
   switch (searchStatus) {
     case 'Continue':
       setPauseButton();
-      electron.send('bw:lookup.continue');
+      electron.send('bulkwhois:lookup.continue');
       break;
     case 'Pause':
       $('#bwProcessingButtonPause').removeClass('is-warning').addClass('is-success');
       $('#bwProcessingButtonPauseicon').removeClass('fa-pause').addClass('fa-play');
       $('#bwProcessingButtonPauseSpanText').text('Continue');
-      electron.send('bw:lookup.pause');
+      electron.send('bulkwhois:lookup.pause');
       break;
     default:
       break;
@@ -230,7 +230,7 @@ $(document).on('click', '#bwProcessingModalStopButtonStop', function () {
  */
 $(document).on('click', '#bwProcessingModalStopButtonStopsave', function () {
   electron.send('app:debug', 'Closing Stop modal & exporting');
-  electron.send('bw:lookup.stop');
+  electron.send('bulkwhois:lookup.stop');
   $('#bwProcessingModalStop').removeClass('is-active');
   $('#bwProcessing').addClass('is-hidden');
   setPauseButton();

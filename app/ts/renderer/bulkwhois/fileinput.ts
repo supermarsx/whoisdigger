@@ -198,7 +198,7 @@ async function handleFileConfirmation(
 }
 
 /*
-  electron.on('bw:fileinput.confirmation', function(...) {...});
+  electron.on('bulkwhois:fileinput.confirmation', function(...) {...});
     // File input, path and information confirmation container
   parameters
     event
@@ -206,7 +206,7 @@ async function handleFileConfirmation(
     isDragDrop
  */
 electron.on(
-  'bw:fileinput.confirmation',
+  'bulkwhois:fileinput.confirmation',
   (_event, filePath: string | string[] | null = null, isDragDrop = false) => {
     void handleFileConfirmation(filePath, isDragDrop);
   }
@@ -219,7 +219,7 @@ electron.on(
 $(document).on('click', '#bwEntryButtonFile', function () {
   $('#bwEntry').addClass('is-hidden');
   $.when($('#bwFileinputloading').removeClass('is-hidden').delay(10)).done(async function () {
-    const filePath = await electron.invoke(IpcChannel.BwInputFile);
+    const filePath = await electron.invoke(IpcChannel.BulkwhoisInputFile);
     await handleFileConfirmation(filePath);
   });
 
@@ -266,7 +266,7 @@ $(document).on('click', '#bwFileButtonConfirm', function () {
   debug(bwDomainArray);
   debug(bwTldsArray);
 
-  void electron.invoke(IpcChannel.BwLookup, bwDomainArray, bwTldsArray);
+  void electron.invoke(IpcChannel.BulkwhoisLookup, bwDomainArray, bwTldsArray);
 });
 
 /*

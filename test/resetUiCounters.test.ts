@@ -1,4 +1,4 @@
-import { resetUiCounters } from '../app/ts/main/bw/auxiliary';
+import { resetUiCounters } from '../app/ts/main/bulkwhois/auxiliary';
 
 describe('resetUiCounters', () => {
   test('sends default values to renderer', () => {
@@ -7,7 +7,7 @@ describe('resetUiCounters', () => {
 
     resetUiCounters(event);
 
-    const channel = 'bw:status.update';
+    const channel = 'bulkwhois:status.update';
     const integerEvents = [
       'time.current',
       'time.remaining',

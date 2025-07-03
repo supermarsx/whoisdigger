@@ -9,7 +9,7 @@ coverage/
 app/css/
 app/html/templates/
 app/ts/common/tools.ts
-app/ts/main/bw/process.ts
+app/ts/main/bulkwhois/process.ts
 app/ts/main/to.ts
 app/ts/renderer/bwa/fileinput.ts
 app/ts/renderer/darkmode.ts

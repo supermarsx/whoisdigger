@@ -13,14 +13,14 @@ import { getSettings } from '../settings-main.js';
 import { generateFilename } from '../../cli/export.js';
 
 /*
-  ipcMain.on('bw:export', function(...) {...});
+  ipcMain.on('bulkwhois:export', function(...) {...});
     On event: bulk whois export event
   parameters
     event (object) - renderer object
     results (object) - bulk whois results object
     options (object) - bulk whois export options object
  */
-ipcMain.handle('bw:export', async function (event, results, options) {
+ipcMain.handle('bulkwhois:export', async function (event, results, options) {
   const { lookupExport: resExports } = getSettings();
 
   const { sender } = event;
@@ -77,7 +77,7 @@ ipcMain.handle('bw:export', async function (event, results, options) {
 
   if (filePath === undefined || filePath == '' || filePath === null) {
     debug(formatString('Using selected file at {0}', filePath));
-    sender.send('bw:export.cancel');
+    sender.send('bulkwhois:export.cancel');
   } else {
     let contentsExport = '',
       contentsHeader = '',
@@ -214,5 +214,5 @@ ipcMain.handle('bw:export', async function (event, results, options) {
       await shell.openPath(filePath);
     }
   }
-  sender.send('bw:export.cancel');
+  sender.send('bulkwhois:export.cancel');
 });

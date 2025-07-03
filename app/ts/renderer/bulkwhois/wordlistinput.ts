@@ -35,7 +35,7 @@ $(document).on('click', '#bwSuggestButton', async () => {
 });
 
 /*
-  electron.on('bw:wordlistinput.confirmation', function() {...});
+  electron.on('bulkwhois:wordlistinput.confirmation', function() {...});
     Wordlist input, contents confirmation container
  */
 function handleWordlistConfirmation(): void {
@@ -87,7 +87,7 @@ function handleWordlistConfirmation(): void {
   return;
 }
 
-electron.on('bw:wordlistinput.confirmation', () => {
+electron.on('bulkwhois:wordlistinput.confirmation', () => {
   handleWordlistConfirmation();
 });
 
@@ -120,7 +120,7 @@ $(document).on('click', '#bwWordlistinputButtonCancel', function () {
 $(document).on('click', '#bwWordlistinputButtonConfirm', function () {
   $('#bwWordlistinput').addClass('is-hidden');
   void (async () => {
-    await electron.invoke(IpcChannel.BwInputWordlist);
+    await electron.invoke(IpcChannel.BulkwhoisInputWordlist);
     handleWordlistConfirmation();
   })();
 
@@ -157,7 +157,7 @@ $(document).on('click', '#bwWordlistconfirmButtonStart', function () {
   $('#bwWordlistconfirm').addClass('is-hidden');
   $('#bwProcessing').removeClass('is-hidden');
 
-  void electron.invoke(IpcChannel.BwLookup, bwDomainArray, bwTldsArray);
+  void electron.invoke(IpcChannel.BulkwhoisLookup, bwDomainArray, bwTldsArray);
 
   return;
 });
