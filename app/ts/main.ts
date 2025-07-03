@@ -126,7 +126,7 @@ app.on('ready', async function () {
       backgroundThrottling: webPreferences.backgroundThrottling, // Whether to throttle animations and timers when the page becomes background
       offscreen: webPreferences.offscreen, // enable offscreen rendering for the browser window
       spellcheck: webPreferences.spellcheck, // Enable builtin spellchecker
-      preload: path.resolve(baseDir, 'preload.js')
+      preload: path.resolve(baseDir, 'preload.cjs')
     }
   });
 

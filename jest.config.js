@@ -2,9 +2,10 @@ export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
   testMatch: ['**/test/**/*.test.ts'],
-  extensionsToTreatAsEsm: ['.ts'],
+  extensionsToTreatAsEsm: ['.ts', '.cts'],
   transform: {
     '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.json', diagnostics: false, useESM: true }],
+    '^.+\\.cts$': ['ts-jest', { tsconfig: 'tsconfig.json', diagnostics: false, useESM: true }],
     '^.+\\.m?js$': 'babel-jest'
   },
   transformIgnorePatterns: ['node_modules/(?!(change-case|html-entities)/)'],

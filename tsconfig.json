@@ -4,6 +4,6 @@
     "rootDir": ".",
     "outDir": "dist"
   },
-  "include": ["app/ts/**/*.ts", "scripts/**/*.ts", "**/*.d.ts"],
+  "include": ["app/ts/**/*.ts", "app/ts/**/*.cts", "scripts/**/*.ts", "**/*.d.ts"],
   "exclude": ["test", "app/compiled-templates"]
 }
