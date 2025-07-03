@@ -31,6 +31,13 @@ beforeEach(() => {
     <div id="toOutput"></div>
   `;
   (window as any).$ = (window as any).jQuery = jQuery;
+  (window as any).electron = {
+    send: (...args: any[]) => sendMock(...args),
+    invoke: (...args: any[]) => invokeMock(...args),
+    on: (channel: string, cb: (...args: any[]) => void) => {
+      handlers[channel] = cb;
+    }
+  };
   sendMock.mockClear();
   invokeMock.mockReset();
   require('../app/ts/renderer/to');

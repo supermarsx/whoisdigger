@@ -22,11 +22,10 @@ const partialNames = [
   'modals'
 ];
 
-jest.mock('../app/vendor/handlebars.runtime.js', () => {
-  const template = jest.fn((pre: any) => `compiled-${pre.name}`);
-  const registerPartial = jest.fn();
-  return { __esModule: true, default: { template, registerPartial } };
-});
+const handlebarsMock = {
+  template: jest.fn((pre: any) => `compiled-${pre.name}`),
+  registerPartial: jest.fn()
+};
 
 for (const name of partialNames) {
   jest.mock(
@@ -39,25 +38,31 @@ for (const name of partialNames) {
   );
 }
 
-const handlebars = require('../app/vendor/handlebars.runtime.js').default;
-const { registerPartials } = require('../app/ts/renderer/registerPartials');
+let registerPartials: () => void;
+
+beforeAll(() => {
+  (global as any).window = { Handlebars: handlebarsMock };
+  registerPartials = require('../app/ts/renderer/registerPartials').registerPartials;
+});
 
 describe('registerPartials', () => {
   beforeEach(() => {
-    (handlebars.registerPartial as jest.Mock).mockClear();
-    (handlebars.template as jest.Mock).mockClear();
+    (handlebarsMock.registerPartial as jest.Mock).mockClear();
+    (handlebarsMock.template as jest.Mock).mockClear();
   });
 
   test('registers compiled partials with Handlebars', () => {
     registerPartials();
 
-    expect((handlebars.template as jest.Mock).mock.calls.length).toBe(partialNames.length);
-    expect((handlebars.registerPartial as jest.Mock).mock.calls.length).toBe(partialNames.length);
+    expect((handlebarsMock.template as jest.Mock).mock.calls.length).toBe(partialNames.length);
+    expect((handlebarsMock.registerPartial as jest.Mock).mock.calls.length).toBe(
+      partialNames.length
+    );
 
     partialNames.forEach((name, index) => {
       const precompiled = { name };
-      expect((handlebars.template as jest.Mock).mock.calls[index][0]).toEqual(precompiled);
-      expect((handlebars.registerPartial as jest.Mock).mock.calls[index]).toEqual([
+      expect((handlebarsMock.template as jest.Mock).mock.calls[index][0]).toEqual(precompiled);
+      expect((handlebarsMock.registerPartial as jest.Mock).mock.calls[index]).toEqual([
         name,
         `compiled-${name}`
       ]);

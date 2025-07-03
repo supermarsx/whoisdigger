@@ -1,5 +1,10 @@
-import Handlebars from '../../vendor/handlebars.runtime.js';
+// Handlebars runtime is provided via a global `Handlebars` variable after
+// loading `vendor/handlebars.runtime.js` in startup.ts. Importing it as an ES
+// module would fail because the vendor script is UMD. Instead we read it from
+// `window`.
 import { debugFactory } from '../common/logger.js';
+
+const Handlebars: typeof import('handlebars') = (window as any).Handlebars;
 
 const debug = debugFactory('renderer.registerPartials');
 debug('loaded');
