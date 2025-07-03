@@ -1,16 +1,15 @@
-import { dirnameCompat } from '../utils/dirnameCompat.js';
+const electron = (window as any).electron as {
+  dirnameCompat: (metaUrl?: string | URL) => string;
+  readFile: (p: string, enc?: any) => Promise<any>;
+  path: { join: (...args: string[]) => string };
+};
 
-const baseDir = dirnameCompat();
+const baseDir = electron.dirnameCompat();
 import Handlebars from '../../vendor/handlebars.runtime.js';
 import { debugFactory } from '../common/logger.js';
 
 const debug = debugFactory('renderer.i18n');
 debug('loaded');
-
-const electron = (window as any).electron as {
-  readFile: (p: string, enc?: any) => Promise<any>;
-  path: { join: (...args: string[]) => string };
-};
 let translations: Record<string, string> = {};
 
 export async function loadTranslations(lang: string): Promise<void> {

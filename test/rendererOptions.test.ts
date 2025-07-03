@@ -32,6 +32,7 @@ beforeEach(() => {
     <div id="opSearchNoResults"></div>
   `;
   (window as any).electron = {
+    dirnameCompat: () => __dirname,
     invoke: invokeMock,
     openPath: openPathMock,
     send: jest.fn(),
