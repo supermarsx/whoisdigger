@@ -11,7 +11,7 @@ const electron = (window as any).electron as {
   access: (p: string, mode?: number) => Promise<any>;
   exists: (p: string) => Promise<any>;
   watch: (p: string, opts: any, cb: (evt: string) => void) => Promise<{ close: () => void }>;
-  path: { join: (...args: string[]) => string; basename: (p: string) => string };
+  path: { join: (...args: string[]) => Promise<string>; basename: (p: string) => Promise<string> };
   send: (channel: string, ...args: any[]) => void;
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
@@ -69,7 +69,10 @@ async function startStatsWorker(): Promise<void> {
     void electron.invoke('options:stop-stats', statsWatcherId);
     statsWatcherId = null;
   }
-  statsConfigPath = electron.path.join(getUserDataPath(), settings.customConfiguration.filepath);
+  statsConfigPath = await electron.path.join(
+    getUserDataPath(),
+    settings.customConfiguration.filepath
+  );
   statsDataDir = getUserDataPath();
   statsWatcherId = await electron.invoke('options:start-stats', statsConfigPath, statsDataDir);
   electron.on('options:stats', (_e, data) => updateStats(data));
@@ -290,7 +293,10 @@ $(document).ready(() => {
     await loadSettings();
     sessionStorage.setItem('customSettingsLoaded', customSettingsLoaded ? 'true' : 'false');
     populateInputs();
-    const filePath = electron.path.join(getUserDataPath(), settings.customConfiguration.filepath);
+    const filePath = await electron.path.join(
+      getUserDataPath(),
+      settings.customConfiguration.filepath
+    );
     const exists = await electron.exists(filePath);
     const success = customSettingsLoaded || !exists;
     showToast(success ? 'Configuration reloaded' : 'Failed to reload configuration', success);
@@ -340,7 +346,10 @@ $(document).ready(() => {
   });
 
   $('#deleteConfigYes').on('click', async () => {
-    const filePath = electron.path.join(getUserDataPath(), settings.customConfiguration.filepath);
+    const filePath = await electron.path.join(
+      getUserDataPath(),
+      settings.customConfiguration.filepath
+    );
     try {
       await electron.unlink(filePath);
       showToast('Configuration deleted', true);

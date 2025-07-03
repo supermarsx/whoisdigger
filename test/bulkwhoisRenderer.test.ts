@@ -42,7 +42,7 @@ beforeEach(() => {
     },
     stat: statMock,
     readFile: readFileMock,
-    path: { basename: require('path').basename },
+    path: { basename: async (p: string) => require('path').basename(p) },
     watch: jest.fn(async () => ({ close: jest.fn() }))
   };
   invokeMock.mockReset();

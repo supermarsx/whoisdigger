@@ -13,5 +13,7 @@ export enum IpcChannel {
   ParseCsv = 'csv:parse',
   AvailabilityCheck = 'availability:check',
   DomainParameters = 'availability:params',
-  OpenPath = 'shell:openPath'
+  OpenPath = 'shell:openPath',
+  PathJoin = 'path:join',
+  PathBasename = 'path:basename'
 }

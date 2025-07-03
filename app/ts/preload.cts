@@ -1,7 +1,6 @@
 // Use CommonJS imports so the compiled preload script works when loaded via
 // Electron's `require` mechanism.
 const { contextBridge, ipcRenderer } = require('electron');
-const path = require('path');
 const { dirnameCompat } = require('./utils/dirnameCompat.js');
 type IpcRendererEvent = import('electron').IpcRendererEvent;
 
@@ -36,8 +35,8 @@ const api = {
   },
   dirnameCompat,
   path: {
-    join: (...args: string[]) => path.join(...args),
-    basename: (p: string) => path.basename(p)
+    join: (...args: string[]) => ipcRenderer.invoke('path:join', ...args),
+    basename: (p: string) => ipcRenderer.invoke('path:basename', p)
   }
 };
 

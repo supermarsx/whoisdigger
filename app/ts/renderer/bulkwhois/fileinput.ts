@@ -11,7 +11,7 @@ const electron = (window as any).electron as {
   readFile: (p: string, opts?: any) => Promise<any>;
   stat: (p: string) => Promise<any>;
   watch: (p: string, opts: any, cb: (evt: string) => void) => Promise<{ close: () => void }>;
-  path: { basename: (p: string) => string };
+  path: { basename: (p: string) => Promise<string> };
 };
 import { tableReset } from './auxiliary.js';
 import $ from '../../../vendor/jquery.js';
@@ -32,7 +32,7 @@ async function refreshBwFile(pathToFile: string): Promise<void> {
       }
     };
     const bwFileStats = (await electron.stat(pathToFile)) as FileStats;
-    bwFileStats.filename = electron.path.basename(pathToFile);
+    bwFileStats.filename = await electron.path.basename(pathToFile);
     bwFileStats.humansize = conversions.byteToHumanFileSize(bwFileStats.size, misc.useStandardSize);
     bwFileContents = await electron.readFile(pathToFile);
     bwFileStats.linecount = bwFileContents.toString().split('\n').length;
@@ -112,7 +112,7 @@ async function handleFileConfirmation(
       $('#bwFileinputloading').removeClass('is-hidden');
       try {
         bwFileStats = (await electron.stat(filePath as string)) as FileStats;
-        bwFileStats.filename = electron.path.basename(filePath as string);
+        bwFileStats.filename = await electron.path.basename(filePath as string);
         bwFileStats.humansize = conversions.byteToHumanFileSize(
           bwFileStats.size,
           misc.useStandardSize
@@ -127,7 +127,7 @@ async function handleFileConfirmation(
     } else {
       try {
         bwFileStats = (await electron.stat((filePath as string[])[0])) as FileStats;
-        bwFileStats.filename = electron.path.basename((filePath as string[])[0]);
+        bwFileStats.filename = await electron.path.basename((filePath as string[])[0]);
         bwFileStats.humansize = conversions.byteToHumanFileSize(
           bwFileStats.size,
           misc.useStandardSize

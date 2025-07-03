@@ -6,7 +6,7 @@ datatables();
 import { settings } from '../settings-renderer.js';
 import { debugFactory } from '../../common/logger.js';
 
-const electron = (window as any).electron as { send: (channel: string, ...args: any[]) => void; invoke: (channel: string, ...args: any[]) => Promise<any>; on: (channel: string, listener: (...args: any[]) => void) => void; readFile: (p: string, opts?: any) => Promise<any>; stat: (p: string) => Promise<any>; watch: (p: string, opts: any, cb: (evt: string) => void) => Promise<{ close: () => void }>; path: { basename: (p: string) => string }; };
+const electron = (window as any).electron as { send: (channel: string, ...args: any[]) => void; invoke: (channel: string, ...args: any[]) => Promise<any>; on: (channel: string, listener: (...args: any[]) => void) => void; readFile: (p: string, opts?: any) => Promise<any>; stat: (p: string) => Promise<any>; watch: (p: string, opts: any, cb: (evt: string) => void) => Promise<{ close: () => void }>; path: { basename: (p: string) => Promise<string> }; };
 
 const debug = debugFactory('renderer.bwa.fileinput');
 debug('loaded');
@@ -21,7 +21,7 @@ let bwaFileWatcher: { close: () => void } | undefined;
 async function refreshBwaFile(pathToFile: string): Promise<void> {
   try {
     const bwaFileStats = (await electron.stat(pathToFile)) as FileStats;
-    bwaFileStats.filename = electron.path.basename(pathToFile);
+    bwaFileStats.filename = await electron.path.basename(pathToFile);
     bwaFileStats.humansize = conversions.byteToHumanFileSize(
       bwaFileStats.size,
       settings.lookupMisc.useStandardSize
@@ -86,8 +86,8 @@ async function handleFileConfirmation(
         $('#bwaEntry').addClass('is-hidden');
         $('#bwaFileinputloading').removeClass('is-hidden');
         try {
-          bwaFileStats = await electron.stat(filePath as string) as FileStats;
-          bwaFileStats.filename = electron.path.basename(filePath as string);
+          bwaFileStats = (await electron.stat(filePath as string)) as FileStats;
+          bwaFileStats.filename = await electron.path.basename(filePath as string);
           bwaFileStats.humansize = conversions.byteToHumanFileSize(
             bwaFileStats.size,
             settings.lookupMisc.useStandardSize
@@ -104,8 +104,8 @@ async function handleFileConfirmation(
         }
       } else {
         try {
-          bwaFileStats = await electron.stat((filePath as string[])[0]) as FileStats;
-          bwaFileStats.filename = electron.path.basename((filePath as string[])[0]);
+          bwaFileStats = (await electron.stat((filePath as string[])[0])) as FileStats;
+          bwaFileStats.filename = await electron.path.basename((filePath as string[])[0]);
           bwaFileStats.humansize = conversions.byteToHumanFileSize(
             bwaFileStats.size,
             settings.lookupMisc.useStandardSize
