@@ -74,6 +74,13 @@ async function computeStats(configPath: string, dataDir: string) {
 
 function launchWorker(state: WatchState) {
   const workerPath = path.join(baseDir, '..', 'renderer', 'workers', 'statsWorker.js');
+  if (!fs.existsSync(workerPath)) {
+    // Fall back to direct computation when the worker script is missing
+    computeStats(state.configPath, state.dataDir).then((stats) => {
+      state.sender.send('options:stats', stats);
+    });
+    return;
+  }
   try {
     state.worker = new Worker(workerPath, {
       workerData: { configPath: state.configPath, dataDir: state.dataDir }

@@ -207,6 +207,12 @@ listed in `package-lock.json`.
 If `node_modules` is missing, `npm run prebuild` will automatically fetch
 dependencies before building. This script runs whenever you execute `npm run build`.
 
+### Rebuilding native modules
+
+If you see errors about mismatched `NODE_MODULE_VERSION` when launching the app,
+run `npm run rebuild` to rebuild dependencies like `better-sqlite3` against the
+Electron runtime.
+
 ## Development setup
 
 Run `nvm use` to switch to the Node version defined in `.nvmrc`.
