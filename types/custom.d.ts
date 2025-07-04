@@ -78,7 +78,11 @@ declare module 'electron' {
     send<C extends keyof RendererToMainIpc>(channel: C, ...args: RendererToMainIpc[C]): void;
     on<C extends keyof MainToRendererIpc>(
       channel: C,
-      listener: (event: IpcRendererEvent, ...args: MainToRendererIpc[C]) => void
+      listener: (...args: MainToRendererIpc[C]) => void
+    ): void;
+    off<C extends keyof MainToRendererIpc>(
+      channel: C,
+      listener: (...args: MainToRendererIpc[C]) => void
     ): void;
     invoke<C extends keyof RendererToMainIpc>(
       channel: C,

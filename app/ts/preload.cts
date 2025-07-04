@@ -3,11 +3,22 @@
 const { contextBridge, ipcRenderer } = require('electron');
 type IpcRendererEvent = import('electron').IpcRendererEvent;
 
+const listenerMap = new WeakMap<Function, (...args: any[]) => void>();
+
 const api = {
   send: (channel: string, ...args: unknown[]) => ipcRenderer.send(channel, ...args),
   invoke: (channel: string, ...args: unknown[]) => ipcRenderer.invoke(channel, ...args),
   on: (channel: string, listener: (...args: unknown[]) => void) => {
-    ipcRenderer.on(channel, (_event: IpcRendererEvent, ...args: unknown[]) => listener(...args));
+    const wrapped = (_event: IpcRendererEvent, ...args: unknown[]) => listener(...args);
+    listenerMap.set(listener, wrapped);
+    ipcRenderer.on(channel, wrapped);
+  },
+  off: (channel: string, listener: (...args: unknown[]) => void) => {
+    const wrapped = listenerMap.get(listener);
+    if (wrapped) {
+      ipcRenderer.removeListener(channel, wrapped);
+      listenerMap.delete(listener);
+    }
   },
   readFile: (p: string, opts?: any) => ipcRenderer.invoke('fs:readFile', p, opts),
   stat: (p: string) => ipcRenderer.invoke('fs:stat', p),
