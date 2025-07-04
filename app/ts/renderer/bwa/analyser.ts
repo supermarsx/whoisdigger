@@ -1,7 +1,6 @@
 import * as conversions from '../../common/conversions.js';
 import $ from '../../../vendor/jquery.js';
-import datatables from '../../../vendor/datatables.js';
-datatables();
+import '../../../vendor/datatables.js';
 import { debugFactory } from '../../common/logger.js';
 
 const electron = (window as any).electron as {
