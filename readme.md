@@ -209,9 +209,10 @@ dependencies before building. This script runs whenever you execute `npm run bui
 
 ### Rebuilding native modules
 
-If you see errors about mismatched `NODE_MODULE_VERSION` when launching the app,
-run `npm run rebuild` to rebuild dependencies like `better-sqlite3` against the
-Electron runtime.
+`npm install` automatically invokes `electron-rebuild` through the `postinstall`
+script so native modules match the bundled Electron runtime.
+If you still see errors about mismatched `NODE_MODULE_VERSION` when launching the
+app, run `npm run rebuild` manually to rebuild dependencies like `better-sqlite3`.
 
 ## Development setup
 

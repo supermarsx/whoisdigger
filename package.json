@@ -27,7 +27,7 @@
     "prebuild": "node scripts/prebuild.js",
     "regen:vendor": "node scripts/regenerateVendor.mjs",
     "rebuild": "electron-rebuild -f -w better-sqlite3",
-    "postinstall": "simple-git-hooks",
+    "postinstall": "simple-git-hooks && npm run rebuild",
     "clean": "rimraf dist release_builds app/compiled-templates",
     "pretest": "node scripts/prebuild.js"
   },
