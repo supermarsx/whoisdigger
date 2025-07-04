@@ -15,6 +15,7 @@ const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
+  off: (channel: string, listener: (...args: any[]) => void) => void;
 };
 
 const debug = debugFactory('renderer.options');
@@ -61,11 +62,16 @@ function getDefault(path: string): any {
 let statsWatcherId: number | null = null;
 let statsConfigPath = '';
 let statsDataDir = '';
+let statsHandler: ((data: any) => void) | null = null;
 
 async function startStatsWorker(): Promise<void> {
   if (statsWatcherId !== null) {
+    if (statsHandler) {
+      electron.off('options:stats', statsHandler);
+    }
     void electron.invoke('options:stop-stats', statsWatcherId);
     statsWatcherId = null;
+    statsHandler = null;
   }
   statsConfigPath = await electron.path.join(
     getUserDataPath(),
@@ -73,7 +79,8 @@ async function startStatsWorker(): Promise<void> {
   );
   statsDataDir = getUserDataPath();
   statsWatcherId = await electron.invoke('options:start-stats', statsConfigPath, statsDataDir);
-  electron.on('options:stats', (_e, data) => updateStats(data));
+  statsHandler = (data: any) => updateStats(data);
+  electron.on('options:stats', statsHandler);
 }
 
 function refreshStats(): void {

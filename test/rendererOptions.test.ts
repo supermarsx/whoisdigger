@@ -35,6 +35,7 @@ beforeEach(() => {
     invoke: invokeMock,
     send: jest.fn(),
     on: jest.fn(),
+    off: jest.fn(),
     startOptionsStats: (...args: any[]) => invokeMock('options:start-stats', ...args),
     refreshOptionsStats: (...args: any[]) => invokeMock('options:refresh-stats', ...args),
     stopOptionsStats: (...args: any[]) => invokeMock('options:stop-stats', ...args),
