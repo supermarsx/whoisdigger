@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
+import { createRequire } from 'module';
 import debugModule from 'debug';
 import { precompileTemplates } from './precompileTemplates.js';
 import { dirnameCompat } from './dirnameCompat.js';
@@ -14,6 +15,19 @@ const modulesPath = path.join(rootDir, 'node_modules');
 const vendorDir = path.join(rootDir, 'app', 'vendor');
 const distCliDir = path.join(rootDir, 'dist', 'app', 'ts', 'cli');
 
+const require = createRequire(import.meta.url);
+
+function needsRebuild() {
+  try {
+    require(path.join(rootDir, 'node_modules', 'better-sqlite3'));
+    return false;
+  } catch (err) {
+    return (
+      (err && err.code === 'ERR_DLOPEN_FAILED' && /NODE_MODULE_VERSION/.test(err.message)) || false
+    );
+  }
+}
+
 if (!fs.existsSync(modulesPath)) {
   debug('node_modules not found. Running "npm install" to install dependencies...');
   const result = spawnSync('npm', ['install'], { stdio: 'inherit', shell: true });
@@ -25,8 +39,10 @@ if (!fs.existsSync(modulesPath)) {
   }
 
   debug('\nDependencies installed successfully. Continuing build...');
+}
 
-  // Ensure native modules are rebuilt against the Electron headers
+if (!fs.existsSync(modulesPath) || needsRebuild()) {
+  console.log('Rebuilding native modules for Electron...');
   const rebuild = spawnSync('npx', ['electron-rebuild', '-f', '-w', 'better-sqlite3'], {
     stdio: 'inherit',
     shell: true
