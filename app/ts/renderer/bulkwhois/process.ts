@@ -39,12 +39,13 @@ electron.on('bulkwhois:results', function(event, domain, domainResults) {
 });
 */
 
-/*
-// Receive bulk whois results
-electron.on('bulkwhois:resultreceive', function(event, results) {
-
+// Receive bulk whois results and store them for export
+let bulkResults: any;
+electron.on('bulkwhois:result.receive', (_event, results) => {
+  bulkResults = results;
 });
-*/
+
+export { bulkResults };
 
 /*
   electron.on('bulkwhois:status.update', function(...) {...});
