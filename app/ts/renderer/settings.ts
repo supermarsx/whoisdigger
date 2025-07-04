@@ -225,7 +225,7 @@ function filterOptions(term: string): void {
 }
 
 $(document).ready(() => {
-  const container = $('#opEntry');
+  const container = $('#settingsEntry');
   const table = $('#opTable');
   buildEntries(appDefaults.settings, '', table);
   filterOptions('');
@@ -373,11 +373,11 @@ $(document).ready(() => {
     $('#deleteConfigModal').removeClass('is-active');
   });
 
-  const backToTop = $('#opBackToTop');
-  const goToBottom = $('#opGoToBottom');
+  const backToTop = $('#settingsBackToTop');
+  const goToBottom = $('#settingsGoToBottom');
   const containerEl = $('#contents-container');
   containerEl.on('scroll', () => {
-    if ($('#opMainContainer').hasClass('current')) {
+    if ($('#settingsMainContainer').hasClass('current')) {
       const top = containerEl.scrollTop() ?? 0;
       const bottom = (containerEl[0]?.scrollHeight ?? 0) - (containerEl.innerHeight() ?? 0) - top;
       backToTop.toggleClass('is-visible', top > 200);

@@ -20,7 +20,7 @@ import bwaFileinputconfirm from '../../compiled-templates/bwaFileinputconfirm.js
 import bwaProcess from '../../compiled-templates/bwaProcess.js';
 import navBottom from '../../compiled-templates/navBottom.js';
 import navTop from '../../compiled-templates/navTop.js';
-import opEntry from '../../compiled-templates/opEntry.js';
+import settingsEntry from '../../compiled-templates/settingsEntry.js';
 import singlewhois from '../../compiled-templates/singlewhois.js';
 import toEntry from '../../compiled-templates/toEntry.js';
 import he from '../../compiled-templates/he.js';
@@ -60,7 +60,7 @@ export function registerPartials(): void {
     bwaProcess: Handlebars.template((bwaProcess as any).default || (bwaProcess as any)),
     navBottom: Handlebars.template((navBottom as any).default || (navBottom as any)),
     navTop: Handlebars.template((navTop as any).default || (navTop as any)),
-    opEntry: Handlebars.template((opEntry as any).default || (opEntry as any)),
+    settingsEntry: Handlebars.template((settingsEntry as any).default || (settingsEntry as any)),
     singlewhois: Handlebars.template((singlewhois as any).default || (singlewhois as any)),
     toEntry: Handlebars.template((toEntry as any).default || (toEntry as any)),
     he: Handlebars.template((he as any).default || (he as any)),

@@ -63,7 +63,7 @@ $(document).on('click', 'section.tabs ul li', function () {
 
     $(this).addClass('is-active');
     $('#' + tabName).addClass('current');
-    if (tabName === 'opMainContainer') {
+    if (tabName === 'settingsMainContainer') {
       populateInputs();
     }
   }

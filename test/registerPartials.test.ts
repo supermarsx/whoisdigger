@@ -15,7 +15,7 @@ const partialNames = [
   'bwaProcess',
   'navBottom',
   'navTop',
-  'opEntry',
+  'settingsEntry',
   'singlewhois',
   'toEntry',
   'he',

@@ -194,7 +194,7 @@ html[data-theme='dark'] #toTable .button {
 }
 
 /* Back to top button */
-#opBackToTop {
+#settingsBackToTop {
   position: fixed;
   bottom: 1.5rem;
   right: 1.5rem;
@@ -202,12 +202,12 @@ html[data-theme='dark'] #toTable .button {
   z-index: 900;
 }
 
-#opBackToTop.is-visible {
+#settingsBackToTop.is-visible {
   display: inline-flex;
 }
 
 /* Go to bottom button */
-#opGoToBottom {
+#settingsGoToBottom {
   position: fixed;
   bottom: 1.5rem;
   right: 4rem;
@@ -215,7 +215,7 @@ html[data-theme='dark'] #toTable .button {
   z-index: 900;
 }
 
-#opGoToBottom.is-visible {
+#settingsGoToBottom.is-visible {
   display: inline-flex;
 }
 
