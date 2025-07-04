@@ -21,8 +21,12 @@ export function regenerateVendor() {
   const hbSrc = path.join(modulesDir, 'handlebars', 'dist', 'handlebars.runtime.js');
   const hbDest = path.join(vendorDir, 'handlebars.runtime.js');
   copyFile(hbSrc, hbDest);
+  let hbContent = fs.readFileSync(hbDest, 'utf8');
+  if (hbContent.includes('})(this, function()')) {
+    hbContent = hbContent.replace('})(this, function()', '})(globalThis, function()');
+    fs.writeFileSync(hbDest, hbContent);
+  }
   const hbExport = '\nexport default globalThis.Handlebars;\n';
-  const hbContent = fs.readFileSync(hbDest, 'utf8');
   if (!hbContent.includes('export default globalThis.Handlebars')) {
     fs.appendFileSync(hbDest, hbExport);
   }
