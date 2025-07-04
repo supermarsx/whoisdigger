@@ -105,7 +105,7 @@ declare module 'psl' {
 declare module 'punycode' {
   export function encode(input: string): string;
 }
-declare module 'punycode/' {
+declare module 'punycode/punycode.js' {
   export function encode(input: string): string;
   export function toASCII(input: string): string;
 }
