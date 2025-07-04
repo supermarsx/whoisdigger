@@ -84,7 +84,7 @@ All IPC events must:
 Example:
 
 ```ts
-ipcMain.handle('bw:lookup', async (e, data) => await runBulkLookup(data));
+ipcMain.handle('bulkwhois:lookup', async (e, data) => await runBulkLookup(data));
 ipcRenderer.invoke('settings:get').then((set) => applySettings(set));
 ```
 
