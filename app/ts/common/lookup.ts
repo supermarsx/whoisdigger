@@ -1,5 +1,5 @@
 import psl from 'psl';
-import { toASCII } from 'punycode/';
+import { toASCII } from 'punycode/punycode.js';
 import uts46 from 'idna-uts46';
 import whois from 'whois';
 import debugModule from 'debug';
