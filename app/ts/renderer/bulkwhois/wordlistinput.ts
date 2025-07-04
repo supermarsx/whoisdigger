@@ -87,7 +87,7 @@ function handleWordlistConfirmation(): void {
   return;
 }
 
-electron.on('bulkwhois:wordlistinput.confirmation', () => {
+electron.on(IpcChannel.BulkwhoisWordlistInputConfirmation, () => {
   handleWordlistConfirmation();
 });
 

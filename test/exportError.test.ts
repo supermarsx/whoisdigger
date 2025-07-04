@@ -12,6 +12,7 @@ jest.mock('jszip', () => {
 });
 
 import '../app/ts/main/bulkwhois/export';
+import { IpcChannel } from '../app/ts/common/ipcChannels';
 
 describe('bw export error handling', () => {
   const results = {
@@ -29,7 +30,7 @@ describe('bw export error handling', () => {
   };
 
   test('rejects when csv write fails', async () => {
-    const handler = ipcMainHandlers['bulkwhois:export'];
+    const handler = ipcMainHandlers[IpcChannel.BulkwhoisExport];
     mockShowSaveDialogSync.mockReturnValue('/tmp/out.csv');
     jest.spyOn(fs.promises, 'writeFile').mockRejectedValueOnce(new Error('fail'));
 
@@ -45,7 +46,7 @@ describe('bw export error handling', () => {
   });
 
   test('rejects when zip write fails', async () => {
-    const handler = ipcMainHandlers['bulkwhois:export'];
+    const handler = ipcMainHandlers[IpcChannel.BulkwhoisExport];
     mockShowSaveDialogSync.mockReturnValue('/tmp/out');
     jest.spyOn(fs.promises, 'writeFile').mockRejectedValueOnce(new Error('zip fail'));
 

@@ -11,6 +11,7 @@ const { app, BrowserWindow, Menu, ipcMain, dialog, remote, shell } = electron;
 
 import { getSettings } from '../settings-main.js';
 import { generateFilename } from '../../cli/export.js';
+import { IpcChannel } from '../../common/ipcChannels.js';
 
 /*
   ipcMain.on('bulkwhois:export', function(...) {...});
@@ -20,7 +21,7 @@ import { generateFilename } from '../../cli/export.js';
     results (object) - bulk whois results object
     options (object) - bulk whois export options object
  */
-ipcMain.handle('bulkwhois:export', async function (event, results, options) {
+ipcMain.handle(IpcChannel.BulkwhoisExport, async function (event, results, options) {
   const { lookupExport: resExports } = getSettings();
 
   const { sender } = event;
@@ -77,7 +78,7 @@ ipcMain.handle('bulkwhois:export', async function (event, results, options) {
 
   if (filePath === undefined || filePath == '' || filePath === null) {
     debug(formatString('Using selected file at {0}', filePath));
-    sender.send('bulkwhois:export.cancel');
+    sender.send(IpcChannel.BulkwhoisExportCancel);
   } else {
     let contentsExport = '',
       contentsHeader = '',
@@ -214,5 +215,5 @@ ipcMain.handle('bulkwhois:export', async function (event, results, options) {
       await shell.openPath(filePath);
     }
   }
-  sender.send('bulkwhois:export.cancel');
+  sender.send(IpcChannel.BulkwhoisExportCancel);
 });

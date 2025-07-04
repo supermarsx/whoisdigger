@@ -4,6 +4,7 @@ jest.setTimeout(10000);
 
 import { EventEmitter } from 'events';
 import jQuery from 'jquery';
+import { IpcChannel } from '../app/ts/common/ipcChannels';
 import path from 'path';
 jest.setTimeout(10000);
 const ipc = new EventEmitter() as any;
@@ -70,7 +71,7 @@ test('bw watcher updates table on change', async () => {
     require('../app/ts/renderer/bulkwhois/fileinput');
   });
 
-  ipc.emit('bulkwhois:fileinput.confirmation', {}, '/tmp/test.txt', true);
+  ipc.emit(IpcChannel.BulkwhoisFileinputConfirmation, {}, '/tmp/test.txt', true);
   for (let i = 0; i < 5; i++) await new Promise((res) => setTimeout(res, 0));
 
   expect(watchMock).toHaveBeenCalledWith(

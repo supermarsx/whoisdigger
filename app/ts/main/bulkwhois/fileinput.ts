@@ -42,5 +42,5 @@ ipcMain.on('ondragstart', function (event, filePath) {
   });
 
   debug(formatString('File drag filepath: {0}', filePath));
-  sender.send('bulkwhois:fileinput.confirmation', filePath, true);
+  sender.send(IpcChannel.BulkwhoisFileinputConfirmation, filePath, true);
 });

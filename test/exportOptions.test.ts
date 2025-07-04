@@ -3,6 +3,7 @@ import fs from 'fs';
 import { ipcMainHandlers, mockShowSaveDialogSync, openPathMock } from './electronMainMock';
 import { settings } from '../app/ts/main/settings-main';
 import '../app/ts/main/bulkwhois/export';
+import { IpcChannel } from '../app/ts/common/ipcChannels';
 
 const results = {
   id: [1],
@@ -24,7 +25,7 @@ beforeEach(() => {
 });
 
 test('suggests filename when enabled', async () => {
-  const handler = ipcMainHandlers['bulkwhois:export'];
+  const handler = ipcMainHandlers[IpcChannel.BulkwhoisExport];
   settings.lookupExport.autoGenerateFilename = true;
   mockShowSaveDialogSync.mockReturnValue('/tmp/out.csv');
   await handler({ sender: { send: jest.fn() } } as any, results, {
@@ -39,7 +40,7 @@ test('suggests filename when enabled', async () => {
 });
 
 test('opens exported csv when enabled', async () => {
-  const handler = ipcMainHandlers['bulkwhois:export'];
+  const handler = ipcMainHandlers[IpcChannel.BulkwhoisExport];
   settings.lookupExport.openAfterExport = true;
   mockShowSaveDialogSync.mockReturnValue('/tmp/out.csv');
   jest.spyOn(fs.promises, 'writeFile').mockResolvedValueOnce();
@@ -54,7 +55,7 @@ test('opens exported csv when enabled', async () => {
 });
 
 test('opens exported zip when enabled', async () => {
-  const handler = ipcMainHandlers['bulkwhois:export'];
+  const handler = ipcMainHandlers[IpcChannel.BulkwhoisExport];
   settings.lookupExport.openAfterExport = true;
   mockShowSaveDialogSync.mockReturnValue('/tmp/out.zip');
   jest.spyOn(fs.promises, 'writeFile').mockResolvedValue();

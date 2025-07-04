@@ -15,8 +15,9 @@ jest.mock('electron', () => ({
 }));
 
 import '../app/ts/main/bulkwhois/fileinput';
+import { IpcChannel } from '../app/ts/common/ipcChannels';
 
-const handler = () => ipcMainHandlers['bulkwhois:input.file'];
+const handler = () => ipcMainHandlers[IpcChannel.BulkwhoisInputFile];
 
 describe('bw fileinput handler', () => {
   beforeEach(() => {

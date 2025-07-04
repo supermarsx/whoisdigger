@@ -68,7 +68,7 @@ ipcMain.handle(IpcChannel.BulkwhoisLookup, async function (
   input.tlds = tlds; // TLDs array
 
   stats.domains.total = input.tlds.length * input.domains.length; // Domain quantity times tld quantity
-  sender.send('bulkwhois:status.update', 'domains.total', stats.domains.total); // Display total amount of domains
+  sender.send(IpcChannel.BulkwhoisStatusUpdate, 'domains.total', stats.domains.total); // Display total amount of domains
 
   // Compile domains to process
   domainsPending.push(...compileQueue(input.domains, input.tlds, tldSeparator));
@@ -101,7 +101,7 @@ ipcMain.handle(IpcChannel.BulkwhoisLookup, async function (
     processDomain(bulkWhois, reqtime, domainSetup, evt, cumulativeDelay);
 
     stats.domains.processed = domainSetup.index + 1;
-    sender.send('bulkwhois:status.update', 'domains.processed', stats.domains.processed);
+    sender.send(IpcChannel.BulkwhoisStatusUpdate, 'domains.processed', stats.domains.processed);
   } // End processing for loop
 
   settings.lookupRandomizeTimeBetween.randomize // Counter total time
@@ -205,7 +205,7 @@ ipcMain.on('bulkwhois:lookup.continue', function (event: IpcMainEvent) {
     processDomain(bulkWhois, reqtime, domainSetup, event, cumulativeDelay);
 
     stats.domains.processed = Number(domainSetup.index) + 1;
-    sender.send('bulkwhois:status.update', 'domains.processed', stats.domains.processed);
+    sender.send(IpcChannel.BulkwhoisStatusUpdate, 'domains.processed', stats.domains.processed);
   } // End processing for loop
 
   stats.time.remainingcounter =
@@ -234,8 +234,8 @@ ipcMain.on('bulkwhois:lookup.stop', function (event: IpcMainEvent) {
   const { sender } = event;
 
   clearInterval(stats.time.counter!);
-  sender.send('bulkwhois:result.receive', results);
-  sender.send('bulkwhois:status.update', 'finished');
+  sender.send(IpcChannel.BulkwhoisResultReceive, results);
+  sender.send(IpcChannel.BulkwhoisStatusUpdate, 'finished');
 });
 
 // Re-export for consumers that imported from this module previously

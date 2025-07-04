@@ -1,5 +1,6 @@
 import debugModule from 'debug';
 import type { IpcMainEvent } from 'electron';
+import { IpcChannel } from '../../common/ipcChannels.js';
 
 const debug = debugModule('main.bw.auxiliary');
 
@@ -41,7 +42,7 @@ function resetUiCounters(event: IpcMainEvent): void {
         'status.error' // Number stats
       ]
     },
-    channel = 'bulkwhois:status.update';
+    channel = IpcChannel.BulkwhoisStatusUpdate;
 
   // Loop through events and send default values
   (Object.keys(events) as Array<keyof typeof events>).forEach((eventType) => {

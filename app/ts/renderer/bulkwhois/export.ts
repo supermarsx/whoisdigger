@@ -15,6 +15,7 @@ import { resetObject } from '../../common/resetObject.js';
 import { getExportOptions, setExportOptions, setExportOptionsEx } from './auxiliary.js';
 
 import { formatString } from '../../common/stringformat.js';
+import { IpcChannel } from '../../common/ipcChannels.js';
 
 let results: any;
 let options: any;
@@ -26,7 +27,7 @@ let options: any;
     event
     rcvResults
  */
-electron.on('bulkwhois:result.receive', function (event, rcvResults) {
+electron.on(IpcChannel.BulkwhoisResultReceive, function (_event, rcvResults) {
   electron.send('app:debug', formatString('Results are ready for export {0}', rcvResults));
 
   results = rcvResults;
@@ -38,7 +39,7 @@ electron.on('bulkwhois:result.receive', function (event, rcvResults) {
   electron.on('bulkwhois:export.cancel', function() {...});
     Bulk whois export cancel
  */
-electron.on('bulkwhois:export.cancel', function () {
+electron.on(IpcChannel.BulkwhoisExportCancel, function () {
   $('#bwExportloading').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 
@@ -54,7 +55,7 @@ $(document).on('click', '#bwExportButtonExport', async function () {
   options = getExportOptions();
   $.when($('#bwExportloading').removeClass('is-hidden').delay(10)).done(async function () {
     try {
-      await electron.invoke('bulkwhois:export', results, options);
+      await electron.invoke(IpcChannel.BulkwhoisExport, results, options);
     } catch (err) {
       $('#bwExportErrorText').text((err as Error).message);
       $('#bwExportMessageError').removeClass('is-hidden');

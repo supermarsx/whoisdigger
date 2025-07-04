@@ -18,6 +18,7 @@ import defaultBulkWhois from '../app/ts/main/bulkwhois/process.defaults';
 import { processDomain } from '../app/ts/main/bulkwhois/scheduler';
 import { settings } from '../app/ts/main/settings-main';
 import type { DomainSetup } from '../app/ts/main/bulkwhois/types';
+import { IpcChannel } from '../app/ts/common/ipcChannels';
 
 const { lookup } = require('../app/ts/common/lookup');
 const { hasNsServers } = require('../app/ts/common/dnsLookup');
@@ -67,8 +68,16 @@ describe('processDomain', () => {
 
     expect(bulkWhois.stats.domains.sent).toBe(1);
     expect(bulkWhois.stats.domains.waiting).toBe(1);
-    expect(event.sender.send).toHaveBeenCalledWith('bulkwhois:status.update', 'domains.sent', 1);
-    expect(event.sender.send).toHaveBeenCalledWith('bulkwhois:status.update', 'domains.waiting', 1);
+    expect(event.sender.send).toHaveBeenCalledWith(
+      IpcChannel.BulkwhoisStatusUpdate,
+      'domains.sent',
+      1
+    );
+    expect(event.sender.send).toHaveBeenCalledWith(
+      IpcChannel.BulkwhoisStatusUpdate,
+      'domains.waiting',
+      1
+    );
     expect(reqtime[0]).toBe(42);
 
     timerSpy.mockRestore();
@@ -112,8 +121,16 @@ describe('processDomain', () => {
       false
     );
 
-    expect(event.sender.send).toHaveBeenCalledWith('bulkwhois:status.update', 'domains.sent', 1);
-    expect(event.sender.send).toHaveBeenCalledWith('bulkwhois:status.update', 'domains.waiting', 1);
+    expect(event.sender.send).toHaveBeenCalledWith(
+      IpcChannel.BulkwhoisStatusUpdate,
+      'domains.sent',
+      1
+    );
+    expect(event.sender.send).toHaveBeenCalledWith(
+      IpcChannel.BulkwhoisStatusUpdate,
+      'domains.waiting',
+      1
+    );
     expect(bulkWhois.stats.domains.sent).toBe(1);
     expect(bulkWhois.stats.domains.waiting).toBe(1);
     expect(reqtime[1]).toBe(100);
