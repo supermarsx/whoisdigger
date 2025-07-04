@@ -36,6 +36,7 @@ beforeEach(() => {
     send: jest.fn(),
     on: jest.fn(),
     off: jest.fn(),
+    openDataDir: () => invokeMock('app:open-data-dir'),
     startOptionsStats: (...args: any[]) => invokeMock('options:start-stats', ...args),
     refreshOptionsStats: (...args: any[]) => invokeMock('options:refresh-stats', ...args),
     stopOptionsStats: (...args: any[]) => invokeMock('options:stop-stats', ...args),
@@ -93,7 +94,7 @@ test('reloadApp invokes ipcRenderer', async () => {
   expect(invokeMock).toHaveBeenCalledWith('app:reload');
 });
 
-test('openDataFolder invokes shell:openPath', async () => {
+test('openDataFolder invokes app:open-data-dir', async () => {
   jQuery = require('../app/vendor/jquery.js');
   (window as any).$ = (window as any).jQuery = jQuery;
   require('../app/ts/renderer/options');
@@ -105,5 +106,5 @@ test('openDataFolder invokes shell:openPath', async () => {
 
   await Promise.resolve();
 
-  expect(invokeMock).toHaveBeenCalledWith('shell:openPath', expect.any(String));
+  expect(invokeMock).toHaveBeenCalledWith('app:open-data-dir');
 });

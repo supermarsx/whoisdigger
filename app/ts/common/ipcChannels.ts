@@ -14,6 +14,7 @@ export enum IpcChannel {
   AvailabilityCheck = 'availability:check',
   DomainParameters = 'availability:params',
   OpenPath = 'shell:openPath',
+  OpenDataDir = 'app:open-data-dir',
   PathJoin = 'path:join',
   PathBasename = 'path:basename',
   GetBaseDir = 'app:get-base-dir'
