@@ -8,9 +8,9 @@ const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
-  readFile: (p: string, opts?: any) => Promise<any>;
+  bwFileRead: (p: string) => Promise<Buffer>;
+  bwWatch: (p: string, opts: any, cb: (evt: string) => void) => Promise<{ close: () => void }>;
   stat: (p: string) => Promise<any>;
-  watch: (p: string, opts: any, cb: (evt: string) => void) => Promise<{ close: () => void }>;
   path: { basename: (p: string) => Promise<string> };
 };
 import { tableReset } from './auxiliary.js';
@@ -34,7 +34,7 @@ async function refreshBwFile(pathToFile: string): Promise<void> {
     const bwFileStats = (await electron.stat(pathToFile)) as FileStats;
     bwFileStats.filename = await electron.path.basename(pathToFile);
     bwFileStats.humansize = conversions.byteToHumanFileSize(bwFileStats.size, misc.useStandardSize);
-    bwFileContents = await electron.readFile(pathToFile);
+    bwFileContents = await electron.bwFileRead(pathToFile);
     bwFileStats.linecount = bwFileContents.toString().split('\n').length;
 
     if (lookup.randomize.timeBetween.randomize === true) {
@@ -118,7 +118,7 @@ async function handleFileConfirmation(
           misc.useStandardSize
         );
         $('#bwFileSpanInfo').text('Loading file contents...');
-        bwFileContents = await electron.readFile(filePath as string);
+        bwFileContents = await electron.bwFileRead(filePath as string);
       } catch (e) {
         electron.send('app:error', `Failed to read file: ${e}`);
         $('#bwFileSpanInfo').text('Failed to load file');
@@ -133,7 +133,7 @@ async function handleFileConfirmation(
           misc.useStandardSize
         );
         $('#bwFileSpanInfo').text('Loading file contents...');
-        bwFileContents = await electron.readFile((filePath as string[])[0]);
+        bwFileContents = await electron.bwFileRead((filePath as string[])[0]);
       } catch (e) {
         electron.send('app:error', `Failed to read file: ${e}`);
         $('#bwFileSpanInfo').text('Failed to load file');
@@ -188,7 +188,7 @@ async function handleFileConfirmation(
     debug(bwFileStats.linecount);
 
     if (chosenPath) {
-      bwFileWatcher = await electron.watch(chosenPath, { persistent: false }, (evt: string) => {
+      bwFileWatcher = await electron.bwWatch(chosenPath, { persistent: false }, (evt: string) => {
         if (evt === 'change') void refreshBwFile(chosenPath);
       });
     }

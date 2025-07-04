@@ -42,9 +42,9 @@ beforeEach(() => {
       handlers[channel] = cb;
     },
     stat: statMock,
-    readFile: readFileMock,
-    path: { basename: async (p: string) => require('path').basename(p) },
-    watch: jest.fn(async () => ({ close: jest.fn() }))
+    bwFileRead: readFileMock,
+    bwWatch: jest.fn(async () => ({ close: jest.fn() })),
+    path: { basename: async (p: string) => require('path').basename(p) }
   };
   invokeMock.mockReset();
   sendMock.mockReset();

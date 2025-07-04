@@ -1,25 +1,19 @@
 /** @jest-environment jsdom */
 
-jest.mock('fs', () => ({
-  promises: { readFile: jest.fn() }
-}));
-
 import Handlebars from '../app/vendor/handlebars.runtime.js';
 
-const readFileMock = require('fs').promises.readFile as jest.Mock;
+const loadMock = jest.fn();
 
 describe('i18n loader', () => {
   beforeEach(() => {
-    readFileMock.mockReset();
+    loadMock.mockReset();
     (window as any).electron = {
-      getBaseDir: () => Promise.resolve(__dirname),
-      readFile: readFileMock,
-      path: { join: (...args: string[]) => require('path').join(...args) }
+      loadTranslations: loadMock
     };
   });
 
   test('loads translations and registers helper', async () => {
-    readFileMock.mockResolvedValue('{"hello":"world"}');
+    loadMock.mockResolvedValue({ hello: 'world' });
     const {
       loadTranslations,
       registerTranslationHelpers,

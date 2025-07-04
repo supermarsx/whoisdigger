@@ -45,3 +45,47 @@ ipcMain.handle('fs:unwatch', (_e, id: number) => {
     watchers.delete(id);
   }
 });
+
+ipcMain.handle('bw:file-read', async (_e, p: string) => {
+  return fs.promises.readFile(p);
+});
+
+ipcMain.handle('bwa:file-read', async (_e, p: string) => {
+  return fs.promises.readFile(p);
+});
+
+ipcMain.handle('bw:watch', (e, p: string, opts?: fs.WatchOptions) => {
+  const id = ++watcherId;
+  const sender = e.sender;
+  const watcher = fs.watch(p, opts || {}, (event) => {
+    sender.send(`bw:watch:${id}`, event);
+  });
+  watchers.set(id, watcher);
+  return id;
+});
+
+ipcMain.handle('bwa:watch', (e, p: string, opts?: fs.WatchOptions) => {
+  const id = ++watcherId;
+  const sender = e.sender;
+  const watcher = fs.watch(p, opts || {}, (event) => {
+    sender.send(`bwa:watch:${id}`, event);
+  });
+  watchers.set(id, watcher);
+  return id;
+});
+
+ipcMain.handle('bw:unwatch', (_e, id: number) => {
+  const watcher = watchers.get(id);
+  if (watcher) {
+    watcher.close();
+    watchers.delete(id);
+  }
+});
+
+ipcMain.handle('bwa:unwatch', (_e, id: number) => {
+  const watcher = watchers.get(id);
+  if (watcher) {
+    watcher.close();
+    watchers.delete(id);
+  }
+});

@@ -14,7 +14,7 @@ watchEmitter.close = jest.fn();
 
 const statMock = jest.fn();
 const readFileMock = jest.fn();
-const watchMock = jest.fn(async (p: string, _o: any, listener?: (...args: any[]) => void) => {
+const bwWatchMock = jest.fn(async (p: string, _o: any, listener?: (...args: any[]) => void) => {
   if (listener) watchEmitter.on('change', listener);
   return { close: watchEmitter.close };
 });
@@ -34,15 +34,17 @@ beforeAll(() => {
     invoke: jest.fn().mockResolvedValue({ data: [], errors: [] }),
     openPath: jest.fn(),
     stat: statMock,
-    readFile: readFileMock,
-    watch: watchMock,
+    bwFileRead: readFileMock,
+    bwaFileRead: readFileMock,
+    bwWatch: bwWatchMock,
+    bwaWatch: bwWatchMock,
     path: { basename: path.basename, join: path.join }
   };
 });
 beforeEach(() => {
   statMock.mockReset();
   readFileMock.mockReset();
-  watchMock.mockClear();
+  bwWatchMock.mockClear();
   (watchEmitter.close as jest.Mock).mockClear();
 });
 
@@ -74,7 +76,7 @@ test('bw watcher updates table on change', async () => {
   ipc.emit(IpcChannel.BulkwhoisFileinputConfirmation, {}, '/tmp/test.txt', true);
   for (let i = 0; i < 5; i++) await new Promise((res) => setTimeout(res, 0));
 
-  expect(watchMock).toHaveBeenCalledWith(
+  expect(bwWatchMock).toHaveBeenCalledWith(
     '/tmp/test.txt',
     { persistent: false },
     expect.any(Function)
@@ -115,7 +117,7 @@ test('bwa watcher updates table on change', async () => {
   ipc.emit('bwa:fileinput.confirmation', {}, '/tmp/test.csv', true);
   for (let i = 0; i < 5; i++) await new Promise((res) => setTimeout(res, 0));
 
-  expect(watchMock).toHaveBeenCalledWith(
+  expect(bwWatchMock).toHaveBeenCalledWith(
     '/tmp/test.csv',
     { persistent: false },
     expect.any(Function)

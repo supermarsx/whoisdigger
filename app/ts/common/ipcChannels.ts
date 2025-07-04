@@ -24,5 +24,8 @@ export enum IpcChannel {
   OpenDataDir = 'app:open-data-dir',
   PathJoin = 'path:join',
   PathBasename = 'path:basename',
-  GetBaseDir = 'app:get-base-dir'
+  GetBaseDir = 'app:get-base-dir',
+  I18nLoad = 'i18n:load',
+  BwFileRead = 'bw:file-read',
+  BwaFileRead = 'bwa:file-read'
 }
