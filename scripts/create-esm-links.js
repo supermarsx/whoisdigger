@@ -9,6 +9,15 @@ const distDirs = [
   path.join(baseDir, '..', 'dist', 'renderer')
 ];
 
+function copyOrLink(srcPath, destPath, relative) {
+  if (fs.existsSync(destPath)) return;
+  try {
+    fs.symlinkSync(relative, destPath);
+  } catch {
+    fs.copyFileSync(srcPath, destPath);
+  }
+}
+
 function processDir(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
@@ -18,18 +27,12 @@ function processDir(dir) {
       if (entry.name.endsWith('.cjs')) {
         const jsName = entry.name.replace(/\.cjs$/, '.js');
         const jsPath = path.join(dir, jsName);
-        if (!fs.existsSync(jsPath)) {
-          fs.symlinkSync(entry.name, jsPath);
-        }
+        copyOrLink(full, jsPath, entry.name);
         const base = jsPath.slice(0, -3);
-        if (!fs.existsSync(base)) {
-          fs.symlinkSync(jsName, base);
-        }
+        copyOrLink(jsPath, base, jsName);
       } else if (entry.name.endsWith('.js')) {
         const base = full.slice(0, -3);
-        if (!fs.existsSync(base)) {
-          fs.symlinkSync(entry.name, base); // relative link within same dir
-        }
+        copyOrLink(full, base, entry.name);
       }
     }
   }
