@@ -97,7 +97,7 @@ const debug = debugModule('test:e2e');
     await browser.execute(() => document.querySelector('#navButtonOp')?.click());
     await browser.pause(500);
     active = await browser.execute(() =>
-      document.getElementById('opMainContainer')?.classList.contains('current')
+      document.getElementById('settingsMainContainer')?.classList.contains('current')
     );
     assert.ok(active, 'Options tab did not activate');
 

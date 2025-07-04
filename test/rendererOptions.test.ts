@@ -15,7 +15,7 @@ jest.mock('../app/ts/renderer/settings-renderer', () => {
 beforeEach(() => {
   jest.resetModules();
   document.body.innerHTML = `
-    <div id="opEntry">
+    <div id="settingsEntry">
       <div class="field">
         <select id="appSettings.theme.darkMode">
           <option value="true">true</option>
