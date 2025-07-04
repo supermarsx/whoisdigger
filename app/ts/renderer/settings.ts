@@ -356,7 +356,7 @@ $(document).ready(() => {
       settings.customConfiguration.filepath
     );
     try {
-      await electron.unlink(filePath);
+      await electron.invoke('config:delete', filePath);
       showToast('Configuration deleted', true);
     } catch (err) {
       if ((err as any).code !== 'ENOENT') {

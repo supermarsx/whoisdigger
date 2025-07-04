@@ -97,6 +97,10 @@ if (ipcMain && typeof ipcMain.handle === 'function') {
     }
     return res;
   });
+
+  ipcMain.handle('config:delete', (_e, filePath: string) => {
+    return fs.promises.unlink(filePath);
+  });
 }
 export {
   settings,
