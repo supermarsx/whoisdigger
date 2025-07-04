@@ -25,6 +25,16 @@ if (!fs.existsSync(modulesPath)) {
   }
 
   debug('\nDependencies installed successfully. Continuing build...');
+
+  // Ensure native modules are rebuilt against the Electron headers
+  const rebuild = spawnSync('npx', ['electron-rebuild', '-f', '-w', 'better-sqlite3'], {
+    stdio: 'inherit',
+    shell: true
+  });
+  if (rebuild.error || rebuild.status !== 0) {
+    console.error('\nFailed to rebuild native modules for Electron.');
+    process.exit(rebuild.status || 1);
+  }
 }
 
 fs.mkdirSync(vendorDir, { recursive: true });
