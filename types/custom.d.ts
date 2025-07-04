@@ -137,13 +137,13 @@ declare module 'app/ts/common/proxy' {
   export function resetProxyRotation(): void;
 }
 
-declare module 'app/ts/main/bw/auxiliary' {
+declare module 'app/ts/main/bulkwhois/auxiliary' {
   import type { IpcMainEvent } from 'electron';
   export function resetUiCounters(event: IpcMainEvent): void;
   export { resetUiCounters as rstUiCntrs };
 }
 
-declare module 'app/ts/main/bw/process.defaults' {
+declare module 'app/ts/main/bulkwhois/process.defaults' {
   const defaults: any;
   export default defaults;
 }
