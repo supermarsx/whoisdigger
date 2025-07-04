@@ -37,10 +37,10 @@ beforeEach(() => {
     on: jest.fn(),
     off: jest.fn(),
     openDataDir: () => invokeMock('app:open-data-dir'),
-    startOptionsStats: (...args: any[]) => invokeMock('options:start-stats', ...args),
-    refreshOptionsStats: (...args: any[]) => invokeMock('options:refresh-stats', ...args),
-    stopOptionsStats: (...args: any[]) => invokeMock('options:stop-stats', ...args),
-    getOptionsStats: (...args: any[]) => invokeMock('options:get-stats', ...args),
+    startSettingsStats: (...args: any[]) => invokeMock('settings:start-stats', ...args),
+    refreshSettingsStats: (...args: any[]) => invokeMock('settings:refresh-stats', ...args),
+    stopSettingsStats: (...args: any[]) => invokeMock('settings:stop-stats', ...args),
+    getSettingsStats: (...args: any[]) => invokeMock('settings:get-stats', ...args),
     path: { join: (...args: string[]) => require('path').join(...args) },
     readdir: jest.fn(async () => []),
     stat: jest.fn(async () => ({ size: 0, mtime: new Date(), atime: new Date() })),
@@ -78,7 +78,7 @@ test('reloadApp invokes ipcRenderer', async () => {
 
   await new Promise((r) => setTimeout(r, 0));
   expect(invokeMock).toHaveBeenCalledWith(
-    'options:start-stats',
+    'settings:start-stats',
     expect.any(String),
     expect.any(String)
   );

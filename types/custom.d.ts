@@ -46,10 +46,10 @@ declare module 'electron' {
     ondragstart: [string];
     'singlewhois:lookup': [string];
     'singlewhois:openlink': [string];
-    'options:start-stats': [string, string];
-    'options:refresh-stats': [number];
-    'options:stop-stats': [number];
-    'options:get-stats': [string, string];
+    'settings:start-stats': [string, string];
+    'settings:refresh-stats': [number];
+    'settings:stop-stats': [number];
+    'settings:get-stats': [string, string];
   }
 
   interface MainToRendererIpc {
@@ -61,7 +61,7 @@ declare module 'electron' {
     'bulkwhois:export.error': [string];
     'singlewhois:results': [any];
     'singlewhois:copied': [];
-    'options:stats': [any];
+    'settings:stats': [any];
   }
 
   export interface IpcMain {
@@ -172,10 +172,10 @@ declare global {
       send: (channel: string, ...args: any[]) => void;
       invoke: (channel: string, ...args: any[]) => Promise<any>;
       on: (channel: string, listener: (...args: any[]) => void) => void;
-      startOptionsStats: (cfg: string, dir: string) => Promise<number>;
-      refreshOptionsStats: (id: number) => Promise<void>;
-      stopOptionsStats: (id: number) => Promise<void>;
-      getOptionsStats: (cfg: string, dir: string) => Promise<any>;
+      startSettingsStats: (cfg: string, dir: string) => Promise<number>;
+      refreshSettingsStats: (id: number) => Promise<void>;
+      stopSettingsStats: (id: number) => Promise<void>;
+      getSettingsStats: (cfg: string, dir: string) => Promise<any>;
     };
   }
 }
