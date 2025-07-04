@@ -1,6 +1,6 @@
 import { formatString } from '../common/stringformat.js';
 import $ from '../../vendor/jquery.js';
-import { populateInputs } from './options.js';
+import { populateInputs } from './settings.js';
 import { settings } from './settings-renderer.js';
 
 import { debugFactory } from '../common/logger.js';

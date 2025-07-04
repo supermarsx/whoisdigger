@@ -5,7 +5,7 @@ import os from 'os';
 import { ipcMainHandlers } from './electronMainMock';
 
 jest.isolateModules(() => {
-  require('../app/ts/main/options');
+  require('../app/ts/main/settings');
 });
 
 const getHandler = (c: string) => ipcMainHandlers[c];
