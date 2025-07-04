@@ -35,11 +35,9 @@ function watchConfig(): void {
     watcher.close();
   }
   const cfg = getConfigFile();
-  if (!fs.existsSync(cfg)) {
-    return;
-  }
-  watcher = fs.watch(cfg, { persistent: false }, async (event) => {
-    if (event !== 'change') return;
+  const dir = path.dirname(cfg);
+
+  async function reload(): Promise<void> {
     try {
       const raw = await fs.promises.readFile(cfg, 'utf8');
       const parsed = JSON.parse(raw) as Partial<Settings>;
@@ -50,11 +48,6 @@ function watchConfig(): void {
         }
         setSettings(merged);
         debug(`Reloaded custom configuration at ${cfg}`);
-        if (settings.ui?.liveReload) {
-          for (const w of BrowserWindow.getAllWindows()) {
-            w.webContents.send('settings:reloaded', getSettings());
-          }
-        }
       } catch (mergeError) {
         const defaults = JSON.parse(JSON.stringify(defaultSettings));
         if ((defaults as any).appWindowWebPreferences) {
@@ -62,15 +55,22 @@ function watchConfig(): void {
         }
         setSettings(defaults);
         debug(`Failed to merge configuration with error: ${mergeError}`);
-        if (settings.ui?.liveReload) {
-          for (const w of BrowserWindow.getAllWindows()) {
-            w.webContents.send('settings:reloaded', getSettings());
-          }
+      }
+      if (settings.ui?.liveReload) {
+        for (const w of BrowserWindow.getAllWindows()) {
+          w.webContents.send('settings:reloaded', getSettings());
         }
       }
     } catch (e) {
       debug(`Failed to reload configuration with error: ${e}`);
     }
+  }
+
+  watcher = fs.watch(dir, { persistent: false }, (_event, filename) => {
+    if (!filename) return;
+    if (path.join(dir, filename.toString()) !== cfg) return;
+    if (!fs.existsSync(cfg)) return;
+    void reload();
   });
 }
 
