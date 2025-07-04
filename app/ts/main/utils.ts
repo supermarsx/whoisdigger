@@ -3,6 +3,7 @@ import Papa from 'papaparse';
 import { isDomainAvailable, getDomainParameters } from '../common/availability.js';
 import { IpcChannel } from '../common/ipcChannels.js';
 import { toJSON } from '../common/parser.js';
+import { getUserDataPath } from '../common/settings.js';
 
 ipcMain.handle(IpcChannel.ParseCsv, async (_e, text: string) => {
   return Papa.parse(text, { header: true });
@@ -32,4 +33,9 @@ ipcMain.handle(
 
 ipcMain.handle(IpcChannel.OpenPath, async (_e, p: string) => {
   return shell.openPath(p);
+});
+
+ipcMain.handle(IpcChannel.OpenDataDir, async () => {
+  const dir = getUserDataPath();
+  return shell.openPath(dir);
 });

@@ -16,6 +16,7 @@ const electron = (window as any).electron as {
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
   off: (channel: string, listener: (...args: any[]) => void) => void;
+  openDataDir: () => Promise<any>;
 };
 
 const debug = debugFactory('renderer.options');
@@ -318,8 +319,7 @@ $(document).ready(() => {
   });
 
   $('#openDataFolder').on('click', async () => {
-    const dataDir = getUserDataPath();
-    const result = await electron.invoke(IpcChannel.OpenPath, dataDir);
+    const result = await electron.openDataDir();
     if (result) {
       showToast('Failed to open data directory', false);
     }

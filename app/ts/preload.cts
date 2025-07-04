@@ -44,6 +44,7 @@ const api = {
     };
   },
   getBaseDir: () => ipcRenderer.invoke('app:get-base-dir'),
+  openDataDir: () => ipcRenderer.invoke('app:open-data-dir'),
   path: {
     join: (...args: string[]) => ipcRenderer.invoke('path:join', ...args),
     basename: (p: string) => ipcRenderer.invoke('path:basename', p)
