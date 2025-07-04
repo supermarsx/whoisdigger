@@ -57,7 +57,7 @@ test('changing setting updates configuration', async () => {
   jQuery = require('../app/vendor/jquery.js');
   (window as any).$ = (window as any).jQuery = jQuery;
   settingsModule = require('../app/ts/renderer/settings-renderer');
-  require('../app/ts/renderer/options');
+  require('../app/ts/renderer/settings');
   jQuery.ready();
   const { settings } = settingsModule;
 
@@ -73,7 +73,7 @@ test('changing setting updates configuration', async () => {
 test('reloadApp invokes ipcRenderer', async () => {
   jQuery = require('../app/vendor/jquery.js');
   (window as any).$ = (window as any).jQuery = jQuery;
-  require('../app/ts/renderer/options');
+  require('../app/ts/renderer/settings');
   jQuery.ready();
 
   await new Promise((r) => setTimeout(r, 0));
@@ -97,7 +97,7 @@ test('reloadApp invokes ipcRenderer', async () => {
 test('openDataFolder invokes app:open-data-dir', async () => {
   jQuery = require('../app/vendor/jquery.js');
   (window as any).$ = (window as any).jQuery = jQuery;
-  require('../app/ts/renderer/options');
+  require('../app/ts/renderer/settings');
   jQuery.ready();
 
   await new Promise((r) => setTimeout(r, 0));

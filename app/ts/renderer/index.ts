@@ -2,7 +2,7 @@ import './singlewhois.js';
 import './bulkwhois.js';
 import './bwa.js';
 import './darkmode.js';
-import './options.js';
+import './settings.js';
 import './to.js';
 import './history.js';
 
