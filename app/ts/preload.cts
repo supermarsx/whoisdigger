@@ -1,19 +1,9 @@
 // Use CommonJS imports so the compiled preload script works when loaded via
 // Electron's `require` mechanism.
 const { contextBridge, ipcRenderer } = require('electron');
-const path = require('path');
-const { fileURLToPath } = require('url');
-
-const dirnameCompat = (metaUrl?: string | URL) => {
+const dirnameCompat = (_metaUrl?: string | URL) => {
   if (typeof __dirname !== 'undefined') {
     return __dirname;
-  }
-  if (metaUrl) {
-    try {
-      return path.dirname(fileURLToPath(metaUrl));
-    } catch {
-      /* ignore */
-    }
   }
   return process.cwd();
 };
