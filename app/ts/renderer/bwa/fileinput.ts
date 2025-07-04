@@ -221,7 +221,7 @@ $('#bwafButtonConfirm').click(function() {
   $('#bwFileInputConfirm').addClass('is-hidden');
   $('#bwProcessing').removeClass('is-hidden');
 
-  electron.send('bulkwhois:lookup', bwDomainArray, bwTldsArray);
+  electron.send(IpcChannel.BulkwhoisLookup, bwDomainArray, bwTldsArray);
 });
 
 // Bulk whois file input by drag and drop

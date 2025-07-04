@@ -1,5 +1,6 @@
 /** @jest-environment jsdom */
 import jQuery from 'jquery';
+import { IpcChannel } from '../app/ts/common/ipcChannels';
 const handlers: Record<string, (...args: any[]) => void> = {};
 const invokeMock = jest.fn();
 const sendMock = jest.fn();
@@ -57,16 +58,16 @@ test('invokes bulkwhois:input.file and bulkwhois:lookup', async () => {
   });
   jQuery('#bwEntryButtonFile').trigger('click');
   await new Promise((r) => setTimeout(r, 20));
-  expect(invokeMock).toHaveBeenCalledWith('bulkwhois:input.file');
+  expect(invokeMock).toHaveBeenCalledWith(IpcChannel.BulkwhoisInputFile);
   invokeMock.mockClear();
-  handlers['bulkwhois:fileinput.confirmation']?.({}, '/tmp/list.txt', false);
+  handlers[IpcChannel.BulkwhoisFileinputConfirmation]?.({}, '/tmp/list.txt', false);
   await new Promise((r) => setTimeout(r, 0));
   jQuery('#bwFileInputTlds').val('com');
 
   jQuery('#bwFileButtonConfirm').trigger('click');
   await new Promise((r) => setTimeout(r, 0));
 
-  expect(invokeMock).toHaveBeenCalledWith('bulkwhois:lookup', ['a', 'b'], ['com']);
+  expect(invokeMock).toHaveBeenCalledWith(IpcChannel.BulkwhoisLookup, ['a', 'b'], ['com']);
 });
 
 test('invokes bulkwhois:input.wordlist and lookup', async () => {
@@ -77,10 +78,10 @@ test('invokes bulkwhois:input.wordlist and lookup', async () => {
   jQuery('#bwWordlistInputTlds').val('net');
   jQuery('#bwWordlistinputButtonConfirm').trigger('click');
   await new Promise((r) => setTimeout(r, 0));
-  expect(invokeMock).toHaveBeenCalledWith('bulkwhois:input.wordlist');
+  expect(invokeMock).toHaveBeenCalledWith(IpcChannel.BulkwhoisInputWordlist);
   invokeMock.mockClear();
-  handlers['bulkwhois:wordlistinput.confirmation']?.();
+  handlers[IpcChannel.BulkwhoisWordlistInputConfirmation]?.();
   jQuery('#bwWordlistconfirmButtonStart').trigger('click');
   await new Promise((r) => setTimeout(r, 0));
-  expect(invokeMock).toHaveBeenCalledWith('bulkwhois:lookup', ['c', 'd'], ['net']);
+  expect(invokeMock).toHaveBeenCalledWith(IpcChannel.BulkwhoisLookup, ['c', 'd'], ['net']);
 });

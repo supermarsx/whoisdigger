@@ -206,7 +206,7 @@ async function handleFileConfirmation(
     isDragDrop
  */
 electron.on(
-  'bulkwhois:fileinput.confirmation',
+  IpcChannel.BulkwhoisFileinputConfirmation,
   (_event, filePath: string | string[] | null = null, isDragDrop = false) => {
     void handleFileConfirmation(filePath, isDragDrop);
   }

@@ -9,6 +9,7 @@ import * as dns from '../../common/dnsLookup.js';
 import { Result, DnsLookupError } from '../../common/errors.js';
 import type { IpcMainEvent } from 'electron';
 import { addEntry as addHistoryEntry } from '../../common/history.js';
+import { IpcChannel } from '../../common/ipcChannels.js';
 
 const debug = debugModule('main.bw.resultHandler');
 
@@ -33,15 +34,15 @@ export async function processData(
 
   if (reqtimes.minimum > reqtime[index]) {
     reqtimes.minimum = reqtime[index];
-    sender.send('bulkwhois:status.update', 'reqtimes.minimum', reqtimes.minimum);
+    sender.send(IpcChannel.BulkwhoisStatusUpdate, 'reqtimes.minimum', reqtimes.minimum);
   }
   if (Number(reqtimes.maximum) < reqtime[index]) {
     reqtimes.maximum = reqtime[index].toFixed(2);
-    sender.send('bulkwhois:status.update', 'reqtimes.maximum', reqtimes.maximum);
+    sender.send(IpcChannel.BulkwhoisStatusUpdate, 'reqtimes.maximum', reqtimes.maximum);
   }
 
   reqtimes.last = reqtime[index].toFixed(2);
-  sender.send('bulkwhois:status.update', 'reqtimes.last', reqtimes.last);
+  sender.send(IpcChannel.BulkwhoisStatusUpdate, 'reqtimes.last', reqtimes.last);
 
   if (settings.lookupMisc.asfOverride) {
     lastweight = Number(
@@ -61,9 +62,9 @@ export async function processData(
 
   if (isError) {
     status.error++;
-    sender.send('bulkwhois:status.update', 'status.error', status.error);
+    sender.send(IpcChannel.BulkwhoisStatusUpdate, 'status.error', status.error);
     stats.laststatus.error = domain;
-    sender.send('bulkwhois:status.update', 'laststatus.error', stats.laststatus.error);
+    sender.send(IpcChannel.BulkwhoisStatusUpdate, 'laststatus.error', stats.laststatus.error);
   } else {
     domainAvailable =
       settings.lookupGeneral.type == 'whois'
@@ -72,17 +73,21 @@ export async function processData(
     switch (domainAvailable) {
       case 'available':
         status.available++;
-        sender.send('bulkwhois:status.update', 'status.available', status.available);
+        sender.send(IpcChannel.BulkwhoisStatusUpdate, 'status.available', status.available);
         stats.laststatus.available = domain;
-        sender.send('bulkwhois:status.update', 'laststatus.available', stats.laststatus.available);
+        sender.send(
+          IpcChannel.BulkwhoisStatusUpdate,
+          'laststatus.available',
+          stats.laststatus.available
+        );
         lastStatus = 'available';
         break;
       case 'unavailable':
         status.unavailable++;
-        sender.send('bulkwhois:status.update', 'status.unavailable', status.unavailable);
+        sender.send(IpcChannel.BulkwhoisStatusUpdate, 'status.unavailable', status.unavailable);
         stats.laststatus.unavailable = domain;
         sender.send(
-          'bulkwhois:status.update',
+          IpcChannel.BulkwhoisStatusUpdate,
           'laststatus.unavailable',
           stats.laststatus.unavailable
         );
@@ -91,9 +96,9 @@ export async function processData(
       default:
         if (domainAvailable.includes('error')) {
           status.error++;
-          sender.send('bulkwhois:status.update', 'status.error', status.error);
+          sender.send(IpcChannel.BulkwhoisStatusUpdate, 'status.error', status.error);
           stats.laststatus.error = domain;
-          sender.send('bulkwhois:status.update', 'laststatus.error', stats.laststatus.error);
+          sender.send(IpcChannel.BulkwhoisStatusUpdate, 'laststatus.error', stats.laststatus.error);
           lastStatus = 'error';
         }
         break;
@@ -101,10 +106,10 @@ export async function processData(
   }
 
   debug(formatString('Average request time {0}ms', reqtimes.average));
-  sender.send('bulkwhois:status.update', 'reqtimes.average', reqtimes.average);
+  sender.send(IpcChannel.BulkwhoisStatusUpdate, 'reqtimes.average', reqtimes.average);
 
   stats.domains.waiting--;
-  sender.send('bulkwhois:status.update', 'domains.waiting', stats.domains.waiting);
+  sender.send(IpcChannel.BulkwhoisStatusUpdate, 'domains.waiting', stats.domains.waiting);
 
   let resultFilter: ProcessedResult = {
     id: index + 1,

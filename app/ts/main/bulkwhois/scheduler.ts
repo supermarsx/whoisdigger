@@ -9,6 +9,7 @@ import { getSettings } from '../settings-main.js';
 import type { BulkWhois, DomainSetup } from './types.js';
 import { processData } from './resultHandler.js';
 import type { IpcMainEvent } from 'electron';
+import { IpcChannel } from '../../common/ipcChannels.js';
 
 const debug = debugModule('main.bw.scheduler');
 
@@ -35,9 +36,9 @@ export function processDomain(
     let data: any;
     const settings = getSettings();
     stats.domains.sent++;
-    sender.send('bulkwhois:status.update', 'domains.sent', stats.domains.sent);
+    sender.send(IpcChannel.BulkwhoisStatusUpdate, 'domains.sent', stats.domains.sent);
     stats.domains.waiting++;
-    sender.send('bulkwhois:status.update', 'domains.waiting', stats.domains.waiting);
+    sender.send(IpcChannel.BulkwhoisStatusUpdate, 'domains.waiting', stats.domains.waiting);
 
     reqtime[domainSetup.index!] = await performance.now();
 
@@ -83,12 +84,12 @@ export function counter(bulkWhois: BulkWhois, event: IpcMainEvent, start = true)
         stats.time.remaining = msToHumanTime(stats.time.remainingcounter);
       }
       stats.time.current = msToHumanTime(stats.time.currentcounter);
-      sender.send('bulkwhois:status.update', 'time.current', stats.time.current);
-      sender.send('bulkwhois:status.update', 'time.remaining', stats.time.remaining);
+      sender.send(IpcChannel.BulkwhoisStatusUpdate, 'time.current', stats.time.current);
+      sender.send(IpcChannel.BulkwhoisStatusUpdate, 'time.remaining', stats.time.remaining);
       if (stats.domains.total == stats.domains.sent && stats.domains.waiting === 0) {
         clearInterval(stats.time.counter!);
-        sender.send('bulkwhois:result.receive', results);
-        sender.send('bulkwhois:status.update', 'finished');
+        sender.send(IpcChannel.BulkwhoisResultReceive, results);
+        sender.send(IpcChannel.BulkwhoisStatusUpdate, 'finished');
       }
     }, 1000);
   } else {

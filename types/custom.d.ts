@@ -36,13 +36,13 @@ declare module 'electron' {
     'app:isMinimized': [];
     'app:reload': [];
     'app:debug': [message: any];
-    'bw:lookup': [string[], string[]];
-    'bw:lookup.pause': [];
-    'bw:lookup.continue': [];
-    'bw:lookup.stop': [];
-    'bw:export': [any, any];
-    'bw:input.file': [];
-    'bw:input.wordlist': [];
+    'bulkwhois:lookup': [string[], string[]];
+    'bulkwhois:lookup.pause': [];
+    'bulkwhois:lookup.continue': [];
+    'bulkwhois:lookup.stop': [];
+    'bulkwhois:export': [any, any];
+    'bulkwhois:input.file': [];
+    'bulkwhois:input.wordlist': [];
     ondragstart: [string];
     'singlewhois:lookup': [string];
     'singlewhois:openlink': [string];
@@ -53,11 +53,12 @@ declare module 'electron' {
   }
 
   interface MainToRendererIpc {
-    'bw:status.update': [string, any];
-    'bw:fileinput.confirmation': [string | string[] | null, boolean?];
-    'bw:result.receive': [any];
-    'bw:export.cancel': [];
-    'bw:export.error': [string];
+    'bulkwhois:status.update': [string, any];
+    'bulkwhois:fileinput.confirmation': [string | string[] | null, boolean?];
+    'bulkwhois:wordlistinput.confirmation': [];
+    'bulkwhois:result.receive': [any];
+    'bulkwhois:export.cancel': [];
+    'bulkwhois:export.error': [string];
     'singlewhois:results': [any];
     'singlewhois:copied': [];
     'options:stats': [any];

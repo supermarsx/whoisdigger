@@ -1,4 +1,5 @@
 import { resetUiCounters } from '../app/ts/main/bulkwhois/auxiliary';
+import { IpcChannel } from '../app/ts/common/ipcChannels';
 
 describe('resetUiCounters', () => {
   test('sends default values to renderer', () => {
@@ -7,7 +8,7 @@ describe('resetUiCounters', () => {
 
     resetUiCounters(event);
 
-    const channel = 'bulkwhois:status.update';
+    const channel = IpcChannel.BulkwhoisStatusUpdate;
     const integerEvents = [
       'time.current',
       'time.remaining',

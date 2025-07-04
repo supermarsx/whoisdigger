@@ -14,6 +14,7 @@ const debug = debugFactory('renderer.bw.process');
 debug('loaded');
 
 import { formatString } from '../../common/stringformat.js';
+import { IpcChannel } from '../../common/ipcChannels.js';
 
 /*
 // Receive whois lookup reply
@@ -41,7 +42,7 @@ electron.on('bulkwhois:results', function(event, domain, domainResults) {
 
 // Receive bulk whois results and store them for export
 let bulkResults: any;
-electron.on('bulkwhois:result.receive', (_event, results) => {
+electron.on(IpcChannel.BulkwhoisResultReceive, (_event, results) => {
   bulkResults = results;
 });
 
@@ -55,7 +56,7 @@ export { bulkResults };
     stat
     value
  */
-electron.on('bulkwhois:status.update', function (event, stat, value) {
+electron.on(IpcChannel.BulkwhoisStatusUpdate, function (event, stat, value) {
   electron.send('app:debug', formatString('{0}, value update to {1}', stat, value)); // status update
   let percent;
   switch (stat) {
@@ -159,13 +160,13 @@ $(document).on('click', '#bwProcessingButtonPause', function () {
   switch (searchStatus) {
     case 'Continue':
       setPauseButton();
-      electron.send('bulkwhois:lookup.continue');
+      electron.send(IpcChannel.BulkwhoisLookupContinue);
       break;
     case 'Pause':
       $('#bwProcessingButtonPause').removeClass('is-warning').addClass('is-success');
       $('#bwProcessingButtonPauseicon').removeClass('fa-pause').addClass('fa-play');
       $('#bwProcessingButtonPauseSpanText').text('Continue');
-      electron.send('bulkwhois:lookup.pause');
+      electron.send(IpcChannel.BulkwhoisLookupPause);
       break;
     default:
       break;
@@ -231,7 +232,7 @@ $(document).on('click', '#bwProcessingModalStopButtonStop', function () {
  */
 $(document).on('click', '#bwProcessingModalStopButtonStopsave', function () {
   electron.send('app:debug', 'Closing Stop modal & exporting');
-  electron.send('bulkwhois:lookup.stop');
+  electron.send(IpcChannel.BulkwhoisLookupStop);
   $('#bwProcessingModalStop').removeClass('is-active');
   $('#bwProcessing').addClass('is-hidden');
   setPauseButton();

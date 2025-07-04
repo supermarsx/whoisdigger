@@ -1,6 +1,7 @@
 /** @jest-environment jsdom */
 
 import jQuery from '../app/vendor/jquery.js';
+import { IpcChannel } from '../app/ts/common/ipcChannels';
 
 const handlers: Record<string, (...args: any[]) => void> = {};
 let invokeMock: jest.Mock;
@@ -46,7 +47,7 @@ function loadModule(): void {
 }
 
 function setResults(data: any): void {
-  handlers['bulkwhois:result.receive']?.({}, data);
+  handlers[IpcChannel.BulkwhoisResultReceive]?.({}, data);
 }
 
 it('invokes export and shows loading', async () => {
@@ -57,7 +58,7 @@ it('invokes export and shows loading', async () => {
   await new Promise((r) => setTimeout(r, 20));
 
   expect(invokeMock).toHaveBeenCalledWith(
-    'bulkwhois:export',
+    IpcChannel.BulkwhoisExport,
     { id: [1] },
     {
       filetype: 'csv',

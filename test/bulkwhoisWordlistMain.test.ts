@@ -12,8 +12,9 @@ jest.mock('electron', () => ({
 }));
 
 import '../app/ts/main/bulkwhois/wordlistinput';
+import { IpcChannel } from '../app/ts/common/ipcChannels';
 
-const handler = () => ipcMainHandlers['bulkwhois:input.wordlist'];
+const handler = () => ipcMainHandlers[IpcChannel.BulkwhoisInputWordlist];
 
 describe('bw wordlist handler', () => {
   test('resolves without value', async () => {
