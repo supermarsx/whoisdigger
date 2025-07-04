@@ -26,6 +26,9 @@ const api = {
   unlink: (p: string) => ipcRenderer.invoke('fs:unlink', p),
   access: (p: string, mode?: number) => ipcRenderer.invoke('fs:access', p, mode),
   exists: (p: string) => ipcRenderer.invoke('fs:exists', p),
+  bwFileRead: (p: string) => ipcRenderer.invoke('bw:file-read', p),
+  bwaFileRead: (p: string) => ipcRenderer.invoke('bwa:file-read', p),
+  loadTranslations: (lang: string) => ipcRenderer.invoke('i18n:load', lang),
   startSettingsStats: (cfg: string, dir: string) =>
     ipcRenderer.invoke('settings:start-stats', cfg, dir),
   refreshSettingsStats: (id: number) => ipcRenderer.invoke('settings:refresh-stats', id),
@@ -40,6 +43,30 @@ const api = {
     return {
       close: () => {
         ipcRenderer.invoke('fs:unwatch', id);
+        ipcRenderer.removeListener(chan, handler);
+      }
+    };
+  },
+  bwWatch: async (p: string, opts: any, cb: (evt: string) => void) => {
+    const id = await ipcRenderer.invoke('bw:watch', p, opts);
+    const chan = `bw:watch:${id}`;
+    const handler = (_e: IpcRendererEvent, ev: string) => cb(ev);
+    ipcRenderer.on(chan, handler);
+    return {
+      close: () => {
+        ipcRenderer.invoke('bw:unwatch', id);
+        ipcRenderer.removeListener(chan, handler);
+      }
+    };
+  },
+  bwaWatch: async (p: string, opts: any, cb: (evt: string) => void) => {
+    const id = await ipcRenderer.invoke('bwa:watch', p, opts);
+    const chan = `bwa:watch:${id}`;
+    const handler = (_e: IpcRendererEvent, ev: string) => cb(ev);
+    ipcRenderer.on(chan, handler);
+    return {
+      close: () => {
+        ipcRenderer.invoke('bwa:unwatch', id);
         ipcRenderer.removeListener(chan, handler);
       }
     };

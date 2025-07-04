@@ -1,7 +1,5 @@
 const electron = (window as any).electron as {
-  getBaseDir: () => Promise<string>;
-  readFile: (p: string, enc?: any) => Promise<any>;
-  path: { join: (...args: string[]) => string };
+  loadTranslations: (lang: string) => Promise<Record<string, string>>;
 };
 import Handlebars from '../../vendor/handlebars.runtime.js';
 import { debugFactory } from '../common/logger.js';
@@ -11,14 +9,7 @@ debug('loaded');
 let translations: Record<string, string> = {};
 
 export async function loadTranslations(lang: string): Promise<void> {
-  const baseDir = await electron.getBaseDir();
-  const file = await electron.path.join(baseDir, '..', 'locales', `${lang}.json`);
-  try {
-    const raw = await electron.readFile(file, 'utf8');
-    translations = JSON.parse(raw);
-  } catch {
-    translations = {};
-  }
+  translations = await electron.loadTranslations(lang);
 }
 
 export function registerTranslationHelpers(): void {

@@ -5,7 +5,15 @@ import '../../../vendor/datatables.js';
 import { settings } from '../settings-renderer.js';
 import { debugFactory } from '../../common/logger.js';
 
-const electron = (window as any).electron as { send: (channel: string, ...args: any[]) => void; invoke: (channel: string, ...args: any[]) => Promise<any>; on: (channel: string, listener: (...args: any[]) => void) => void; readFile: (p: string, opts?: any) => Promise<any>; stat: (p: string) => Promise<any>; watch: (p: string, opts: any, cb: (evt: string) => void) => Promise<{ close: () => void }>; path: { basename: (p: string) => Promise<string> }; };
+const electron = (window as any).electron as {
+  send: (channel: string, ...args: any[]) => void;
+  invoke: (channel: string, ...args: any[]) => Promise<any>;
+  on: (channel: string, listener: (...args: any[]) => void) => void;
+  bwaFileRead: (p: string) => Promise<any>;
+  bwaWatch: (p: string, opts: any, cb: (evt: string) => void) => Promise<{ close: () => void }>;
+  stat: (p: string) => Promise<any>;
+  path: { basename: (p: string) => Promise<string> };
+};
 
 const debug = debugFactory('renderer.bwa.fileinput');
 debug('loaded');
@@ -27,7 +35,7 @@ async function refreshBwaFile(pathToFile: string): Promise<void> {
     );
     bwaFileContents = await electron.invoke(
       IpcChannel.ParseCsv,
-      (await electron.readFile(pathToFile)).toString()
+      (await electron.bwaFileRead(pathToFile)).toString()
     );
     bwaFileStats.linecount = bwaFileContents.data.length;
     try {
@@ -94,7 +102,7 @@ async function handleFileConfirmation(
           $('#bwaFileSpanInfo').text('Loading file contents...');
           bwaFileContents = await electron.invoke(
             IpcChannel.ParseCsv,
-            (await electron.readFile(filePath as string)).toString()
+            (await electron.bwaFileRead(filePath as string)).toString()
           );
         } catch (e) {
           electron.send('app:error', `Failed to read file: ${e}`);
@@ -112,7 +120,7 @@ async function handleFileConfirmation(
           $('#bwaFileSpanInfo').text('Loading file contents...');
           bwaFileContents = await electron.invoke(
             IpcChannel.ParseCsv,
-            (await electron.readFile((filePath as string[])[0])).toString()
+            (await electron.bwaFileRead((filePath as string[])[0])).toString()
           );
         } catch (e) {
           electron.send('app:error', `Failed to read file: ${e}`);
@@ -146,7 +154,7 @@ async function handleFileConfirmation(
       $('#bwaFileTextareaErrors').text(String(bwaFileStats.errors || 'No errors'));
       //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']);
       if (chosenPath) {
-        bwaFileWatcher = await electron.watch(chosenPath, { persistent: false }, (evt: string) => {
+        bwaFileWatcher = await electron.bwaWatch(chosenPath, { persistent: false }, (evt: string) => {
           if (evt === 'change') void refreshBwaFile(chosenPath);
         });
       }

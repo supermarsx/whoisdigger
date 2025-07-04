@@ -6,3 +6,4 @@ import './cache.js';
 import './ai.js';
 import './history.js';
 import './settings.js';
+import './i18n.js';
