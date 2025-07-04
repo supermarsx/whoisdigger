@@ -218,3 +218,24 @@ html[data-theme='dark'] #toTable .button {
 #opGoToBottom.is-visible {
   display: inline-flex;
 }
+
+/* Flat modal styling */
+.modal-card,
+.modal-content {
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.modal-card-head,
+.modal-card-foot {
+  box-shadow: none;
+  border: 1px solid #dbdbdb;
+}
+
+.modal-card-head {
+  border-bottom: 1px solid #dbdbdb;
+}
+
+.modal-card-foot {
+  border-top: 1px solid #dbdbdb;
+}
