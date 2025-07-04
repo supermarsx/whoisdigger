@@ -40,6 +40,15 @@ writeFile(
 );
 
 copyFile(
+  path.join(modulesDir, '@fortawesome', 'fontawesome-free', 'js', 'all.js'),
+  path.join(vendorDir, 'fontawesome.js')
+);
+writeFile(
+  path.join(vendorDir, 'fontawesome.d.ts'),
+  'const fontawesome: any;\nexport default fontawesome;\n'
+);
+
+copyFile(
   path.join(modulesDir, 'change-case', 'dist', 'index.js'),
   path.join(vendorDir, 'change-case.js')
 );

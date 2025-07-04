@@ -35,6 +35,10 @@ describe('regenerateVendor', () => {
       path.join(rootDir, 'app', 'vendor', 'jquery.js')
     );
     expect(copyFileMock).toHaveBeenCalledWith(
+      path.join(rootDir, 'node_modules', '@fortawesome', 'fontawesome-free', 'js', 'all.js'),
+      path.join(rootDir, 'app', 'vendor', 'fontawesome.js')
+    );
+    expect(copyFileMock).toHaveBeenCalledWith(
       path.join(rootDir, 'node_modules', 'change-case', 'dist', 'index.js'),
       path.join(rootDir, 'app', 'vendor', 'change-case.js')
     );
