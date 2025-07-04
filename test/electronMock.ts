@@ -17,12 +17,7 @@ if (!(global as any).window) {
 
 (global as any).window.electron = {
   send: jest.fn(),
-  dirnameCompat: jest.fn((metaUrl?: string | URL) => {
-    if (metaUrl) {
-      return path.dirname(new URL(metaUrl.toString()).pathname);
-    }
-    return __dirname;
-  }),
+  getBaseDir: jest.fn(() => Promise.resolve(__dirname)),
   invoke: jest.fn((channel: string, ...args: any[]) => {
     if (channel === 'settings:load') {
       const { load, getUserDataPath } = require('../app/ts/common/settings');

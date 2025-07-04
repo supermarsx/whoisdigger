@@ -9,6 +9,7 @@ import { loadSettings, settings as store } from './main/settings-main.js';
 import type { Settings as BaseSettings } from './main/settings-main.js';
 import { formatString } from './common/stringformat.js';
 import { RequestCache } from './common/requestCache.js';
+import { IpcChannel } from './common/ipcChannels.js';
 import {
   initialize as initializeRemote,
   enable as enableRemote
@@ -248,6 +249,10 @@ ipcMain.on('app:exit-confirmed', function () {
 ipcMain.handle('app:reload', function () {
   app.relaunch();
   app.exit(0);
+});
+
+ipcMain.handle(IpcChannel.GetBaseDir, function () {
+  return baseDir;
 });
 
 /*

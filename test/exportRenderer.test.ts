@@ -25,6 +25,7 @@ beforeEach(() => {
   (window as any).$ = (window as any).jQuery = jQuery;
   invokeMock = jest.fn().mockResolvedValue('ok');
   (window as any).electron = {
+    getBaseDir: () => Promise.resolve(__dirname),
     invoke: invokeMock,
     send: jest.fn(),
     on: (channel: string, cb: (...args: any[]) => void) => {

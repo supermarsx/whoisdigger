@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 
-(window as any).electron = { dirnameCompat: () => __dirname };
+(window as any).electron = { getBaseDir: () => Promise.resolve(__dirname) };
 
 import { _test } from '../app/ts/renderer/options';
 import { settings } from '../app/ts/renderer/settings-renderer';

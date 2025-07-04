@@ -3,7 +3,7 @@ import { debugFactory } from '../common/logger.js';
 import { IpcChannel } from '../common/ipcChannels.js';
 
 const electron = (window as any).electron as {
-  dirnameCompat: (metaUrl?: string | URL) => string;
+  getBaseDir: () => Promise<string>;
   readFile: (p: string, opts?: any) => Promise<any>;
   stat: (p: string) => Promise<any>;
   readdir: (p: string, opts?: any) => Promise<any>;
@@ -16,8 +16,6 @@ const electron = (window as any).electron as {
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
 };
-
-const baseDir = electron.dirnameCompat();
 
 const debug = debugFactory('renderer.options');
 debug('loaded');

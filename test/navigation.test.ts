@@ -22,7 +22,7 @@ beforeEach(() => {
   sendMock = jest.fn();
   invokeMock = jest.fn();
   (window as any).electron = {
-    dirnameCompat: () => __dirname,
+    getBaseDir: () => Promise.resolve(__dirname),
     send: sendMock,
     invoke: invokeMock,
     on: jest.fn()
