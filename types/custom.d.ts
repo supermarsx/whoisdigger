@@ -107,6 +107,7 @@ declare module 'punycode' {
 }
 declare module 'punycode/' {
   export function encode(input: string): string;
+  export function toASCII(input: string): string;
 }
 declare module 'idna-uts46' {
   const uts46: { toAscii(domain: string, options?: any): string };
