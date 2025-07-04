@@ -17,14 +17,17 @@ function writeFile(dest, content) {
   fs.writeFileSync(dest, content);
 }
 
-copyFile(
-  path.join(modulesDir, 'handlebars', 'dist', 'handlebars.runtime.js'),
-  path.join(vendorDir, 'handlebars.runtime.js')
-);
-fs.appendFileSync(
-  path.join(vendorDir, 'handlebars.runtime.js'),
-  '\nexport default globalThis.Handlebars;\n'
-);
+const hbSrc = path.join(modulesDir, 'handlebars', 'dist', 'handlebars.runtime.js');
+const hbDest = path.join(vendorDir, 'handlebars.runtime.js');
+copyFile(hbSrc, hbDest);
+let hbContent = fs.readFileSync(hbDest, 'utf8');
+if (hbContent.includes('})(this, function()')) {
+  hbContent = hbContent.replace('})(this, function()', '})(globalThis, function()');
+  fs.writeFileSync(hbDest, hbContent);
+}
+if (!hbContent.includes('export default globalThis.Handlebars')) {
+  fs.appendFileSync(hbDest, '\nexport default globalThis.Handlebars;\n');
+}
 writeFile(
   path.join(vendorDir, 'handlebars.runtime.d.ts'),
   "import Handlebars from 'handlebars';\nexport default Handlebars;\n"
