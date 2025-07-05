@@ -275,7 +275,7 @@ $(document).on('click', '#bwFileButtonConfirm', function () {
  */
 (function dragDropInitialization() {
   $(document).ready(() => {
-    const holder = document.getElementById('bwMainContainer') as HTMLElement | null;
+    const holder = document.getElementById('bulkwhoisMainContainer') as HTMLElement | null;
     if (!holder) return;
 
     holder.ondragover = function () {
@@ -303,10 +303,10 @@ $(document).on('click', '#bwFileButtonConfirm', function () {
 })();
 
 /*
-  $('#bwMainContainer').on('drop', function(...) {...});
+  $('#bulkwhoisMainContainer').on('drop', function(...) {...});
     On Drop ipsum
  */
-$('#bwMainContainer').on('drop', function (event) {
+$('#bulkwhoisMainContainer').on('drop', function (event) {
   event.preventDefault();
   for (const f of Array.from((event as any).originalEvent.dataTransfer.files)) {
     const file = f as any;
