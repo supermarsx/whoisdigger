@@ -57,9 +57,8 @@ describe('registerPartials', () => {
     partialNames.forEach((name, index) => {
       const precompiled = { name };
       expect((handlebars.template as jest.Mock).mock.calls[index][0]).toEqual(precompiled);
-      const partialName = name.replace('bulkwhois', 'bw');
       expect((handlebars.registerPartial as jest.Mock).mock.calls[index]).toEqual([
-        partialName,
+        name,
         `compiled-${name}`
       ]);
     });

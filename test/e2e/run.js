@@ -87,10 +87,10 @@ const debug = debugModule('test:e2e');
     assert.ok(minimized, 'Window did not minimize via IPC');
 
     // Navigate between tabs
-    await browser.execute(() => document.querySelector('#navButtonBw')?.click());
+    await browser.execute(() => document.querySelector('#navButtonBulkwhois')?.click());
     await browser.pause(500);
     let active = await browser.execute(() =>
-      document.getElementById('bwMainContainer')?.classList.contains('current')
+      document.getElementById('bulkwhoisMainContainer')?.classList.contains('current')
     );
     assert.ok(active, 'Bulk tab did not activate');
 
@@ -102,7 +102,7 @@ const debug = debugModule('test:e2e');
     assert.ok(active, 'Options tab did not activate');
 
     // Trigger sample bulk lookup using mock data
-    await browser.execute(() => document.querySelector('#navButtonBw')?.click());
+    await browser.execute(() => document.querySelector('#navButtonBulkwhois')?.click());
     await browser.pause(300);
     await browser.execute(() => {
       document.querySelector('#bwEntryButtonWordlist')?.click();

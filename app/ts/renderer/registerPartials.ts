@@ -28,25 +28,27 @@ import modals from '../../compiled-templates/modals.js';
 
 export function registerPartials(): void {
   const partials: Record<string, any> = {
-    bwEntry: Handlebars.template((bwEntry as any).default || (bwEntry as any)),
-    bwExport: Handlebars.template((bwExport as any).default || (bwExport as any)),
-    bwExportLoading: Handlebars.template(
+    bulkwhoisEntry: Handlebars.template((bwEntry as any).default || (bwEntry as any)),
+    bulkwhoisExport: Handlebars.template((bwExport as any).default || (bwExport as any)),
+    bulkwhoisExportLoading: Handlebars.template(
       (bwExportLoading as any).default || (bwExportLoading as any)
     ),
-    bwFileInputConfirm: Handlebars.template(
+    bulkwhoisFileInputConfirm: Handlebars.template(
       (bwFileInputConfirm as any).default || (bwFileInputConfirm as any)
     ),
-    bwFileInputLoading: Handlebars.template(
+    bulkwhoisFileInputLoading: Handlebars.template(
       (bwFileInputLoading as any).default || (bwFileInputLoading as any)
     ),
-    bwProcessing: Handlebars.template((bwProcessing as any).default || (bwProcessing as any)),
-    bwWordlistConfirm: Handlebars.template(
+    bulkwhoisProcessing: Handlebars.template(
+      (bwProcessing as any).default || (bwProcessing as any)
+    ),
+    bulkwhoisWordlistConfirm: Handlebars.template(
       (bwWordlistConfirm as any).default || (bwWordlistConfirm as any)
     ),
-    bwWordlistInput: Handlebars.template(
+    bulkwhoisWordlistInput: Handlebars.template(
       (bwWordlistInput as any).default || (bwWordlistInput as any)
     ),
-    bwWordlistLoading: Handlebars.template(
+    bulkwhoisWordlistLoading: Handlebars.template(
       (bwWordlistLoading as any).default || (bwWordlistLoading as any)
     ),
     bwaAnalyser: Handlebars.template((bwaAnalyser as any).default || (bwaAnalyser as any)),
