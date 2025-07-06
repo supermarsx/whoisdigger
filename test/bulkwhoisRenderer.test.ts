@@ -43,7 +43,7 @@ beforeEach(() => {
     },
     stat: statMock,
     bwFileRead: readFileMock,
-    bwWatch: jest.fn(async () => ({ close: jest.fn() })),
+    watch: jest.fn(async () => ({ close: jest.fn() })),
     path: { basename: async (p: string) => require('path').basename(p) }
   };
   invokeMock.mockReset();

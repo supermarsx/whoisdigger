@@ -14,10 +14,12 @@ watchEmitter.close = jest.fn();
 
 const statMock = jest.fn();
 const readFileMock = jest.fn();
-const bwWatchMock = jest.fn(async (p: string, _o: any, listener?: (...args: any[]) => void) => {
-  if (listener) watchEmitter.on('change', listener);
-  return { close: watchEmitter.close };
-});
+const watchMock = jest.fn(
+  async (_id: string, p: string, _o: any, listener?: (...args: any[]) => void) => {
+    if (listener) watchEmitter.on('change', listener);
+    return { close: watchEmitter.close };
+  }
+);
 
 jest.mock('electron', () => ({
   ipcRenderer: {
@@ -36,15 +38,14 @@ beforeAll(() => {
     stat: statMock,
     bwFileRead: readFileMock,
     bwaFileRead: readFileMock,
-    bwWatch: bwWatchMock,
-    bwaWatch: bwWatchMock,
+    watch: watchMock,
     path: { basename: path.basename, join: path.join }
   };
 });
 beforeEach(() => {
   statMock.mockReset();
   readFileMock.mockReset();
-  bwWatchMock.mockClear();
+  watchMock.mockClear();
   (watchEmitter.close as jest.Mock).mockClear();
 });
 
@@ -76,7 +77,8 @@ test('bw watcher updates table on change', async () => {
   ipc.emit(IpcChannel.BulkwhoisFileinputConfirmation, {}, '/tmp/test.txt', true);
   for (let i = 0; i < 5; i++) await new Promise((res) => setTimeout(res, 0));
 
-  expect(bwWatchMock).toHaveBeenCalledWith(
+  expect(watchMock).toHaveBeenCalledWith(
+    'bw',
     '/tmp/test.txt',
     { persistent: false },
     expect.any(Function)
@@ -117,7 +119,8 @@ test('bwa watcher updates table on change', async () => {
   ipc.emit('bwa:fileinput.confirmation', {}, '/tmp/test.csv', true);
   for (let i = 0; i < 5; i++) await new Promise((res) => setTimeout(res, 0));
 
-  expect(bwWatchMock).toHaveBeenCalledWith(
+  expect(watchMock).toHaveBeenCalledWith(
+    'bwa',
     '/tmp/test.csv',
     { persistent: false },
     expect.any(Function)
@@ -131,4 +134,54 @@ test('bwa watcher updates table on change', async () => {
 
   expect(statMock.mock.calls.length).toBeGreaterThan(beforeStat);
   expect(readFileMock.mock.calls.length).toBeGreaterThan(beforeRead);
+});
+
+test('bw watcher closes on cancel', async () => {
+  document.body.innerHTML = `
+    <button id="bwFileButtonCancel"></button>
+    <div id="bwFileinputconfirm"></div>
+    <div id="bwEntry"></div>
+    <span id="bwFileSpanInfo"></span>
+    <div id="bwFileinputloading"></div>
+    <td id="bwFileTdName"></td>
+  `;
+
+  statMock.mockResolvedValue({ size: 1, mtime: new Date(), atime: new Date() });
+  readFileMock.mockResolvedValue(Buffer.from('x'));
+
+  jest.isolateModules(() => {
+    require('../app/ts/renderer/bulkwhois/fileinput');
+  });
+
+  ipc.emit(IpcChannel.BulkwhoisFileinputConfirmation, {}, '/tmp/test.txt', true);
+  for (let i = 0; i < 5; i++) await new Promise((res) => setTimeout(res, 0));
+
+  jQuery('#bwFileButtonCancel').trigger('click');
+
+  expect(watchEmitter.close).toHaveBeenCalled();
+});
+
+test('bwa watcher closes on cancel', async () => {
+  document.body.innerHTML = `
+    <button id="bwaFileinputconfirmButtonCancel"></button>
+    <div id="bwaFileinputconfirm"></div>
+    <div id="bwaEntry"></div>
+    <span id="bwaFileSpanInfo"></span>
+    <div id="bwaFileinputloading"></div>
+    <td id="bwaFileTdFilename"></td>
+  `;
+
+  statMock.mockResolvedValue({ size: 1, mtime: new Date(), atime: new Date() });
+  readFileMock.mockResolvedValue(Buffer.from('a,b'));
+
+  jest.isolateModules(() => {
+    require('../app/ts/renderer/bwa/fileinput');
+  });
+
+  ipc.emit('bwa:fileinput.confirmation', {}, '/tmp/test.csv', true);
+  for (let i = 0; i < 5; i++) await new Promise((res) => setTimeout(res, 0));
+
+  jQuery('#bwaFileinputconfirmButtonCancel').trigger('click');
+
+  expect(watchEmitter.close).toHaveBeenCalled();
 });

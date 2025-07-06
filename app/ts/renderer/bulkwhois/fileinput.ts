@@ -9,7 +9,12 @@ const electron = (window as any).electron as {
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
   bwFileRead: (p: string) => Promise<Buffer>;
-  bwWatch: (p: string, opts: any, cb: (evt: string) => void) => Promise<{ close: () => void }>;
+  watch: (
+    prefix: string,
+    p: string,
+    opts: any,
+    cb: (evt: string) => void
+  ) => Promise<{ close: () => void }>;
   stat: (p: string) => Promise<any>;
   path: { basename: (p: string) => Promise<string> };
 };
@@ -188,9 +193,14 @@ async function handleFileConfirmation(
     debug(bwFileStats.linecount);
 
     if (chosenPath) {
-      bwFileWatcher = await electron.bwWatch(chosenPath, { persistent: false }, (evt: string) => {
-        if (evt === 'change') void refreshBwFile(chosenPath);
-      });
+      bwFileWatcher = await electron.watch(
+        'bw',
+        chosenPath,
+        { persistent: false },
+        (evt: string) => {
+          if (evt === 'change') void refreshBwFile(chosenPath);
+        }
+      );
     }
   }
 

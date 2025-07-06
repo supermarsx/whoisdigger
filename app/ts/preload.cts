@@ -33,38 +33,14 @@ const api = {
   refreshStats: (id: number) => ipcRenderer.invoke('stats:refresh', id),
   stopStats: (id: number) => ipcRenderer.invoke('stats:stop', id),
   getStats: (cfg: string, dir: string) => ipcRenderer.invoke('stats:get', cfg, dir),
-  watch: async (p: string, opts: any, cb: (evt: string) => void) => {
-    const id = await ipcRenderer.invoke('fs:watch', p, opts);
-    const chan = `fs:watch:${id}`;
+  watch: async (prefix: string, p: string, opts: any, cb: (evt: string) => void) => {
+    const id = await ipcRenderer.invoke('fs:watch', prefix, p, opts);
+    const chan = `fs:watch:${prefix}:${id}`;
     const handler = (_e: IpcRendererEvent, ev: string) => cb(ev);
     ipcRenderer.on(chan, handler);
     return {
       close: () => {
         ipcRenderer.invoke('fs:unwatch', id);
-        ipcRenderer.removeListener(chan, handler);
-      }
-    };
-  },
-  bwWatch: async (p: string, opts: any, cb: (evt: string) => void) => {
-    const id = await ipcRenderer.invoke('bw:watch', p, opts);
-    const chan = `bw:watch:${id}`;
-    const handler = (_e: IpcRendererEvent, ev: string) => cb(ev);
-    ipcRenderer.on(chan, handler);
-    return {
-      close: () => {
-        ipcRenderer.invoke('bw:unwatch', id);
-        ipcRenderer.removeListener(chan, handler);
-      }
-    };
-  },
-  bwaWatch: async (p: string, opts: any, cb: (evt: string) => void) => {
-    const id = await ipcRenderer.invoke('bwa:watch', p, opts);
-    const chan = `bwa:watch:${id}`;
-    const handler = (_e: IpcRendererEvent, ev: string) => cb(ev);
-    ipcRenderer.on(chan, handler);
-    return {
-      close: () => {
-        ipcRenderer.invoke('bwa:unwatch', id);
         ipcRenderer.removeListener(chan, handler);
       }
     };

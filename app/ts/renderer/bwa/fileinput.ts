@@ -10,7 +10,12 @@ const electron = (window as any).electron as {
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
   bwaFileRead: (p: string) => Promise<any>;
-  bwaWatch: (p: string, opts: any, cb: (evt: string) => void) => Promise<{ close: () => void }>;
+  watch: (
+    prefix: string,
+    p: string,
+    opts: any,
+    cb: (evt: string) => void
+  ) => Promise<{ close: () => void }>;
   stat: (p: string) => Promise<any>;
   path: { basename: (p: string) => Promise<string> };
 };
@@ -154,9 +159,14 @@ async function handleFileConfirmation(
       $('#bwaFileTextareaErrors').text(String(bwaFileStats.errors || 'No errors'));
       //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']); // show estimated bulk lookup time
       if (chosenPath) {
-        bwaFileWatcher = await electron.bwaWatch(chosenPath, { persistent: false }, (evt: string) => {
-          if (evt === 'change') void refreshBwaFile(chosenPath);
-        });
+        bwaFileWatcher = await electron.watch(
+          'bwa',
+          chosenPath,
+          { persistent: false },
+          (evt: string) => {
+            if (evt === 'change') void refreshBwaFile(chosenPath);
+          }
+        );
       }
     }
 
