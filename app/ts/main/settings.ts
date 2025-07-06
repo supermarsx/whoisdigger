@@ -73,11 +73,11 @@ async function computeStats(configPath: string, dataDir: string) {
 }
 
 function launchWorker(state: WatchState) {
-  const workerPath = path.join(baseDir, '..', 'renderer', 'workers', 'statsWorker.js');
+  const workerPath = path.join(baseDir, 'workers', 'statsWorker.js');
   if (!fs.existsSync(workerPath)) {
     // Fall back to direct computation when the worker script is missing
     computeStats(state.configPath, state.dataDir).then((stats) => {
-      state.sender.send('settings:stats', stats);
+      state.sender.send('stats:update', stats);
     });
     return;
   }
@@ -85,29 +85,19 @@ function launchWorker(state: WatchState) {
     state.worker = new Worker(workerPath, {
       workerData: { configPath: state.configPath, dataDir: state.dataDir }
     });
-    state.worker.on('message', async (msg) => {
-      if (msg && msg.type === 'get-stats') {
-        const stats = await computeStats(state.configPath, state.dataDir);
-        state.worker?.postMessage({ type: 'stats', data: stats });
-        state.sender.send('settings:stats', stats);
-      } else {
-        state.sender.send('settings:stats', msg);
-      }
+    state.worker.on('message', (msg) => {
+      state.sender.send('stats:update', msg);
     });
     state.watcher = chokidar.watch([state.configPath, state.dataDir], { ignoreInitial: true });
-    const send = async () => {
-      const stats = await computeStats(state.configPath, state.dataDir);
-      state.worker?.postMessage({ type: 'stats', data: stats });
-      state.sender.send('settings:stats', stats);
+    const send = () => {
+      state.worker?.postMessage('refresh');
     };
-    state.watcher.on('all', () => {
-      void send();
-    });
-    void send();
+    state.watcher.on('all', send);
+    send();
   } catch {
     state.watcher = chokidar.watch([state.configPath, state.dataDir], { ignoreInitial: true });
     const send = async () => {
-      state.sender.send('settings:stats', await computeStats(state.configPath, state.dataDir));
+      state.sender.send('stats:update', await computeStats(state.configPath, state.dataDir));
     };
     state.watcher.on('all', () => {
       void send();
@@ -116,7 +106,7 @@ function launchWorker(state: WatchState) {
   }
 }
 
-ipcMain.handle('settings:start-stats', async (e, configPath: string, dataDir: string) => {
+ipcMain.handle('stats:start', async (e, configPath: string, dataDir: string) => {
   const id = ++counter;
   const state: WatchState = { configPath, dataDir, sender: e.sender };
   states.set(id, state);
@@ -124,18 +114,18 @@ ipcMain.handle('settings:start-stats', async (e, configPath: string, dataDir: st
   return id;
 });
 
-ipcMain.handle('settings:refresh-stats', async (e, id: number) => {
+ipcMain.handle('stats:refresh', async (e, id: number) => {
   const state = states.get(id);
   if (!state) return;
   if (state.worker) {
     state.worker.postMessage('refresh');
   } else {
     const stats = await computeStats(state.configPath, state.dataDir);
-    e.sender.send('settings:stats', stats);
+    e.sender.send('stats:update', stats);
   }
 });
 
-ipcMain.handle('settings:stop-stats', (_e, id: number) => {
+ipcMain.handle('stats:stop', (_e, id: number) => {
   const state = states.get(id);
   if (!state) return;
   state.worker?.terminate();
@@ -143,6 +133,6 @@ ipcMain.handle('settings:stop-stats', (_e, id: number) => {
   states.delete(id);
 });
 
-ipcMain.handle('settings:get-stats', async (_e, configPath: string, dataDir: string) => {
+ipcMain.handle('stats:get', async (_e, configPath: string, dataDir: string) => {
   return computeStats(configPath, dataDir);
 });

@@ -68,9 +68,9 @@ let statsHandler: ((data: any) => void) | null = null;
 async function startStatsWorker(): Promise<void> {
   if (statsWatcherId !== null) {
     if (statsHandler) {
-      electron.off('settings:stats', statsHandler);
+      electron.off('stats:update', statsHandler);
     }
-    void electron.invoke('settings:stop-stats', statsWatcherId);
+    void electron.invoke('stats:stop', statsWatcherId);
     statsWatcherId = null;
     statsHandler = null;
   }
@@ -79,14 +79,14 @@ async function startStatsWorker(): Promise<void> {
     settings.customConfiguration.filepath
   );
   statsDataDir = getUserDataPath();
-  statsWatcherId = await electron.invoke('settings:start-stats', statsConfigPath, statsDataDir);
+  statsWatcherId = await electron.invoke('stats:start', statsConfigPath, statsDataDir);
   statsHandler = (data: any) => updateStats(data);
-  electron.on('settings:stats', statsHandler);
+  electron.on('stats:update', statsHandler);
 }
 
 function refreshStats(): void {
   if (statsWatcherId !== null) {
-    void electron.invoke('settings:refresh-stats', statsWatcherId);
+    void electron.invoke('stats:refresh', statsWatcherId);
   }
 }
 
