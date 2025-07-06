@@ -17,7 +17,7 @@ beforeEach(() => {
   document.body.innerHTML = `
     <div id="settingsEntry">
       <div class="field">
-        <select id="appSettings.theme.darkMode">
+        <select id="settings.theme.darkMode">
           <option value="true">true</option>
           <option value="false">false</option>
         </select>
@@ -36,7 +36,7 @@ beforeEach(() => {
     send: jest.fn(),
     on: jest.fn(),
     off: jest.fn(),
-    openDataDir: () => invokeMock('app:open-data-dir'),
+    openDataDir: () => invokeMock('settings:open-data-dir'),
     startSettingsStats: (...args: any[]) => invokeMock('settings:start-stats', ...args),
     refreshSettingsStats: (...args: any[]) => invokeMock('settings:refresh-stats', ...args),
     stopSettingsStats: (...args: any[]) => invokeMock('settings:stop-stats', ...args),
@@ -63,7 +63,7 @@ test('changing setting updates configuration', async () => {
 
   await new Promise((r) => setTimeout(r, 0));
 
-  jQuery('#appSettings\\.theme\\.darkMode').val('true').trigger('change');
+  jQuery('#settings\\.theme\\.darkMode').val('true').trigger('change');
 
   await Promise.resolve();
   expect(settings.theme.darkMode).toBe(true);
@@ -94,7 +94,7 @@ test('reloadApp invokes ipcRenderer', async () => {
   expect(invokeMock).toHaveBeenCalledWith('app:reload');
 });
 
-test('openDataFolder invokes app:open-data-dir', async () => {
+test('openDataFolder invokes settings:open-data-dir', async () => {
   jQuery = require('../app/vendor/jquery.js');
   (window as any).$ = (window as any).jQuery = jQuery;
   require('../app/ts/renderer/settings');
@@ -106,5 +106,5 @@ test('openDataFolder invokes app:open-data-dir', async () => {
 
   await Promise.resolve();
 
-  expect(invokeMock).toHaveBeenCalledWith('app:open-data-dir');
+  expect(invokeMock).toHaveBeenCalledWith('settings:open-data-dir');
 });

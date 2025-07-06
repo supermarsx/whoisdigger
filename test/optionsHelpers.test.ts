@@ -8,7 +8,7 @@ import appDefaults from '../app/ts/appsettings';
 
 const { getValue, setValue, parseValue, getDefault } = _test;
 
-describe('options helper functions', () => {
+describe('settings helper functions', () => {
   test('getValue returns nested value', () => {
     const backup = JSON.parse(JSON.stringify(settings));
     settings.lookupGeneral.timeout = 1234;

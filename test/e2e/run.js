@@ -126,8 +126,8 @@ const debug = debugModule('test:e2e');
     await browser.execute(() => document.querySelector('#navButtonOp')?.click());
     await browser.pause(500);
     await browser.execute(() => {
-      const dark = document.getElementById('appSettings.theme.darkMode');
-      const sys = document.getElementById('appSettings.theme.followSystem');
+      const dark = document.getElementById('settings.theme.darkMode');
+      const sys = document.getElementById('settings.theme.followSystem');
       if (sys) {
         sys.value = 'false';
         sys.dispatchEvent(new Event('change', { bubbles: true }));
