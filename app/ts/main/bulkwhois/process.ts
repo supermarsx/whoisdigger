@@ -1,4 +1,4 @@
-import electron from 'electron';
+import { ipcMain } from 'electron';
 import type { IpcMainInvokeEvent, IpcMainEvent } from 'electron';
 import { debugFactory } from '../../common/logger.js';
 const debug = debugFactory('bulkwhois.process');
@@ -11,8 +11,6 @@ import { resetObject } from '../../common/resetObject.js';
 import { resetUiCounters } from './auxiliary.js';
 
 import { getSettings } from '../settings-main.js';
-
-const { app, BrowserWindow, Menu, ipcMain, dialog, remote } = electron;
 import { formatString } from '../../common/stringformat.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
 
