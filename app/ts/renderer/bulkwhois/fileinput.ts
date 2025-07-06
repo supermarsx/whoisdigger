@@ -1,7 +1,7 @@
 import * as conversions from '../../common/conversions.js';
 import type { FileStats } from '../../common/fileStats.js';
 import { debugFactory } from '../../common/logger.js';
-const debug = debugFactory('renderer.bw.fileinput');
+const debug = debugFactory('bulkwhois.fileinput');
 debug('loaded');
 
 const electron = (window as any).electron as {
@@ -182,7 +182,7 @@ async function handleFileConfirmation(
       String(bwFileStats.humansize) + formatString(' ({0} line(s))', String(bwFileStats.linecount))
     );
     $('#bwFileTdFilepreview').text(String(bwFileStats.filepreview) + '...');
-    //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']);
+    //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']); // show estimated bulk lookup time
     debug('cont:' + bwFileContents);
 
     debug(bwFileStats.linecount);

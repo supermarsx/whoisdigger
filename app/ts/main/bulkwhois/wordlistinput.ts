@@ -1,6 +1,6 @@
 import electron from 'electron';
 import debugModule from 'debug';
-const debug = debugModule('main.bw.wordlistinput');
+const debug = debugModule('bulkwhois.wordlistinput');
 
 const { app, BrowserWindow, Menu, ipcMain, dialog, remote } = electron;
 import { IpcChannel } from '../../common/ipcChannels.js';

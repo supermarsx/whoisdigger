@@ -11,7 +11,7 @@ import { processData } from './resultHandler.js';
 import type { IpcMainEvent } from 'electron';
 import { IpcChannel } from '../../common/ipcChannels.js';
 
-const debug = debugModule('main.bw.scheduler');
+const debug = debugModule('bulkwhois.scheduler');
 
 export function processDomain(
   bulkWhois: BulkWhois,

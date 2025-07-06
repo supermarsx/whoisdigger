@@ -11,7 +11,7 @@ import type { IpcMainEvent } from 'electron';
 import { addEntry as addHistoryEntry } from '../../common/history.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
 
-const debug = debugModule('main.bw.resultHandler');
+const debug = debugModule('bulkwhois.resultHandler');
 
 export async function processData(
   bulkWhois: BulkWhois,

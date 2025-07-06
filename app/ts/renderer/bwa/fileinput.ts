@@ -152,7 +152,7 @@ async function handleFileConfirmation(
       );
       $('#bwaFileTdFilepreview').text(String(bwaFileStats.filepreview) + '...');
       $('#bwaFileTextareaErrors').text(String(bwaFileStats.errors || 'No errors'));
-      //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']);
+      //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']); // show estimated bulk lookup time
       if (chosenPath) {
         bwaFileWatcher = await electron.bwaWatch(chosenPath, { persistent: false }, (evt: string) => {
           if (evt === 'change') void refreshBwaFile(chosenPath);

@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import * as conversions from '../../common/conversions.js';
 import debugModule from 'debug';
-const debug = debugModule('main.bw.export');
+const debug = debugModule('bulkwhois.export');
 import JSZip from 'jszip';
 import { formatString } from '../../common/stringformat.js';
 

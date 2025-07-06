@@ -10,7 +10,7 @@ const electron = (window as any).electron as {
 };
 import $ from '../../../vendor/jquery.js';
 
-const debug = debugFactory('renderer.bw.process');
+const debug = debugFactory('bulkwhois.process');
 debug('loaded');
 
 import { formatString } from '../../common/stringformat.js';

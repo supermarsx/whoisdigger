@@ -9,7 +9,7 @@ const electron = (window as any).electron as {
   on: (channel: string, listener: (...args: any[]) => void) => void;
 };
 
-const debug = debugFactory('renderer.bw.export');
+const debug = debugFactory('bulkwhois.export');
 debug('loaded');
 import { resetObject } from '../../common/resetObject.js';
 import { getExportOptions, setExportOptions, setExportOptionsEx } from './auxiliary.js';
