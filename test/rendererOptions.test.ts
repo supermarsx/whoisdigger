@@ -17,7 +17,7 @@ beforeEach(() => {
   document.body.innerHTML = `
     <div id="settingsEntry">
       <div class="field">
-        <select id="settings.theme.darkMode">
+        <select id="appSettings.theme.darkMode">
           <option value="true">true</option>
           <option value="false">false</option>
         </select>
@@ -63,7 +63,7 @@ test('changing setting updates configuration', async () => {
 
   await new Promise((r) => setTimeout(r, 0));
 
-  jQuery('#settings\\.theme\\.darkMode').val('true').trigger('change');
+  jQuery('#appSettings\\.theme\\.darkMode').val('true').trigger('change');
 
   await Promise.resolve();
   expect(settings.theme.darkMode).toBe(true);
