@@ -1,8 +1,8 @@
-import debugModule from 'debug';
+import { debugFactory } from '../../common/logger.js';
 import type { IpcMainEvent } from 'electron';
 import { IpcChannel } from '../../common/ipcChannels.js';
 
-const debug = debugModule('bulkwhois.auxiliary');
+const debug = debugFactory('bulkwhois.auxiliary');
 
 /*
   resetUiCounters

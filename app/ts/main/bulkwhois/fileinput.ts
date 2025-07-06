@@ -1,6 +1,6 @@
 import electron from 'electron';
-import debugModule from 'debug';
-const debug = debugModule('bulkwhois.fileinput');
+import { debugFactory } from '../../common/logger.js';
+const debug = debugFactory('bulkwhois.fileinput');
 
 const { app, BrowserWindow, Menu, ipcMain, dialog } = electron;
 import { formatString } from '../../common/stringformat.js';

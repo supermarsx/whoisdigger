@@ -1,9 +1,9 @@
 import express, { Request, Response } from 'express';
 import { lookup } from '../common/lookup.js';
 import { lookupDomains, CliOptions } from '../cli.js';
-import debugModule from 'debug';
+import { debugFactory } from '../common/logger.js';
 
-const debug = debugModule('server');
+const debug = debugFactory('server');
 
 export function createServer() {
   const app = express();

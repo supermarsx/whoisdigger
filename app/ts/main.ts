@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const baseDir = path.dirname(__filename);
-import debugModule from 'debug';
+import { debugFactory } from './common/logger.js';
 import { loadSettings, settings as store } from './main/settings-main.js';
 import type { Settings as BaseSettings } from './main/settings-main.js';
 import { formatString } from './common/stringformat.js';
@@ -16,8 +16,8 @@ import {
 } from '@electron/remote/main/index.js';
 import type { IpcMainEvent } from 'electron';
 
-const debug = debugModule('main');
-const debugb = debugModule('renderer');
+const debug = debugFactory('main');
+const debugb = debugFactory('renderer');
 
 const requestCache = new RequestCache();
 

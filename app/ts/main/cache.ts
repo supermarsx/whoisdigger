@@ -1,8 +1,8 @@
 import { ipcMain } from 'electron';
-import debugModule from 'debug';
+import { debugFactory } from '../common/logger.js';
 import { RequestCache } from '../common/requestCache.js';
 
-const debug = debugModule('main.cache');
+const debug = debugFactory('main.cache');
 
 const requestCache = new RequestCache();
 

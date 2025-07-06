@@ -1,7 +1,7 @@
-import debugModule from 'debug';
+import { debugFactory } from '../common/logger.js';
 import { settings } from '../common/settings.js';
 
-const debug = debugModule('ai.openaiSuggest');
+const debug = debugFactory('ai.openaiSuggest');
 
 async function ensureFetch(): Promise<void> {
   if (typeof globalThis.fetch === 'undefined') {

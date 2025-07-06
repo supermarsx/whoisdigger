@@ -2,13 +2,13 @@ import fs from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { createRequire } from 'module';
-import debugModule from 'debug';
+import { debugFactory } from './logger.js';
 import { precompileTemplates } from './precompileTemplates.js';
 import { dirnameCompat } from './dirnameCompat.js';
 import { regenerateVendor } from './regenerateVendor.mjs';
 
 const baseDir = dirnameCompat();
-const debug = debugModule('prebuild');
+const debug = debugFactory('prebuild');
 
 const rootDir = path.join(baseDir, '..');
 const modulesPath = path.join(rootDir, 'node_modules');
