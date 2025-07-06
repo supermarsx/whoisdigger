@@ -1,8 +1,6 @@
-import electron from 'electron';
+import { ipcMain } from 'electron';
 import { debugFactory } from '../../common/logger.js';
 const debug = debugFactory('main.bwa.analyser');
-
-const { app, BrowserWindow, Menu, ipcMain, dialog } = electron;
 import { IpcChannel } from '../../common/ipcChannels.js';
 
 /*

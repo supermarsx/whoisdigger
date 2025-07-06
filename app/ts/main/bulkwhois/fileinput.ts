@@ -1,8 +1,6 @@
-import electron from 'electron';
+import { ipcMain, dialog } from 'electron';
 import { debugFactory } from '../../common/logger.js';
 const debug = debugFactory('bulkwhois.fileinput');
-
-const { app, BrowserWindow, Menu, ipcMain, dialog } = electron;
 import { formatString } from '../../common/stringformat.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
 

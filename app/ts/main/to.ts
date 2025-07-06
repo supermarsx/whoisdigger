@@ -1,10 +1,8 @@
-import electron from 'electron';
+import { ipcMain, dialog } from 'electron';
 import fs from 'fs';
 import { debugFactory } from '../common/logger.js';
 import { processLines, ProcessOptions } from '../common/tools.js';
 import { IpcChannel } from '../common/ipcChannels.js';
-
-const { ipcMain, dialog } = electron;
 const debug = debugFactory('main.to');
 
 /*

@@ -1,13 +1,10 @@
-import electron from 'electron';
+import { ipcMain, dialog, shell } from 'electron';
 import fs from 'fs';
-import path from 'path';
 import * as conversions from '../../common/conversions.js';
 import { debugFactory } from '../../common/logger.js';
 const debug = debugFactory('bulkwhois.export');
 import JSZip from 'jszip';
 import { formatString } from '../../common/stringformat.js';
-
-const { app, BrowserWindow, Menu, ipcMain, dialog, remote, shell } = electron;
 
 import { getSettings } from '../settings-main.js';
 import { generateFilename } from '../../cli/export.js';
