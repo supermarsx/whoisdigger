@@ -8,9 +8,8 @@ const baseDir = dirnameCompat();
 ipcMain.handle('i18n:load', async (_e, lang: string) => {
   const file = path.join(baseDir, '..', 'locales', `${lang}.json`);
   try {
-    const raw = await fs.promises.readFile(file, 'utf8');
-    return JSON.parse(raw) as Record<string, string>;
+    return await fs.promises.readFile(file, 'utf8');
   } catch {
-    return {};
+    return '{}';
   }
 });
