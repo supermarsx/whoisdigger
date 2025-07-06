@@ -10,7 +10,7 @@ const electron = (window as any).electron as {
 import { tableReset } from './auxiliary.js';
 import $ from '../../../vendor/jquery.js';
 
-const debug = debugFactory('renderer.bw.wordlistinput');
+const debug = debugFactory('bulkwhois.wordlistinput');
 debug('loaded');
 
 import { formatString } from '../../common/stringformat.js';

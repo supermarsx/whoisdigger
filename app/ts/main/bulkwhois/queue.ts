@@ -3,7 +3,7 @@ import { formatString } from '../../common/stringformat.js';
 import type { Settings } from '../settings-main.js';
 import type { DomainSetup } from './types.js';
 
-const debug = debugModule('main.bw.queue');
+const debug = debugModule('bulkwhois.queue');
 
 function randomWithin(min: number, max: number): number {
   if (min > max) {

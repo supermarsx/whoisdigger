@@ -1,7 +1,7 @@
 // Default export options values
 import { debugFactory } from '../../common/logger.js';
 
-const debug = debugFactory('renderer.bw.export.defaults');
+const debug = debugFactory('bulkwhois.export.defaults');
 debug('loaded');
 
 const defaultExportOptions = {

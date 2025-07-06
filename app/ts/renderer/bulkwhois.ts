@@ -6,5 +6,5 @@ import './bulkwhois/export.js'; // Export processing
 
 import { debugFactory } from '../common/logger.js';
 
-const debug = debugFactory('renderer.bw');
+const debug = debugFactory('bulkwhois');
 debug('loaded');

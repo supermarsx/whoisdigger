@@ -2,7 +2,7 @@ import { resetObject } from '../../common/resetObject.js';
 import $ from '../../../vendor/jquery.js';
 import { debugFactory } from '../../common/logger.js';
 
-const debug = debugFactory('renderer.bw.auxiliary');
+const debug = debugFactory('bulkwhois.auxiliary');
 debug('loaded');
 
 /*
@@ -52,7 +52,7 @@ function setExportOptions(preset: string): void {
     // Export available only
     case 'availableonly':
       unlockFields();
-      //$('#bweSelectFiletype').val('csv');
+      //$('#bweSelectFiletype').val('csv'); // force CSV for bulk export presets
       $('#bwExportSelectDomains').val('available');
       $('#bwExportSelectErrors').val('no');
       $('#bwExportSelectInformation').val('domain');
@@ -61,7 +61,7 @@ function setExportOptions(preset: string): void {
     // All results but no reply nor debug
     case 'allbutnoreply':
       unlockFields();
-      //$('#bweSelectFiletype').val('csv');
+      //$('#bweSelectFiletype').val('csv'); // enforce CSV output
       $('#bwExportSelectDomains').val('both');
       $('#bwExportSelectErrors').val('yes');
       $('#bwExportSelectInformation').val('domain+basic');

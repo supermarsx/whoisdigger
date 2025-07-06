@@ -1,7 +1,7 @@
 import electron from 'electron';
 import type { IpcMainInvokeEvent, IpcMainEvent } from 'electron';
 import debugModule from 'debug';
-const debug = debugModule('main.bw.process');
+const debug = debugModule('bulkwhois.process');
 import defaultBulkWhois from './process.defaults.js';
 
 import type { BulkWhois, DomainSetup } from './types.js';
