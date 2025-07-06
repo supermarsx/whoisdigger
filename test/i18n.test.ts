@@ -2,18 +2,21 @@
 
 import Handlebars from '../app/vendor/handlebars.runtime.js';
 
-const loadMock = jest.fn();
+const invokeMock = jest.fn();
+const joinMock = jest.fn(async (...args: string[]) => args.join('/'));
 
 describe('i18n loader', () => {
   beforeEach(() => {
-    loadMock.mockReset();
+    invokeMock.mockReset();
+    joinMock.mockReset();
     (window as any).electron = {
-      loadTranslations: loadMock
+      invoke: invokeMock,
+      path: { join: joinMock }
     };
   });
 
   test('loads translations and registers helper', async () => {
-    loadMock.mockResolvedValue({ hello: 'world' });
+    invokeMock.mockResolvedValue('{"hello":"world"}');
     const {
       loadTranslations,
       registerTranslationHelpers,
