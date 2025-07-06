@@ -5,8 +5,8 @@ import * as url from 'url';
 import { lookup as whoisLookup } from '../common/lookup.js';
 import { isDomainAvailable } from '../common/availability.js';
 import { addEntry as addHistoryEntry } from '../common/history.js';
-import debugModule from 'debug';
-const debug = debugModule('main.singlewhois');
+import { debugFactory } from '../common/logger.js';
+const debug = debugFactory('main.singlewhois');
 
 const { app, Menu, ipcMain, dialog, remote, clipboard, shell } = electron;
 import { formatString } from '../common/stringformat.js';

@@ -1,10 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import https from 'https';
-import debugModule from 'debug';
+import { debugFactory } from '../common/logger.js';
 import { settings, getUserDataPath } from '../common/settings.js';
 
-const debug = debugModule('ai.modelDownloader');
+const debug = debugFactory('ai.modelDownloader');
 
 export async function downloadModel(url: string, dest: string): Promise<void> {
   const baseDir = path.resolve(getUserDataPath(), settings.ai.dataPath);

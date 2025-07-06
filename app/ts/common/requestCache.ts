@@ -3,9 +3,9 @@ import type { Database as DatabaseType } from 'better-sqlite3';
 import fs from 'fs';
 import path from 'path';
 import { settings, getUserDataPath } from './settings.js';
-import debugModule from 'debug';
+import { debugFactory } from './logger.js';
 
-const debug = debugModule('common.requestCache');
+const debug = debugFactory('common.requestCache');
 
 export interface CacheOptions {
   enabled?: boolean;

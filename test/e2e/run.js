@@ -5,12 +5,12 @@ import assert from 'assert';
 import { spawn } from 'child_process';
 import net from 'net';
 import { remote } from 'webdriverio';
-import debugModule from 'debug';
+import { debugFactory } from '../../scripts/logger.js';
 import { dirnameCompat } from '../../scripts/dirnameCompat.js';
 import electron from 'electron';
 
 const baseDir = dirnameCompat();
-const debug = debugModule('test:e2e');
+const debug = debugFactory('test:e2e');
 
 (async () => {
   const electronPath = electron;

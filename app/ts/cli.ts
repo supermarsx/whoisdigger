@@ -3,7 +3,7 @@ import path from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import JSZip from 'jszip';
-import debugModule from 'debug';
+import { debugFactory } from './common/logger.js';
 import { lookup as whoisLookup } from './common/lookup.js';
 import { settings } from './common/settings.js';
 import { RequestCache } from './common/requestCache.js';
@@ -15,7 +15,7 @@ import { suggestWords } from './ai/openaiSuggest.js';
 
 const requestCache = new RequestCache();
 
-const debug = debugModule('cli');
+const debug = debugFactory('cli');
 
 export interface CliOptions {
   domains: string[];

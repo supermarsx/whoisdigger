@@ -1,10 +1,10 @@
 import { ipcMain } from 'electron';
-import debugModule from 'debug';
+import { debugFactory } from '../common/logger.js';
 import { settings } from './settings-main.js';
 import { downloadModel } from '../ai/modelDownloader.js';
 import { suggestWords } from '../ai/openaiSuggest.js';
 
-const debug = debugModule('main.ai');
+const debug = debugFactory('main.ai');
 
 ipcMain.handle('ai:download-model', async () => {
   const url = settings.ai.modelURL;

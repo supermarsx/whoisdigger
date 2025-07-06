@@ -1,4 +1,4 @@
-import debugModule from 'debug';
+import { debugFactory } from '../../common/logger.js';
 import { isDomainAvailable, getDomainParameters } from '../../common/availability.js';
 import { toJSON } from '../../common/parser.js';
 import { performance } from 'perf_hooks';
@@ -11,7 +11,7 @@ import type { IpcMainEvent } from 'electron';
 import { addEntry as addHistoryEntry } from '../../common/history.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
 
-const debug = debugModule('bulkwhois.resultHandler');
+const debug = debugFactory('bulkwhois.resultHandler');
 
 export async function processData(
   bulkWhois: BulkWhois,

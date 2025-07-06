@@ -1,4 +1,4 @@
-import debugModule from 'debug';
+import { debugFactory } from '../../common/logger.js';
 import { performance } from 'perf_hooks';
 import { lookup as whoisLookup } from '../../common/lookup.js';
 import * as dns from '../../common/dnsLookup.js';
@@ -11,7 +11,7 @@ import { processData } from './resultHandler.js';
 import type { IpcMainEvent } from 'electron';
 import { IpcChannel } from '../../common/ipcChannels.js';
 
-const debug = debugModule('bulkwhois.scheduler');
+const debug = debugFactory('bulkwhois.scheduler');
 
 export function processDomain(
   bulkWhois: BulkWhois,

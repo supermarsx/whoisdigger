@@ -1,11 +1,11 @@
 import electron from 'electron';
 import fs from 'fs';
-import debugModule from 'debug';
+import { debugFactory } from '../common/logger.js';
 import { processLines, ProcessOptions } from '../common/tools.js';
 import { IpcChannel } from '../common/ipcChannels.js';
 
 const { ipcMain, dialog } = electron;
-const debug = debugModule('main.to');
+const debug = debugFactory('main.to');
 
 /*
   ipcMain.on('to:input.file', function(event) {...});

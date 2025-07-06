@@ -1,9 +1,9 @@
-import debugModule from 'debug';
+import { debugFactory } from '../../common/logger.js';
 import { formatString } from '../../common/stringformat.js';
 import type { Settings } from '../settings-main.js';
 import type { DomainSetup } from './types.js';
 
-const debug = debugModule('bulkwhois.queue');
+const debug = debugFactory('bulkwhois.queue');
 
 function randomWithin(min: number, max: number): number {
   if (min > max) {

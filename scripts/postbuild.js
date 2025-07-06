@@ -3,14 +3,14 @@ import path from 'path';
 import { spawnSync } from 'child_process';
 import { copyRecursiveSync } from './copyRecursive.js';
 import { precompileTemplates } from './precompileTemplates.js';
-import debugModule from 'debug';
+import { debugFactory } from './logger.js';
 import { dirnameCompat } from './dirnameCompat.js';
 import { fileURLToPath, pathToFileURL } from 'url';
 import Handlebars from 'handlebars/runtime.js';
 import './create-esm-links.js';
 
 const baseDir = dirnameCompat();
-const debug = debugModule('postbuild');
+const debug = debugFactory('postbuild');
 
 const folders = [
   'html',

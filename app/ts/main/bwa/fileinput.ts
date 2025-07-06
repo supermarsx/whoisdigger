@@ -1,6 +1,6 @@
 import electron from 'electron';
-import debugModule from 'debug';
-const debug = debugModule('main.bwa.fileinput');
+import { debugFactory } from '../../common/logger.js';
+const debug = debugFactory('main.bwa.fileinput');
 
 const { app, BrowserWindow, Menu, ipcMain, dialog } = electron;
 import { formatString } from '../../common/stringformat.js';

@@ -3,9 +3,9 @@ import type { Database as DatabaseType } from 'better-sqlite3';
 import fs from 'fs';
 import path from 'path';
 import { getUserDataPath } from './settings.js';
-import debugModule from 'debug';
+import { debugFactory } from './logger.js';
 
-const debug = debugModule('common.history');
+const debug = debugFactory('common.history');
 
 let db: DatabaseType | undefined;
 

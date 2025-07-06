@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import debugModule from 'debug';
+import { debugFactory } from '../common/logger.js';
 import { settings, getUserDataPath } from '../common/settings.js';
 
-const debug = debugModule('ai.availabilityModel');
+const debug = debugFactory('ai.availabilityModel');
 
 export type Label = 'available' | 'unavailable';
 

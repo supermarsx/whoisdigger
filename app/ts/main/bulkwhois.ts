@@ -1,6 +1,6 @@
 import electron from 'electron';
-import debugModule from 'debug';
-const debug = debugModule('bulkwhois');
+import { debugFactory } from '../common/logger.js';
+const debug = debugFactory('bulkwhois');
 
 const { app, BrowserWindow, Menu, ipcMain, dialog, remote } = electron;
 

@@ -3,10 +3,10 @@ import path from 'path';
 import watchboy from 'watchboy';
 import { copyRecursiveSync } from './copyRecursive.js';
 import { precompileTemplates } from './precompileTemplates.js';
-import debugModule from 'debug';
+import { debugFactory } from './logger.js';
 
 const rootDir = process.cwd();
-const debug = debugModule('watch-assets');
+const debug = debugFactory('watch-assets');
 
 const folders = [
   'html',

@@ -2,12 +2,12 @@ import psl from 'psl';
 import { toASCII } from 'punycode/punycode.js';
 import uts46 from 'idna-uts46';
 import whois from 'whois';
-import debugModule from 'debug';
+import { debugFactory } from './logger.js';
 import { settings, Settings } from './settings.js';
 import { RequestCache, CacheOptions } from './requestCache.js';
 import { getProxy } from './proxy.js';
 
-const debug = debugModule('common.whoisWrapper');
+const debug = debugFactory('common.whoisWrapper');
 
 const requestCache = new RequestCache();
 
