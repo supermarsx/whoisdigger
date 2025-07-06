@@ -55,10 +55,10 @@ async function computeStats(configPath: string, dataDir: string) {
 }
 
 const workerPath = fs.existsSync(
-  path.join(process.cwd(), 'dist', 'renderer', 'workers', 'statsWorker.js')
+  path.join(process.cwd(), 'dist', 'main', 'workers', 'statsWorker.js')
 )
-  ? path.join(process.cwd(), 'dist', 'renderer', 'workers', 'statsWorker.js')
-  : path.join(process.cwd(), 'dist', 'app', 'ts', 'renderer', 'workers', 'statsWorker.js');
+  ? path.join(process.cwd(), 'dist', 'main', 'workers', 'statsWorker.js')
+  : path.join(process.cwd(), 'dist', 'app', 'ts', 'main', 'workers', 'statsWorker.js');
 
 beforeAll(() => {
   if (!fs.existsSync(workerPath)) {
@@ -76,20 +76,12 @@ test('statsWorker reports stats and updates on file changes', async () => {
   const worker = new Worker(workerPath, {
     workerData: { configPath, dataDir }
   });
-  worker.on('message', async (msg) => {
-    if (msg.type === 'get-stats') {
-      const stats = await computeStats(configPath, dataDir);
-      worker.postMessage({ type: 'stats', data: stats });
-    }
-  });
 
   const waitForStats = () =>
     new Promise<any>((resolve) => {
       const handler = (msg: any) => {
-        if (msg.type !== 'get-stats') {
-          worker.off('message', handler);
-          resolve(msg);
-        }
+        worker.off('message', handler);
+        resolve(msg);
       };
       worker.on('message', handler);
     });

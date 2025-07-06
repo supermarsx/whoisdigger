@@ -29,12 +29,10 @@ const api = {
   bwFileRead: (p: string) => ipcRenderer.invoke('bw:file-read', p),
   bwaFileRead: (p: string) => ipcRenderer.invoke('bwa:file-read', p),
   loadTranslations: (lang: string) => ipcRenderer.invoke('i18n:load', lang),
-  startSettingsStats: (cfg: string, dir: string) =>
-    ipcRenderer.invoke('settings:start-stats', cfg, dir),
-  refreshSettingsStats: (id: number) => ipcRenderer.invoke('settings:refresh-stats', id),
-  stopSettingsStats: (id: number) => ipcRenderer.invoke('settings:stop-stats', id),
-  getSettingsStats: (cfg: string, dir: string) =>
-    ipcRenderer.invoke('settings:get-stats', cfg, dir),
+  startStats: (cfg: string, dir: string) => ipcRenderer.invoke('stats:start', cfg, dir),
+  refreshStats: (id: number) => ipcRenderer.invoke('stats:refresh', id),
+  stopStats: (id: number) => ipcRenderer.invoke('stats:stop', id),
+  getStats: (cfg: string, dir: string) => ipcRenderer.invoke('stats:get', cfg, dir),
   watch: async (p: string, opts: any, cb: (evt: string) => void) => {
     const id = await ipcRenderer.invoke('fs:watch', p, opts);
     const chan = `fs:watch:${id}`;
