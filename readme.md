@@ -38,7 +38,7 @@ If you clone this repo please patch `node_modules\whois\index.js` and remove the
 - Public Suffix List (PSL) and wildcard filtering
 - Basic bulk WHOIS result analyser (csv import)
 - Persistent settings through JSON file preload with live updates
-- Redesigned options interface with auto-save
+- Redesigned settings interface with auto-save
 - Dark mode toggle
 - Follow system theme option
 
@@ -46,7 +46,7 @@ If you clone this repo please patch `node_modules\whois\index.js` and remove the
 
 - Domain monitor
 - Misc tools
-- Options
+- Settings
 - Help page
 - Experimental AI domain availability checks
 
@@ -251,7 +251,7 @@ Context isolation is always enabled for security purposes and cannot be disabled
 
 ### Theme
 
-The options screen provides a **Follow system theme** toggle. When enabled the application automatically switches between dark and light modes according to your operating system preference. This behaviour is controlled by the `theme.followSystem` setting which can be set to `true` or `false` in the configuration file.
+The settings screen provides a **Follow system theme** toggle. When enabled the application automatically switches between dark and light modes according to your operating system preference. This behaviour is controlled by the `theme.followSystem` setting which can be set to `true` or `false` in the configuration file.
 
 ### User interface
 
