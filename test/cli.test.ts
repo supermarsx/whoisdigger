@@ -69,4 +69,14 @@ describe('cli utility', () => {
     expect(content).toContain('example.com');
     fs.unlinkSync(file);
   });
+
+  test('parseArgs requires domain or wordlist', () => {
+    expect(() => parseArgs([])).toThrow('Either --domain or --wordlist must be provided');
+  });
+
+  test('parseArgs validates suggest-count', () => {
+    expect(() => parseArgs(['--suggest', 'idea', '--suggest-count', '0'])).toThrow(
+      'positive integer'
+    );
+  });
 });
