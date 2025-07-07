@@ -476,3 +476,18 @@ const exported = {
 
 export default patterns;
 export { exported as PatternsHelpers };
+
+// Rebuild patterns when settings change in the renderer
+const win = typeof window !== 'undefined' ? (window as any) : undefined;
+const electron = win?.electron;
+if (electron?.on) {
+  electron.on('settings:reloaded', () => {
+    buildPatterns();
+  });
+}
+// Fallback DOM event used by renderer settings page
+if (win?.addEventListener) {
+  win.addEventListener('settings-reloaded', () => {
+    buildPatterns();
+  });
+}
