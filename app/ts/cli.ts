@@ -44,6 +44,25 @@ export function parseArgs(argv: string[]): CliOptions {
     .option('download-model', { type: 'boolean' })
     .option('suggest', { type: 'string' })
     .option('suggest-count', { type: 'number', default: 5 })
+    .check((args) => {
+      if (
+        !args.domain &&
+        !args.wordlist &&
+        !args.suggest &&
+        !args['download-model'] &&
+        !args['purge-cache'] &&
+        !args['clear-cache']
+      ) {
+        throw new Error('Either --domain or --wordlist must be provided');
+      }
+      if (
+        args['suggest-count'] !== undefined &&
+        (!Number.isInteger(args['suggest-count']) || args['suggest-count'] <= 0)
+      ) {
+        throw new Error('--suggest-count must be a positive integer');
+      }
+      return true;
+    })
     .parseSync();
   return {
     domains: args.domain ?? [],
