@@ -40,7 +40,7 @@ export function processDomain(
     stats.domains.waiting++;
     sender.send(IpcChannel.BulkwhoisStatusUpdate, 'domains.waiting', stats.domains.waiting);
 
-    reqtime[domainSetup.index!] = await performance.now();
+    reqtime[domainSetup.index!] = performance.now();
 
     debug(formatString('Looking up domain: {0}', domainSetup.domain));
 
