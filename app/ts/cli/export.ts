@@ -1,3 +1,5 @@
+import { randomInt } from '../utils/random.js';
+
 export function generateFilename(ext: string): string {
   function pad(n: number): string {
     return String(n).padStart(2, '0');
@@ -10,8 +12,6 @@ export function generateFilename(ext: string): string {
     pad(d.getHours()) +
     pad(d.getMinutes()) +
     pad(d.getSeconds());
-  const hex = Math.floor(Math.random() * 0xffffff)
-    .toString(16)
-    .padStart(6, '0');
+  const hex = randomInt(0, 0xffffff).toString(16).padStart(6, '0');
   return `bulkwhois-export-${datetime}-${hex}${ext}`;
 }

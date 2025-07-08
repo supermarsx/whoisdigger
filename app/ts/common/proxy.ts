@@ -1,5 +1,6 @@
 import { settings } from './settings.js';
 import { isIP } from 'net';
+import { randomInt } from '../utils/random.js';
 
 export interface ProxyInfo {
   ipaddress: string;
@@ -33,7 +34,7 @@ export function getProxy(): ProxyInfo | undefined {
   let entry: string;
   switch (proxy.multimode) {
     case 'random':
-      entry = list[Math.floor(Math.random() * list.length)];
+      entry = list[randomInt(0, list.length - 1)];
       break;
     case 'ascending':
       index = (index + 1) % list.length;

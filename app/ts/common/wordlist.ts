@@ -1,4 +1,5 @@
 import { promises as fs } from 'fs';
+import { randomInt } from '../utils/random.js';
 
 export async function concatFiles(...files: string[]): Promise<string[]> {
   const lines: string[] = [];
@@ -84,7 +85,7 @@ export function sortLinesReverse(lines: string[]): string[] {
 export function shuffleLines(lines: string[]): string[] {
   const arr = [...lines];
   for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = randomInt(0, i);
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
