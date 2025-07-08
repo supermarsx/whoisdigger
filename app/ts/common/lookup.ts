@@ -6,6 +6,7 @@ import { debugFactory } from './logger.js';
 import { settings, Settings } from './settings.js';
 import { RequestCache, CacheOptions } from './requestCache.js';
 import { getProxy } from './proxy.js';
+import { randomInt } from '../utils/random.js';
 
 const debug = debugFactory('common.whoisWrapper');
 
@@ -110,30 +111,23 @@ function getWhoisParameters(parameter: string): number | undefined {
         `Follow depth, 'random': ${follow.randomize}, 'maximum': ${follow.maximumDepth}, 'minimum': ${follow.minimumDepth}, 'default': ${general.follow}`
       );
       return follow.randomize
-        ? getRandomInt(follow.minimumDepth, follow.maximumDepth)
+        ? randomInt(follow.minimumDepth, follow.maximumDepth)
         : general.follow;
     case 'timeout':
       debug(
         `Timeout, 'random': ${timeout.randomize}, 'maximum': ${timeout.maximum}, 'minimum': ${timeout.minimum}, 'default': ${general.timeout}`
       );
-      return timeout.randomize ? getRandomInt(timeout.minimum, timeout.maximum) : general.timeout;
+      return timeout.randomize ? randomInt(timeout.minimum, timeout.maximum) : general.timeout;
     case 'timebetween':
       debug(
         `Timebetween, 'random': ${timeBetween.randomize}, 'maximum': ${timeBetween.maximum}, 'minimum': ${timeBetween.minimum}, 'default': ${general.timeBetween}`
       );
       return timeBetween.randomize
-        ? getRandomInt(timeBetween.minimum, timeBetween.maximum)
+        ? randomInt(timeBetween.minimum, timeBetween.maximum)
         : general.timeBetween;
     default:
       return undefined;
   }
-}
-
-function getRandomInt(min: number, max: number): number {
-  min = Math.floor(min);
-  max = Math.floor(max);
-  if (min > max) [min, max] = [max, min];
-  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 export default {
