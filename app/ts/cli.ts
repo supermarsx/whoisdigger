@@ -3,7 +3,7 @@ import path from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import JSZip from 'jszip';
-import { debugFactory } from './common/logger.js';
+import { debugFactory, errorFactory } from './common/logger.js';
 import { lookup as whoisLookup } from './common/lookup.js';
 import { settings } from './common/settings.js';
 import { RequestCache } from './common/requestCache.js';
@@ -16,6 +16,7 @@ import { suggestWords } from './ai/openaiSuggest.js';
 const requestCache = new RequestCache();
 
 const debug = debugFactory('cli');
+const error = errorFactory('cli');
 
 export interface CliOptions {
   domains: string[];
@@ -167,7 +168,7 @@ if (require.main === module) {
     if (opts.suggest) {
       const words = await suggestWords(opts.suggest, opts.suggestCount ?? 5);
       for (const w of words) {
-        console.info(w);
+        process.stdout.write(`${w}\n`);
         debug(w);
       }
       return;
@@ -175,27 +176,30 @@ if (require.main === module) {
     if (opts.downloadModel) {
       const url = settings.ai.modelURL;
       if (!url) {
-        console.error('Model URL not configured');
+        process.stdout.write('Model URL not configured\n');
+        error('Model URL not configured');
         return;
       }
       await downloadModel(url, settings.ai.modelPath);
-      console.info('Model downloaded');
+      process.stdout.write('Model downloaded\n');
       debug('Model downloaded');
       return;
     }
     if (opts.purgeCache || opts.clearCache) {
       if (opts.clearCache) {
         requestCache.clear();
-        console.log('Cache cleared');
+        process.stdout.write('Cache cleared\n');
+        debug('Cache cleared');
       } else {
         const purged = requestCache.purgeExpired();
-        console.log(`Purged ${purged} expired entries`);
+        process.stdout.write(`Purged ${purged} expired entries\n`);
+        debug(`Purged ${purged} expired entries`);
       }
       return;
     }
     const results = await lookupDomains(opts);
     const outPath = await exportResults(results, opts);
-    console.info(`Results written to ${path.resolve(outPath)}`);
+    process.stdout.write(`Results written to ${path.resolve(outPath)}\n`);
     debug(`Results written to ${path.resolve(outPath)}`);
   })();
 }
