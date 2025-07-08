@@ -4,8 +4,13 @@ import { debugFactory } from '../../common/logger.js';
 const debug = debugFactory('bulkwhois.process');
 import defaultBulkWhois from './process.defaults.js';
 
-import type { BulkWhois, DomainSetup } from './types.js';
-import { compileQueue, getDomainSetup } from './queue.js';
+import type { BulkWhois } from './types.js';
+import {
+  compileDomains,
+  createDomainSetup,
+  updateProgress,
+  setRemainingCounter
+} from './helpers.js';
 import { processDomain, counter } from './scheduler.js';
 import { resetObject } from '../../common/resetObject.js';
 import { resetUiCounters } from './auxiliary.js';
@@ -38,79 +43,29 @@ ipcMain.handle(
 
   const settings = getSettings();
 
-  // bulkWhois section
-  const { results, input, stats, processingIDs } = bulkWhois;
-
-  const {
-    domainsPending, // Domains pending processing/requests
-    tldSeparator // TLD separator
-  } = input; // Bulk whois input
-
-  const {
-    reqtimes, // request times
-    status // request
-  } = stats;
-
+  const { input, stats } = bulkWhois;
+  const { domainsPending } = input;
   const { sender } = event;
-
-  let domainSetup;
-
-  /*
-  const sleep = function(ms) {
-    return function(resolve) {
-      setTimeout(resolve, ms)
-    }
-  }
-  */
-
-  input.domains = domains; // Domain array
-  input.tlds = tlds; // TLDs array
-
-  stats.domains.total = input.tlds.length * input.domains.length; // Domain quantity times tld quantity
-  sender.send(IpcChannel.BulkwhoisStatusUpdate, 'domains.total', stats.domains.total); // Display total amount of domains
-
-  // Compile domains to process
-  domainsPending.push(...compileQueue(input.domains, input.tlds, tldSeparator));
-
+  compileDomains(bulkWhois, domains, tlds, sender);
   // Process compiled domains into future requests
   let cumulativeDelay = 0;
   for (const [index, domain] of domainsPending.entries()) {
-    domainSetup = getDomainSetup(settings, {
-      timeBetween: settings.lookupRandomizeTimeBetween.randomize,
-      followDepth: settings.lookupRandomizeFollow.randomize,
-      timeout: settings.lookupRandomizeTimeout.randomize
-    });
-    domainSetup.timebetween =
-      settings.lookupGeneral.type === 'dns' && settings.lookupGeneral.dnsTimeBetweenOverride
-        ? settings.lookupGeneral.dnsTimeBetween
-        : domainSetup.timebetween;
-    domainSetup.domain = domain;
-    domainSetup.index = index;
-
+    const setup = createDomainSetup(settings, domain, index);
     debug(
       formatString(
         'Using timebetween, {0}, follow, {1}, timeout, {2}',
-        domainSetup.timebetween,
-        domainSetup.follow,
-        domainSetup.timeout
+        setup.timebetween,
+        setup.follow,
+        setup.timeout
       )
     );
 
-    cumulativeDelay += domainSetup.timebetween;
-    processDomain(bulkWhois, reqtime, domainSetup, event, cumulativeDelay);
+    cumulativeDelay += setup.timebetween;
+    processDomain(bulkWhois, reqtime, setup, event, cumulativeDelay);
+    updateProgress(sender, stats, index + 1);
+  }
 
-    stats.domains.processed = domainSetup.index + 1;
-    sender.send(IpcChannel.BulkwhoisStatusUpdate, 'domains.processed', stats.domains.processed);
-  } // End processing for loop
-
-  settings.lookupRandomizeTimeBetween.randomize // Counter total time
-    ? (stats.time.remainingcounter =
-        stats.domains.total * settings.lookupRandomizeTimeBetween.maximum)
-    : (stats.time.remainingcounter = stats.domains.total * settings.lookupGeneral.timeBetween);
-
-  settings.lookupRandomizeTimeout.randomize // Counter add timeout
-    ? (stats.time.remainingcounter += settings.lookupRandomizeTimeout.maximum)
-    : (stats.time.remainingcounter += settings.lookupGeneral.timeout);
+  setRemainingCounter(settings, stats);
 
   counter(bulkWhois, event);
   return;
@@ -131,10 +86,7 @@ ipcMain.on('bulkwhois:lookup.pause', function (event: IpcMainEvent) {
   // bulkWhois section
   const { results, input, stats, processingIDs } = bulkWhois;
 
-  const {
-    domainsPending, // Domains pending processing/requests
-    tldSeparator // TLD separator
-  } = input; // Bulk whois input
+  const { domainsPending } = input;
 
   debug('Stopping unsent bulk whois requests');
   counter(bulkWhois, event, false); // Stop counter/timer
@@ -158,45 +110,26 @@ ipcMain.on('bulkwhois:lookup.continue', function (event: IpcMainEvent) {
   const settings = getSettings();
 
   // Go through the remaining domains and queue them again using setTimeouts
-  let follow, timeout, timebetween;
-  let domainSetup;
 
   // bulkWhois section
   const { results, input, stats, processingIDs } = bulkWhois;
 
-  const {
-    domainsPending, // Domains pending processing/requests
-    tldSeparator // TLD separator
-  } = input; // Bulk whois input
+  const { domainsPending } = input;
 
-  const {
-    reqtimes, // function request times
-    status // request
-  } = stats;
+  const { reqtimes, status } = stats;
 
   const {
     sender // expose shorthand sender
   } = event;
 
-  // Compile domains to process
-  domainsPending.push(...compileQueue(input.domains, input.tlds, tldSeparator));
+  compileDomains(bulkWhois, input.domains, input.tlds, sender);
 
   // Do domain setup
   let cumulativeDelay = 0;
   for (let domain = stats.domains.sent; domain < domainsPending.length; domain++) {
-    domainSetup = getDomainSetup(settings, {
-      timeBetween: settings.lookupRandomizeTimeBetween.randomize,
-      followDepth: settings.lookupRandomizeFollow.randomize,
-      timeout: settings.lookupRandomizeTimeout.randomize
-    });
-    domainSetup.timebetween =
-      settings.lookupGeneral.type === 'dns' && settings.lookupGeneral.dnsTimeBetweenOverride
-        ? settings.lookupGeneral.dnsTimeBetween
-        : domainSetup.timebetween;
-    domainSetup.domain = domainsPending[domain];
-    domainSetup.index = Number(domain);
+    const setup = createDomainSetup(settings, domainsPending[domain], Number(domain));
 
-    debug(`${domainSetup.timebetween}`);
+    debug(`${setup.timebetween}`);
 
     /*
     timebetween = domainSetup.timebetween;
@@ -205,23 +138,12 @@ ipcMain.on('bulkwhois:lookup.continue', function (event: IpcMainEvent) {
     */
 
     debug(domain);
-    cumulativeDelay += domainSetup.timebetween;
-    processDomain(bulkWhois, reqtime, domainSetup, event, cumulativeDelay);
-
-    stats.domains.processed = Number(domainSetup.index) + 1;
-    sender.send(IpcChannel.BulkwhoisStatusUpdate, 'domains.processed', stats.domains.processed);
+    cumulativeDelay += setup.timebetween;
+    processDomain(bulkWhois, reqtime, setup, event, cumulativeDelay);
+    updateProgress(sender, stats, Number(domain) + 1);
   } // End processing for loop
 
-  stats.time.remainingcounter =
-    settings.lookupGeneral.type === 'dns' && settings.lookupGeneral.dnsTimeBetweenOverride
-      ? stats.domains.total * settings.lookupGeneral.dnsTimeBetween
-      : settings.lookupRandomizeTimeBetween.randomize // Counter total time
-      ? stats.domains.total * settings.lookupRandomizeTimeBetween.maximum
-      : stats.domains.total * settings.lookupGeneral.timeBetween;
-
-  stats.time.remainingcounter += settings.lookupRandomizeTimeout.randomize // Counter add timeout
-    ? settings.lookupRandomizeTimeout.maximum
-    : settings.lookupGeneral.timeout;
+  setRemainingCounter(settings, stats);
 
   counter(bulkWhois, event); // Start counter/timer
 });
