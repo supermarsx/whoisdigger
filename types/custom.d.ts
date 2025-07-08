@@ -28,7 +28,7 @@ declare module 'electron' {
   }
   export const Menu: any;
   export interface IpcMainEvent {}
-  export interface IpcMainInvokeEvent {}
+  export interface IpcMainInvokeEvent extends IpcMainEvent {}
   export interface IpcRendererEvent {}
 
   interface RendererToMainIpc {
@@ -71,7 +71,7 @@ declare module 'electron' {
     ): void;
     handle<C extends keyof RendererToMainIpc>(
       channel: C,
-      listener: (event: IpcMainInvokeEvent, ...args: RendererToMainIpc[C]) => any
+      listener: (event: IpcMainEvent, ...args: RendererToMainIpc[C]) => any
     ): void;
   }
 
