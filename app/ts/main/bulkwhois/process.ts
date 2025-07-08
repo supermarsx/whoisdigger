@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron';
-import type { IpcMainInvokeEvent, IpcMainEvent } from 'electron';
+import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import { debugFactory } from '../../common/logger.js';
 const debug = debugFactory('bulkwhois.process');
 import defaultBulkWhois from './process.defaults.js';
@@ -25,13 +25,14 @@ let reqtime: number[] = [];
     domains (array) - domains to request whois for
     tlds (array) - tlds to look for
 */
-ipcMain.handle(IpcChannel.BulkwhoisLookup, async function (
-  event: IpcMainInvokeEvent,
-  domains: string[],
-  tlds: string[]
-) {
-  const evt = event as unknown as IpcMainEvent;
-  resetUiCounters(evt); // Reset UI counters, pass window param
+ipcMain.handle(
+  IpcChannel.BulkwhoisLookup,
+  (async function (
+    event: IpcMainEvent,
+    domains: string[],
+    tlds: string[]
+  ) {
+  resetUiCounters(event); // Reset UI counters, pass window param
   bulkWhois = resetObject(defaultBulkWhois); // Resets the bulkWhois object to default
   reqtime = [];
 
@@ -50,7 +51,7 @@ ipcMain.handle(IpcChannel.BulkwhoisLookup, async function (
     status // request
   } = stats;
 
-  const { sender } = evt;
+  const { sender } = event;
 
   let domainSetup;
 
@@ -96,7 +97,7 @@ ipcMain.handle(IpcChannel.BulkwhoisLookup, async function (
     );
 
     cumulativeDelay += domainSetup.timebetween;
-    processDomain(bulkWhois, reqtime, domainSetup, evt, cumulativeDelay);
+    processDomain(bulkWhois, reqtime, domainSetup, event, cumulativeDelay);
 
     stats.domains.processed = domainSetup.index + 1;
     sender.send(IpcChannel.BulkwhoisStatusUpdate, 'domains.processed', stats.domains.processed);
@@ -111,9 +112,14 @@ ipcMain.handle(IpcChannel.BulkwhoisLookup, async function (
     ? (stats.time.remainingcounter += settings.lookupRandomizeTimeout.maximum)
     : (stats.time.remainingcounter += settings.lookupGeneral.timeout);
 
-  counter(bulkWhois, evt);
+  counter(bulkWhois, event);
   return;
-});
+  }) as unknown as (
+    event: IpcMainInvokeEvent,
+    domains: string[],
+    tlds: string[]
+  ) => Promise<void>
+);
 
 /*
   ipcMain.on('bulkwhois:lookup.pause', function(...) {...});
