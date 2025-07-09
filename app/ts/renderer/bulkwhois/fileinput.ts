@@ -1,7 +1,8 @@
 import * as conversions from '../../common/conversions.js';
 import type { FileStats } from '../../common/fileStats.js';
-import { debugFactory } from '../../common/logger.js';
+import { debugFactory, errorFactory } from '../../common/logger.js';
 const debug = debugFactory('bulkwhois.fileinput');
+const error = errorFactory('bulkwhois.fileinput');
 debug('loaded');
 
 const electron = (window as any).electron as {
@@ -79,7 +80,7 @@ async function refreshBwFile(pathToFile: string): Promise<void> {
     );
     $('#bwFileTdFilepreview').text(String(bwFileStats.filepreview) + '...');
   } catch (e) {
-    electron.send('app:error', `Failed to reload file: ${e}`);
+    error(`Failed to reload file: ${e}`);
   }
 }
 
@@ -123,7 +124,7 @@ async function handleFileConfirmation(
         $('#bwFileSpanInfo').text('Loading file contents...');
         bwFileContents = await electron.bwFileRead(filePath as string);
       } catch (e) {
-        electron.send('app:error', `Failed to read file: ${e}`);
+        error(`Failed to read file: ${e}`);
         $('#bwFileSpanInfo').text('Failed to load file');
         return;
       }
@@ -138,7 +139,7 @@ async function handleFileConfirmation(
         $('#bwFileSpanInfo').text('Loading file contents...');
         bwFileContents = await electron.bwFileRead((filePath as string[])[0]);
       } catch (e) {
-        electron.send('app:error', `Failed to read file: ${e}`);
+        error(`Failed to read file: ${e}`);
         $('#bwFileSpanInfo').text('Failed to load file');
         return;
       }
@@ -291,7 +292,7 @@ $(document).on('click', '#bwFileButtonConfirm', function () {
       event.preventDefault();
       for (const f of Array.from(event.dataTransfer!.files)) {
         const file = f as any;
-        electron.send('app:debug', `File(s) you dragged here: ${file.path}`);
+        debug(`File(s) you dragged here: ${file.path}`);
         electron.send('ondragstart', file.path);
       }
       return false;
@@ -307,7 +308,7 @@ $('#bulkwhoisMainContainer').on('drop', function (event) {
   event.preventDefault();
   for (const f of Array.from((event as any).originalEvent.dataTransfer.files)) {
     const file = f as any;
-    electron.send('app:debug', `File(s) you dragged here: ${file.path}`);
+    debug(`File(s) you dragged here: ${file.path}`);
     electron.send('ondragstart', file.path);
   }
 

@@ -12,9 +12,10 @@ import { formatString } from '../common/stringformat.js';
 
 import $ from '../../vendor/jquery.js';
 (window as any).$ = (window as any).jQuery = $;
-import { debugFactory } from '../common/logger.js';
+import { debugFactory, errorFactory } from '../common/logger.js';
 
 const debug = debugFactory('renderer.singlewhois');
+const error = errorFactory('renderer.singlewhois');
 debug('loaded');
 
 interface SingleWhois {
@@ -149,11 +150,11 @@ $(document).on('click', '#singlewhoisSearchButtonSearch', function () {
   let { domain } = input;
 
   if ($(this).hasClass('is-loading')) return true;
-  electron.send('app:debug', '#singlewhoisSearchButtonSearch was clicked');
+  debug('#singlewhoisSearchButtonSearch was clicked');
 
   domain = $('#singlewhoisSearchInputDomain').val() as string;
 
-  electron.send('app:debug', formatString('Looking up for {0}', domain));
+  debug(formatString('Looking up for {0}', domain));
 
   $('#singlewhoisSearchButtonSearch').addClass('is-loading');
   $('#singlewhoisSearchInputDomain').attr('readonly', '');
@@ -165,7 +166,7 @@ $(document).on('click', '#singlewhoisSearchButtonSearch', function () {
       const result = await electron.invoke(IpcChannel.SingleWhoisLookup, domain);
       await handleResults(result);
     } catch (e) {
-      electron.send('app:error', `Lookup failed: ${e}`);
+      error(`Lookup failed: ${e}`);
       $('#singlewhoisSearchButtonSearch').removeClass('is-loading');
       $('#singlewhoisSearchInputDomain').removeAttr('readonly');
     }
@@ -178,7 +179,7 @@ $(document).on('click', '#singlewhoisSearchButtonSearch', function () {
     On click: Single whois lookup modal open click
  */
 $(document).on('click', '.singlewhoisMessageWhoisOpen', function () {
-  electron.send('app:debug', 'Opening whois reply');
+  debug('Opening whois reply');
   $('#singlewhoisMessageWhois').addClass('is-active');
 
   return;
@@ -189,7 +190,7 @@ $(document).on('click', '.singlewhoisMessageWhoisOpen', function () {
     On click: Single whois lookup modal close click
  */
 $(document).on('click', '#singlewhoisMessageWhoisClose', function () {
-  electron.send('app:debug', 'Closing whois reply');
+  debug('Closing whois reply');
   $('#singlewhoisMessageWhois').removeClass('is-active');
 
   return;
@@ -200,7 +201,7 @@ $(document).on('click', '#singlewhoisMessageWhoisClose', function () {
     On click: Domain copied close click
  */
 $(document).on('click', '#singlewhoisDomainCopiedClose', function () {
-  electron.send('app:debug', 'Closing domain copied');
+  debug('Closing domain copied');
   $('#singlewhoisDomainCopied').removeClass('is-active');
 
   return;
@@ -211,7 +212,7 @@ $(document).on('click', '#singlewhoisDomainCopiedClose', function () {
     Resets registry table contents
  */
 function tableReset() {
-  electron.send('app:debug', 'Resetting whois result table');
+  debug('Resetting whois result table');
   $('#singlewhoisTdDomain').attr('href', '#');
   $('#singlewhoisTdDomain').text('n/a');
   $('#singlewhoisTdUpdate').text('n/a');

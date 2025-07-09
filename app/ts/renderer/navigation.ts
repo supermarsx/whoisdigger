@@ -21,7 +21,7 @@ const electron = (window as any).electron as {
     event (object)
  */
 $(document).on('drop', function (event) {
-  electron.send('app:debug', 'Preventing drag and drop redirect');
+  debug('Preventing drag and drop redirect');
   event.preventDefault();
 
   return false;
@@ -45,7 +45,7 @@ $(document).on('dragover', function (event) {
  */
 $(document).on('click', '#navButtonDevtools', function () {
   void electron.invoke('app:toggleDevtools');
-  electron.send('app:debug', '#navButtonDevtools was clicked');
+  debug('#navButtonDevtools was clicked');
 
   return;
 });
@@ -67,7 +67,7 @@ $(document).on('click', 'section.tabs ul li', function () {
       populateInputs();
     }
   }
-  electron.send('app:debug', formatString('#section.tabs switched to data tab, {0}', tabName));
+  debug(formatString('#section.tabs switched to data tab, {0}', tabName));
 
   return;
 });
@@ -77,7 +77,7 @@ $(document).on('click', 'section.tabs ul li', function () {
     On click: Delete open notifications
  */
 $(document).on('click', '.delete', function () {
-  electron.send('app:debug', '.delete (notifications) was clicked');
+  debug('.delete (notifications) was clicked');
   const notificationId = $(this).attr('data-notif');
 
   $('#' + notificationId).addClass('is-hidden');
@@ -91,7 +91,7 @@ $(document).on('click', '.delete', function () {
  */
 $(document).keyup(function (event) {
   if (event.keyCode === 27) {
-    electron.send('app:debug', formatString('Hotkey, Used [ESC] key, {0}', event.keyCode));
+    debug(formatString('Hotkey, Used [ESC] key, {0}', event.keyCode));
     if ($('#appModalExit').hasClass('is-active')) {
       $('#appModalExitButtonNo').click();
       return;
@@ -99,7 +99,7 @@ $(document).keyup(function (event) {
     switch (true) {
       // Single whois tab is active
       case $('#navButtonSinglewhois').hasClass('is-active'):
-        electron.send('app:debug', 'Hotkey, Single whois tab is active');
+        debug('Hotkey, Single whois tab is active');
         switch (true) {
           case $('#singlewhoisDomainCopied').hasClass('is-active'):
             $('#singlewhoisDomainCopiedClose').click();
@@ -124,7 +124,7 @@ $(document).keyup(function (event) {
 
       // Bulk whois tab is active
       case $('#navButtonBulkwhois').hasClass('is-active'):
-        electron.send('app:debug', 'Hotkey, Bulk whois tab is active');
+        debug('Hotkey, Bulk whois tab is active');
         switch (true) {
           // Bulk whois, is Stop dialog open
           case $('#bwProcessingModalStop').hasClass('is-active'):
@@ -143,7 +143,7 @@ $(document).keyup(function (event) {
     Button/Toggle special menu items
  */
 $(document).on('click', '#navButtonExtendedmenu', function () {
-  electron.send('app:debug', '#navButtonExtendedmenu was clicked');
+  debug('#navButtonExtendedmenu was clicked');
   $('#navButtonExtendedmenu').toggleClass('is-active');
   $('.is-specialmenu').toggleClass('is-hidden');
 
@@ -155,7 +155,7 @@ $(document).on('click', '#navButtonExtendedmenu', function () {
     On click: Minimize window button
  */
 $(document).on('click', '#navButtonMinimize', function () {
-  electron.send('app:debug', '#navButtonMinimize was clicked');
+  debug('#navButtonMinimize was clicked');
   void electron.invoke('app:minimize');
 
   return;
@@ -166,7 +166,7 @@ $(document).on('click', '#navButtonMinimize', function () {
     On click: Close main window button
  */
 $(document).on('click', '#navButtonExit', function () {
-  electron.send('app:debug', '#navButtonExit was clicked');
+  debug('#navButtonExit was clicked');
   if (settings.ui?.confirmExit) {
     $('#appModalExit').addClass('is-active');
   } else {
@@ -177,13 +177,13 @@ $(document).on('click', '#navButtonExit', function () {
 });
 
 $(document).on('click', '#appModalExitButtonYes', function () {
-  electron.send('app:debug', '#appModalExitButtonYes was clicked');
+  debug('#appModalExitButtonYes was clicked');
   $('#appModalExit').removeClass('is-active');
   electron.send('app:exit-confirmed');
 });
 
 $(document).on('click', '#appModalExitButtonNo, #appModalExit .delete', function () {
-  electron.send('app:debug', '#appModalExitButtonNo was clicked');
+  debug('#appModalExitButtonNo was clicked');
   $('#appModalExit').removeClass('is-active');
 });
 

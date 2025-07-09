@@ -1,11 +1,12 @@
-const electron = (window as any).electron as {
-  send: (channel: string, ...args: any[]) => void;
-};
+import { debugFactory, errorFactory } from '../common/logger.js';
+
+const debug = debugFactory('renderer');
+const error = errorFactory('renderer');
 
 export function sendDebug(message: string): void {
-  electron.send('app:debug', message);
+  debug(message);
 }
 
 export function sendError(message: string): void {
-  electron.send('app:error', message);
+  error(message);
 }
