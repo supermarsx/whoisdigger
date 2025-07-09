@@ -1,7 +1,7 @@
 import '../test/electronMock';
 
 import whois from 'whois';
-import { lookup } from '../app/ts/common/lookup';
+import { lookup, getWhoisOptions, WhoisOption } from '../app/ts/common/lookup';
 import { toJSON } from '../app/ts/common/parser';
 
 describe('whoiswrapper', () => {
@@ -31,5 +31,12 @@ describe('whoiswrapper', () => {
   test('toJSON returns "timeout" for timeout strings', () => {
     const result = toJSON('lookup: timeout');
     expect(result).toBe('timeout');
+  });
+
+  test('getWhoisOptions uses enum parameters', () => {
+    const opts = getWhoisOptions();
+    expect(typeof opts.follow).toBe('number');
+    expect(typeof opts.timeout).toBe('number');
+    expect(Object.values(WhoisOption)).toContain(WhoisOption.Follow);
   });
 });
