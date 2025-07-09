@@ -8,6 +8,12 @@ import { RequestCache, CacheOptions } from './requestCache.js';
 import { getProxy } from './proxy.js';
 import { randomInt } from '../utils/random.js';
 
+export enum WhoisOption {
+  Follow,
+  Timeout,
+  TimeBetween
+}
+
 const debug = debugFactory('common.whoisWrapper');
 
 const requestCache = new RequestCache();
@@ -81,13 +87,11 @@ export function convertDomain(domain: string, mode?: string): string {
 export function getWhoisOptions(): Record<string, unknown> {
   const { lookupGeneral: general } = getSettings();
 
-  const options: Record<string, unknown> = {},
-    follow = 'follow',
-    timeout = 'timeout';
+  const options: Record<string, unknown> = {};
 
   options.server = general.server;
-  options.follow = getWhoisParameters(follow);
-  options.timeout = getWhoisParameters(timeout);
+  options.follow = getWhoisParameters(WhoisOption.Follow);
+  options.timeout = getWhoisParameters(WhoisOption.Timeout);
   options.verbose = general.verbose;
   const proxy = getProxy();
   if (proxy) {
@@ -97,7 +101,7 @@ export function getWhoisOptions(): Record<string, unknown> {
   return options;
 }
 
-function getWhoisParameters(parameter: string): number | undefined {
+function getWhoisParameters(parameter: WhoisOption): number | undefined {
   const {
     lookupRandomizeFollow: follow,
     lookupRandomizeTimeout: timeout,
@@ -106,19 +110,19 @@ function getWhoisParameters(parameter: string): number | undefined {
   } = getSettings();
 
   switch (parameter) {
-    case 'follow':
+    case WhoisOption.Follow:
       debug(
         `Follow depth, 'random': ${follow.randomize}, 'maximum': ${follow.maximumDepth}, 'minimum': ${follow.minimumDepth}, 'default': ${general.follow}`
       );
       return follow.randomize
         ? randomInt(follow.minimumDepth, follow.maximumDepth)
         : general.follow;
-    case 'timeout':
+    case WhoisOption.Timeout:
       debug(
         `Timeout, 'random': ${timeout.randomize}, 'maximum': ${timeout.maximum}, 'minimum': ${timeout.minimum}, 'default': ${general.timeout}`
       );
       return timeout.randomize ? randomInt(timeout.minimum, timeout.maximum) : general.timeout;
-    case 'timebetween':
+    case WhoisOption.TimeBetween:
       debug(
         `Timebetween, 'random': ${timeBetween.randomize}, 'maximum': ${timeBetween.maximum}, 'minimum': ${timeBetween.minimum}, 'default': ${general.timeBetween}`
       );
