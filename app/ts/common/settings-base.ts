@@ -1,4 +1,58 @@
+export interface AppWindowSettings {
+  frame: boolean;
+  show: boolean;
+  height: number;
+  width: number;
+  icon: string;
+  center: boolean;
+  minimizable: boolean;
+  maximizable: boolean;
+  movable: boolean;
+  resizable: boolean;
+  closable: boolean;
+  focusable: boolean;
+  alwaysOnTop: boolean;
+  fullscreen: boolean;
+  fullscreenable: boolean;
+  kiosk: boolean;
+  darkTheme: boolean;
+  thickFrame: boolean;
+}
+
+export interface WebPreferencesSettings {
+  nodeIntegration: boolean;
+  contextIsolation: boolean;
+  zoomFactor: number;
+  images: boolean;
+  experimentalFeatures: boolean;
+  backgroundThrottling: boolean;
+  offscreen: boolean;
+  spellcheck: boolean;
+  enableRemoteModule: boolean;
+}
+
+export interface AppUrlSettings {
+  pathname: string;
+  protocol: string;
+  slashes: boolean;
+}
+
+export interface StartupSettings {
+  developerTools: boolean;
+}
+
+export interface NavigationSettings {
+  developerTools: boolean;
+  extendedCollapsed: boolean;
+  enableExtendedMenu: boolean;
+}
+
 export interface Settings {
+  appWindow: AppWindowSettings;
+  appWindowWebPreferences: WebPreferencesSettings;
+  appWindowUrl: AppUrlSettings;
+  appWindowNavigation: NavigationSettings;
+  startup: StartupSettings;
   lookupConversion: { enabled: boolean; algorithm: string };
   lookupGeneral: {
     type: 'dns' | 'whois';

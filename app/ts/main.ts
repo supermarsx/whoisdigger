@@ -54,6 +54,7 @@ interface WebPreferencesSettings {
   backgroundThrottling: boolean;
   offscreen: boolean;
   spellcheck: boolean;
+  enableRemoteModule: boolean;
 }
 
 interface AppUrlSettings {
