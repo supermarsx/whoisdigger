@@ -51,15 +51,15 @@ export async function load(): Promise<Settings> {
         const parsed = JSON.parse(raw) as Partial<Settings>;
         try {
           setSettings(mergeDefaults(parsed));
-          if ((settings as any).appWindowWebPreferences) {
-            (settings as any).appWindowWebPreferences.contextIsolation = true;
+          if (settings.appWindowWebPreferences) {
+            settings.appWindowWebPreferences.contextIsolation = true;
           }
           setCustomSettingsLoaded(true);
           debug(`Loaded custom configuration at ${filePath}`);
         } catch (mergeError) {
           setSettings(JSON.parse(JSON.stringify(defaultSettings)));
-          if ((settings as any).appWindowWebPreferences) {
-            (settings as any).appWindowWebPreferences.contextIsolation = true;
+          if (settings.appWindowWebPreferences) {
+            settings.appWindowWebPreferences.contextIsolation = true;
           }
           setCustomSettingsLoaded(false);
           debug(`Failed to merge custom configuration with error: ${mergeError}`);
@@ -71,17 +71,17 @@ export async function load(): Promise<Settings> {
     } catch (e) {
       debug(`Failed to load custom configuration with error: ${e}`);
       setCustomSettingsLoaded(false);
-      if ((settings as any).appWindowWebPreferences) {
-        (settings as any).appWindowWebPreferences.contextIsolation = true;
+      if (settings.appWindowWebPreferences) {
+        settings.appWindowWebPreferences.contextIsolation = true;
       }
       // Silently ignore loading errors
     }
   }
 
   if (!customSettingsLoaded) setCustomSettingsLoaded(false);
-  if ((settings as any).appWindowWebPreferences) {
+  if (settings.appWindowWebPreferences) {
     // Enforce context isolation regardless of loaded configuration
-    (settings as any).appWindowWebPreferences.contextIsolation = true;
+    settings.appWindowWebPreferences.contextIsolation = true;
   }
   return settings;
 }

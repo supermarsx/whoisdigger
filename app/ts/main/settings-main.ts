@@ -43,15 +43,15 @@ function watchConfig(): void {
       const parsed = JSON.parse(raw) as Partial<Settings>;
       try {
         const merged = mergeDefaults(parsed);
-        if ((merged as any).appWindowWebPreferences) {
-          (merged as any).appWindowWebPreferences.contextIsolation = true;
+        if (merged.appWindowWebPreferences) {
+          merged.appWindowWebPreferences.contextIsolation = true;
         }
         setSettings(merged);
         debug(`Reloaded custom configuration at ${cfg}`);
       } catch (mergeError) {
         const defaults = JSON.parse(JSON.stringify(defaultSettings));
-        if ((defaults as any).appWindowWebPreferences) {
-          (defaults as any).appWindowWebPreferences.contextIsolation = true;
+        if (defaults.appWindowWebPreferences) {
+          defaults.appWindowWebPreferences.contextIsolation = true;
         }
         setSettings(defaults);
         debug(`Failed to merge configuration with error: ${mergeError}`);
