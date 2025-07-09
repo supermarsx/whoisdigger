@@ -1,5 +1,4 @@
 import { formatString } from '../common/stringformat.js';
-import $ from '../../vendor/jquery.js';
 import { populateInputs } from './settings.js';
 import { settings } from './settings-renderer.js';
 
@@ -14,184 +13,168 @@ const electron = (window as any).electron as {
   on: (channel: string, listener: (...args: any[]) => void) => void;
 };
 
-/*
-  $(document).on('drop', function(...) {...});
-    Prevent drop redirect
-  parameters
-    event (object)
- */
-$(document).on('drop', function (event) {
+function qs<T extends Element = HTMLElement>(sel: string): T | null {
+  return document.querySelector(sel) as T | null;
+}
+
+function qsa<T extends Element = HTMLElement>(sel: string): T[] {
+  return Array.from(document.querySelectorAll(sel)) as T[];
+}
+
+// Prevent drag-and-drop from navigating away
+document.addEventListener('drop', (event: DragEvent) => {
   debug('Preventing drag and drop redirect');
   event.preventDefault();
-
   return false;
 });
 
-/*
-  $(document).on('dragover', function(...) {...});
-    Prevent drag over redirect
-  parameters
-    event (object)
- */
-$(document).on('dragover', function (event) {
+document.addEventListener('dragover', (event: DragEvent) => {
   event.preventDefault();
-
   return false;
 });
 
-/*
-  $('#navButtonDevtools').click(function() {...});
-    On click: Button toggle developer tools
- */
-$(document).on('click', '#navButtonDevtools', function () {
+// Developer tools toggle button
+qs('#navButtonDevtools')?.addEventListener('click', () => {
   void electron.invoke('app:toggleDevtools');
   debug('#navButtonDevtools was clicked');
-
-  return;
 });
 
 /*
   $('section.tabs ul li').click(function() {...});
     On click: Toggle between tabs
  */
-$(document).on('click', 'section.tabs ul li', function () {
-  const tabName = $(this).attr('data-tab');
-
-  if (tabName != '#') {
-    $('section.tabs ul li').removeClass('is-active');
-    $('div.container .tab-content').removeClass('current');
-
-    $(this).addClass('is-active');
-    $('#' + tabName).addClass('current');
-    if (tabName === 'settingsMainContainer') {
-      populateInputs();
+qsa('section.tabs ul li').forEach((li) => {
+  li.addEventListener('click', () => {
+    const tabName = li.getAttribute('data-tab');
+    if (tabName && tabName !== '#') {
+      qsa('section.tabs ul li').forEach((el) => el.classList.remove('is-active'));
+      qsa('div.container .tab-content').forEach((el) =>
+        el.classList.remove('current')
+      );
+      li.classList.add('is-active');
+      qs('#' + tabName)?.classList.add('current');
+      if (tabName === 'settingsMainContainer') {
+        populateInputs();
+      }
     }
-  }
-  debug(formatString('#section.tabs switched to data tab, {0}', tabName));
-
-  return;
+    debug(formatString('#section.tabs switched to data tab, {0}', tabName));
+  });
 });
 
-/*
-  $('.delete').click(function() {...});
-    On click: Delete open notifications
- */
-$(document).on('click', '.delete', function () {
-  debug('.delete (notifications) was clicked');
-  const notificationId = $(this).attr('data-notif');
-
-  $('#' + notificationId).addClass('is-hidden');
-
-  return;
+// Close notification buttons
+qsa('.delete').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    debug('.delete (notifications) was clicked');
+    const notificationId = btn.getAttribute('data-notif');
+    if (notificationId) {
+      qs('#' + notificationId)?.classList.add('is-hidden');
+    }
+  });
 });
 
 /*
   $(document).keyup(function(...) {...});
     On keyup: Assign [ESC] key to close messages or modals
  */
-$(document).keyup(function (event) {
-  if (event.keyCode === 27) {
-    debug(formatString('Hotkey, Used [ESC] key, {0}', event.keyCode));
-    if ($('#appModalExit').hasClass('is-active')) {
-      $('#appModalExitButtonNo').click();
+document.addEventListener('keyup', (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    debug(formatString('Hotkey, Used [ESC] key, {0}', event.key));
+    if (qs('#appModalExit')?.classList.contains('is-active')) {
+      qs('#appModalExitButtonNo')?.dispatchEvent(new Event('click'));
       return;
     }
     switch (true) {
       // Single whois tab is active
-      case $('#navButtonSinglewhois').hasClass('is-active'):
+      case qs('#navButtonSinglewhois')?.classList.contains('is-active'):
         debug('Hotkey, Single whois tab is active');
         switch (true) {
-          case $('#singlewhoisDomainCopied').hasClass('is-active'):
-            $('#singlewhoisDomainCopiedClose').click();
+          case qs('#singlewhoisDomainCopied')?.classList.contains('is-active'):
+            qs('#singlewhoisDomainCopiedClose')?.dispatchEvent(new Event('click'));
             break;
 
           // Single whois, Dialog is open
-          case $('#singlewhoisMessageWhois').hasClass('is-active'):
-            $('#singlewhoisMessageWhoisClose').click();
+          case qs('#singlewhoisMessageWhois')?.classList.contains('is-active'):
+            qs('#singlewhoisMessageWhoisClose')?.dispatchEvent(new Event('click'));
             break;
 
           // Single whois, Information table not hidden
-          case !$('#singlewhoisTableWhoisinfo').hasClass('is-hidden'):
-            $('#singlewhoisTableWhoisinfo').addClass('is-hidden');
+          case !qs('#singlewhoisTableWhoisinfo')?.classList.contains('is-hidden'):
+            qs('#singlewhoisTableWhoisinfo')?.classList.add('is-hidden');
             break;
 
           // Single whois, Notification not hidden
-          case !$('.notification:not(.is-hidden)').hasClass('is-hidden'):
-            $('.notification:not(.is-hidden)').addClass('is-hidden');
+          case Boolean(document.querySelector('.notification:not(.is-hidden)')):
+            qsa('.notification:not(.is-hidden)').forEach((el) =>
+              el.classList.add('is-hidden')
+            );
             break;
         }
         break;
 
       // Bulk whois tab is active
-      case $('#navButtonBulkwhois').hasClass('is-active'):
+      case qs('#navButtonBulkwhois')?.classList.contains('is-active'):
         debug('Hotkey, Bulk whois tab is active');
         switch (true) {
           // Bulk whois, is Stop dialog open
-          case $('#bwProcessingModalStop').hasClass('is-active'):
-            $('#bwProcessingModalStopButtonContinue').click();
+          case qs('#bwProcessingModalStop')?.classList.contains('is-active'):
+            qs('#bwProcessingModalStopButtonContinue')?.dispatchEvent(new Event('click'));
             break;
         }
         break;
     }
   }
-
-  return;
 });
 
 /*
   $('#navButtonExtendedmenu').click(function() {...});
     Button/Toggle special menu items
  */
-$(document).on('click', '#navButtonExtendedmenu', function () {
+qs('#navButtonExtendedmenu')?.addEventListener('click', () => {
   debug('#navButtonExtendedmenu was clicked');
-  $('#navButtonExtendedmenu').toggleClass('is-active');
-  $('.is-specialmenu').toggleClass('is-hidden');
-
-  return;
+  qs('#navButtonExtendedmenu')?.classList.toggle('is-active');
+  qsa('.is-specialmenu').forEach((el) => el.classList.toggle('is-hidden'));
 });
 
 /*
   $('#navButtonMinimize').click(function() {...});
     On click: Minimize window button
  */
-$(document).on('click', '#navButtonMinimize', function () {
+qs('#navButtonMinimize')?.addEventListener('click', () => {
   debug('#navButtonMinimize was clicked');
   void electron.invoke('app:minimize');
-
-  return;
 });
 
 /*
   $('#navButtonExit').click(function() {...});
     On click: Close main window button
  */
-$(document).on('click', '#navButtonExit', function () {
+qs('#navButtonExit')?.addEventListener('click', () => {
   debug('#navButtonExit was clicked');
   if (settings.ui?.confirmExit) {
-    $('#appModalExit').addClass('is-active');
+    qs('#appModalExit')?.classList.add('is-active');
   } else {
-      void electron.invoke('app:close');
+    void electron.invoke('app:close');
   }
-
-  return;
 });
 
-$(document).on('click', '#appModalExitButtonYes', function () {
+qs('#appModalExitButtonYes')?.addEventListener('click', () => {
   debug('#appModalExitButtonYes was clicked');
-  $('#appModalExit').removeClass('is-active');
+  qs('#appModalExit')?.classList.remove('is-active');
   electron.send('app:exit-confirmed');
 });
 
-$(document).on('click', '#appModalExitButtonNo, #appModalExit .delete', function () {
-  debug('#appModalExitButtonNo was clicked');
-  $('#appModalExit').removeClass('is-active');
+qsa('#appModalExitButtonNo, #appModalExit .delete').forEach((el) => {
+  el.addEventListener('click', () => {
+    debug('#appModalExitButtonNo was clicked');
+    qs('#appModalExit')?.classList.remove('is-active');
+  });
 });
 
 electron.on('app:confirm-exit', function () {
   if (settings.ui?.confirmExit) {
-    $('#appModalExit').addClass('is-active');
+    qs('#appModalExit')?.classList.add('is-active');
   } else {
-      void electron.invoke('app:close');
+    void electron.invoke('app:close');
   }
 });
 
@@ -199,10 +182,11 @@ electron.on('app:confirm-exit', function () {
   $('.modal').click(function(event) {...});
     Close modals when clicking outside the lightbox
 */
-$(document).on('click', '.modal', function (event) {
-  if ($(event.target).is('.modal') || $(event.target).is('.modal-background')) {
-    $(this).removeClass('is-active');
-  }
-
-  return;
+qsa('.modal').forEach((modal) => {
+  modal.addEventListener('click', (event: Event) => {
+    const target = event.target as Element;
+    if (target.classList.contains('modal') || target.classList.contains('modal-background')) {
+      modal.classList.remove('is-active');
+    }
+  });
 });
