@@ -26,9 +26,10 @@ debug('loaded');
 import { formatString } from '../../common/stringformat.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
 import { renderAnalyser } from './analyser.js';
+import { FileWatcherManager } from '../../utils/fileWatcher.js';
 
 let bwaFileContents: any;
-let bwaFileWatcher: { close: () => void } | undefined;
+const watcher = new FileWatcherManager(electron.watch);
 
 async function refreshBwaFile(pathToFile: string): Promise<void> {
   try {
@@ -76,10 +77,7 @@ async function handleFileConfirmation(
 ) {
     let bwaFileStats: FileStats; // File stats, size, last changed, etc
 
-    if (bwaFileWatcher) {
-      bwaFileWatcher.close();
-      bwaFileWatcher = undefined;
-    }
+    watcher.close();
 
     const chosenPath = Array.isArray(filePath)
       ? filePath
@@ -159,14 +157,9 @@ async function handleFileConfirmation(
       $('#bwaFileTextareaErrors').text(String(bwaFileStats.errors || 'No errors'));
       //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']); // show estimated bulk lookup time
       if (chosenPath) {
-        bwaFileWatcher = await electron.watch(
-          'bwa',
-          chosenPath,
-          { persistent: false },
-          (evt: string) => {
-            if (evt === 'change') void refreshBwaFile(chosenPath);
-          }
-        );
+        await watcher.watch('bwa', chosenPath, { persistent: false }, (evt: string) => {
+          if (evt === 'change') void refreshBwaFile(chosenPath);
+        });
       }
     }
 
@@ -198,10 +191,7 @@ $(document).on('click', '#bwaEntryButtonOpen', function () {
     Bulk whois, file input, cancel button, file confirmation
  */
 $('#bwaFileinputconfirmButtonCancel').click(function () {
-  if (bwaFileWatcher) {
-    bwaFileWatcher.close();
-    bwaFileWatcher = undefined;
-  }
+  watcher.close();
   $('#bwaFileinputconfirm').addClass('is-hidden');
   $('#bwaEntry').removeClass('is-hidden');
 
@@ -213,10 +203,7 @@ $('#bwaFileinputconfirmButtonCancel').click(function () {
     Bulk whois, file input, start button, file confirmation
  */
 $('#bwaFileinputconfirmButtonStart').click(function () {
-  if (bwaFileWatcher) {
-    bwaFileWatcher.close();
-    bwaFileWatcher = undefined;
-  }
+  watcher.close();
   void (async () => {
     const data = await electron.invoke(IpcChannel.BwaAnalyserStart, bwaFileContents);
     renderAnalyser(data);
