@@ -1,14 +1,8 @@
 import { debugFactory } from '../common/logger.js';
 import { settings } from '../common/settings.js';
+import { ensureFetch } from '../utils/fetchCompat.js';
 
 const debug = debugFactory('ai.openaiSuggest');
-
-async function ensureFetch(): Promise<void> {
-  if (typeof globalThis.fetch === 'undefined') {
-    const { default: fetchImpl } = await import('node-fetch');
-    (globalThis as any).fetch = fetchImpl as unknown as typeof fetch;
-  }
-}
 
 export async function suggestWords(prompt: string, count: number): Promise<string[]> {
   await ensureFetch();
