@@ -24,9 +24,10 @@ import $ from '../../../vendor/jquery.js';
 import { formatString } from '../../common/stringformat.js';
 import { settings } from '../settings-renderer.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
+import { FileWatcherManager } from '../../utils/fileWatcher.js';
 
 let bwFileContents: Buffer;
-let bwFileWatcher: { close: () => void } | undefined;
+const watcher = new FileWatcherManager(electron.watch);
 
 async function refreshBwFile(pathToFile: string): Promise<void> {
   try {
@@ -94,10 +95,7 @@ async function handleFileConfirmation(
     }
   };
 
-  if (bwFileWatcher) {
-    bwFileWatcher.close();
-    bwFileWatcher = undefined;
-  }
+  watcher.close();
 
   const chosenPath = Array.isArray(filePath)
     ? filePath
@@ -193,14 +191,9 @@ async function handleFileConfirmation(
     debug(bwFileStats.linecount);
 
     if (chosenPath) {
-      bwFileWatcher = await electron.watch(
-        'bw',
-        chosenPath,
-        { persistent: false },
-        (evt: string) => {
-          if (evt === 'change') void refreshBwFile(chosenPath);
-        }
-      );
+      await watcher.watch('bw', chosenPath, { persistent: false }, (evt: string) => {
+        if (evt === 'change') void refreshBwFile(chosenPath);
+      });
     }
   }
 
@@ -241,10 +234,7 @@ $(document).on('click', '#bwEntryButtonFile', function () {
     File Input, cancel file confirmation
  */
 $(document).on('click', '#bwFileButtonCancel', function () {
-  if (bwFileWatcher) {
-    bwFileWatcher.close();
-    bwFileWatcher = undefined;
-  }
+  watcher.close();
   $('#bwFileinputconfirm').addClass('is-hidden');
   $('#bwEntry').removeClass('is-hidden');
 
@@ -256,10 +246,7 @@ $(document).on('click', '#bwFileButtonCancel', function () {
     File Input, proceed to bulk whois
  */
 $(document).on('click', '#bwFileButtonConfirm', function () {
-  if (bwFileWatcher) {
-    bwFileWatcher.close();
-    bwFileWatcher = undefined;
-  }
+  watcher.close();
   const bwDomainArray = bwFileContents
     .toString()
     .split('\n')
