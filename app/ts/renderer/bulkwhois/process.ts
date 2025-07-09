@@ -57,7 +57,7 @@ export { bulkResults };
     value
  */
 electron.on(IpcChannel.BulkwhoisStatusUpdate, function (event, stat, value) {
-  electron.send('app:debug', formatString('{0}, value update to {1}', stat, value)); // status update
+  debug(formatString('{0}, value update to {1}', stat, value)); // status update
   let percent;
   switch (stat) {
     case 'start':
@@ -200,7 +200,7 @@ function setPauseButton() {
     Trigger Bulk whois Stop modal
  */
 $(document).on('click', '#bwProcessingButtonStop', function () {
-  electron.send('app:debug', 'Pausing whois & opening stop modal');
+  debug('Pausing whois & opening stop modal');
   $('#bwProcessingButtonPause').text().includes('Pause')
     ? $('#bwProcessingButtonPause').click()
     : false;
@@ -214,7 +214,7 @@ $(document).on('click', '#bwProcessingButtonStop', function () {
     Close modal and allow continue
  */
 $(document).on('click', '#bwProcessingModalStopButtonContinue', function () {
-  electron.send('app:debug', 'Closing Stop modal & continue');
+  debug('Closing Stop modal & continue');
   $('#bwProcessingModalStop').removeClass('is-active');
 
   return;
@@ -225,7 +225,7 @@ $(document).on('click', '#bwProcessingModalStopButtonContinue', function () {
     Stop bulk whois entirely and scrape everything
  */
 $(document).on('click', '#bwProcessingModalStopButtonStop', function () {
-  electron.send('app:debug', 'Closing Stop modal & going back to start');
+  debug('Closing Stop modal & going back to start');
   $('#bwProcessingModalStop').removeClass('is-active');
   $('#bwProcessing').addClass('is-hidden');
   setPauseButton();
@@ -239,7 +239,7 @@ $(document).on('click', '#bwProcessingModalStopButtonStop', function () {
     Stop bulk whois entirely and save/export
  */
 $(document).on('click', '#bwProcessingModalStopButtonStopsave', function () {
-  electron.send('app:debug', 'Closing Stop modal & exporting');
+  debug('Closing Stop modal & exporting');
   electron.send(IpcChannel.BulkwhoisLookupStop);
   $('#bwProcessingModalStop').removeClass('is-active');
   $('#bwProcessing').addClass('is-hidden');

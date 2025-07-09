@@ -1,6 +1,6 @@
 import * as conversions from '../../common/conversions.js';
 import { settings } from '../settings-renderer.js';
-import { debugFactory } from '../../common/logger.js';
+import { debugFactory, errorFactory } from '../../common/logger.js';
 
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
@@ -11,6 +11,7 @@ import { tableReset } from './auxiliary.js';
 import $ from '../../../vendor/jquery.js';
 
 const debug = debugFactory('bulkwhois.wordlistinput');
+const error = errorFactory('bulkwhois.wordlistinput');
 debug('loaded');
 
 import { formatString } from '../../common/stringformat.js';
@@ -30,7 +31,7 @@ $(document).on('click', '#bwSuggestButton', async () => {
       textarea.val(current + prefix + words.join('\n'));
     }
   } catch (e) {
-    electron.send('app:error', `Suggestion failed: ${e}`);
+    error(`Suggestion failed: ${e}`);
   }
 });
 

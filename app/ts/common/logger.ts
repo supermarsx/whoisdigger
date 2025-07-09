@@ -1,27 +1,10 @@
+import debug from 'debug';
+
 export function debugFactory(namespace: string) {
-  return (...args: unknown[]): void => {
-    const message = `[${namespace}] ${args.map(String).join(' ')}`;
-    if (
-      typeof window !== 'undefined' &&
-      (window as any)?.electron?.send instanceof Function
-    ) {
-      (window as any).electron.send('app:debug', message);
-    } else {
-      console.debug(message);
-    }
-  };
+  return debug(namespace);
 }
 
 export function errorFactory(namespace: string) {
-  return (...args: unknown[]): void => {
-    const message = `[${namespace}] ${args.map(String).join(' ')}`;
-    if (
-      typeof window !== 'undefined' &&
-      (window as any)?.electron?.send instanceof Function
-    ) {
-      (window as any).electron.send('app:error', message);
-    } else {
-      console.error(message);
-    }
-  };
+  return debug(`${namespace}:error`);
 }
+

@@ -1,13 +1,9 @@
+import debug from 'debug';
+
 export function debugFactory(namespace) {
-  return (...args) => {
-    const message = `[${namespace}] ${args.map(String).join(' ')}`;
-    console.debug(message);
-  };
+  return debug(namespace);
 }
 
 export function errorFactory(namespace) {
-  return (...args) => {
-    const message = `[${namespace}] ${args.map(String).join(' ')}`;
-    console.error(message);
-  };
+  return debug(`${namespace}:error`);
 }

@@ -3,7 +3,7 @@ import type { FileStats } from '../../common/fileStats.js';
 import $ from '../../../vendor/jquery.js';
 import '../../../vendor/datatables.js';
 import { settings } from '../settings-renderer.js';
-import { debugFactory } from '../../common/logger.js';
+import { debugFactory, errorFactory } from '../../common/logger.js';
 
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
@@ -21,6 +21,7 @@ const electron = (window as any).electron as {
 };
 
 const debug = debugFactory('renderer.bwa.fileinput');
+const error = errorFactory('renderer.bwa.fileinput');
 debug('loaded');
 
 import { formatString } from '../../common/stringformat.js';
@@ -63,7 +64,7 @@ async function refreshBwaFile(pathToFile: string): Promise<void> {
     $('#bwaFileTdFilepreview').text(String(bwaFileStats.filepreview) + '...');
     $('#bwaFileTextareaErrors').text(String(bwaFileStats.errors || 'No errors'));
   } catch (e) {
-    electron.send('app:error', `Failed to reload file: ${e}`);
+    error(`Failed to reload file: ${e}`);
   }
 }
 
@@ -108,7 +109,7 @@ async function handleFileConfirmation(
             (await electron.bwaFileRead(filePath as string)).toString()
           );
         } catch (e) {
-          electron.send('app:error', `Failed to read file: ${e}`);
+          error(`Failed to read file: ${e}`);
           $('#bwaFileSpanInfo').text('Failed to load file');
           return;
         }
@@ -126,7 +127,7 @@ async function handleFileConfirmation(
             (await electron.bwaFileRead((filePath as string[])[0])).toString()
           );
         } catch (e) {
-          electron.send('app:error', `Failed to read file: ${e}`);
+          error(`Failed to read file: ${e}`);
           $('#bwaFileSpanInfo').text('Failed to load file');
           return;
         }
@@ -247,7 +248,7 @@ $('#bwafButtonConfirm').click(function() {
   holder.ondrop = function(event) {
     event.preventDefault();
     for (const file of event.dataTransfer.files) {
-      electron.send('app:debug', `File(s) you dragged here: ${file.path}`);
+      debug(`File(s) you dragged here: ${file.path}`);
       electron.send('ondragstart', file.path);
     }
     return false;

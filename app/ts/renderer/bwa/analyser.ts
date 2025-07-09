@@ -33,7 +33,7 @@ export function renderAnalyser(contents: any): void {
     Bulk whois analyser close button
  */
 $('#bwaAnalyserButtonClose').click(function () {
-  electron.send('app:debug', '#bwaAnalyserButtonClose clicked');
+  debug('#bwaAnalyserButtonClose clicked');
   $('#bwaAnalyserModalClose').addClass('is-active');
 
   return;

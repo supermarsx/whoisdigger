@@ -28,7 +28,7 @@ let options: any;
     rcvResults
  */
 electron.on(IpcChannel.BulkwhoisResultReceive, function (_event, rcvResults) {
-  electron.send('app:debug', formatString('Results are ready for export {0}', rcvResults));
+  debug(formatString('Results are ready for export {0}', rcvResults));
 
   results = rcvResults;
 
