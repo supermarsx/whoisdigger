@@ -21,9 +21,9 @@ export interface BulkWhoisStats {
   };
   reqtimes: {
     minimum: number;
-    average: string | null;
-    maximum: string | null;
-    last: string | null;
+    average: number | null;
+    maximum: number | null;
+    last: number | null;
   };
   status: {
     available: number;
