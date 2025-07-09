@@ -59,9 +59,9 @@ describe('processData', () => {
     await processData(bulk, reqtime, event, 'example.com', 0, 'data', false);
 
     expect(bulk.stats.reqtimes.minimum).toBe(50);
-    expect(bulk.stats.reqtimes.maximum).toBe('50.00');
-    expect(bulk.stats.reqtimes.last).toBe('50.00');
-    expect(bulk.stats.reqtimes.average).toBe('50.00');
+    expect(bulk.stats.reqtimes.maximum).toBe(50);
+    expect(bulk.stats.reqtimes.last).toBe(50);
+    expect(bulk.stats.reqtimes.average).toBe(50);
     expect(bulk.stats.status.available).toBe(1);
     expect(bulk.stats.domains.waiting).toBe(0);
     expect(bulk.results.domain[0]).toBe('example.com');

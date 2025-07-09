@@ -36,28 +36,32 @@ export async function processData(
     reqtimes.minimum = reqtime[index];
     sender.send(IpcChannel.BulkwhoisStatusUpdate, 'reqtimes.minimum', reqtimes.minimum);
   }
-  if (Number(reqtimes.maximum) < reqtime[index]) {
-    reqtimes.maximum = reqtime[index].toFixed(2);
+  if (reqtimes.maximum === null || reqtimes.maximum < reqtime[index]) {
+    reqtimes.maximum = parseFloat(reqtime[index].toFixed(2));
     sender.send(IpcChannel.BulkwhoisStatusUpdate, 'reqtimes.maximum', reqtimes.maximum);
   }
 
-  reqtimes.last = reqtime[index].toFixed(2);
+  reqtimes.last = parseFloat(reqtime[index].toFixed(2));
   sender.send(IpcChannel.BulkwhoisStatusUpdate, 'reqtimes.last', reqtimes.last);
 
   if (settings.lookupMisc.asfOverride) {
     lastweight = Number(
       ((stats.domains.sent - stats.domains.waiting) / stats.domains.processed).toFixed(2)
     );
-    reqtimes.average = (
-      Number(reqtimes.average) * lastweight +
-      (1 - lastweight) * reqtime[index]
-    ).toFixed(2);
+    reqtimes.average = parseFloat(
+      (
+        (reqtimes.average ?? reqtime[index]) * lastweight +
+        (1 - lastweight) * reqtime[index]
+      ).toFixed(2)
+    );
   } else {
-    reqtimes.average = reqtimes.average || reqtime[index].toFixed(2);
-    reqtimes.average = (
-      reqtime[index] * settings.lookupMisc.averageSmoothingFactor +
-      (1 - settings.lookupMisc.averageSmoothingFactor) * Number(reqtimes.average)
-    ).toFixed(2);
+    reqtimes.average = reqtimes.average ?? reqtime[index];
+    reqtimes.average = parseFloat(
+      (
+        reqtime[index] * settings.lookupMisc.averageSmoothingFactor +
+        (1 - settings.lookupMisc.averageSmoothingFactor) * reqtimes.average
+      ).toFixed(2)
+    );
   }
 
   if (isError) {

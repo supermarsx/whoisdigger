@@ -98,16 +98,24 @@ electron.on(IpcChannel.BulkwhoisStatusUpdate, function (event, stat, value) {
       $('#bwProcessingSpanTimeremaining').text(formatString('{0}', value));
       break;
     case 'reqtimes.maximum': // maximum request reply time
-      $('#bwProcessingSpanReqtimemax').text(formatString('{0}ms', value));
+      $('#bwProcessingSpanReqtimemax').text(
+        formatString('{0}ms', typeof value === 'number' ? value.toFixed(2) : value)
+      );
       break;
     case 'reqtimes.minimum': // minimum request reply time
-      $('#bwProcessingSpanReqtimemin').text(formatString('{0}ms', value));
+      $('#bwProcessingSpanReqtimemin').text(
+        formatString('{0}ms', typeof value === 'number' ? value.toFixed(2) : value)
+      );
       break;
     case 'reqtimes.last': // last request reply time
-      $('#bwProcessingSpanReqtimelast').text(formatString('{0}ms', value));
+      $('#bwProcessingSpanReqtimelast').text(
+        formatString('{0}ms', typeof value === 'number' ? value.toFixed(2) : value)
+      );
       break;
     case 'reqtimes.average': // Average request reply time
-      $('#bwProcessingSpanReqtimeavg').text(formatString('{0}ms', value));
+      $('#bwProcessingSpanReqtimeavg').text(
+        formatString('{0}ms', typeof value === 'number' ? value.toFixed(2) : value)
+      );
       break;
     case 'status.available': // Domains available
       percent =
