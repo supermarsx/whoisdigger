@@ -9,7 +9,8 @@ import {
   compileDomains,
   createDomainSetup,
   updateProgress,
-  setRemainingCounter
+  setRemainingCounter,
+  scheduleQueue
 } from './helpers.js';
 import { processDomain, counter } from './scheduler.js';
 import { resetObject } from '../../common/resetObject.js';
@@ -43,29 +44,11 @@ ipcMain.handle(
 
   const settings = getSettings();
 
-  const { input, stats } = bulkWhois;
-  const { domainsPending } = input;
   const { sender } = event;
   compileDomains(bulkWhois, domains, tlds, sender);
-  // Process compiled domains into future requests
-  let cumulativeDelay = 0;
-  for (const [index, domain] of domainsPending.entries()) {
-    const setup = createDomainSetup(settings, domain, index);
-    debug(
-      formatString(
-        'Using timebetween, {0}, follow, {1}, timeout, {2}',
-        setup.timebetween,
-        setup.follow,
-        setup.timeout
-      )
-    );
+  scheduleQueue(bulkWhois, reqtime, settings, event);
 
-    cumulativeDelay += setup.timebetween;
-    processDomain(bulkWhois, reqtime, setup, event, cumulativeDelay);
-    updateProgress(sender, stats, index + 1);
-  }
-
-  setRemainingCounter(settings, stats);
+  setRemainingCounter(settings, bulkWhois.stats);
 
   counter(bulkWhois, event);
   return;

@@ -3,10 +3,17 @@ import {
   compileDomains,
   createDomainSetup,
   updateProgress,
-  setRemainingCounter
+  setRemainingCounter,
+  scheduleQueue
 } from '../app/ts/main/bulkwhois/helpers';
 import { settings } from '../app/ts/main/settings-main';
 import { IpcChannel } from '../app/ts/common/ipcChannels';
+import { processDomain } from '../app/ts/main/bulkwhois/scheduler';
+
+jest.mock('../app/ts/main/bulkwhois/scheduler', () => ({
+  processDomain: jest.fn(),
+  counter: jest.fn()
+}));
 
 describe('process helpers', () => {
   test('compileDomains populates queue and totals', () => {
@@ -62,6 +69,36 @@ describe('process helpers', () => {
     settings.lookupRandomizeTimeout.randomize = false;
     setRemainingCounter(settings, bulk.stats);
     expect(bulk.stats.time.remainingcounter).toBe(2 * 5 + 1);
+    Object.assign(settings, backup);
+  });
+
+  test('scheduleQueue processes all pending domains', () => {
+    const bulk = JSON.parse(JSON.stringify(defaultBulkWhois));
+    bulk.input.domainsPending = ['a.com', 'b.net'];
+    const event = { sender: { send: jest.fn() } } as any;
+    const reqtime: number[] = [];
+    const backup = JSON.parse(JSON.stringify(settings));
+    settings.lookupGeneral.type = 'whois';
+    settings.lookupRandomizeTimeBetween.randomize = false;
+    settings.lookupRandomizeFollow.randomize = false;
+    settings.lookupRandomizeTimeout.randomize = false;
+    settings.lookupGeneral.timeBetween = 1;
+    settings.lookupGeneral.follow = 1;
+    settings.lookupGeneral.timeout = 1;
+
+    scheduleQueue(bulk, reqtime, settings, event);
+
+    expect(processDomain).toHaveBeenCalledTimes(2);
+    expect(event.sender.send).toHaveBeenCalledWith(
+      IpcChannel.BulkwhoisStatusUpdate,
+      'domains.processed',
+      1
+    );
+    expect(event.sender.send).toHaveBeenCalledWith(
+      IpcChannel.BulkwhoisStatusUpdate,
+      'domains.processed',
+      2
+    );
     Object.assign(settings, backup);
   });
 });

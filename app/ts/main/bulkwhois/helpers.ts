@@ -1,8 +1,11 @@
-import type { WebContents } from 'electron';
+import type { WebContents, IpcMainEvent } from 'electron';
 import { IpcChannel } from '../../common/ipcChannels.js';
 import type { BulkWhois, BulkWhoisStats, DomainSetup } from './types.js';
 import { compileQueue, getDomainSetup } from './queue.js';
 import type { Settings } from '../settings-main.js';
+import { debugFactory } from '../../common/logger.js';
+import { formatString } from '../../common/stringformat.js';
+import { processDomain } from './scheduler.js';
 
 export function compileDomains(
   bulk: BulkWhois,
@@ -49,4 +52,31 @@ export function setRemainingCounter(settings: Settings, stats: BulkWhoisStats): 
   stats.time.remainingcounter += settings.lookupRandomizeTimeout.randomize
     ? settings.lookupRandomizeTimeout.maximum
     : settings.lookupGeneral.timeout;
+}
+
+const debug = debugFactory('bulkwhois.helpers');
+
+export function scheduleQueue(
+  bulk: BulkWhois,
+  reqtimes: number[],
+  settings: Settings,
+  event: IpcMainEvent
+): void {
+  const { input, stats } = bulk;
+  const { sender } = event;
+  let cumulativeDelay = 0;
+  for (const [index, domain] of input.domainsPending.entries()) {
+    const setup = createDomainSetup(settings, domain, index);
+    debug(
+      formatString(
+        'Using timebetween, {0}, follow, {1}, timeout, {2}',
+        setup.timebetween,
+        setup.follow,
+        setup.timeout
+      )
+    );
+    cumulativeDelay += setup.timebetween;
+    processDomain(bulk, reqtimes, setup, event, cumulativeDelay);
+    updateProgress(sender, stats, index + 1);
+  }
 }
