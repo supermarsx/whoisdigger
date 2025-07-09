@@ -1,5 +1,5 @@
 import { debugFactory } from '../../common/logger.js';
-import type { IpcMainEvent } from 'electron';
+import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import { IpcChannel } from '../../common/ipcChannels.js';
 
 const debug = debugFactory('bulkwhois.auxiliary');
@@ -11,7 +11,7 @@ const debug = debugFactory('bulkwhois.auxiliary');
     event (object) - renderer object
  */
 
-function resetUiCounters(event: IpcMainEvent): void {
+function resetUiCounters(event: IpcMainEvent | IpcMainInvokeEvent): void {
   const { sender } = event;
 
   debug('Resetting bulk whois UI counters');

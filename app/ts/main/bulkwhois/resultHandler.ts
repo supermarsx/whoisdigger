@@ -7,7 +7,7 @@ import { formatString } from '../../common/stringformat.js';
 import type { BulkWhois, ProcessedResult } from './types.js';
 import * as dns from '../../common/dnsLookup.js';
 import { Result, DnsLookupError } from '../../common/errors.js';
-import type { IpcMainEvent } from 'electron';
+import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import { addEntry as addHistoryEntry } from '../../common/history.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
 
@@ -16,7 +16,7 @@ const debug = debugFactory('bulkwhois.resultHandler');
 export async function processData(
   bulkWhois: BulkWhois,
   reqtime: number[],
-  event: IpcMainEvent,
+  event: IpcMainEvent | IpcMainInvokeEvent,
   domain: string,
   index: number,
   data: string | Result<boolean, DnsLookupError> | null = null,

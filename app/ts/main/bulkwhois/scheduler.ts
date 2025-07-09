@@ -8,7 +8,7 @@ import { msToHumanTime } from '../../common/conversions.js';
 import { getSettings } from '../settings-main.js';
 import type { BulkWhois, DomainSetup } from './types.js';
 import { processData } from './resultHandler.js';
-import type { IpcMainEvent } from 'electron';
+import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import { IpcChannel } from '../../common/ipcChannels.js';
 
 const debug = debugFactory('bulkwhois.scheduler');
@@ -17,7 +17,7 @@ export function processDomain(
   bulkWhois: BulkWhois,
   reqtime: number[],
   domainSetup: DomainSetup,
-  event: IpcMainEvent,
+  event: IpcMainEvent | IpcMainInvokeEvent,
   delay: number
 ): void {
   debug(
@@ -69,7 +69,11 @@ export function processDomain(
   debug(formatString('Delay: {0}', delay));
 }
 
-export function counter(bulkWhois: BulkWhois, event: IpcMainEvent, start = true): void {
+export function counter(
+  bulkWhois: BulkWhois,
+  event: IpcMainEvent | IpcMainInvokeEvent,
+  start = true
+): void {
   const { results, stats } = bulkWhois;
   const { sender } = event;
 

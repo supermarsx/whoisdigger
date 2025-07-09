@@ -19,150 +19,95 @@ import { getSettings } from '../settings-main.js';
 import { formatString } from '../../common/stringformat.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
 
-let bulkWhois: BulkWhois; // BulkWhois object
-let reqtime: number[] = [];
+class BulkWhoisManager {
+  private bulkWhois: BulkWhois;
+  private reqtime: number[];
 
-/*
-  ipcMain.handle('bulkwhois:lookup', function(...) {...});
-    Start bulk WHOIS lookup
-  parameters
-    event (object) - renderer event
-    domains (array) - domains to request whois for
-    tlds (array) - tlds to look for
-*/
-ipcMain.handle(
-  IpcChannel.BulkwhoisLookup,
-  (async function (
-    event: IpcMainEvent,
-    domains: string[],
-    tlds: string[]
-  ) {
-  resetUiCounters(event); // Reset UI counters, pass window param
-  bulkWhois = resetObject(defaultBulkWhois); // Resets the bulkWhois object to default
-  reqtime = [];
-
-  const settings = getSettings();
-
-  const { input, stats } = bulkWhois;
-  const { domainsPending } = input;
-  const { sender } = event;
-  compileDomains(bulkWhois, domains, tlds, sender);
-  // Process compiled domains into future requests
-  let cumulativeDelay = 0;
-  for (const [index, domain] of domainsPending.entries()) {
-    const setup = createDomainSetup(settings, domain, index);
-    debug(
-      formatString(
-        'Using timebetween, {0}, follow, {1}, timeout, {2}',
-        setup.timebetween,
-        setup.follow,
-        setup.timeout
-      )
-    );
-
-    cumulativeDelay += setup.timebetween;
-    processDomain(bulkWhois, reqtime, setup, event, cumulativeDelay);
-    updateProgress(sender, stats, index + 1);
+  constructor() {
+    this.bulkWhois = resetObject(defaultBulkWhois);
+    this.reqtime = [];
   }
 
-  setRemainingCounter(settings, stats);
+  private schedule(
+    event: IpcMainEvent | IpcMainInvokeEvent,
+    startIndex = 0
+  ): void {
+    const settings = getSettings();
+    const { input, stats } = this.bulkWhois;
+    const { domainsPending } = input;
+    const { sender } = event;
 
-  counter(bulkWhois, event);
-  return;
-  }) as unknown as (
+    let cumulativeDelay = 0;
+    for (let i = startIndex; i < domainsPending.length; i++) {
+      const setup = createDomainSetup(settings, domainsPending[i], i);
+      debug(
+        formatString(
+          'Using timebetween, {0}, follow, {1}, timeout, {2}',
+          setup.timebetween,
+          setup.follow,
+          setup.timeout
+        )
+      );
+      cumulativeDelay += setup.timebetween;
+      processDomain(this.bulkWhois, this.reqtime, setup, event, cumulativeDelay);
+      updateProgress(sender, stats, i + 1);
+    }
+
+    setRemainingCounter(settings, stats);
+  }
+
+  async startLookup(
     event: IpcMainInvokeEvent,
     domains: string[],
     tlds: string[]
-  ) => Promise<void>
+  ): Promise<void> {
+    resetUiCounters(event);
+    this.bulkWhois = resetObject(defaultBulkWhois);
+    this.reqtime = [];
+
+    compileDomains(this.bulkWhois, domains, tlds, event.sender);
+    this.schedule(event);
+    counter(this.bulkWhois, event);
+  }
+
+  pause(event: IpcMainEvent): void {
+    const { stats, processingIDs } = this.bulkWhois;
+    debug('Stopping unsent bulk whois requests');
+    counter(this.bulkWhois, event, false);
+    for (let j = stats.domains.sent; j < stats.domains.processed; j++) {
+      debug(formatString('Stopping whois request {0} with id {1}', j, processingIDs[j]));
+      clearTimeout(processingIDs[j]);
+    }
+  }
+
+  resume(event: IpcMainEvent): void {
+    debug('Continuing bulk whois requests');
+    const { input, stats } = this.bulkWhois;
+    compileDomains(this.bulkWhois, input.domains, input.tlds, event.sender);
+    this.schedule(event, stats.domains.sent);
+    counter(this.bulkWhois, event);
+  }
+
+  stop(event: IpcMainEvent): void {
+    const { results, stats } = this.bulkWhois;
+    const { sender } = event;
+    clearInterval(stats.time.counter!);
+    sender.send(IpcChannel.BulkwhoisResultReceive, results);
+    sender.send(IpcChannel.BulkwhoisStatusUpdate, 'finished');
+  }
+}
+
+const manager = new BulkWhoisManager();
+
+ipcMain.handle(IpcChannel.BulkwhoisLookup, (event, domains, tlds) =>
+  manager.startLookup(event, domains, tlds)
 );
 
-/*
-  ipcMain.on('bulkwhois:lookup.pause', function(...) {...});
-    On event: bulk whois lookup pause
-  parameters
-    event (object) - renderer event
- */
-ipcMain.on('bulkwhois:lookup.pause', function (event: IpcMainEvent) {
-  // bulkWhois section
-  const { results, input, stats, processingIDs } = bulkWhois;
+ipcMain.on(IpcChannel.BulkwhoisLookupPause, (event) => manager.pause(event));
 
-  const { domainsPending } = input;
+ipcMain.on(IpcChannel.BulkwhoisLookupContinue, (event) => manager.resume(event));
 
-  debug('Stopping unsent bulk whois requests');
-  counter(bulkWhois, event, false); // Stop counter/timer
-
-  // Go through all queued domain lookups and delete setTimeouts for remaining domains
-  for (let j = stats.domains.sent; j < stats.domains.processed; j++) {
-    debug(formatString('Stopping whois request {0} with id {1}', j, processingIDs[j]));
-    clearTimeout(processingIDs[j]);
-  }
-});
-
-/*
-  ipcMain.on('bulkwhois:lookup.continue', function(...) {...});
-    On event: bulk whois lookup continue
-  parameters
-    event (object) - renderer object
- */
-ipcMain.on('bulkwhois:lookup.continue', function (event: IpcMainEvent) {
-  debug('Continuing bulk whois requests');
-
-  const settings = getSettings();
-
-  // Go through the remaining domains and queue them again using setTimeouts
-
-  // bulkWhois section
-  const { results, input, stats, processingIDs } = bulkWhois;
-
-  const { domainsPending } = input;
-
-  const { reqtimes, status } = stats;
-
-  const {
-    sender // expose shorthand sender
-  } = event;
-
-  compileDomains(bulkWhois, input.domains, input.tlds, sender);
-
-  // Do domain setup
-  let cumulativeDelay = 0;
-  for (let domain = stats.domains.sent; domain < domainsPending.length; domain++) {
-    const setup = createDomainSetup(settings, domainsPending[domain], Number(domain));
-
-    debug(`${setup.timebetween}`);
-
-    /*
-    timebetween = domainSetup.timebetween;
-    follow = getFollowDepth(randomize.follow);
-    timeout = getTimeout(randomize.timeout);
-    */
-
-    debug(domain);
-    cumulativeDelay += setup.timebetween;
-    processDomain(bulkWhois, reqtime, setup, event, cumulativeDelay);
-    updateProgress(sender, stats, Number(domain) + 1);
-  } // End processing for loop
-
-  setRemainingCounter(settings, stats);
-
-  counter(bulkWhois, event); // Start counter/timer
-});
-
-/*
-  ipcMain.on('bulkwhois:lookup.stop', function(...) {...});
-    On event: stop bulk whois lookup process
-  parameters
-    event (object) - Current renderer object
- */
-ipcMain.on('bulkwhois:lookup.stop', function (event: IpcMainEvent) {
-  const { results, stats } = bulkWhois;
-
-  const { sender } = event;
-
-  clearInterval(stats.time.counter!);
-  sender.send(IpcChannel.BulkwhoisResultReceive, results);
-  sender.send(IpcChannel.BulkwhoisStatusUpdate, 'finished');
-});
+ipcMain.on(IpcChannel.BulkwhoisLookupStop, (event) => manager.stop(event));
 
 // Re-export for consumers that imported from this module previously
 export { getDomainSetup } from './queue.js';
