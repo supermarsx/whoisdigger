@@ -5,6 +5,7 @@ import { settings, getUserDataPath } from '../app/ts/renderer/settings-renderer'
 import { loadModel } from '../app/ts/ai/availabilityModel';
 import { trainFromSamples } from '../scripts/train-ai';
 import { isDomainAvailable } from '../app/ts/common/availability';
+import DomainStatus from '../app/ts/common/status';
 
 describe('isDomainAvailable with AI', () => {
   const dir = 'ai-int';
@@ -31,6 +32,6 @@ describe('isDomainAvailable with AI', () => {
 
   test('returns ai prediction when enabled', () => {
     const res = isDomainAvailable('Domain Status:ok');
-    expect(res).toBe('available');
+    expect(res).toBe(DomainStatus.Available);
   });
 });

@@ -1,6 +1,7 @@
 import { ipcMain, shell } from 'electron';
 import Papa from 'papaparse';
 import { isDomainAvailable, getDomainParameters } from '../common/availability.js';
+import DomainStatus from '../common/status.js';
 import { IpcChannel } from '../common/ipcChannels.js';
 import { toJSON } from '../common/parser.js';
 import { getUserDataPath } from '../common/settings.js';
@@ -18,7 +19,7 @@ ipcMain.handle(
   async (
     _e,
     domain: string | null,
-    status: string | null,
+    status: DomainStatus | null,
     text: string,
     json?: Record<string, unknown>
   ) => {

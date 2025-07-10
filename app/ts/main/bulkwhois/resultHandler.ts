@@ -1,5 +1,6 @@
 import { debugFactory } from '../../common/logger.js';
 import { isDomainAvailable, getDomainParameters } from '../../common/availability.js';
+import DomainStatus from '../../common/status.js';
 import { toJSON } from '../../common/parser.js';
 import { performance } from 'perf_hooks';
 import { getSettings } from '../settings-main.js';
@@ -26,8 +27,8 @@ export async function processData(
   const { sender } = event;
   const { results, stats } = bulkWhois;
   const { reqtimes, status } = stats;
-  let domainAvailable: string;
-  let lastStatus: string | undefined;
+  let domainAvailable: DomainStatus;
+  let lastStatus: DomainStatus | undefined;
   let resultsJSON: Record<string, unknown> | string;
   const settings = getSettings();
   reqtime[index] = parseFloat((performance.now() - reqtime[index]).toFixed(2));
@@ -75,7 +76,7 @@ export async function processData(
         ? isDomainAvailable(data as string)
         : dns.isDomainAvailable(data as Result<boolean, DnsLookupError>);
     switch (domainAvailable) {
-      case 'available':
+      case DomainStatus.Available:
         status.available++;
         sender.send(IpcChannel.BulkwhoisStatusUpdate, 'status.available', status.available);
         stats.laststatus.available = domain;
@@ -84,9 +85,9 @@ export async function processData(
           'laststatus.available',
           stats.laststatus.available
         );
-        lastStatus = 'available';
+        lastStatus = DomainStatus.Available;
         break;
-      case 'unavailable':
+      case DomainStatus.Unavailable:
         status.unavailable++;
         sender.send(IpcChannel.BulkwhoisStatusUpdate, 'status.unavailable', status.unavailable);
         stats.laststatus.unavailable = domain;
@@ -95,7 +96,7 @@ export async function processData(
           'laststatus.unavailable',
           stats.laststatus.unavailable
         );
-        lastStatus = 'unavailable';
+        lastStatus = DomainStatus.Unavailable;
         break;
       default:
         if (domainAvailable.includes('error')) {
@@ -103,7 +104,7 @@ export async function processData(
           sender.send(IpcChannel.BulkwhoisStatusUpdate, 'status.error', status.error);
           stats.laststatus.error = domain;
           sender.send(IpcChannel.BulkwhoisStatusUpdate, 'laststatus.error', stats.laststatus.error);
-          lastStatus = 'error';
+          lastStatus = DomainStatus.Error;
         }
         break;
     }

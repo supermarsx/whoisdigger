@@ -4,6 +4,7 @@ import '../test/electronMock';
 import { loadModel, predict } from '../app/ts/ai/availabilityModel';
 import { settings, getUserDataPath } from '../app/ts/common/settings';
 import { trainFromSamples } from '../scripts/train-ai';
+import DomainStatus from '../app/ts/common/status';
 
 const modelDir = 'ai-test-model';
 
@@ -30,6 +31,6 @@ describe('availabilityModel', () => {
 
     await loadModel(settings.ai.modelPath);
     const res = predict('Domain Status:ok');
-    expect(res).toBe('available');
+    expect(res).toBe(DomainStatus.Available);
   });
 });

@@ -4,13 +4,14 @@ import { toJSON } from './parser.js';
 import { settings as appSettings, Settings } from './settings.js';
 import { checkPatterns } from './whoiswrapper/patterns.js';
 import { predict as aiPredict } from '../ai/availabilityModel.js';
+import DomainStatus from './status.js';
 
 const debug = debugFactory('common.whoisWrapper');
 let settings: Settings = appSettings;
 
 export interface WhoisResult {
   domain?: string;
-  status?: string;
+  status?: DomainStatus;
   registrar?: string;
   company?: string;
   creationDate?: string | undefined;
@@ -134,21 +135,24 @@ const ERROR_CHECKS: { result: string; strings?: string[]; fn?: CheckFn }[] = [
 export function isDomainAvailable(
   resultsText: string,
   resultsJSON?: Record<string, unknown>
-): string {
+): DomainStatus {
   const { lookupAssumptions: assumptions } = settings;
 
   if (settings.ai.enabled) {
     try {
       const aiRes = aiPredict(resultsText);
-      if (aiRes === 'available' || aiRes === 'unavailable') return aiRes;
+      if (aiRes === DomainStatus.Available || aiRes === DomainStatus.Unavailable)
+        return aiRes as DomainStatus;
     } catch (e) {
       debug(`AI prediction failed: ${e}`);
     }
   }
 
   const patternResult = checkPatterns(resultsText, resultsJSON);
-  const defaultResult = assumptions.unparsable ? 'available' : 'error:unparsable';
-  if (patternResult !== defaultResult) return patternResult;
+  const defaultResult = assumptions.unparsable
+    ? DomainStatus.Available
+    : DomainStatus.ErrorUnparsable;
+  if (patternResult !== defaultResult) return patternResult as DomainStatus;
 
   if (!resultsJSON) resultsJSON = toJSON(resultsText) as Record<string, unknown>;
 
@@ -156,7 +160,7 @@ export function isDomainAvailable(
   const controlDate = getDate(new Date());
 
   if (resultsText.includes('Uniregistry') && resultsText.includes('Query limit exceeded')) {
-    return assumptions.uniregistry ? 'unavailable' : 'error:ratelimiting';
+    return assumptions.uniregistry ? DomainStatus.Unavailable : DomainStatus.ErrorRateLimiting;
   }
 
   const ctx: CheckContext = {
@@ -167,32 +171,33 @@ export function isDomainAvailable(
   };
 
   for (const p of AVAILABLE_PATTERNS) {
-    if (resultsText.includes(p)) return 'available';
+    if (resultsText.includes(p)) return DomainStatus.Available;
   }
   for (const fn of AVAILABLE_FUNCTIONS) {
-    if (fn(ctx)) return 'available';
+    if (fn(ctx)) return DomainStatus.Available;
   }
 
   for (const p of UNAVAILABLE_PATTERNS) {
-    if (resultsText.includes(p)) return 'unavailable';
+    if (resultsText.includes(p)) return DomainStatus.Unavailable;
   }
   for (const fn of UNAVAILABLE_FUNCTIONS) {
-    if (fn(ctx)) return 'unavailable';
+    if (fn(ctx)) return DomainStatus.Unavailable;
   }
 
   for (const check of ERROR_CHECKS) {
-    if (check.fn && check.fn(ctx)) return check.result;
+    if (check.fn && check.fn(ctx)) return check.result as DomainStatus;
     if (check.strings) {
-      for (const s of check.strings) if (resultsText.includes(s)) return check.result;
+      for (const s of check.strings)
+        if (resultsText.includes(s)) return check.result as DomainStatus;
     }
   }
 
-  return assumptions.unparsable ? 'available' : 'error:unparsable';
+  return assumptions.unparsable ? DomainStatus.Available : DomainStatus.ErrorUnparsable;
 }
 
 export function getDomainParameters(
   domain: string | null,
-  status: string | null,
+  status: DomainStatus | null,
   resultsText: string | null,
   resultsJSON: Record<string, unknown>,
   isAuxiliary = false

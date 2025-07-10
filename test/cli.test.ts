@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { parseArgs, lookupDomains, exportResults, CliOptions } from '../app/ts/cli';
+import DomainStatus from '../app/ts/common/status';
 import { lookup as whoisLookup } from '../app/ts/common/lookup';
 
 jest.mock('../app/ts/common/lookup', () => ({ lookup: jest.fn() }));
@@ -43,7 +44,7 @@ describe('cli utility', () => {
     mockLookup.mockRejectedValueOnce(new Error('fail'));
     const opts: CliOptions = { domains: ['bad.com'], tlds: ['com'], format: 'txt' };
     const results = await lookupDomains(opts);
-    expect(results).toEqual([{ domain: 'bad.com', status: 'error', whoisreply: '' }]);
+    expect(results).toEqual([{ domain: 'bad.com', status: DomainStatus.Error, whoisreply: '' }]);
   });
 
   test('exportResults writes csv output', async () => {

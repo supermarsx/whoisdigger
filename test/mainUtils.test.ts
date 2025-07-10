@@ -28,6 +28,7 @@ jest.mock('../app/ts/common/parser', () => ({
 import { IpcChannel } from '../app/ts/common/ipcChannels';
 import '../app/ts/main/utils';
 import { isDomainAvailable, getDomainParameters } from '../app/ts/common/availability';
+import DomainStatus from '../app/ts/common/status';
 import { toJSON } from '../app/ts/common/parser';
 import { getUserDataPath } from '../app/ts/common/settings';
 
@@ -52,20 +53,25 @@ describe('main utils IPC handlers', () => {
   });
 
   test('availability check handler calls isDomainAvailable', async () => {
-    (isDomainAvailable as jest.Mock).mockReturnValue('available');
+    (isDomainAvailable as jest.Mock).mockReturnValue(DomainStatus.Available);
     const handler = getHandler(IpcChannel.AvailabilityCheck);
     const result = await handler({}, 'data');
     expect(isDomainAvailable).toHaveBeenCalledWith('data');
-    expect(result).toBe('available');
+    expect(result).toBe(DomainStatus.Available);
   });
 
   test('domain parameters handler falls back to toJSON', async () => {
     (toJSON as jest.Mock).mockReturnValue({ j: 1 });
     (getDomainParameters as jest.Mock).mockReturnValue('params');
     const handler = getHandler(IpcChannel.DomainParameters);
-    const result = await handler({}, 'example.com', 'avail', 'reply');
+    const result = await handler({}, 'example.com', DomainStatus.Available, 'reply');
     expect(toJSON).toHaveBeenCalledWith('reply');
-    expect(getDomainParameters).toHaveBeenCalledWith('example.com', 'avail', 'reply', { j: 1 });
+    expect(getDomainParameters).toHaveBeenCalledWith(
+      'example.com',
+      DomainStatus.Available,
+      'reply',
+      { j: 1 }
+    );
     expect(result).toBe('params');
   });
 

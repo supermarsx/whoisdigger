@@ -1,5 +1,6 @@
 import '../test/electronMock';
 import { getUserDataPath } from '../app/ts/renderer/settings-renderer';
+import DomainStatus from '../app/ts/common/status';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -23,24 +24,24 @@ describe('history module', () => {
   });
 
   test('stores and retrieves an entry', () => {
-    history.addEntry('example.com', 'available');
+    history.addEntry('example.com', DomainStatus.Available);
     const items = history.getHistory(1);
     expect(items[0].domain).toBe('example.com');
-    expect(items[0].status).toBe('available');
+    expect(items[0].status).toBe(DomainStatus.Available);
   });
 
   test('bulk insertion works', () => {
     history.clearHistory();
     history.addEntries([
-      { domain: 'a.com', status: 'available' },
-      { domain: 'b.com', status: 'unavailable' }
+      { domain: 'a.com', status: DomainStatus.Available },
+      { domain: 'b.com', status: DomainStatus.Unavailable }
     ]);
     const items = history.getHistory(2);
     expect(items.length).toBe(2);
   });
 
   test('clearHistory removes all', () => {
-    history.addEntry('c.com', 'error');
+    history.addEntry('c.com', DomainStatus.Error);
     history.clearHistory();
     expect(history.getHistory().length).toBe(0);
   });
