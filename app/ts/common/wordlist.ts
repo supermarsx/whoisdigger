@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs';
 import { randomInt } from '../utils/random.js';
+import { escapeRegex } from '../utils/regex.js';
 
 export async function concatFiles(...files: string[]): Promise<string[]> {
   const lines: string[] = [];
@@ -133,7 +134,7 @@ export function deleteLinesContaining(lines: string[], str: string): string[] {
 }
 
 export function deleteString(lines: string[], str: string): string[] {
-  const regex = new RegExp(str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+  const regex = new RegExp(escapeRegex(str), 'g');
   return lines.map((l) => l.replace(regex, ''));
 }
 
@@ -177,7 +178,7 @@ export function toUtf8Lines(lines: string[]): string[] {
 }
 
 export function replaceString(lines: string[], search: string, replacement: string): string[] {
-  const regex = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+  const regex = new RegExp(escapeRegex(search), 'g');
   return lines.map((l) => l.replace(regex, replacement));
 }
 
