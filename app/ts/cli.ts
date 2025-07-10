@@ -34,6 +34,7 @@ export interface CliOptions {
 
 export function parseArgs(argv: string[]): CliOptions {
   const args = yargs(argv)
+    .exitProcess(false)
     .option('domain', { type: 'string', array: true })
     .option('wordlist', { type: 'string' })
     .option('tlds', { type: 'string', array: true, default: ['com'] })

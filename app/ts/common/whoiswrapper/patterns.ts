@@ -4,6 +4,22 @@ import { getDomainParameters, WhoisResult } from '../availability.js';
 import { getDate } from '../conversions.js';
 import patterns from './patternData.js';
 
+function applySettingsToPatterns(): void {
+  const special = patterns.special[1];
+  if (special && typeof special === 'object' && !Array.isArray(special)) {
+    special.result = appSettings.lookupAssumptions.uniregistry
+      ? 'unavailable'
+      : 'error:ratelimiting';
+  }
+  const unique = patterns.available.unique[1];
+  if (Array.isArray(unique)) {
+    const withResult = unique.find((c) => (c as any).result !== undefined) as any;
+    if (withResult) {
+      withResult.result = appSettings.lookupAssumptions.expired ? 'expired' : 'available';
+    }
+  }
+}
+
 export interface PatternFunction {
   (context: PatternContext): boolean;
 }
@@ -232,6 +248,7 @@ function compileSpec(spec: PatternSpec, defaultResult: string): CompiledPattern 
 }
 
 export function buildPatterns(): void {
+  applySettingsToPatterns();
   builtPatterns.special = [];
   builtPatterns.available = [];
   builtPatterns.unavailable = [];
