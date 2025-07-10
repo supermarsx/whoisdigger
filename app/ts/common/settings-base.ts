@@ -124,22 +124,33 @@ export function setSettings(newSettings: Settings): void {
 }
 
 export function mergeDefaults(partial: Partial<Settings>): Settings {
-  function merge(target: any, source: any, path: string[] = []): void {
-    for (const key of Object.keys(source)) {
-      const src = (source as any)[key];
+  function merge<T extends Record<string, unknown>>(
+    target: T,
+    source: Partial<T>,
+    path: string[] = []
+  ): void {
+    for (const key of Object.keys(source as Record<string, unknown>)) {
+      const k = key as keyof T;
+      const src = source[k];
       if (src === undefined) continue;
-      const tgt = target[key];
+      const tgt = target[k];
       if (src && typeof src === 'object' && !Array.isArray(src)) {
         if (tgt !== undefined && typeof tgt !== 'object') {
-          throw new TypeError(`Invalid type at ${[...path, key].join('.')}`);
+          throw new TypeError(`Invalid type at ${[...path, String(key)].join('.')}`);
         }
-        if (tgt === undefined) target[key] = {};
-        merge(target[key], src, [...path, key]);
+        if (tgt === undefined) {
+          (target as Record<string, unknown>)[key] = {};
+        }
+        merge(
+          (target as Record<string, unknown>)[key] as unknown as Record<string, unknown>,
+          src as Partial<Record<string, unknown>>,
+          [...path, String(key)]
+        );
       } else {
         if (tgt !== undefined && typeof src !== typeof tgt) {
-          throw new TypeError(`Invalid type at ${[...path, key].join('.')}`);
+          throw new TypeError(`Invalid type at ${[...path, String(key)].join('.')}`);
         }
-        target[key] = src;
+        (target as Record<string, unknown>)[key] = src as unknown;
       }
     }
   }
