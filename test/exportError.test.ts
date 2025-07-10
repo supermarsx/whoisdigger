@@ -25,7 +25,7 @@ describe('bw export error handling', () => {
     updatedate: ['u'],
     expirydate: ['e'],
     whoisreply: ['reply'],
-    whoisjson: ['json'],
+    whoisjson: [{ foo: 'bar' }],
     requesttime: [1]
   };
 

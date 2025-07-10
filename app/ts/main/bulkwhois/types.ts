@@ -50,7 +50,7 @@ export interface BulkWhoisResults {
   creationdate: (string | null)[];
   expirydate: (string | null)[];
   whoisreply: (string | null)[];
-  whoisjson: (string | null)[];
+  whoisjson: (Record<string, unknown> | null)[];
   requesttime: (string | number | null)[];
 }
 

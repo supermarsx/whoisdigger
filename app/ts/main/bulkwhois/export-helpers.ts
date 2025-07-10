@@ -109,7 +109,10 @@ export function generateContent(
         body += formatString('{1}{0}{2}{0}', e, s, results.whoisreply[i]);
         break;
       case 'yes+inlineseparate':
-        zip.file(results.domain[i] + csv, results.whoisjson[i] ?? '');
+        zip.file(
+          results.domain[i] + csv,
+          results.whoisjson[i] ? JSON.stringify(results.whoisjson[i]) : ''
+        );
         break;
       case 'yes+block':
         zip.file(results.domain[i] + txt, results.whoisreply[i] ?? '');
