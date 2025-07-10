@@ -164,6 +164,6 @@ export async function processData(
   results.updatedate[index] = resultFilter.updatedate;
   results.expirydate[index] = resultFilter.expirydate;
   results.whoisreply[index] = resultFilter.whoisreply;
-  results.whoisjson[index] = resultFilter.whoisjson as any;
+  results.whoisjson[index] = resultFilter.whoisjson;
   results.requesttime[index] = resultFilter.requesttime;
 }

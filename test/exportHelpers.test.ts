@@ -23,7 +23,7 @@ describe('export helpers', () => {
     updatedate: ['u', 'u2'],
     expirydate: ['e', 'e2'],
     whoisreply: ['reply1', 'reply2'],
-    whoisjson: ['json1', 'json2'],
+    whoisjson: [{ foo: 'bar1' }, { foo: 'bar2' }],
     requesttime: [1, 2]
   };
 
