@@ -2,6 +2,7 @@ import { performance } from 'perf_hooks';
 import defaultBulkWhois from '../app/ts/main/bulkwhois/process.defaults';
 import { processData } from '../app/ts/main/bulkwhois/resultHandler';
 import { settings } from '../app/ts/main/settings-main';
+import DomainStatus from '../app/ts/common/status';
 
 jest.mock('../app/ts/common/availability', () => ({
   isDomainAvailable: jest.fn(),
@@ -42,11 +43,11 @@ describe('processData', () => {
 
     jest.spyOn(performance, 'now').mockReturnValue(50);
 
-    (isDomainAvailable as jest.Mock).mockReturnValue('available');
+    (isDomainAvailable as jest.Mock).mockReturnValue(DomainStatus.Available);
     (toJSON as jest.Mock).mockReturnValue({});
     (getDomainParameters as jest.Mock).mockReturnValue({
       domain: 'example.com',
-      status: 'available',
+      status: DomainStatus.Available,
       registrar: 'reg',
       company: 'comp',
       creationDate: 'c',
@@ -65,7 +66,7 @@ describe('processData', () => {
     expect(bulk.stats.status.available).toBe(1);
     expect(bulk.stats.domains.waiting).toBe(0);
     expect(bulk.results.domain[0]).toBe('example.com');
-    expect(bulk.results.status[0]).toBe('available');
+    expect(bulk.results.status[0]).toBe(DomainStatus.Available);
     expect(bulk.results.registrar[0]).toBe('reg');
     expect(bulk.results.requesttime[0]).toBe(50);
 
@@ -103,14 +104,14 @@ describe('processData', () => {
 
     jest.spyOn(performance, 'now').mockReturnValue(30);
 
-    (dnsIsDomainAvailable as jest.Mock).mockReturnValue('unavailable');
+    (dnsIsDomainAvailable as jest.Mock).mockReturnValue(DomainStatus.Unavailable);
 
     await processData(bulk, reqtime, event, 'example.com', 0, { ok: true, value: true }, false);
 
     expect(bulk.stats.reqtimes.minimum).toBe(30);
     expect(bulk.stats.status.unavailable).toBe(1);
     expect(bulk.results.domain[0]).toBe('example.com');
-    expect(bulk.results.status[0]).toBe('unavailable');
+    expect(bulk.results.status[0]).toBe(DomainStatus.Unavailable);
     expect(bulk.results.registrar[0]).toBeNull();
     expect(bulk.results.requesttime[0]).toBe(30);
 

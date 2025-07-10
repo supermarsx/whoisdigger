@@ -13,6 +13,7 @@ import { formatString } from '../common/stringformat.js';
 import $ from '../../vendor/jquery.js';
 (window as any).$ = (window as any).jQuery = $;
 import { debugFactory, errorFactory } from '../common/logger.js';
+import DomainStatus from '../common/status.js';
 
 const debug = debugFactory('renderer.singlewhois');
 const error = errorFactory('renderer.singlewhois');
@@ -67,7 +68,7 @@ async function handleResults(domainResults: string) {
   const { domain, updateDate, registrar, creationDate, company, expiryDate } = resultFilter;
 
   switch (domainStatus) {
-    case 'unavailable':
+    case DomainStatus.Unavailable:
       $('#singlewhoisMessageUnavailable').removeClass('is-hidden');
       $('#singlewhoisMessageWhoisResults').text(domainResults);
 
@@ -82,7 +83,7 @@ async function handleResults(domainResults: string) {
       $('#singlewhoisTableWhoisinfo.is-hidden').removeClass('is-hidden');
       break;
 
-    case 'available':
+    case DomainStatus.Available:
       $('#singlewhoisMessageWhoisResults').text(domainResults);
       $('#singlewhoisMessageAvailable').removeClass('is-hidden');
       break;

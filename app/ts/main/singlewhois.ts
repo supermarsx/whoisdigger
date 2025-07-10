@@ -2,6 +2,7 @@ import { ipcMain, clipboard, shell } from 'electron';
 import type { IpcMainEvent } from 'electron';
 import { lookup as whoisLookup } from '../common/lookup.js';
 import { isDomainAvailable } from '../common/availability.js';
+import DomainStatus from '../common/status.js';
 import { addEntry as addHistoryEntry } from '../common/history.js';
 import { debugFactory } from '../common/logger.js';
 const debug = debugFactory('main.singlewhois');
@@ -23,12 +24,12 @@ ipcMain.handle(IpcChannel.SingleWhoisLookup, async (_event, domain) => {
       const status = isDomainAvailable(data);
       addHistoryEntry(domain, status);
     } catch {
-      addHistoryEntry(domain, 'error');
+      addHistoryEntry(domain, DomainStatus.Error);
     }
     return data;
   } catch (err) {
     debug('Whois lookup threw an error');
-    addHistoryEntry(domain, 'error');
+    addHistoryEntry(domain, DomainStatus.Error);
     throw err;
   }
 });

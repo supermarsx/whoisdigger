@@ -2,6 +2,7 @@ import '../test/electronMock';
 
 import dns from 'dns/promises';
 import { nsLookup, hasNsServers, isDomainAvailable } from '../app/ts/common/dnsLookup';
+import DomainStatus from '../app/ts/common/status';
 import { DnsLookupError } from '../app/ts/common/errors';
 
 describe('dnsLookup', () => {
@@ -43,15 +44,15 @@ describe('dnsLookup', () => {
   });
 
   test('isDomainAvailable returns unavailable for true', () => {
-    expect(isDomainAvailable({ ok: true, value: true })).toBe('unavailable');
+    expect(isDomainAvailable({ ok: true, value: true })).toBe(DomainStatus.Unavailable);
   });
 
   test('isDomainAvailable returns available for false', () => {
-    expect(isDomainAvailable({ ok: true, value: false })).toBe('available');
+    expect(isDomainAvailable({ ok: true, value: false })).toBe(DomainStatus.Available);
   });
 
   test("isDomainAvailable returns 'error' on error result", () => {
     const error = new DnsLookupError('fail');
-    expect(isDomainAvailable({ ok: false, error })).toBe('error');
+    expect(isDomainAvailable({ ok: false, error })).toBe(DomainStatus.Error);
   });
 });

@@ -8,6 +8,7 @@ import { lookup as whoisLookup } from './common/lookup.js';
 import { settings } from './common/settings.js';
 import { RequestCache } from './common/requestCache.js';
 import { isDomainAvailable, getDomainParameters, WhoisResult } from './common/availability.js';
+import DomainStatus from './common/status.js';
 import { toJSON } from './common/parser.js';
 import { generateFilename } from './cli/export.js';
 import { downloadModel } from './ai/modelDownloader.js';
@@ -108,7 +109,7 @@ export async function lookupDomains(opts: CliOptions): Promise<WhoisResult[]> {
       const params = getDomainParameters(domain, status, data, json);
       results.push(params);
     } catch {
-      results.push({ domain, status: 'error', whoisreply: '' });
+      results.push({ domain, status: DomainStatus.Error, whoisreply: '' });
     }
   }
   return results;

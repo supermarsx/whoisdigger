@@ -1,4 +1,5 @@
 import { getDomainParameters } from '../app/ts/common/availability';
+import DomainStatus from '../app/ts/common/status';
 
 describe('getDomainParameters', () => {
   test('returns expected domain info from whois JSON', () => {
@@ -10,10 +11,10 @@ describe('getDomainParameters', () => {
       registryExpiryDate: '2030-01-01'
     };
     const reply = 'Domain: example.com';
-    const result = getDomainParameters('example.com', 'registered', reply, resultsJSON);
+    const result = getDomainParameters('example.com', DomainStatus.Unavailable, reply, resultsJSON);
     expect(result).toEqual({
       domain: 'example.com',
-      status: 'registered',
+      status: DomainStatus.Unavailable,
       registrar: 'Example Registrar',
       company: 'Example Org',
       creationDate: new Date('2000-01-01').toUTCString(),

@@ -5,6 +5,7 @@ import { convertDomain } from './lookup.js';
 import { settings, Settings } from './settings.js';
 import { RequestCache, CacheOptions } from './requestCache.js';
 import { DnsLookupError, Result } from './errors.js';
+import DomainStatus from './status.js';
 
 const debug = debugFactory('common.dnsLookup');
 
@@ -81,13 +82,13 @@ export async function hasNsServers(host: string): Promise<Result<boolean, DnsLoo
   .returns
     result (string) - Availability status
  */
-export function isDomainAvailable(data: Result<boolean, DnsLookupError>): string {
-  let result: string;
+export function isDomainAvailable(data: Result<boolean, DnsLookupError>): DomainStatus {
+  let result: DomainStatus;
 
   if (data.ok) {
-    result = data.value ? 'unavailable' : 'available';
+    result = data.value ? DomainStatus.Unavailable : DomainStatus.Available;
   } else {
-    result = 'error';
+    result = DomainStatus.Error;
   }
 
   debug(`Checked for availability from data ${JSON.stringify(data)} with result: ${result}`);
