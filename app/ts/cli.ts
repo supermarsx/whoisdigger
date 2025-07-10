@@ -64,6 +64,7 @@ export function parseArgs(argv: string[]): CliOptions {
       }
       return true;
     })
+    .exitProcess(false)
     .parseSync();
   return {
     domains: args.domain ?? [],

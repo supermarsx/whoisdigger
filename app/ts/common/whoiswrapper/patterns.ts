@@ -232,6 +232,14 @@ function compileSpec(spec: PatternSpec, defaultResult: string): CompiledPattern 
 }
 
 export function buildPatterns(): void {
+  // Update pattern results based on current settings
+  (patterns.special as any)[1].result = appSettings.lookupAssumptions.uniregistry
+    ? 'unavailable'
+    : 'error:ratelimiting';
+  const uniq1 = (patterns.available as any).unique?.[1];
+  if (Array.isArray(uniq1) && uniq1[0]) {
+    (uniq1[0] as any).result = appSettings.lookupAssumptions.expired ? 'expired' : 'available';
+  }
   builtPatterns.special = [];
   builtPatterns.available = [];
   builtPatterns.unavailable = [];
