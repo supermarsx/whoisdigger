@@ -9,6 +9,7 @@ const electron = (window as any).electron as {
 };
 import { tableReset } from './auxiliary.js';
 import $ from '../../../vendor/jquery.js';
+import { getTimeEstimates } from './estimate.js';
 
 const debug = debugFactory('bulkwhois.wordlistinput');
 const error = errorFactory('bulkwhois.wordlistinput');
@@ -51,13 +52,11 @@ function handleWordlistConfirmation(): void {
     $('#bwWordlistSpanInfo').text('Getting line count...');
     bwFileStats['linecount'] = bwWordlistContents.toString().split('\n').length;
 
-    if (settings.lookupRandomizeTimeBetween.randomize === true) {
-      bwFileStats['minestimate'] = conversions.msToHumanTime(
-        bwFileStats['linecount'] * settings.lookupRandomizeTimeBetween.minimum
-      );
-      bwFileStats['maxestimate'] = conversions.msToHumanTime(
-        bwFileStats['linecount'] * settings.lookupRandomizeTimeBetween.maximum
-      );
+    const estimate = getTimeEstimates(bwFileStats['linecount'], settings);
+    bwFileStats['minestimate'] = estimate.min;
+    bwFileStats['maxestimate'] = estimate.max;
+
+    if (estimate.max) {
       $('#bwWordlistSpanTimebetweenmin').text(
         formatString('{0}ms ', settings.lookupRandomizeTimeBetween.minimum)
       );
@@ -68,9 +67,6 @@ function handleWordlistConfirmation(): void {
         formatString('{0} to {1}', bwFileStats['minestimate'], bwFileStats['maxestimate'])
       );
     } else {
-      bwFileStats['minestimate'] = conversions.msToHumanTime(
-        bwFileStats['linecount'] * settings.lookupGeneral.timeBetween
-      );
       $('#bwWordlistSpanTimebetweenminmax').addClass('is-hidden');
       $('#bwWordlistSpanTimebetweenmin').text(settings.lookupGeneral.timeBetween + 'ms');
       $('#bwWordlistTdEstimate').text(formatString('> {0}', bwFileStats['minestimate']));

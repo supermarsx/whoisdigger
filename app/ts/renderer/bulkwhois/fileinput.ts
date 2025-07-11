@@ -26,6 +26,7 @@ import { formatString } from '../../common/stringformat.js';
 import { settings } from '../settings-renderer.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
 import { FileWatcherManager } from '../../utils/fileWatcher.js';
+import { getTimeEstimates } from './estimate.js';
 
 let bwFileContents: Buffer;
 const watcher = new FileWatcherManager(electron.watch);
@@ -44,14 +45,11 @@ async function refreshBwFile(pathToFile: string): Promise<void> {
     bwFileContents = await electron.bwFileRead(pathToFile);
     bwFileStats.linecount = bwFileContents.toString().split('\n').length;
 
-    if (lookup.randomize.timeBetween.randomize === true) {
-      bwFileStats.minestimate = conversions.msToHumanTime(
-        bwFileStats.linecount! * lookup.randomize.timeBetween.minimum
-      );
-      bwFileStats.maxestimate = conversions.msToHumanTime(
-        bwFileStats.linecount! * lookup.randomize.timeBetween.maximum
-      );
+    const estimate = getTimeEstimates(bwFileStats.linecount!, settings);
+    bwFileStats.minestimate = estimate.min;
+    bwFileStats.maxestimate = estimate.max;
 
+    if (estimate.max) {
       $('#bwFileSpanTimebetweenmin').text(
         formatString('{0}ms ', lookup.randomize.timeBetween.minimum)
       );
@@ -62,9 +60,6 @@ async function refreshBwFile(pathToFile: string): Promise<void> {
         formatString('{0} to {1}', bwFileStats.minestimate, bwFileStats.maxestimate)
       );
     } else {
-      bwFileStats.minestimate = conversions.msToHumanTime(
-        bwFileStats.linecount! * settings.lookupGeneral.timeBetween
-      );
       $('#bwFileSpanTimebetweenminmax').addClass('is-hidden');
       $('#bwFileSpanTimebetweenmin').text(settings.lookupGeneral.timeBetween + 'ms');
       $('#bwFileTdEstimate').text(formatString('> {0}', bwFileStats.minestimate));
@@ -147,14 +142,11 @@ async function handleFileConfirmation(
     $('#bwFileSpanInfo').text('Getting line count...');
     bwFileStats.linecount = bwFileContents.toString().split('\n').length;
 
-    if (lookup.randomize.timeBetween.randomize === true) {
-      bwFileStats.minestimate = conversions.msToHumanTime(
-        bwFileStats.linecount! * lookup.randomize.timeBetween.minimum
-      );
-      bwFileStats.maxestimate = conversions.msToHumanTime(
-        bwFileStats.linecount! * lookup.randomize.timeBetween.maximum
-      );
+    const estimate = getTimeEstimates(bwFileStats.linecount!, settings);
+    bwFileStats.minestimate = estimate.min;
+    bwFileStats.maxestimate = estimate.max;
 
+    if (estimate.max) {
       $('#bwFileSpanTimebetweenmin').text(
         formatString('{0}ms ', lookup.randomize.timeBetween.minimum)
       );
@@ -165,9 +157,6 @@ async function handleFileConfirmation(
         formatString('{0} to {1}', bwFileStats.minestimate, bwFileStats.maxestimate)
       );
     } else {
-      bwFileStats.minestimate = conversions.msToHumanTime(
-        bwFileStats.linecount! * settings.lookupGeneral.timeBetween
-      );
       $('#bwFileSpanTimebetweenminmax').addClass('is-hidden');
       $('#bwFileSpanTimebetweenmin').text(settings.lookupGeneral.timeBetween + 'ms');
       $('#bwFileTdEstimate').text(formatString('> {0}', bwFileStats.minestimate));
