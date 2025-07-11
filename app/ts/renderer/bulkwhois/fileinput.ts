@@ -26,59 +26,19 @@ import { formatString } from '../../common/stringformat.js';
 import { settings } from '../settings-renderer.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
 import { FileWatcherManager } from '../../utils/fileWatcher.js';
+import { readFileData, addEstimates } from './fileHandlers.js';
+import { renderStats, renderEstimates, initDragAndDrop } from './ui.js';
 
 let bwFileContents: Buffer;
 const watcher = new FileWatcherManager(electron.watch);
 
 async function refreshBwFile(pathToFile: string): Promise<void> {
   try {
-    const misc = settings.lookupMisc;
-    const lookup = {
-      randomize: {
-        timeBetween: settings.lookupRandomizeTimeBetween
-      }
-    };
-    const bwFileStats = (await electron.stat(pathToFile)) as FileStats;
-    bwFileStats.filename = await electron.path.basename(pathToFile);
-    bwFileStats.humansize = conversions.byteToHumanFileSize(bwFileStats.size, misc.useStandardSize);
-    bwFileContents = await electron.bwFileRead(pathToFile);
-    bwFileStats.linecount = bwFileContents.toString().split('\n').length;
-
-    if (lookup.randomize.timeBetween.randomize === true) {
-      bwFileStats.minestimate = conversions.msToHumanTime(
-        bwFileStats.linecount! * lookup.randomize.timeBetween.minimum
-      );
-      bwFileStats.maxestimate = conversions.msToHumanTime(
-        bwFileStats.linecount! * lookup.randomize.timeBetween.maximum
-      );
-
-      $('#bwFileSpanTimebetweenmin').text(
-        formatString('{0}ms ', lookup.randomize.timeBetween.minimum)
-      );
-      $('#bwFileSpanTimebetweenmax').text(
-        formatString('/ {0}ms', lookup.randomize.timeBetween.maximum)
-      );
-      $('#bwFileTdEstimate').text(
-        formatString('{0} to {1}', bwFileStats.minestimate, bwFileStats.maxestimate)
-      );
-    } else {
-      bwFileStats.minestimate = conversions.msToHumanTime(
-        bwFileStats.linecount! * settings.lookupGeneral.timeBetween
-      );
-      $('#bwFileSpanTimebetweenminmax').addClass('is-hidden');
-      $('#bwFileSpanTimebetweenmin').text(settings.lookupGeneral.timeBetween + 'ms');
-      $('#bwFileTdEstimate').text(formatString('> {0}', bwFileStats.minestimate));
-    }
-
-    bwFileStats.filepreview = bwFileContents.toString().substring(0, 50);
-
-    $('#bwFileTdName').text(String(bwFileStats.filename));
-    $('#bwFileTdLastmodified').text(conversions.getDate(bwFileStats.mtime) ?? '');
-    $('#bwFileTdLastaccess').text(conversions.getDate(bwFileStats.atime) ?? '');
-    $('#bwFileTdFilesize').text(
-      String(bwFileStats.humansize) + formatString(' ({0} line(s))', String(bwFileStats.linecount))
-    );
-    $('#bwFileTdFilepreview').text(String(bwFileStats.filepreview) + '...');
+    const { stats, contents } = await readFileData(electron, pathToFile);
+    bwFileContents = contents;
+    addEstimates(stats);
+    renderEstimates(String(stats.minestimate!), stats.maxestimate);
+    renderStats(stats);
   } catch (e) {
     error(`Failed to reload file: ${e}`);
   }
@@ -146,50 +106,13 @@ async function handleFileConfirmation(
     }
     $('#bwFileSpanInfo').text('Getting line count...');
     bwFileStats.linecount = bwFileContents.toString().split('\n').length;
-
-    if (lookup.randomize.timeBetween.randomize === true) {
-      bwFileStats.minestimate = conversions.msToHumanTime(
-        bwFileStats.linecount! * lookup.randomize.timeBetween.minimum
-      );
-      bwFileStats.maxestimate = conversions.msToHumanTime(
-        bwFileStats.linecount! * lookup.randomize.timeBetween.maximum
-      );
-
-      $('#bwFileSpanTimebetweenmin').text(
-        formatString('{0}ms ', lookup.randomize.timeBetween.minimum)
-      );
-      $('#bwFileSpanTimebetweenmax').text(
-        formatString('/ {0}ms', lookup.randomize.timeBetween.maximum)
-      );
-      $('#bwFileTdEstimate').text(
-        formatString('{0} to {1}', bwFileStats.minestimate, bwFileStats.maxestimate)
-      );
-    } else {
-      bwFileStats.minestimate = conversions.msToHumanTime(
-        bwFileStats.linecount! * settings.lookupGeneral.timeBetween
-      );
-      $('#bwFileSpanTimebetweenminmax').addClass('is-hidden');
-      $('#bwFileSpanTimebetweenmin').text(settings.lookupGeneral.timeBetween + 'ms');
-      $('#bwFileTdEstimate').text(formatString('> {0}', bwFileStats.minestimate));
-    }
-
+    addEstimates(bwFileStats);
     bwFileStats.filepreview = bwFileContents.toString().substring(0, 50);
-    debug(bwFileStats.filepreview);
     $('#bwFileinputloading').addClass('is-hidden');
     $('#bwFileinputconfirm').removeClass('is-hidden');
-
-    // stats
-    $('#bwFileTdName').text(String(bwFileStats.filename));
-    $('#bwFileTdLastmodified').text(conversions.getDate(bwFileStats.mtime) ?? '');
-    $('#bwFileTdLastaccess').text(conversions.getDate(bwFileStats.atime) ?? '');
-    $('#bwFileTdFilesize').text(
-      String(bwFileStats.humansize) + formatString(' ({0} line(s))', String(bwFileStats.linecount))
-    );
-    $('#bwFileTdFilepreview').text(String(bwFileStats.filepreview) + '...');
-    //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']); // show estimated bulk lookup time
+    renderEstimates(String(bwFileStats.minestimate!), bwFileStats.maxestimate);
+    renderStats(bwFileStats);
     debug('cont:' + bwFileContents);
-
-    debug(bwFileStats.linecount);
 
     if (chosenPath) {
       await watcher.watch('bw', chosenPath, { persistent: false }, (evt: string) => {
@@ -267,53 +190,7 @@ $(document).on('click', '#bwFileButtonConfirm', function () {
   void electron.invoke(IpcChannel.BulkwhoisLookup, bwDomainArray, bwTldsArray);
 });
 
-/*
-  dragDropInitialization (self-executing)
-    Bulk whois file input by drag and drop
- */
-(function dragDropInitialization() {
-  $(document).ready(() => {
-    const holder = document.getElementById('bulkwhoisMainContainer') as HTMLElement | null;
-    if (!holder) return;
-
-    holder.ondragover = function () {
-      return false;
-    };
-
-    holder.ondragleave = function () {
-      return false;
-    };
-
-    holder.ondragend = function () {
-      return false;
-    };
-
-    holder.ondrop = function (event) {
-      event.preventDefault();
-      for (const f of Array.from(event.dataTransfer!.files)) {
-        const file = f as any;
-        debug(`File(s) you dragged here: ${file.path}`);
-        electron.send('ondragstart', file.path);
-      }
-      return false;
-    };
-  });
-})();
-
-/*
-  $('#bulkwhoisMainContainer').on('drop', function(...) {...});
-    On Drop ipsum
- */
-$('#bulkwhoisMainContainer').on('drop', function (event) {
-  event.preventDefault();
-  for (const f of Array.from((event as any).originalEvent.dataTransfer.files)) {
-    const file = f as any;
-    debug(`File(s) you dragged here: ${file.path}`);
-    electron.send('ondragstart', file.path);
-  }
-
-  return false;
-});
+initDragAndDrop(electron);
 
 /*
   $('#bwFileInputTlds').keyup(function(...) {...});
