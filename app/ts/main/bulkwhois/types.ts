@@ -72,7 +72,7 @@ export interface BulkWhois {
   input: BulkWhoisInput;
   stats: BulkWhoisStats;
   results: BulkWhoisResults;
-  processingIDs: any[];
+  processingIDs: NodeJS.Timeout[];
   domains: string[];
   default: {
     numericstart: number | null;
