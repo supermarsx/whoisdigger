@@ -189,11 +189,11 @@ if (require.main === module) {
     }
     if (opts.purgeCache || opts.clearCache) {
       if (opts.clearCache) {
-        requestCache.clear();
+        await requestCache.clear();
         process.stdout.write('Cache cleared\n');
         debug('Cache cleared');
       } else {
-        const purged = requestCache.purgeExpired();
+        const purged = await requestCache.purgeExpired();
         process.stdout.write(`Purged ${purged} expired entries\n`);
         debug(`Purged ${purged} expired entries`);
       }

@@ -6,12 +6,12 @@ const debug = debugFactory('main.cache');
 
 const requestCache = new RequestCache();
 
-ipcMain.handle('cache:purge', (_event, opts: { clear?: boolean } = {}) => {
+ipcMain.handle('cache:purge', async (_event, opts: { clear?: boolean } = {}) => {
   if (opts.clear) {
-    requestCache.clear();
+    await requestCache.clear();
     debug('Cleared cache via IPC');
   } else {
-    requestCache.purgeExpired();
+    await requestCache.purgeExpired();
     debug('Purged expired cache entries via IPC');
   }
 });
