@@ -24,25 +24,25 @@ describe('requestCache', () => {
     cache.close();
   });
 
-  test('rejects paths outside user data directory', () => {
+  test('rejects paths outside user data directory', async () => {
     const original = settings.requestCache.database;
     settings.requestCache.database = '../evil.sqlite';
     const evilPath = path.resolve(getUserDataPath(), '../evil.sqlite');
-    cache.set('whois', 'evil.com', 'bad');
+    await cache.set('whois', 'evil.com', 'bad');
     expect(fs.existsSync(evilPath)).toBe(false);
     settings.requestCache.database = original;
   });
 
-  test('stores and retrieves cached value', () => {
-    cache.set('whois', 'example.com', 'cached-data');
-    const res = cache.get('whois', 'example.com');
+  test('stores and retrieves cached value', async () => {
+    await cache.set('whois', 'example.com', 'cached-data');
+    const res = await cache.get('whois', 'example.com');
     expect(res).toBe('cached-data');
   });
 
   test('expires entries after ttl', async () => {
-    cache.set('whois', 'expire.com', 'data');
+    await cache.set('whois', 'expire.com', 'data');
     await new Promise((r) => setTimeout(r, 1100));
-    const res = cache.get('whois', 'expire.com');
+    const res = await cache.get('whois', 'expire.com');
     expect(res).toBeUndefined();
   });
 
@@ -53,18 +53,18 @@ describe('requestCache', () => {
 
   test('purgeExpired removes outdated entries', async () => {
     settings.requestCache.enabled = true;
-    cache.set('whois', 'old.com', 'data');
+    await cache.set('whois', 'old.com', 'data');
     await new Promise((r) => setTimeout(r, 1100));
-    cache.purgeExpired();
-    const res = cache.get('whois', 'old.com');
+    await cache.purgeExpired();
+    const res = await cache.get('whois', 'old.com');
     expect(res).toBeUndefined();
   });
 
-  test('clearCache wipes all entries', () => {
-    cache.set('whois', 'a.com', '1');
-    cache.set('whois', 'b.com', '2');
-    cache.clear();
-    expect(cache.get('whois', 'a.com')).toBeUndefined();
-    expect(cache.get('whois', 'b.com')).toBeUndefined();
+  test('clearCache wipes all entries', async () => {
+    await cache.set('whois', 'a.com', '1');
+    await cache.set('whois', 'b.com', '2');
+    await cache.clear();
+    expect(await cache.get('whois', 'a.com')).toBeUndefined();
+    expect(await cache.get('whois', 'b.com')).toBeUndefined();
   });
 });

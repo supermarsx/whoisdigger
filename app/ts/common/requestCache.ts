@@ -1,6 +1,6 @@
 import Database from 'better-sqlite3';
 import type { Database as DatabaseType } from 'better-sqlite3';
-import fs from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
 import { settings, getUserDataPath } from './settings.js';
 import { debugFactory } from './logger.js';
@@ -15,7 +15,7 @@ export interface CacheOptions {
 export class RequestCache {
   private db: DatabaseType | undefined;
 
-  private init(): DatabaseType | undefined {
+  private async init(): Promise<DatabaseType | undefined> {
     const { requestCache } = settings;
     if (!requestCache || !requestCache.enabled) return undefined;
     if (this.db) return this.db;
@@ -25,7 +25,7 @@ export class RequestCache {
       debug(`Invalid cache database path: ${requestCache.database}`);
       return undefined;
     }
-    fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+    await fs.mkdir(path.dirname(dbPath), { recursive: true });
     this.db = new Database(dbPath);
     this.db.exec(
       'CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, response TEXT, timestamp INTEGER)'
@@ -37,12 +37,16 @@ export class RequestCache {
     return `${type}:${domain}`;
   }
 
-  get(type: string, domain: string, cacheOpts: CacheOptions = {}): string | undefined {
+  async get(
+    type: string,
+    domain: string,
+    cacheOpts: CacheOptions = {}
+  ): Promise<string | undefined> {
     const { requestCache } = settings;
     const enabled = cacheOpts.enabled ?? requestCache.enabled;
     const ttl = cacheOpts.ttl ?? requestCache.ttl;
     if (!enabled) return undefined;
-    const database = this.init();
+    const database = await this.init();
     if (!database) return undefined;
     const key = this.makeKey(type, domain);
     try {
@@ -62,11 +66,16 @@ export class RequestCache {
     }
   }
 
-  set(type: string, domain: string, response: string, cacheOpts: CacheOptions = {}): void {
+  async set(
+    type: string,
+    domain: string,
+    response: string,
+    cacheOpts: CacheOptions = {}
+  ): Promise<void> {
     const { requestCache } = settings;
     const enabled = cacheOpts.enabled ?? requestCache.enabled;
     if (!enabled) return;
-    const database = this.init();
+    const database = await this.init();
     if (!database) return;
     const key = this.makeKey(type, domain);
     try {
@@ -79,10 +88,10 @@ export class RequestCache {
     }
   }
 
-  purgeExpired(): number {
+  async purgeExpired(): Promise<number> {
     const { requestCache } = settings;
     if (!requestCache.enabled) return 0;
-    const database = this.init();
+    const database = await this.init();
     if (!database) return 0;
     try {
       const threshold = Date.now() - requestCache.ttl * 1000;
@@ -95,10 +104,10 @@ export class RequestCache {
     }
   }
 
-  clear(): void {
+  async clear(): Promise<void> {
     const { requestCache } = settings;
     if (!requestCache.enabled) return;
-    const database = this.init();
+    const database = await this.init();
     if (!database) return;
     try {
       database.prepare('DELETE FROM cache').run();

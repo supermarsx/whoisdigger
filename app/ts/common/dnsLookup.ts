@@ -34,14 +34,14 @@ export async function nsLookup(host: string, cacheOpts: CacheOptions = {}): Prom
     host = clean ? clean.replace(/((\*\.)*)/g, '') : host;
   }
 
-  const cached = requestCache.get('dns', host, cacheOpts);
+  const cached = await requestCache.get('dns', host, cacheOpts);
   if (cached !== undefined) {
     return JSON.parse(cached) as string[];
   }
 
   try {
     result = await dns.resolve(host, 'NS');
-    requestCache.set('dns', host, JSON.stringify(result), cacheOpts);
+    await requestCache.set('dns', host, JSON.stringify(result), cacheOpts);
   } catch (e) {
     debug(`Lookup failed with error ${e}`);
     throw new DnsLookupError((e as Error).message);

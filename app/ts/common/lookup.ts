@@ -40,7 +40,7 @@ export async function lookup(
   const { lookupConversion: conversion, lookupGeneral: general } = getSettings();
   let domainResults: string;
 
-  const cached = requestCache.get('whois', domain, cacheOpts);
+  const cached = await requestCache.get('whois', domain, cacheOpts);
   if (cached !== undefined) {
     return cached;
   }
@@ -58,7 +58,7 @@ export async function lookup(
     domainResults = `Whois lookup error, ${e}`;
   }
 
-  requestCache.set('whois', domain, domainResults, cacheOpts);
+  await requestCache.set('whois', domain, domainResults, cacheOpts);
 
   return domainResults;
 }
