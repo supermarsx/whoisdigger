@@ -4,6 +4,7 @@ import $ from '../../../vendor/jquery.js';
 import '../../../vendor/datatables.js';
 import { settings } from '../settings-renderer.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
+import type * as fs from 'fs';
 
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
@@ -13,7 +14,7 @@ const electron = (window as any).electron as {
   watch: (
     prefix: string,
     p: string,
-    opts: any,
+    opts: fs.WatchOptions,
     cb: (evt: string) => void
   ) => Promise<{ close: () => void }>;
   stat: (p: string) => Promise<any>;

@@ -1,10 +1,13 @@
 import { ipcMain } from 'electron';
 import fs from 'fs';
 
+type ReadFileOpts = BufferEncoding | fs.ReadFileOptions;
+type ReaddirOpts = fs.ReaddirOptions | BufferEncoding | undefined;
+
 const watchers = new Map<number, fs.FSWatcher>();
 let watcherId = 0;
 
-ipcMain.handle('fs:readFile', async (_e, p: string, opts?: any) => {
+ipcMain.handle('fs:readFile', async (_e, p: string, opts?: ReadFileOpts) => {
   return fs.promises.readFile(p, opts);
 });
 
@@ -12,8 +15,8 @@ ipcMain.handle('fs:stat', async (_e, p: string) => {
   return fs.promises.stat(p);
 });
 
-ipcMain.handle('fs:readdir', async (_e, p: string, opts?: any) => {
-  return fs.promises.readdir(p, opts);
+ipcMain.handle('fs:readdir', async (_e, p: string, opts?: ReaddirOpts) => {
+  return fs.promises.readdir(p, opts as any);
 });
 
 ipcMain.handle('fs:unlink', async (_e, p: string) => {

@@ -31,13 +31,14 @@ if (!(global as any).window) {
   }),
   on: jest.fn(),
   openPath: jest.fn(),
-  readFile: (p: string, opts?: any) => fs.promises.readFile(p, opts),
+  readFile: (p: string, opts?: BufferEncoding | fs.ReadFileOptions) =>
+    fs.promises.readFile(p, opts),
   stat: (p: string) => fs.promises.stat(p),
-  readdir: (p: string, opts?: any) => fs.promises.readdir(p, opts),
+  readdir: (p: string, opts?: fs.ReaddirOptions) => fs.promises.readdir(p, opts),
   unlink: (p: string) => fs.promises.unlink(p),
   access: (p: string, mode?: number) => fs.promises.access(p, mode),
   exists: async (p: string) => fs.existsSync(p),
-  watch: async (p: string, opts: any, cb: (ev: string) => void) => {
+  watch: async (p: string, opts: fs.WatchOptions, cb: (ev: string) => void) => {
     const watcher = fs.watch(p, opts, cb);
     return { close: () => watcher.close() };
   },

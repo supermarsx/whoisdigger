@@ -1,7 +1,13 @@
+import type * as fs from 'fs';
+
 const electron = (window as any).electron as {
   invoke: (channel: string, ...args: any[]) => Promise<any>;
-  readFile: (p: string, opts?: any) => Promise<string>;
-  watch: (p: string, opts: any, cb: (event: string) => void) => Promise<{ close: () => void }>;
+  readFile: (p: string, opts?: BufferEncoding | fs.ReadFileOptions) => Promise<string>;
+  watch: (
+    p: string,
+    opts: fs.WatchOptions,
+    cb: (event: string) => void
+  ) => Promise<{ close: () => void }>;
   exists: (p: string) => Promise<boolean>;
   on: (channel: string, listener: (...args: any[]) => void) => void;
   path: { join: (...args: string[]) => string };
