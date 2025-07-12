@@ -1,6 +1,12 @@
 import fs from 'fs';
 import path from 'path';
-import { parseArgs, lookupDomains, exportResults, CliOptions } from '../app/ts/cli';
+import {
+  parseArgs,
+  lookupDomains,
+  exportResults,
+  CliOptions,
+  CONCURRENCY_LIMIT
+} from '../app/ts/cli';
 import DomainStatus from '../app/ts/common/status';
 import { lookup as whoisLookup } from '../app/ts/common/lookup';
 
@@ -45,6 +51,26 @@ describe('cli utility', () => {
     const opts: CliOptions = { domains: ['bad.com'], tlds: ['com'], format: 'txt' };
     const results = await lookupDomains(opts);
     expect(results).toEqual([{ domain: 'bad.com', status: DomainStatus.Error, whoisreply: '' }]);
+  });
+
+  test('lookupDomains runs lookups concurrently', async () => {
+    let active = 0;
+    let maxActive = 0;
+    mockLookup.mockImplementation(async () => {
+      active++;
+      maxActive = Math.max(maxActive, active);
+      await new Promise((r) => setTimeout(r, 10));
+      active--;
+      return 'data';
+    });
+    const opts: CliOptions = {
+      domains: ['a.com', 'b.com', 'c.com', 'd.com', 'e.com', 'f.com'],
+      tlds: ['com'],
+      format: 'txt'
+    };
+    await lookupDomains(opts);
+    expect(maxActive).toBeGreaterThan(1);
+    expect(maxActive).toBeLessThanOrEqual(CONCURRENCY_LIMIT);
   });
 
   test('exportResults writes csv output', async () => {

@@ -5,6 +5,7 @@ import { hideBin } from 'yargs/helpers';
 import JSZip from 'jszip';
 import { debugFactory, errorFactory } from './common/logger.js';
 import { lookup as whoisLookup } from './common/lookup.js';
+import pLimit from 'p-limit';
 import { settings } from './common/settings.js';
 import { RequestCache } from './common/requestCache.js';
 import { isDomainAvailable, getDomainParameters, WhoisResult } from './common/availability.js';
@@ -18,6 +19,8 @@ const requestCache = new RequestCache();
 
 const debug = debugFactory('cli');
 const error = errorFactory('cli');
+
+export const CONCURRENCY_LIMIT = 5;
 
 export interface CliOptions {
   domains: string[];
@@ -100,19 +103,21 @@ export async function lookupDomains(opts: CliOptions): Promise<WhoisResult[]> {
     domains = domains.concat(combos);
   }
 
-  const results: WhoisResult[] = [];
-  for (const domain of domains) {
-    try {
-      const data = await whoisLookup(domain);
-      const json = toJSON(data) as Record<string, unknown>;
-      const status = isDomainAvailable(data);
-      const params = getDomainParameters(domain, status, data, json);
-      results.push(params);
-    } catch {
-      results.push({ domain, status: DomainStatus.Error, whoisreply: '' });
-    }
-  }
-  return results;
+  const limit = pLimit(CONCURRENCY_LIMIT);
+  const tasks = domains.map((domain) =>
+    limit(async (): Promise<WhoisResult> => {
+      try {
+        const data = await whoisLookup(domain);
+        const json = toJSON(data) as Record<string, unknown>;
+        const status = isDomainAvailable(data);
+        return getDomainParameters(domain, status, data, json);
+      } catch {
+        return { domain, status: DomainStatus.Error, whoisreply: '' };
+      }
+    })
+  );
+
+  return Promise.all(tasks);
 }
 
 export async function exportResults(results: WhoisResult[], opts: CliOptions): Promise<string> {
