@@ -53,6 +53,14 @@ describe('cli utility', () => {
     expect(results).toEqual([{ domain: 'bad.com', status: DomainStatus.Error, whoisreply: '' }]);
   });
 
+  test('lookupDomains resolves with empty array when no domains provided', async () => {
+    mockLookup.mockClear();
+    const opts: CliOptions = { domains: [], tlds: ['com'], format: 'txt' };
+    const results = await lookupDomains(opts);
+    expect(results).toEqual([]);
+    expect(mockLookup).not.toHaveBeenCalled();
+  });
+
   test('lookupDomains runs lookups concurrently', async () => {
     let active = 0;
     let maxActive = 0;
@@ -71,6 +79,29 @@ describe('cli utility', () => {
     await lookupDomains(opts);
     expect(maxActive).toBeGreaterThan(1);
     expect(maxActive).toBeLessThanOrEqual(CONCURRENCY_LIMIT);
+  });
+
+  test('lookupDomains enforces concurrency limit with many domains', async () => {
+    mockLookup.mockClear();
+    let active = 0;
+    let maxActive = 0;
+    mockLookup.mockImplementation(async () => {
+      active++;
+      maxActive = Math.max(maxActive, active);
+      await new Promise((r) => setTimeout(r, 5));
+      active--;
+      return 'data';
+    });
+    const domainCount = CONCURRENCY_LIMIT * 2 + 3;
+    const opts: CliOptions = {
+      domains: Array.from({ length: domainCount }, (_, i) => `domain${i}.com`),
+      tlds: ['com'],
+      format: 'txt'
+    };
+    await lookupDomains(opts);
+    expect(maxActive).toBeGreaterThan(1);
+    expect(maxActive).toBeLessThanOrEqual(CONCURRENCY_LIMIT);
+    expect(mockLookup).toHaveBeenCalledTimes(domainCount);
   });
 
   test('exportResults writes csv output', async () => {
