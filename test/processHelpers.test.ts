@@ -115,4 +115,28 @@ describe('process helpers', () => {
     );
     Object.assign(settings, backup);
   });
+
+  test('scheduleQueue exits with no pending domains', () => {
+    jest.useFakeTimers();
+    jest.clearAllMocks();
+    jest.clearAllTimers();
+    const bulk = JSON.parse(JSON.stringify(defaultBulkWhois));
+    const event = { sender: { send: jest.fn() } } as any;
+    const reqtime: number[] = [];
+    const backup = JSON.parse(JSON.stringify(settings));
+    settings.lookupGeneral.type = 'whois';
+    settings.lookupRandomizeTimeBetween.randomize = false;
+    settings.lookupRandomizeFollow.randomize = false;
+    settings.lookupRandomizeTimeout.randomize = false;
+    settings.lookupGeneral.timeBetween = 1;
+    settings.lookupGeneral.follow = 1;
+    settings.lookupGeneral.timeout = 1;
+
+    scheduleQueue(bulk, reqtime, settings, event);
+
+    expect(processDomain).not.toHaveBeenCalled();
+    expect(jest.getTimerCount()).toBe(0);
+    Object.assign(settings, backup);
+    jest.useRealTimers();
+  });
 });
