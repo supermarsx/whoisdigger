@@ -47,6 +47,20 @@ describe('process helpers', () => {
     Object.assign(settings, backup);
   });
 
+  test('createDomainSetup uses dnsTimeBetween override', () => {
+    const backup = JSON.parse(JSON.stringify(settings));
+    settings.lookupGeneral.timeBetween = 10;
+    settings.lookupGeneral.dnsTimeBetween = 20;
+    settings.lookupGeneral.type = 'dns';
+    settings.lookupGeneral.dnsTimeBetweenOverride = true;
+    settings.lookupRandomizeTimeBetween.randomize = false;
+    settings.lookupRandomizeFollow.randomize = false;
+    settings.lookupRandomizeTimeout.randomize = false;
+    const setup = createDomainSetup(settings, 'foo.net', 0);
+    expect(setup.timebetween).toBe(settings.lookupGeneral.dnsTimeBetween);
+    Object.assign(settings, backup);
+  });
+
   test('updateProgress updates stats and sends', () => {
     const bulk = JSON.parse(JSON.stringify(defaultBulkWhois));
     const sender = { send: jest.fn() } as any;
