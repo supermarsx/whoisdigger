@@ -9,6 +9,23 @@ describe('conversions', () => {
     expect(msToHumanTime(62000)).toBe('1 m 2 s');
   });
 
+  test('msToHumanTime converts hours', () => {
+    expect(msToHumanTime(3600000)).toBe('1 h');
+  });
+
+  test('msToHumanTime converts days', () => {
+    expect(msToHumanTime(172800000)).toBe('2 d');
+  });
+
+  test('msToHumanTime rolls over years after ten', () => {
+    const yearMs = 1000 * 60 * 60 * 24 * 7 * 4 * 12;
+    expect(msToHumanTime(yearMs * 11)).toBe('1 Y');
+  });
+
+  test('msToHumanTime handles sub-second values', () => {
+    expect(msToHumanTime(500)).toBe('500 ms');
+  });
+
   test("msToHumanTime returns '-' for zero duration", () => {
     expect(msToHumanTime(0)).toBe('-');
   });
