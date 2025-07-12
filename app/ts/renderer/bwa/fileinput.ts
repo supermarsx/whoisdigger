@@ -32,6 +32,28 @@ import { FileWatcherManager } from '../../utils/fileWatcher.js';
 let bwaFileContents: any;
 const watcher = new FileWatcherManager(electron.watch);
 
+async function loadFileStats(path: string, _isDragDrop: boolean): Promise<FileStats> {
+  const stats = (await electron.stat(path)) as FileStats;
+  stats.filename = await electron.path.basename(path);
+  stats.humansize = conversions.byteToHumanFileSize(stats.size, settings.lookupMisc.useStandardSize);
+  return stats;
+}
+
+async function readFileContents(path: string): Promise<any> {
+  return electron.invoke(IpcChannel.ParseCsv, (await electron.bwaFileRead(path)).toString());
+}
+
+function updateFileInfoUI(stats: FileStats): void {
+  $('#bwaFileTdFilename').text(String(stats.filename));
+  $('#bwaFileTdLastmodified').text(conversions.getDate(stats.mtime) ?? '');
+  $('#bwaFileTdLastaccessed').text(conversions.getDate(stats.atime) ?? '');
+  $('#bwaFileTdFilesize').text(
+    String(stats.humansize) + formatString(' ({0} record(s))', String(stats.linecount))
+  );
+  $('#bwaFileTdFilepreview').text(String(stats.filepreview) + '...');
+  $('#bwaFileTextareaErrors').text(String(stats.errors || 'No errors'));
+}
+
 async function refreshBwaFile(pathToFile: string): Promise<void> {
   try {
     const bwaFileStats = (await electron.stat(pathToFile)) as FileStats;
@@ -76,96 +98,62 @@ async function handleFileConfirmation(
   filePath: string | string[] | null = null,
   isDragDrop = false
 ) {
-    let bwaFileStats: FileStats; // File stats, size, last changed, etc
+  let bwaFileStats: FileStats;
 
-    watcher.close();
+  watcher.close();
 
-    const chosenPath = Array.isArray(filePath)
-      ? filePath
-        ? (filePath as string[])[0]
-        : null
-      : (filePath as string | null);
+  const chosenPath = Array.isArray(filePath)
+    ? filePath
+      ? (filePath as string[])[0]
+      : null
+    : (filePath as string | null);
 
-    $('#bwaFileSpanInfo').text('Waiting for file...');
+  $('#bwaFileSpanInfo').text('Waiting for file...');
 
-    if (filePath === undefined || filePath == '' || filePath === null) {
-      $('#bwaFileinputloading').addClass('is-hidden');
-      $('#bwaEntry').removeClass('is-hidden');
-    } else {
-      $('#bwaFileSpanInfo').text('Loading file stats...');
-      if (isDragDrop === true) {
-        $('#bwaEntry').addClass('is-hidden');
-        $('#bwaFileinputloading').removeClass('is-hidden');
-        try {
-          bwaFileStats = (await electron.stat(filePath as string)) as FileStats;
-          bwaFileStats.filename = await electron.path.basename(filePath as string);
-          bwaFileStats.humansize = conversions.byteToHumanFileSize(
-            bwaFileStats.size,
-            settings.lookupMisc.useStandardSize
-          );
-          $('#bwaFileSpanInfo').text('Loading file contents...');
-          bwaFileContents = await electron.invoke(
-            IpcChannel.ParseCsv,
-            (await electron.bwaFileRead(filePath as string)).toString()
-          );
-        } catch (e) {
-          error(`Failed to read file: ${e}`);
-          $('#bwaFileSpanInfo').text('Failed to load file');
-          return;
-        }
-      } else {
-        try {
-          bwaFileStats = (await electron.stat((filePath as string[])[0])) as FileStats;
-          bwaFileStats.filename = await electron.path.basename((filePath as string[])[0]);
-          bwaFileStats.humansize = conversions.byteToHumanFileSize(
-            bwaFileStats.size,
-            settings.lookupMisc.useStandardSize
-          );
-          $('#bwaFileSpanInfo').text('Loading file contents...');
-          bwaFileContents = await electron.invoke(
-            IpcChannel.ParseCsv,
-            (await electron.bwaFileRead((filePath as string[])[0])).toString()
-          );
-        } catch (e) {
-          error(`Failed to read file: ${e}`);
-          $('#bwaFileSpanInfo').text('Failed to load file');
-          return;
-        }
-      }
-      $('#bwaFileSpanInfo').text('Getting line count...');
-      bwaFileStats.linecount = bwaFileContents.data.length;
-      try {
-        bwaFileStats.filepreview = JSON.stringify(bwaFileContents.data[0], null, '\t').substring(
-          0,
-          50
-        );
-      } catch (e) {
-        bwaFileStats.filepreview = '';
-      }
-      bwaFileStats.errors = JSON.stringify(bwaFileContents.errors).slice(1, -1);
-      $('#bwaFileinputloading').addClass('is-hidden');
-      $('#bwaFileinputconfirm').removeClass('is-hidden');
-
-      // stats
-      $('#bwaFileTdFilename').text(String(bwaFileStats.filename));
-      $('#bwaFileTdLastmodified').text(conversions.getDate(bwaFileStats.mtime) ?? '');
-      $('#bwaFileTdLastaccessed').text(conversions.getDate(bwaFileStats.atime) ?? '');
-      $('#bwaFileTdFilesize').text(
-        String(bwaFileStats.humansize) +
-          formatString(' ({0} record(s))', String(bwaFileStats.linecount))
-      );
-      $('#bwaFileTdFilepreview').text(String(bwaFileStats.filepreview) + '...');
-      $('#bwaFileTextareaErrors').text(String(bwaFileStats.errors || 'No errors'));
-      //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']); // show estimated bulk lookup time
-      if (chosenPath) {
-        await watcher.watch('bwa', chosenPath, { persistent: false }, (evt: string) => {
-          if (evt === 'change') void refreshBwaFile(chosenPath);
-        });
-      }
-    }
-
+  if (filePath === undefined || filePath == '' || filePath === null) {
+    $('#bwaFileinputloading').addClass('is-hidden');
+    $('#bwaEntry').removeClass('is-hidden');
     return;
   }
+
+  $('#bwaFileSpanInfo').text('Loading file stats...');
+  if (isDragDrop === true) {
+    $('#bwaEntry').addClass('is-hidden');
+    $('#bwaFileinputloading').removeClass('is-hidden');
+  }
+
+  try {
+    const targetPath = Array.isArray(filePath) ? (filePath as string[])[0] : (filePath as string);
+    bwaFileStats = await loadFileStats(targetPath, isDragDrop);
+    $('#bwaFileSpanInfo').text('Loading file contents...');
+    bwaFileContents = await readFileContents(targetPath);
+  } catch (e) {
+    error(`Failed to read file: ${e}`);
+    $('#bwaFileSpanInfo').text('Failed to load file');
+    return;
+  }
+
+  $('#bwaFileSpanInfo').text('Getting line count...');
+  bwaFileStats.linecount = bwaFileContents.data.length;
+  try {
+    bwaFileStats.filepreview = JSON.stringify(bwaFileContents.data[0], null, '\t').substring(0, 50);
+  } catch {
+    bwaFileStats.filepreview = '';
+  }
+  bwaFileStats.errors = JSON.stringify(bwaFileContents.errors).slice(1, -1);
+  $('#bwaFileinputloading').addClass('is-hidden');
+  $('#bwaFileinputconfirm').removeClass('is-hidden');
+
+  updateFileInfoUI(bwaFileStats);
+
+  if (chosenPath) {
+    await watcher.watch('bwa', chosenPath, { persistent: false }, (evt: string) => {
+      if (evt === 'change') void refreshBwaFile(chosenPath);
+    });
+  }
+
+  return;
+}
 
 electron.on('bwa:fileinput.confirmation', (_e, filePath, isDragDrop) => {
   void handleFileConfirmation(filePath, isDragDrop);
