@@ -20,9 +20,11 @@ const api = {
       listenerMap.delete(listener);
     }
   },
-  readFile: (p: string, opts?: any) => ipcRenderer.invoke('fs:readFile', p, opts),
+  readFile: (p: string, opts?: BufferEncoding | import('fs').ReadFileOptions) =>
+    ipcRenderer.invoke('fs:readFile', p, opts),
   stat: (p: string) => ipcRenderer.invoke('fs:stat', p),
-  readdir: (p: string, opts?: any) => ipcRenderer.invoke('fs:readdir', p, opts),
+  readdir: (p: string, opts?: import('fs').ReaddirOptions) =>
+    ipcRenderer.invoke('fs:readdir', p, opts),
   unlink: (p: string) => ipcRenderer.invoke('fs:unlink', p),
   access: (p: string, mode?: number) => ipcRenderer.invoke('fs:access', p, mode),
   exists: (p: string) => ipcRenderer.invoke('fs:exists', p),
@@ -33,7 +35,12 @@ const api = {
   refreshStats: (id: number) => ipcRenderer.invoke('stats:refresh', id),
   stopStats: (id: number) => ipcRenderer.invoke('stats:stop', id),
   getStats: (cfg: string, dir: string) => ipcRenderer.invoke('stats:get', cfg, dir),
-  watch: async (prefix: string, p: string, opts: any, cb: (evt: string) => void) => {
+  watch: async (
+    prefix: string,
+    p: string,
+    opts: import('fs').WatchOptions,
+    cb: (evt: string) => void
+  ) => {
     const id = await ipcRenderer.invoke('fs:watch', prefix, p, opts);
     const chan = `fs:watch:${prefix}:${id}`;
     const handler = (_e: IpcRendererEvent, ev: string) => cb(ev);
