@@ -6,6 +6,7 @@ import {
   setRemainingCounter,
   scheduleQueue
 } from '../app/ts/main/bulkwhois/helpers';
+import { compileQueue } from '../app/ts/main/bulkwhois/queue';
 import { settings } from '../app/ts/main/settings-main';
 import { IpcChannel } from '../app/ts/common/ipcChannels';
 import { processDomain } from '../app/ts/main/bulkwhois/scheduler';
@@ -25,6 +26,12 @@ describe('process helpers', () => {
     expect(bulk.stats.domains.total).toBe(1);
     expect(bulk.input.domainsPending).toEqual(['foo.' + 'com']);
     expect(sender.send).toHaveBeenCalledWith(IpcChannel.BulkwhoisStatusUpdate, 'domains.total', 1);
+  });
+
+  test('compileQueue returns empty when domains or tlds are missing', () => {
+    expect(compileQueue([], ['com'], '.')).toEqual([]);
+    expect(compileQueue(['foo'], [], '.')).toEqual([]);
+    expect(compileQueue([], [], '.')).toEqual([]);
   });
 
   test('createDomainSetup returns static settings', () => {
@@ -58,6 +65,39 @@ describe('process helpers', () => {
     settings.lookupRandomizeTimeout.randomize = false;
     const setup = createDomainSetup(settings, 'foo.net', 0);
     expect(setup.timebetween).toBe(settings.lookupGeneral.dnsTimeBetween);
+    Object.assign(settings, backup);
+  });
+
+  test('createDomainSetup swaps random range bounds', () => {
+    const backup = JSON.parse(JSON.stringify(settings));
+    settings.lookupGeneral.type = 'whois';
+
+    settings.lookupRandomizeTimeBetween.randomize = true;
+    settings.lookupRandomizeTimeBetween.minimum = 20;
+    settings.lookupRandomizeTimeBetween.maximum = 10;
+
+    settings.lookupRandomizeFollow.randomize = true;
+    settings.lookupRandomizeFollow.minimumDepth = 5;
+    settings.lookupRandomizeFollow.maximumDepth = 2;
+
+    settings.lookupRandomizeTimeout.randomize = true;
+    settings.lookupRandomizeTimeout.minimum = 300;
+    settings.lookupRandomizeTimeout.maximum = 200;
+
+    const orig = Math.random;
+    Math.random = () => 0;
+    let setup = createDomainSetup(settings, 'foo.com', 0);
+    expect(setup.timebetween).toBe(10);
+    expect(setup.follow).toBe(2);
+    expect(setup.timeout).toBe(200);
+
+    Math.random = () => 0.999;
+    setup = createDomainSetup(settings, 'foo.com', 0);
+    expect(setup.timebetween).toBe(20);
+    expect(setup.follow).toBe(5);
+    expect(setup.timeout).toBe(300);
+
+    Math.random = orig;
     Object.assign(settings, backup);
   });
 
