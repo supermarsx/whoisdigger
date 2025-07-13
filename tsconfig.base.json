@@ -17,6 +17,16 @@
       "./types/fontawesome-free.d.ts",
       "./types/compiled-templates.d.ts"
     ],
+    "baseUrl": "./",
+    "paths": {
+      "@common/*": ["app/ts/common/*"],
+      "@main/*": ["app/ts/main/*"],
+      "@renderer/*": ["app/ts/renderer/*"],
+      "@utils/*": ["app/ts/utils/*"],
+      "@ai/*": ["app/ts/ai/*"],
+      "@cli/*": ["app/ts/cli/*"],
+      "@server/*": ["app/ts/server/*"]
+    },
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noImplicitThis": true,
