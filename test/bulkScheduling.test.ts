@@ -76,4 +76,14 @@ describe('bulk scheduling', () => {
     randomSpy.mockRestore();
     Object.assign(settings, backup);
   });
+
+  test('compileQueue returns empty arrays when domains or tlds are missing', () => {
+    expect(compileQueue([], ['com'], '.')).toEqual([]);
+    expect(compileQueue(['foo'], [], '.')).toEqual([]);
+  });
+
+  test('compileQueue handles both inputs empty without errors', () => {
+    expect(() => compileQueue([], [], '.')).not.toThrow();
+    expect(compileQueue([], [], '.')).toEqual([]);
+  });
 });
