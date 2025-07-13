@@ -13,6 +13,22 @@ describe('conversions', () => {
     expect(msToHumanTime(3600000)).toBe('1 h');
   });
 
+  test('msToHumanTime converts one day', () => {
+    expect(msToHumanTime(86400000)).toBe('1 d');
+  });
+
+  test('msToHumanTime converts one week', () => {
+    expect(msToHumanTime(604800000)).toBe('1 w');
+  });
+
+  test('msToHumanTime converts one month', () => {
+    expect(msToHumanTime(2419200000)).toBe('1 M');
+  });
+
+  test('msToHumanTime converts one year', () => {
+    expect(msToHumanTime(29030400000)).toBe('1 Y');
+  });
+
   test('msToHumanTime converts days', () => {
     expect(msToHumanTime(172800000)).toBe('2 d');
   });
@@ -32,6 +48,14 @@ describe('conversions', () => {
 
   test("msToHumanTime returns '-' for negative duration", () => {
     expect(msToHumanTime(-1000)).toBe('-');
+  });
+
+  test("msToHumanTime returns '-' for NaN", () => {
+    expect(msToHumanTime(NaN)).toBe('-');
+  });
+
+  test("msToHumanTime returns '-' for Infinity", () => {
+    expect(msToHumanTime(Infinity)).toBe('-');
   });
 
   test('getDate parses valid dates', () => {
