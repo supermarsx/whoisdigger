@@ -38,7 +38,7 @@ const api = {
   watch: async (
     prefix: string,
     p: string,
-    opts: import('fs').WatchOptions,
+    opts: import('./utils/fileWatcher').WatchOptions,
     cb: (evt: string) => void
   ) => {
     const id = await ipcRenderer.invoke('fs:watch', prefix, p, opts);

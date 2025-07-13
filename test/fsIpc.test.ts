@@ -6,12 +6,18 @@ const readFileMock = jest.fn();
 const statMock = jest.fn();
 const watchCallbacks: Array<(ev: string) => void> = [];
 const watchCloseMocks: jest.Mock[] = [];
-const watchMock = jest.fn((path: string, opts: fs.WatchOptions, cb: (ev: string) => void) => {
-  watchCallbacks.push(cb);
-  const watcher = { close: jest.fn() } as any;
-  watchCloseMocks.push(watcher.close);
-  return watcher;
-});
+const watchMock = jest.fn(
+  (
+    path: string,
+    opts: import('../app/ts/utils/fileWatcher').WatchOptions,
+    cb: (ev: string) => void
+  ) => {
+    watchCallbacks.push(cb);
+    const watcher = { close: jest.fn() } as any;
+    watchCloseMocks.push(watcher.close);
+    return watcher;
+  }
+);
 
 jest.mock('electron', () => ({
   ipcMain: {

@@ -2,6 +2,7 @@ import $ from '../../vendor/jquery.js';
 import { debugFactory } from '../common/logger.js';
 import { IpcChannel } from '../common/ipcChannels.js';
 import type * as fs from 'fs';
+import type { WatchOptions } from '../utils/fileWatcher.js';
 
 const electron = (window as any).electron as {
   getBaseDir: () => Promise<string>;
@@ -13,7 +14,7 @@ const electron = (window as any).electron as {
   exists: (p: string) => Promise<any>;
   watch: (
     p: string,
-    opts: fs.WatchOptions,
+    opts: WatchOptions,
     cb: (evt: string) => void
   ) => Promise<{ close: () => void }>;
   path: { join: (...args: string[]) => Promise<string>; basename: (p: string) => Promise<string> };

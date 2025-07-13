@@ -1,9 +1,13 @@
-import type * as fs from 'fs';
+export interface WatchOptions {
+  persistent?: boolean;
+  recursive?: boolean;
+  encoding?: BufferEncoding;
+}
 
 export type WatchFn = (
   prefix: string,
   path: string,
-  opts: fs.WatchOptions,
+  opts: WatchOptions,
   cb: (evt: string) => void
 ) => Promise<{ close: () => void }>;
 
@@ -14,7 +18,7 @@ export class FileWatcherManager {
   async watch(
     prefix: string,
     path: string,
-    opts: fs.WatchOptions,
+    opts: WatchOptions,
     cb: (evt: string) => void
   ): Promise<void> {
     this.close();

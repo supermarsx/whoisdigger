@@ -1,11 +1,12 @@
 import type * as fs from 'fs';
+import type { WatchOptions } from '../utils/fileWatcher.js';
 
 const electron = (window as any).electron as {
   invoke: (channel: string, ...args: any[]) => Promise<any>;
   readFile: (p: string, opts?: BufferEncoding | fs.ReadFileOptions) => Promise<string>;
   watch: (
     p: string,
-    opts: fs.WatchOptions,
+    opts: WatchOptions,
     cb: (event: string) => void
   ) => Promise<{ close: () => void }>;
   exists: (p: string) => Promise<boolean>;

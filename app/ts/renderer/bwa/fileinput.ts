@@ -5,6 +5,7 @@ import '../../../vendor/datatables.js';
 import { settings } from '../settings-renderer.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
 import type * as fs from 'fs';
+import type { WatchOptions } from '../../utils/fileWatcher.js';
 
 const electron = (window as any).electron as {
   send: (channel: string, ...args: any[]) => void;
@@ -14,7 +15,7 @@ const electron = (window as any).electron as {
   watch: (
     prefix: string,
     p: string,
-    opts: fs.WatchOptions,
+    opts: WatchOptions,
     cb: (evt: string) => void
   ) => Promise<{ close: () => void }>;
   stat: (p: string) => Promise<any>;

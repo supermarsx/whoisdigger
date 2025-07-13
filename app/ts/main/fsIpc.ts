@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron';
 import fs from 'fs';
+import type { WatchOptions } from '../utils/fileWatcher.js';
 
 type ReadFileOpts = BufferEncoding | fs.ReadFileOptions;
 type ReaddirOpts = fs.ReaddirOptions | BufferEncoding | undefined;
@@ -31,7 +32,7 @@ ipcMain.handle('fs:exists', async (_e, p: string) => {
   return fs.existsSync(p);
 });
 
-ipcMain.handle('fs:watch', (e, prefix: string, p: string, opts?: fs.WatchOptions) => {
+ipcMain.handle('fs:watch', (e, prefix: string, p: string, opts?: WatchOptions) => {
   const id = ++watcherId;
   const sender = e.sender;
   const watcher = fs.watch(p, opts || {}, (event) => {

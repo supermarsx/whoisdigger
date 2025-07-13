@@ -2,6 +2,7 @@ import * as conversions from '../../common/conversions.js';
 import type { FileStats } from '../../common/fileStats.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
 import type * as fs from 'fs';
+import type { WatchOptions } from '../../utils/fileWatcher.js';
 const debug = debugFactory('bulkwhois.fileinput');
 const error = errorFactory('bulkwhois.fileinput');
 debug('loaded');
@@ -14,7 +15,7 @@ const electron = (window as any).electron as {
   watch: (
     prefix: string,
     p: string,
-    opts: fs.WatchOptions,
+    opts: WatchOptions,
     cb: (evt: string) => void
   ) => Promise<{ close: () => void }>;
   stat: (p: string) => Promise<any>;

@@ -38,7 +38,11 @@ if (!(global as any).window) {
   unlink: (p: string) => fs.promises.unlink(p),
   access: (p: string, mode?: number) => fs.promises.access(p, mode),
   exists: async (p: string) => fs.existsSync(p),
-  watch: async (p: string, opts: fs.WatchOptions, cb: (ev: string) => void) => {
+  watch: async (
+    p: string,
+    opts: import('../app/ts/utils/fileWatcher').WatchOptions,
+    cb: (ev: string) => void
+  ) => {
     const watcher = fs.watch(p, opts, cb);
     return { close: () => watcher.close() };
   },
