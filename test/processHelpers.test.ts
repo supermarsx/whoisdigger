@@ -68,6 +68,25 @@ describe('process helpers', () => {
     Object.assign(settings, backup);
   });
 
+  test('createDomainSetup dns override ignores randomization', () => {
+    const backup = JSON.parse(JSON.stringify(settings));
+    settings.lookupGeneral.timeBetween = 5;
+    settings.lookupGeneral.dnsTimeBetween = 50;
+    settings.lookupGeneral.type = 'dns';
+    settings.lookupGeneral.dnsTimeBetweenOverride = true;
+
+    settings.lookupRandomizeTimeBetween.randomize = true;
+    settings.lookupRandomizeTimeBetween.minimum = 1;
+    settings.lookupRandomizeTimeBetween.maximum = 100;
+
+    const orig = Math.random;
+    Math.random = () => 0.25;
+    const setup = createDomainSetup(settings, 'bar.net', 1);
+    expect(setup.timebetween).toBe(settings.lookupGeneral.dnsTimeBetween);
+    Math.random = orig;
+    Object.assign(settings, backup);
+  });
+
   test('createDomainSetup swaps random range bounds', () => {
     const backup = JSON.parse(JSON.stringify(settings));
     settings.lookupGeneral.type = 'whois';
