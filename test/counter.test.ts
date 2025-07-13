@@ -1,3 +1,9 @@
+// Mock processDomain so counter can be tested in isolation
+jest.mock('../app/ts/main/bulkwhois/scheduler', () => {
+  const actual = jest.requireActual('../app/ts/main/bulkwhois/scheduler');
+  return { ...actual, processDomain: jest.fn() };
+});
+
 import { counter } from '../app/ts/main/bulkwhois/scheduler';
 import defaultBulkWhois from '../app/ts/main/bulkwhois/process.defaults';
 import { IpcChannel } from '../app/ts/common/ipcChannels';
