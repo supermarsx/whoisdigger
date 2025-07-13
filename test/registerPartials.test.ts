@@ -28,16 +28,19 @@ jest.mock('../app/vendor/handlebars.runtime.js', () => {
   return { __esModule: true, default: { template, registerPartial } };
 });
 
-for (const name of partialNames) {
-  jest.mock(
-    `../app/compiled-templates/${name}.js`,
-    () => ({
-      __esModule: true,
-      default: { name }
-    }),
-    { virtual: true }
-  );
-}
+beforeAll(() => {
+  (global as any).__glob = () => {
+    const modules: Record<string, any> = {};
+    for (const name of partialNames) {
+      modules[`../../compiled-templates/${name}.js`] = { default: { name } };
+    }
+    return modules;
+  };
+});
+
+afterAll(() => {
+  delete (global as any).__glob;
+});
 
 const handlebars = require('../app/vendor/handlebars.runtime.js').default;
 const { registerPartials } = require('../app/ts/renderer/registerPartials');
@@ -48,8 +51,8 @@ describe('registerPartials', () => {
     (handlebars.template as jest.Mock).mockClear();
   });
 
-  test('registers compiled partials with Handlebars', () => {
-    registerPartials();
+  test('registers compiled partials with Handlebars', async () => {
+    await registerPartials();
 
     expect((handlebars.template as jest.Mock).mock.calls.length).toBe(partialNames.length);
     expect((handlebars.registerPartial as jest.Mock).mock.calls.length).toBe(partialNames.length);
