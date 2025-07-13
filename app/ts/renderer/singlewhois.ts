@@ -2,11 +2,8 @@ import type { WhoisResult } from '../common/availability.js';
 import { preStringStrip, toJSON } from '../common/parser.js';
 
 import { getDate } from '../common/conversions.js';
-const electron = (window as any).electron as {
-  send: (channel: string, ...args: any[]) => void;
-  invoke: (channel: string, ...args: any[]) => Promise<any>;
-  on: (channel: string, listener: (...args: any[]) => void) => void;
-};
+import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
+const electron = (window as any).electron as RendererElectronAPI;
 import { IpcChannel } from '../common/ipcChannels.js';
 import { formatString } from '../common/stringformat.js';
 

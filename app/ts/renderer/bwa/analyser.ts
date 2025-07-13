@@ -2,12 +2,9 @@ import * as conversions from '../../common/conversions.js';
 import $ from '../../../vendor/jquery.js';
 import '../../../vendor/datatables.js';
 import { debugFactory } from '../../common/logger.js';
+import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';
 
-const electron = (window as any).electron as {
-  send: (channel: string, ...args: any[]) => void;
-  invoke: (channel: string, ...args: any[]) => Promise<any>;
-  on: (channel: string, listener: (...args: any[]) => void) => void;
-};
+const electron = (window as any).electron as RendererElectronAPI;
 
 const debug = debugFactory('renderer.bwa.analyser');
 debug('loaded');

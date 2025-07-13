@@ -3,15 +3,12 @@ import { populateInputs } from './settings.js';
 import { settings } from './settings-renderer.js';
 
 import { debugFactory } from '../common/logger.js';
+import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
 
 const debug = debugFactory('renderer.navigation');
 debug('loaded');
 
-const electron = (window as any).electron as {
-  send: (channel: string, ...args: any[]) => void;
-  invoke: (channel: string, ...args: any[]) => Promise<any>;
-  on: (channel: string, listener: (...args: any[]) => void) => void;
-};
+const electron = (window as any).electron as RendererElectronAPI;
 
 function qs<T extends Element = HTMLElement>(sel: string): T | null {
   return document.querySelector(sel) as T | null;

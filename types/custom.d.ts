@@ -1,3 +1,4 @@
+/// <reference path="./renderer-electron-api.d.ts" />
 declare const require: any;
 declare module 'fs' {
   export function existsSync(path: string): boolean;

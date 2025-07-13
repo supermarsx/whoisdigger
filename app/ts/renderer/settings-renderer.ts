@@ -1,7 +1,7 @@
 import type * as fs from 'fs';
+import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
 
-const electron = (window as any).electron as {
-  invoke: (channel: string, ...args: any[]) => Promise<any>;
+const electron = (window as any).electron as RendererElectronAPI & {
   readFile: (p: string, opts?: BufferEncoding | fs.ReadFileOptions) => Promise<string>;
   watch: (
     p: string,
@@ -9,7 +9,6 @@ const electron = (window as any).electron as {
     cb: (event: string) => void
   ) => Promise<{ close: () => void }>;
   exists: (p: string) => Promise<boolean>;
-  on: (channel: string, listener: (...args: any[]) => void) => void;
   path: { join: (...args: string[]) => string };
 };
 import { debugFactory } from '../common/logger.js';

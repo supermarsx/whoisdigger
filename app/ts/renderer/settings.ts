@@ -2,8 +2,9 @@ import $ from '../../vendor/jquery.js';
 import { debugFactory } from '../common/logger.js';
 import { IpcChannel } from '../common/ipcChannels.js';
 import type * as fs from 'fs';
+import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
 
-const electron = (window as any).electron as {
+const electron = (window as any).electron as RendererElectronAPI & {
   getBaseDir: () => Promise<string>;
   readFile: (p: string, opts?: BufferEncoding | fs.ReadFileOptions) => Promise<any>;
   stat: (p: string) => Promise<any>;
