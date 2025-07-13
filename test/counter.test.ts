@@ -2,6 +2,7 @@ import { counter } from '../app/ts/main/bulkwhois/scheduler';
 import defaultBulkWhois from '../app/ts/main/bulkwhois/process.defaults';
 import { IpcChannel } from '../app/ts/common/ipcChannels';
 import { msToHumanTime } from '../app/ts/common/conversions';
+import type { IpcMainEvent } from 'electron';
 
 jest.useFakeTimers();
 
@@ -17,7 +18,7 @@ describe('counter', () => {
     bulk.stats.domains.sent = 0;
     bulk.stats.domains.waiting = 1;
     const send = jest.fn();
-    const event = { sender: { send } } as any;
+    const event = { sender: { send } } as unknown as IpcMainEvent;
 
     counter(bulk, event, true);
     expect(jest.getTimerCount()).toBe(1);
@@ -76,7 +77,7 @@ describe('counter', () => {
     bulk.stats.domains.sent = 0;
     bulk.stats.domains.waiting = 1;
     const send = jest.fn();
-    const event = { sender: { send } } as any;
+    const event = { sender: { send } } as unknown as IpcMainEvent;
 
     counter(bulk, event, true);
     expect(jest.getTimerCount()).toBe(1);
