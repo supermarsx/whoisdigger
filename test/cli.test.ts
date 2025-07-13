@@ -61,6 +61,14 @@ describe('cli utility', () => {
     expect(mockLookup).not.toHaveBeenCalled();
   });
 
+  test('lookupDomains skips lookups for empty domain list', async () => {
+    mockLookup.mockClear();
+    const opts: CliOptions = { domains: [], tlds: ['com'], format: 'txt' };
+    const results = await lookupDomains(opts);
+    expect(results).toEqual([]);
+    expect(mockLookup).not.toHaveBeenCalled();
+  });
+
   test('lookupDomains runs lookups concurrently', async () => {
     let active = 0;
     let maxActive = 0;
