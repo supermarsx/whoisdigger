@@ -1,16 +1,16 @@
-import { debugFactory } from '../../common/logger.js';
-import { isDomainAvailable, getDomainParameters } from '../../common/availability.js';
-import DomainStatus from '../../common/status.js';
-import { toJSON } from '../../common/parser.js';
+import { debugFactory } from '@common/logger.js';
+import { isDomainAvailable, getDomainParameters } from '@common/availability.js';
+import DomainStatus from '@common/status.js';
+import { toJSON } from '@common/parser.js';
 import { performance } from 'perf_hooks';
 import { getSettings } from '../settings-main.js';
-import { formatString } from '../../common/stringformat.js';
+import { formatString } from '@common/stringformat.js';
 import type { BulkWhois, ProcessedResult } from './types.js';
-import * as dns from '../../common/dnsLookup.js';
-import { Result, DnsLookupError } from '../../common/errors.js';
+import * as dns from '@common/dnsLookup.js';
+import { Result, DnsLookupError } from '@common/errors.js';
 import type { IpcMainEvent } from 'electron';
-import { addEntry as addHistoryEntry } from '../../common/history.js';
-import { IpcChannel } from '../../common/ipcChannels.js';
+import { addEntry as addHistoryEntry } from '@common/history.js';
+import { IpcChannel } from '@common/ipcChannels.js';
 
 const debug = debugFactory('bulkwhois.resultHandler');
 
