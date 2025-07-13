@@ -1,6 +1,7 @@
 // In the renderer process we access IPC methods exposed from the preload script
 // via the `window.electron` bridge instead of importing from 'electron'.
-const { invoke } = (window as any).electron;
+import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
+const { invoke } = (window as any).electron as RendererElectronAPI;
 import { IpcChannel } from '../common/ipcChannels.js';
 import $ from '../../vendor/jquery.js';
 import { debugFactory, errorFactory } from '../common/logger.js';

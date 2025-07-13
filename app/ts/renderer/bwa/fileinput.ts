@@ -5,11 +5,9 @@ import '../../../vendor/datatables.js';
 import { settings } from '../settings-renderer.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
 import type * as fs from 'fs';
+import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';
 
-const electron = (window as any).electron as {
-  send: (channel: string, ...args: any[]) => void;
-  invoke: (channel: string, ...args: any[]) => Promise<any>;
-  on: (channel: string, listener: (...args: any[]) => void) => void;
+const electron = (window as any).electron as RendererElectronAPI & {
   bwaFileRead: (p: string) => Promise<any>;
   watch: (
     prefix: string,
@@ -156,7 +154,7 @@ async function handleFileConfirmation(
   return;
 }
 
-electron.on('bwa:fileinput.confirmation', (_e, filePath, isDragDrop) => {
+electron.on('bwa:fileinput.confirmation', (_e: unknown, filePath: string | string[] | null, isDragDrop?: boolean) => {
   void handleFileConfirmation(filePath, isDragDrop);
 });
 

@@ -1,7 +1,6 @@
 import $ from '../../vendor/jquery.js';
-const electron = (window as any).electron as {
-  invoke: (channel: string, ...args: any[]) => Promise<any>;
-};
+import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
+const electron = (window as any).electron as RendererElectronAPI;
 import { debugFactory } from '../common/logger.js';
 
 const debug = debugFactory('renderer.history');

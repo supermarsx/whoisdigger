@@ -1,5 +1,5 @@
-const electron = (window as any).electron as {
-  invoke: (channel: string, ...args: any[]) => Promise<any>;
+import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
+const electron = (window as any).electron as RendererElectronAPI & {
   path: { join: (...args: string[]) => Promise<string> };
 };
 import Handlebars from '../../vendor/handlebars.runtime.js';

@@ -2,14 +2,12 @@ import * as conversions from '../../common/conversions.js';
 import type { FileStats } from '../../common/fileStats.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
 import type * as fs from 'fs';
+import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';
 const debug = debugFactory('bulkwhois.fileinput');
 const error = errorFactory('bulkwhois.fileinput');
 debug('loaded');
 
-const electron = (window as any).electron as {
-  send: (channel: string, ...args: any[]) => void;
-  invoke: (channel: string, ...args: any[]) => Promise<any>;
-  on: (channel: string, listener: (...args: any[]) => void) => void;
+const electron = (window as any).electron as RendererElectronAPI & {
   bwFileRead: (p: string) => Promise<Buffer>;
   watch: (
     prefix: string,
@@ -201,7 +199,7 @@ async function handleFileConfirmation(
  */
 electron.on(
   IpcChannel.BulkwhoisFileinputConfirmation,
-  (_event, filePath: string | string[] | null = null, isDragDrop = false) => {
+  (_event: unknown, filePath: string | string[] | null = null, isDragDrop = false) => {
     void handleFileConfirmation(filePath, isDragDrop);
   }
 );
