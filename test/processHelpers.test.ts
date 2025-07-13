@@ -179,4 +179,26 @@ describe('process helpers', () => {
     Object.assign(settings, backup);
     jest.useRealTimers();
   });
+
+  test('scheduleQueue leaves counters unchanged when pending list is empty', () => {
+    const bulk = JSON.parse(JSON.stringify(defaultBulkWhois));
+    const event = { sender: { send: jest.fn() } } as any;
+    const reqtime: number[] = [];
+    const backup = JSON.parse(JSON.stringify(settings));
+    settings.lookupGeneral.type = 'whois';
+    settings.lookupRandomizeTimeBetween.randomize = false;
+    settings.lookupRandomizeFollow.randomize = false;
+    settings.lookupRandomizeTimeout.randomize = false;
+    settings.lookupGeneral.timeBetween = 1;
+    settings.lookupGeneral.follow = 1;
+    settings.lookupGeneral.timeout = 1;
+
+    scheduleQueue(bulk, reqtime, settings, event);
+
+    expect(processDomain).not.toHaveBeenCalled();
+    expect(event.sender.send).not.toHaveBeenCalled();
+    expect(reqtime).toEqual([]);
+    expect(bulk.stats.domains.processed).toBe(0);
+    Object.assign(settings, backup);
+  });
 });
