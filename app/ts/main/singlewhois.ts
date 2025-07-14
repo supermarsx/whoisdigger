@@ -41,7 +41,7 @@ ipcMain.handle(IpcChannel.SingleWhoisLookup, async (_event, domain) => {
 ipcMain.on('singlewhois:openlink', function (event, domain) {
   const misc = settings.lookupMisc;
 
-  misc.onlyCopy ? copyToClipboard(event, domain) : openUrl(domain, settings);
+  misc.onlyCopy ? copyToClipboard(event, domain) : openUrl(event, domain, settings);
 
   return;
 });
@@ -70,17 +70,19 @@ function copyToClipboard(event: IpcMainEvent, domain: string): void {
     domain
     settings
 */
-function openUrl(domain: string, settings: Settings): void {
+function openUrl(event: IpcMainEvent, domain: string, _settings: Settings): void {
   let target: URL;
   try {
     target = new URL(domain);
   } catch {
-    console.warn(`Invalid URL: ${domain}`);
+    debug(`Invalid URL rejected: ${domain}`);
+    event.sender.send('singlewhois:invalid-url');
     return;
   }
   const protocol = target.protocol.toLowerCase();
   if (protocol !== 'http:' && protocol !== 'https:') {
-    console.warn(`Invalid protocol: ${target.protocol}`);
+    debug(`Invalid protocol rejected: ${target.protocol}`);
+    event.sender.send('singlewhois:invalid-url');
     return;
   }
 
