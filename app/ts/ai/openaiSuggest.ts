@@ -5,6 +5,9 @@ import { ensureFetch } from '../utils/fetchCompat.js';
 const debug = debugFactory('ai.openaiSuggest');
 
 export async function suggestWords(prompt: string, count: number): Promise<string[]> {
+  if (count <= 0) {
+    return [];
+  }
   await ensureFetch();
   const { url, apiKey } = settings.ai.openai ?? {};
   if (!url || !apiKey) {

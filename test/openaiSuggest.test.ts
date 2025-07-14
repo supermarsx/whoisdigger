@@ -41,4 +41,12 @@ describe('openai suggestions', () => {
     expect(nodeFetchMock).toHaveBeenCalled();
     expect(res).toEqual(['alpha']);
   });
+
+  test('returns empty array when count non-positive', async () => {
+    settings.ai.openai.url = 'https://api';
+    settings.ai.openai.apiKey = 'key';
+    const res = await suggestWords('hello', 0);
+    expect((fetch as jest.Mock).mock.calls.length).toBe(0);
+    expect(res).toEqual([]);
+  });
 });
