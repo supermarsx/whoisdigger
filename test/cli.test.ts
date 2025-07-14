@@ -38,9 +38,9 @@ describe('cli utility', () => {
     expect(opts.suggestCount).toBe(7);
   });
 
-  test('parseArgs handles concurrency option', () => {
-    const opts = parseArgs(['--domain', 'a.com', '--concurrency', '3']);
-    expect(opts.concurrency).toBe(3);
+  test('parseArgs handles limit option', () => {
+    const opts = parseArgs(['--domain', 'a.com', '--limit', '3']);
+    expect(opts.limit).toBe(3);
   });
 
   test('lookupDomains uses whois module', async () => {
@@ -117,7 +117,7 @@ describe('cli utility', () => {
     expect(mockLookup).toHaveBeenCalledTimes(domainCount);
   });
 
-  test('lookupDomains respects custom concurrency', async () => {
+  test('lookupDomains respects custom limit', async () => {
     mockLookup.mockClear();
     let active = 0;
     let maxActive = 0;
@@ -132,7 +132,7 @@ describe('cli utility', () => {
       domains: ['a.com', 'b.com', 'c.com', 'd.com'],
       tlds: ['com'],
       format: 'txt',
-      concurrency: 2
+      limit: 2
     };
     await lookupDomains(opts);
     expect(maxActive).toBeLessThanOrEqual(2);
@@ -172,9 +172,7 @@ describe('cli utility', () => {
     );
   });
 
-  test('parseArgs validates concurrency', () => {
-    expect(() => parseArgs(['--domain', 'a.com', '--concurrency', '0'])).toThrow(
-      'positive integer'
-    );
+  test('parseArgs validates limit', () => {
+    expect(() => parseArgs(['--domain', 'a.com', '--limit', '0'])).toThrow('positive integer');
   });
 });
