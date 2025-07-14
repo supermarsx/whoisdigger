@@ -7,6 +7,13 @@ type ReaddirOpts = fs.ReaddirOptions | BufferEncoding | undefined;
 const watchers = new Map<number, fs.FSWatcher>();
 let watcherId = 0;
 
+export function cleanupWatchers() {
+  for (const watcher of watchers.values()) {
+    watcher.close();
+  }
+  watchers.clear();
+}
+
 ipcMain.handle('fs:readFile', async (_e, p: string, opts?: ReadFileOpts) => {
   return fs.promises.readFile(p, opts);
 });
