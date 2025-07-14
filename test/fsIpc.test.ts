@@ -37,7 +37,7 @@ jest.mock('fs', () => {
   };
 });
 
-import '../app/ts/main/fsIpc';
+import { cleanupWatchers } from '../app/ts/main/fsIpc';
 
 const getHandler = (c: string) => ipcMainHandlers[c];
 
@@ -78,5 +78,18 @@ describe('fsIpc handlers', () => {
 
     await unwatchHandler({}, id);
     expect(watchCloseMocks[0]).toHaveBeenCalled();
+  });
+
+  test('cleanupWatchers closes active watchers', async () => {
+    const watchHandler = getHandler('fs:watch');
+    const sender = { send: jest.fn() };
+
+    await watchHandler({ sender } as any, 'a', '/tmp/a', {});
+    await watchHandler({ sender } as any, 'b', '/tmp/b', {});
+
+    cleanupWatchers();
+
+    expect(watchCloseMocks[0]).toHaveBeenCalled();
+    expect(watchCloseMocks[1]).toHaveBeenCalled();
   });
 });
