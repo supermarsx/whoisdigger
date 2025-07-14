@@ -1,5 +1,6 @@
 const ipcMainHandlers: Record<string, (...args: any[]) => any> = {};
 const openExternalMock = jest.fn();
+const debugMock = jest.fn();
 
 jest.mock('electron', () => ({
   ipcMain: {
@@ -18,12 +19,17 @@ jest.mock('electron', () => ({
   clipboard: { writeText: jest.fn() }
 }));
 
+jest.mock('../app/ts/common/logger.ts', () => ({
+  debugFactory: () => debugMock
+}));
+
 import { settings } from '../app/ts/main/settings-main';
 import '../app/ts/main/singlewhois';
 
 describe('openUrl', () => {
   beforeEach(() => {
     openExternalMock.mockClear();
+    debugMock.mockClear();
   });
 
   test('opens external browser for valid http url', async () => {
@@ -45,35 +51,35 @@ describe('openUrl', () => {
   });
 
   test('rejects invalid url', async () => {
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     settings.lookupMisc.onlyCopy = false;
+    const event = { sender: { send: jest.fn() } } as any;
     const handler = ipcMainHandlers['singlewhois:openlink'];
-    await handler({ sender: { send: jest.fn() } } as any, 'ftp://example.com');
+    await handler(event, 'ftp://example.com');
 
     expect(openExternalMock).not.toHaveBeenCalled();
-    expect(warnSpy).toHaveBeenCalled();
-    warnSpy.mockRestore();
+    expect(debugMock).toHaveBeenCalledWith('Invalid protocol rejected: ftp:');
+    expect(event.sender.send).toHaveBeenCalledWith('singlewhois:invalid-url');
   });
 
   test('rejects malformed url string', async () => {
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     settings.lookupMisc.onlyCopy = false;
+    const event = { sender: { send: jest.fn() } } as any;
     const handler = ipcMainHandlers['singlewhois:openlink'];
-    await handler({ sender: { send: jest.fn() } } as any, 'http://');
+    await handler(event, 'http://');
 
     expect(openExternalMock).not.toHaveBeenCalled();
-    expect(warnSpy).toHaveBeenCalled();
-    warnSpy.mockRestore();
+    expect(debugMock).toHaveBeenCalledWith('Invalid URL rejected: http://');
+    expect(event.sender.send).toHaveBeenCalledWith('singlewhois:invalid-url');
   });
 
   test('rejects url without http protocol', async () => {
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     settings.lookupMisc.onlyCopy = false;
+    const event = { sender: { send: jest.fn() } } as any;
     const handler = ipcMainHandlers['singlewhois:openlink'];
-    await handler({ sender: { send: jest.fn() } } as any, 'example.com');
+    await handler(event, 'example.com');
 
     expect(openExternalMock).not.toHaveBeenCalled();
-    expect(warnSpy).toHaveBeenCalled();
-    warnSpy.mockRestore();
+    expect(debugMock).toHaveBeenCalledWith('Invalid URL rejected: example.com');
+    expect(event.sender.send).toHaveBeenCalledWith('singlewhois:invalid-url');
   });
 });
