@@ -76,7 +76,7 @@ interface MainSettings extends BaseSettings {
   [key: string]: any;
 }
 
-import './main/fsIpc.js';
+import { cleanupWatchers } from './main/fsIpc.js';
 import './main/pathIpc.js';
 import './main/utils.js';
 import './main/index.js';
@@ -84,6 +84,8 @@ import './main/index.js';
 let settings: MainSettings;
 let mainWindow: BrowserWindow;
 let exitConfirmed = false;
+
+app.on('will-quit', cleanupWatchers);
 
 /*
   app.on('ready', function() {...}
