@@ -89,7 +89,7 @@
     "electron-chromedriver": "^37.0.0",
     "electron-rebuild": "^3.2.9",
     "electronmon": "^2.0.3",
-    "eslint": "^9.30.0",
+    "eslint": "^9.31.0",
     "eslint-config-prettier": "^10.1.5",
     "jest": "^30.0.3",
     "jest-environment-jsdom": "^30.0.2",
