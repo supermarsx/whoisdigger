@@ -181,7 +181,7 @@ node dist/app/ts/cli.js --wordlist words.txt --tlds com net --format csv --out r
 node dist/app/ts/cli.js --domain example.com --proxy 127.0.0.1:9050
 
 # adjust concurrency
-node dist/app/ts/cli.js --wordlist words.txt --concurrency 10
+node dist/app/ts/cli.js --wordlist words.txt --limit 10
 # defaults to 5 simultaneous lookups
 
 # purge expired cache
