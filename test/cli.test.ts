@@ -38,6 +38,11 @@ describe('cli utility', () => {
     expect(opts.suggestCount).toBe(7);
   });
 
+  test('parseArgs handles concurrency option', () => {
+    const opts = parseArgs(['--domain', 'a.com', '--concurrency', '3']);
+    expect(opts.concurrency).toBe(3);
+  });
+
   test('lookupDomains uses whois module', async () => {
     mockLookup.mockResolvedValueOnce('data');
     const opts: CliOptions = { domains: ['example.com'], tlds: ['com'], format: 'txt' };
@@ -112,6 +117,27 @@ describe('cli utility', () => {
     expect(mockLookup).toHaveBeenCalledTimes(domainCount);
   });
 
+  test('lookupDomains respects custom concurrency', async () => {
+    mockLookup.mockClear();
+    let active = 0;
+    let maxActive = 0;
+    mockLookup.mockImplementation(async () => {
+      active++;
+      maxActive = Math.max(maxActive, active);
+      await new Promise((r) => setTimeout(r, 5));
+      active--;
+      return 'data';
+    });
+    const opts: CliOptions = {
+      domains: ['a.com', 'b.com', 'c.com', 'd.com'],
+      tlds: ['com'],
+      format: 'txt',
+      concurrency: 2
+    };
+    await lookupDomains(opts);
+    expect(maxActive).toBeLessThanOrEqual(2);
+  });
+
   test('exportResults writes csv output', async () => {
     const file = path.join(__dirname, 'out.csv');
     const opts: CliOptions = { domains: [], tlds: ['com'], format: 'csv', out: file };
@@ -142,6 +168,12 @@ describe('cli utility', () => {
 
   test('parseArgs validates suggest-count', () => {
     expect(() => parseArgs(['--suggest', 'idea', '--suggest-count', '0'])).toThrow(
+      'positive integer'
+    );
+  });
+
+  test('parseArgs validates concurrency', () => {
+    expect(() => parseArgs(['--domain', 'a.com', '--concurrency', '0'])).toThrow(
       'positive integer'
     );
   });
