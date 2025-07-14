@@ -34,6 +34,7 @@ export interface CliOptions {
   downloadModel?: boolean;
   suggest?: string;
   suggestCount?: number;
+  concurrency?: number;
 }
 
 export function parseArgs(argv: string[]): CliOptions {
@@ -50,6 +51,7 @@ export function parseArgs(argv: string[]): CliOptions {
     .option('download-model', { type: 'boolean' })
     .option('suggest', { type: 'string' })
     .option('suggest-count', { type: 'number', default: 5 })
+    .option('concurrency', { type: 'number', default: CONCURRENCY_LIMIT })
     .check((args) => {
       if (
         !args.domain &&
@@ -67,6 +69,12 @@ export function parseArgs(argv: string[]): CliOptions {
       ) {
         throw new Error('--suggest-count must be a positive integer');
       }
+      if (
+        args.concurrency !== undefined &&
+        (!Number.isInteger(args.concurrency) || args.concurrency <= 0)
+      ) {
+        throw new Error('--concurrency must be a positive integer');
+      }
       return true;
     })
     .parseSync();
@@ -81,7 +89,8 @@ export function parseArgs(argv: string[]): CliOptions {
     clearCache: args['clear-cache'],
     downloadModel: args['download-model'],
     suggest: args.suggest,
-    suggestCount: args['suggest-count']
+    suggestCount: args['suggest-count'],
+    concurrency: args.concurrency
   };
 }
 
@@ -103,7 +112,7 @@ export async function lookupDomains(opts: CliOptions): Promise<WhoisResult[]> {
     domains = domains.concat(combos);
   }
 
-  const limit = pLimit(CONCURRENCY_LIMIT);
+  const limit = pLimit(opts.concurrency ?? CONCURRENCY_LIMIT);
   const tasks = domains.map((domain) =>
     limit(async (): Promise<WhoisResult> => {
       try {
