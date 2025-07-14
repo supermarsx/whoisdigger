@@ -197,6 +197,13 @@ node dist/app/ts/cli.js --download-model
 node dist/app/ts/cli.js --suggest "short tech names" --suggest-count 5
 ```
 
+### HTTP server
+
+Running `node dist/app/ts/server/index.js` starts a small API exposing `/lookup`
+and `/bulk-lookup` routes. Request bodies are parsed with `express.json` and are
+limited to **1&nbsp;MB**. Payloads larger than this size are rejected with a
+`413` response.
+
 If a lookup fails, the result for that domain is still included with
 `status` set to `error` and an empty `whoisreply` field.
 

@@ -53,4 +53,16 @@ describe('server endpoints', () => {
     expect(res.status).toBe(500);
     expect(res.body).toEqual({ error: 'fail' });
   });
+
+  test('rejects bodies over 1mb', async () => {
+    const large = 'a'.repeat(1024 * 1024 + 1);
+    const res = await request(app).post('/lookup').send({ big: large });
+    expect(res.status).toBe(413);
+  });
+
+  test('bulk-lookup rejects bodies over 1mb', async () => {
+    const large = 'a'.repeat(1024 * 1024 + 1);
+    const res = await request(app).post('/bulk-lookup').send({ big: large });
+    expect(res.status).toBe(413);
+  });
 });
