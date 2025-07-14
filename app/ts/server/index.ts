@@ -7,7 +7,7 @@ const debug = debugFactory('server');
 
 export function createServer() {
   const app = express();
-  app.use(express.json());
+  app.use(express.json({ limit: '1mb' }));
 
   app.post('/lookup', async (req: Request, res: Response) => {
     const domain = req.body?.domain;
