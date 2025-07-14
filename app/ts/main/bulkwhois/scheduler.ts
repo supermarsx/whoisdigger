@@ -33,7 +33,7 @@ export function processDomain(
   const { sender } = event;
 
   processingIDs[domainSetup.index!] = setTimeout(async () => {
-    let data: any;
+    let data: string | Result<boolean, DnsLookupError> | null = null;
     const settings = getSettings();
     stats.domains.sent++;
     sender.send(IpcChannel.BulkwhoisStatusUpdate, 'domains.sent', stats.domains.sent);
