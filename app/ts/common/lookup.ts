@@ -1,5 +1,5 @@
 import psl from 'psl';
-import { toASCII } from 'punycode/punycode.js';
+import punycode from 'punycode';
 import uts46 from 'idna-uts46';
 import whois from 'whois';
 import { debugFactory } from './logger.js';
@@ -70,7 +70,7 @@ export function convertDomain(domain: string, mode?: string): string {
 
   switch (mode) {
     case 'punycode':
-      return toASCII(domain);
+      return punycode.toASCII(domain);
     case 'uts46':
       return uts46.toAscii(domain);
     case 'uts46-transitional':
