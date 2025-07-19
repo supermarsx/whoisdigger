@@ -81,6 +81,7 @@ describe('fsIpc handlers', () => {
     expect(watchCloseMocks[0]).toHaveBeenCalled();
   });
 
+
   test('watcher is removed when sender is destroyed', async () => {
     const watchHandler = getHandler('fs:watch');
     const unwatchHandler = getHandler('fs:unwatch');
