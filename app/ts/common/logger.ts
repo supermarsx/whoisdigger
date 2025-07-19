@@ -1,4 +1,4 @@
-import debug from 'debug';
+import debug from '../../vendor/debug.js';
 
 export function debugFactory(namespace: string) {
   return debug(namespace);

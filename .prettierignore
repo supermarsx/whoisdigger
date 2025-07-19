@@ -22,5 +22,6 @@ app/vendor/change-case.js
 app/vendor/jquery.js
 app/vendor/html-entities/*.js
 app/vendor/html-entities/index.d.ts
+app/vendor/debug.js
 package.json
 app/vendor/fontawesome.js

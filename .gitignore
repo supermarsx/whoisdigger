@@ -10,4 +10,6 @@ test/e2e/artifacts/
 app/data/history.sqlite
 .husky/_/husky.sh
 app/vendor/
+!app/vendor/debug.js
+!app/vendor/debug.d.ts
 app/compiled-templates/

@@ -24,3 +24,8 @@ declare module '*vendor/fontawesome.js' {
   const d: any;
   export default d;
 }
+
+declare module '*vendor/debug.js' {
+  import debug from 'debug';
+  export default debug;
+}
