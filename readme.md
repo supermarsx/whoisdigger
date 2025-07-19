@@ -258,7 +258,7 @@ falling back to `process.cwd()`.
 
 Whoisdigger uses a settings file that rules how the application behaves overall, this can be achieved by either using the preload settings file or change the `appsettings.ts` inside `js`.
 
-Context isolation is always enabled for security purposes and cannot be disabled in configuration. Node integration is disabled by default, so renderer scripts can access Electron only through the preload API.
+Context isolation is always enabled for security purposes and cannot be disabled in configuration. Node integration is enabled by default, allowing renderer scripts to access Node.js directly. You can disable it through the configuration if required.
 
 ### Theme
 

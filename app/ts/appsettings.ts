@@ -24,7 +24,7 @@ const appSettings = {
     },
     appWindowWebPreferences: {
       // Web preferences
-      nodeIntegration: false, // Enable Node.js integration
+      nodeIntegration: true, // Enable Node.js integration
       contextIsolation: true, // Enable context isolation
       zoomFactor: 1.0, // Page zoom factor
       images: true, // Image support
