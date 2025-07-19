@@ -4,6 +4,15 @@
   "type": "module",
   "description": "Bulk whois lookup tool",
   "main": "./dist/app/ts/main.js",
+  "imports": {
+    "#common/*": "./dist/app/ts/common/*.js",
+    "#main/*": "./dist/app/ts/main/*.js",
+    "#renderer/*": "./dist/app/ts/renderer/*.js",
+    "#utils/*": "./dist/app/ts/utils/*.js",
+    "#ai/*": "./dist/app/ts/ai/*.js",
+    "#cli/*": "./dist/app/ts/cli/*.js",
+    "#server/*": "./dist/app/ts/server/*.js"
+  },
   "scripts": {
     "start": "npm run build && npm run postbuild && cross-env NODE_OPTIONS=--experimental-specifier-resolution=node electron .",
     "debug-powershell": "@powershell -Command $env:DEBUG='*';npm start;",

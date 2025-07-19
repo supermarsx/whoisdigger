@@ -1,5 +1,5 @@
-import { IpcChannel } from '@common/ipcChannels.js';
-import type { BulkWhoisResults } from '@main/bulkwhois/types.js';
+import { IpcChannel } from '#common/ipcChannels.js';
+import type { BulkWhoisResults } from '#main/bulkwhois/types.js';
 
 let bulkResults: BulkWhoisResults | null = null;
 
