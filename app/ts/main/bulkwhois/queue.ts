@@ -1,6 +1,6 @@
-import { debugFactory } from '@common/logger.js';
-import { formatString } from '@common/stringformat.js';
-import { randomInt } from '@utils/random.js';
+import { debugFactory } from '#common/logger';
+import { formatString } from '#common/stringformat';
+import { randomInt } from '#utils/random';
 import type { Settings } from '../settings-main.js';
 import type { DomainSetup } from './types.js';
 

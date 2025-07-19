@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { EventEmitter } from 'events';
 
 const ipcMainHandlers: Record<string, (...args: any[]) => any> = {};
 
@@ -78,6 +79,22 @@ describe('fsIpc handlers', () => {
 
     await unwatchHandler({}, id);
     expect(watchCloseMocks[0]).toHaveBeenCalled();
+  });
+
+
+  test('watcher is removed when sender is destroyed', async () => {
+    const watchHandler = getHandler('fs:watch');
+    const unwatchHandler = getHandler('fs:unwatch');
+    const sender = new EventEmitter() as any;
+    sender.send = jest.fn();
+
+    const id = await watchHandler({ sender } as any, 'pref', '/tmp/file', {});
+    sender.emit('destroyed');
+    expect(watchCloseMocks[0]).toHaveBeenCalled();
+
+    watchCloseMocks[0].mockClear();
+    await unwatchHandler({}, id);
+    expect(watchCloseMocks[0]).not.toHaveBeenCalled();
   });
 
   test('cleanupWatchers closes active watchers', async () => {

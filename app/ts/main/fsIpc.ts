@@ -44,6 +44,10 @@ ipcMain.handle('fs:watch', (e, prefix: string, p: string, opts?: fs.WatchOptions
   const watcher = fs.watch(p, opts || {}, (event) => {
     sender.send(`fs:watch:${prefix}:${id}`, event);
   });
+  sender.once('destroyed', () => {
+    watcher.close();
+    watchers.delete(id);
+  });
   watchers.set(id, watcher);
   return id;
 });

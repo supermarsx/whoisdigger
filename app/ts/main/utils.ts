@@ -1,10 +1,10 @@
 import { ipcMain, shell } from 'electron';
 import Papa from 'papaparse';
-import { isDomainAvailable, getDomainParameters } from '@common/availability.js';
-import DomainStatus from '@common/status.js';
-import { IpcChannel } from '@common/ipcChannels.js';
-import { toJSON } from '@common/parser.js';
-import { getUserDataPath } from '@common/settings.js';
+import { isDomainAvailable, getDomainParameters } from '#common/availability';
+import DomainStatus from '#common/status';
+import { IpcChannel } from '#common/ipcChannels';
+import { toJSON } from '#common/parser';
+import { getUserDataPath } from '#common/settings';
 
 ipcMain.handle(IpcChannel.ParseCsv, async (_e, text: string) => {
   return Papa.parse(text, { header: true });

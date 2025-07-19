@@ -1,4 +1,4 @@
-import { randomInt } from '../utils/random.js';
+import { randomBytes } from 'crypto';
 
 export function generateFilename(ext: string): string {
   function pad(n: number): string {
@@ -12,6 +12,6 @@ export function generateFilename(ext: string): string {
     pad(d.getHours()) +
     pad(d.getMinutes()) +
     pad(d.getSeconds());
-  const hex = randomInt(0, 0xffffff).toString(16).padStart(6, '0');
+  const hex = randomBytes(3).toString('hex');
   return `bulkwhois-export-${datetime}-${hex}${ext}`;
 }

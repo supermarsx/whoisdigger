@@ -33,7 +33,7 @@ export function processDomain(
   const { sender } = event;
 
   processingIDs[domainSetup.index!] = setTimeout(async () => {
-    let data: any;
+    let data: string | Result<boolean, DnsLookupError> | null = null;
     const settings = getSettings();
     stats.domains.sent++;
     sender.send(IpcChannel.BulkwhoisStatusUpdate, 'domains.sent', stats.domains.sent);
@@ -46,7 +46,7 @@ export function processDomain(
 
     try {
       data =
-        settings.lookupGeneral.type == 'whois'
+        settings.lookupGeneral.type === 'whois'
           ? await whoisLookup(domainSetup.domain!, {
               follow: domainSetup.follow,
               timeout: domainSetup.timeout

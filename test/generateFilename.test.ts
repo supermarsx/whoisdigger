@@ -2,7 +2,7 @@ import { generateFilename } from '../app/ts/cli/export';
 
 describe('generateFilename', () => {
   const RealDate = Date;
-  const RealRandom = Math.random;
+  let randomBytesSpy: jest.SpyInstance;
 
   beforeAll(() => {
     class MockDate extends RealDate {
@@ -15,17 +15,19 @@ describe('generateFilename', () => {
     }
     // @ts-ignore
     global.Date = MockDate as DateConstructor;
-    Math.random = () => 0.1;
+    randomBytesSpy = jest
+      .spyOn(require('crypto'), 'randomBytes')
+      .mockReturnValue(Buffer.from('012345', 'hex'));
   });
 
   afterAll(() => {
     // @ts-ignore
     global.Date = RealDate;
-    Math.random = RealRandom;
+    randomBytesSpy.mockRestore();
   });
 
   test('returns deterministic filename with given extension', () => {
     const result = generateFilename('.csv');
-    expect(result).toBe('bulkwhois-export-20210102030405-199999.csv');
+    expect(result).toBe('bulkwhois-export-20210102030405-012345.csv');
   });
 });
