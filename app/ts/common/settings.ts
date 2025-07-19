@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { dirnameCompat } from '@utils/dirnameCompat.js';
+import { dirnameCompat } from '#utils/dirnameCompat.js';
 import { debugFactory } from './logger.js';
 import {
   settings,
