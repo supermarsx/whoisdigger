@@ -72,6 +72,19 @@ export function regenerateVendor() {
     'const datatables: any;\nexport default datatables;\n'
   );
 
+  const dbgSrc = path.join(modulesDir, 'debug', 'src', 'browser.js');
+  const dbgDest = path.join(vendorDir, 'debug.js');
+  copyFile(dbgSrc, dbgDest);
+  const dbgExport = '\nexport default module.exports;\n';
+  const dbgContent = fs.readFileSync(dbgDest, 'utf8');
+  if (!dbgContent.includes('export default')) {
+    fs.appendFileSync(dbgDest, dbgExport);
+  }
+  writeFile(
+    path.join(vendorDir, 'debug.d.ts'),
+    "import debug from 'debug';\nexport default debug;\n"
+  );
+
   const htmlSrcDir = path.join(modulesDir, 'html-entities', 'dist', 'esm');
   const htmlDestDir = path.join(vendorDir, 'html-entities');
   fs.mkdirSync(htmlDestDir, { recursive: true });

@@ -4,7 +4,7 @@ const debugMock = jest.fn((namespace: string) => {
   return fn;
 });
 
-jest.mock('debug', () => ({
+jest.mock('../app/vendor/debug.js', () => ({
   __esModule: true,
   default: (ns: string) => debugMock(ns)
 }));
