@@ -72,14 +72,8 @@ export function regenerateVendor() {
     'const datatables: any;\nexport default datatables;\n'
   );
 
-  const dbgSrc = path.join(modulesDir, 'debug', 'src', 'browser.js');
   const dbgDest = path.join(vendorDir, 'debug.js');
-  copyFile(dbgSrc, dbgDest);
-  const dbgExport = '\nexport default module.exports;\n';
-  const dbgContent = fs.readFileSync(dbgDest, 'utf8');
-  if (!dbgContent.includes('export default')) {
-    fs.appendFileSync(dbgDest, dbgExport);
-  }
+  writeFile(dbgDest, "import debug from 'debug/src/browser.js';\nexport default debug;\n");
   writeFile(
     path.join(vendorDir, 'debug.d.ts'),
     "import debug from 'debug';\nexport default debug;\n"
