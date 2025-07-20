@@ -14,4 +14,5 @@ app/vendor/*
 !app/vendor/debug.d.ts
 !app/vendor/debug/
 !app/vendor/debug/browser.js
+!app/vendor/debug/common.cjs
 app/compiled-templates/
