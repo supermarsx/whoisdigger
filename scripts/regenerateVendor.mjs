@@ -73,7 +73,11 @@ export function regenerateVendor() {
   );
 
   const dbgDest = path.join(vendorDir, 'debug.js');
-  writeFile(dbgDest, "import debug from 'debug/src/browser.js';\nexport default debug;\n");
+  const dbgPath = path
+    .relative(vendorDir, path.join(modulesDir, 'debug', 'src', 'browser.js'))
+    .split(path.sep)
+    .join('/');
+  writeFile(dbgDest, `import debug from '${dbgPath}';\nexport default debug;\n`);
   writeFile(
     path.join(vendorDir, 'debug.d.ts'),
     "import debug from 'debug';\nexport default debug;\n"

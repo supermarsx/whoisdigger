@@ -50,5 +50,10 @@ describe('regenerateVendor', () => {
       path.join(rootDir, 'app', 'vendor', 'handlebars.runtime.d.ts'),
       expect.any(String)
     );
+
+    expect(writeFileMock).toHaveBeenCalledWith(
+      path.join(rootDir, 'app', 'vendor', 'debug.js'),
+      expect.stringContaining("import debug from '../../node_modules/debug/src/browser.js'")
+    );
   });
 });
