@@ -52,7 +52,7 @@ export async function load(): Promise<Settings> {
         try {
           setSettings(mergeDefaults(parsed));
           if (settings.appWindowWebPreferences) {
-            settings.appWindowWebPreferences.contextIsolation = true;
+            settings.appWindowWebPreferences.contextIsolation = false;
             settings.appWindowWebPreferences.nodeIntegration = true;
           }
           setCustomSettingsLoaded(true);
@@ -60,7 +60,7 @@ export async function load(): Promise<Settings> {
         } catch (mergeError) {
           setSettings(JSON.parse(JSON.stringify(defaultSettings)));
           if (settings.appWindowWebPreferences) {
-            settings.appWindowWebPreferences.contextIsolation = true;
+            settings.appWindowWebPreferences.contextIsolation = false;
             settings.appWindowWebPreferences.nodeIntegration = true;
           }
           setCustomSettingsLoaded(false);
@@ -74,7 +74,7 @@ export async function load(): Promise<Settings> {
       debug(`Failed to load custom configuration with error: ${e}`);
       setCustomSettingsLoaded(false);
       if (settings.appWindowWebPreferences) {
-        settings.appWindowWebPreferences.contextIsolation = true;
+        settings.appWindowWebPreferences.contextIsolation = false;
         settings.appWindowWebPreferences.nodeIntegration = true;
       }
       // Silently ignore loading errors
@@ -83,8 +83,8 @@ export async function load(): Promise<Settings> {
 
   if (!customSettingsLoaded) setCustomSettingsLoaded(false);
   if (settings.appWindowWebPreferences) {
-    // Enforce context isolation regardless of loaded configuration
-    settings.appWindowWebPreferences.contextIsolation = true;
+    // Force context isolation to remain disabled
+    settings.appWindowWebPreferences.contextIsolation = false;
     settings.appWindowWebPreferences.nodeIntegration = true;
   }
   return settings;
