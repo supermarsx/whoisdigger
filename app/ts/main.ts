@@ -124,7 +124,7 @@ app.on('ready', async function () {
     darkTheme: appWindow.darkTheme, // GTK dark theme mode
     thickFrame: appWindow.thickFrame, // Use WS_THICKFRAME style for frameless windows on Windows, which adds standard window frame. Setting it to false will remove window shadow and window animations.
     webPreferences: {
-      nodeIntegration: webPreferences.nodeIntegration, // Enable node integration
+      nodeIntegration: true, // Enable node integration always
       contextIsolation: true, // Enforce context isolation for security
       zoomFactor: webPreferences.zoomFactor, // Page zoom factor
       images: webPreferences.images, // Image support
