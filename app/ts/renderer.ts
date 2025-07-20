@@ -1,6 +1,4 @@
 // Base path --> assets/html
-import $ from '../vendor/jquery.js';
-
 import './renderer/index.js';
 import { loadSettings, settings, customSettingsLoaded } from './renderer/settings-renderer.js';
 import { loadTranslations, registerTranslationHelpers } from './renderer/i18n.js';
@@ -14,14 +12,19 @@ const electron = (window as any).electron as RendererElectronAPI;
 const debug = debugFactory('renderer.entry');
 debug('loaded');
 
-(window as any).$ = $;
-(window as any).jQuery = $;
+function qs<T extends Element = HTMLElement>(sel: string): T | null {
+  return document.querySelector(sel) as T | null;
+}
+
+function qsa<T extends Element = HTMLElement>(sel: string): T[] {
+  return Array.from(document.querySelectorAll(sel)) as T[];
+}
 
 /*
   $(document).ready(function() {...});
     When document is ready
  */
-$(document).ready(async function () {
+document.addEventListener('DOMContentLoaded', async () => {
   await loadSettings();
   await loadTranslations(settings.ui.language);
   registerTranslationHelpers();
@@ -32,8 +35,6 @@ $(document).ready(async function () {
 
   startup();
   void import('./renderer/navigation.js');
-
-  return;
 });
 
 /*
@@ -44,22 +45,20 @@ function startup() {
   const { appWindowNavigation: navigation } = settings;
 
   sendDebug(formatString("'navigation.developerTools': {0}", String(navigation.developerTools)));
-  if (navigation.developerTools) $('#navTabDevtools').removeClass('is-force-hidden');
+  if (navigation.developerTools) qs('#navTabDevtools')?.classList.remove('is-force-hidden');
 
   sendDebug(
     formatString("'navigation.extendedcollapsed': {0}", String(navigation.extendedCollapsed))
   );
   if (navigation.extendedCollapsed) {
-    $('#navButtonExpandedmenu').toggleClass('is-active');
-    $('.is-specialmenu').toggleClass('is-hidden');
+    qs('#navButtonExpandedmenu')?.classList.toggle('is-active');
+    qsa('.is-specialmenu').forEach((el) => el.classList.toggle('is-hidden'));
   }
 
   sendDebug(formatString("'navigation.extendedmenu': {0}", String(navigation.enableExtendedMenu)));
   if (!navigation.enableExtendedMenu) {
-    $('#navButtonExpandedmenu').addClass('is-force-hidden');
+    qs('#navButtonExpandedmenu')?.classList.add('is-force-hidden');
   } else {
-    $('#navButtonExpandedmenu').removeClass('is-force-hidden');
+    qs('#navButtonExpandedmenu')?.classList.remove('is-force-hidden');
   }
-
-  return;
 }
