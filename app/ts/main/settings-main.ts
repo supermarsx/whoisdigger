@@ -44,7 +44,7 @@ function watchConfig(): void {
       try {
         const merged = mergeDefaults(parsed);
         if (merged.appWindowWebPreferences) {
-          merged.appWindowWebPreferences.contextIsolation = true;
+          merged.appWindowWebPreferences.contextIsolation = false;
           merged.appWindowWebPreferences.nodeIntegration = true;
         }
         setSettings(merged);
@@ -52,7 +52,7 @@ function watchConfig(): void {
       } catch (mergeError) {
         const defaults = JSON.parse(JSON.stringify(defaultSettings));
         if (defaults.appWindowWebPreferences) {
-          defaults.appWindowWebPreferences.contextIsolation = true;
+          defaults.appWindowWebPreferences.contextIsolation = false;
           defaults.appWindowWebPreferences.nodeIntegration = true;
         }
         setSettings(defaults);

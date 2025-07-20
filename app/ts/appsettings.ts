@@ -25,7 +25,7 @@ const appSettings = {
     appWindowWebPreferences: {
       // Web preferences
       nodeIntegration: true, // Enable Node.js integration
-      contextIsolation: true, // Enable context isolation
+      contextIsolation: false, // Disable context isolation
       zoomFactor: 1.0, // Page zoom factor
       images: true, // Image support
       experimentalFeatures: false, // Enable Chromium experimental features
@@ -209,7 +209,7 @@ export const appSettingsDescriptions: Record<string, string> = {
   'appWindow.darkTheme': 'Use GTK dark theme',
   'appWindow.thickFrame': 'Use thick frame on Windows',
   'appWindowWebPreferences.nodeIntegration': 'Enable Node integration (renderer access to Node.js)',
-  'appWindowWebPreferences.contextIsolation': 'Enable context isolation',
+  'appWindowWebPreferences.contextIsolation': 'Use context isolation',
   'appWindowWebPreferences.zoomFactor': 'Page zoom factor',
   'appWindowWebPreferences.images': 'Allow images',
   'appWindowWebPreferences.experimentalFeatures': 'Enable Chromium experimental features',
