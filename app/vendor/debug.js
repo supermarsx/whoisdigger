@@ -1,2 +1,2 @@
-import debug from '../node_modules/debug/src/browser.js';
+import debug from 'debug/src/browser.js';
 export default debug;
