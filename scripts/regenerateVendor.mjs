@@ -72,10 +72,13 @@ export function regenerateVendor() {
     'const datatables: any;\nexport default datatables;\n'
   );
 
-  const dbgSrc = path.join(modulesDir, 'debug', 'src', 'browser.js');
   const dbgDir = path.join(vendorDir, 'debug');
+  const dbgBrowserSrc = path.join(modulesDir, 'debug', 'src', 'browser.js');
+  const dbgCommonSrc = path.join(modulesDir, 'debug', 'src', 'common.js');
   const dbgBrowserDest = path.join(dbgDir, 'browser.cjs');
-  copyFile(dbgSrc, dbgBrowserDest);
+  const dbgCommonDest = path.join(dbgDir, 'common.js');
+  copyFile(dbgBrowserSrc, dbgBrowserDest);
+  copyFile(dbgCommonSrc, dbgCommonDest);
   const dbgDest = path.join(vendorDir, 'debug.js');
   writeFile(
     dbgDest,
