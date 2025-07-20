@@ -72,26 +72,40 @@ export function regenerateVendor() {
     'const datatables: any;\nexport default datatables;\n'
   );
 
-  const dbgDir = path.join(vendorDir, 'debug');
-  const dbgBrowserSrc = path.join(modulesDir, 'debug', 'src', 'browser.js');
-  const dbgCommonSrc = path.join(modulesDir, 'debug', 'src', 'common.js');
-  const dbgBrowserDest = path.join(dbgDir, 'browser.cjs');
-  const dbgCommonDest = path.join(dbgDir, 'common.cjs');
-  copyFile(dbgBrowserSrc, dbgBrowserDest);
-  copyFile(dbgCommonSrc, dbgCommonDest);
   const dbgDest = path.join(vendorDir, 'debug.js');
   writeFile(
     dbgDest,
-    "import { createRequire } from 'module';\n" +
-      'const require = createRequire(import.meta.url);\n' +
-      "const debug = require('./debug/browser.cjs');\n" +
-      'export default debug;\n'
+    `const namespaces = new Set();
+function enabled(ns) {
+  for (const pat of namespaces) {
+    if (pat === '*' || ns.startsWith(pat)) return true;
+  }
+  return false;
+}
+export default function debug(ns) {
+  const fn = (...args) => {
+    if (enabled(ns)) {
+      console.debug(\`[\${ns}]\`, ...args);
+    }
+  };
+  fn.namespace = ns;
+  return fn;
+}
+debug.enable = pattern => {
+  pattern.split(/[,:\\s]+/).forEach(p => p && namespaces.add(p));
+};
+debug.disable = () => namespaces.clear();
+debug.enabled = enabled;
+`
   );
   writeFile(
     path.join(vendorDir, 'debug.d.ts'),
-    "import debug from 'debug';\nexport default debug;\n"
+    'type DebugFn = (...args: any[]) => void;\n' +
+      'export default function debug(ns: string): DebugFn;\n' +
+      'export const enable: (pattern: string) => void;\n' +
+      'export const disable: () => void;\n' +
+      'export const enabled: (ns: string) => boolean;\n'
   );
-
   const htmlSrcDir = path.join(modulesDir, 'html-entities', 'dist', 'esm');
   const htmlDestDir = path.join(vendorDir, 'html-entities');
   fs.mkdirSync(htmlDestDir, { recursive: true });
