@@ -9,7 +9,9 @@ compiled_templates/
 test/e2e/artifacts/
 app/data/history.sqlite
 .husky/_/husky.sh
-app/vendor/
+app/vendor/*
 !app/vendor/debug.js
 !app/vendor/debug.d.ts
+!app/vendor/debug/
+!app/vendor/debug/browser.js
 app/compiled-templates/
