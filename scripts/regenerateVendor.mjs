@@ -76,7 +76,7 @@ export function regenerateVendor() {
   const dbgBrowserSrc = path.join(modulesDir, 'debug', 'src', 'browser.js');
   const dbgCommonSrc = path.join(modulesDir, 'debug', 'src', 'common.js');
   const dbgBrowserDest = path.join(dbgDir, 'browser.cjs');
-  const dbgCommonDest = path.join(dbgDir, 'common.js');
+  const dbgCommonDest = path.join(dbgDir, 'common.cjs');
   copyFile(dbgBrowserSrc, dbgBrowserDest);
   copyFile(dbgCommonSrc, dbgCommonDest);
   const dbgDest = path.join(vendorDir, 'debug.js');
