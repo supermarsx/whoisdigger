@@ -7,16 +7,10 @@ const electron = (window as any).electron as RendererElectronAPI;
 import { IpcChannel } from '../common/ipcChannels.js';
 import { formatString } from '../common/stringformat.js';
 
+import $ from '../../vendor/jquery.js';
+(window as any).$ = (window as any).jQuery = $;
 import { debugFactory, errorFactory } from '../common/logger.js';
 import DomainStatus from '../common/status.js';
-
-function qs<T extends Element = HTMLElement>(sel: string): T | null {
-  return document.querySelector(sel) as T | null;
-}
-
-function qsa<T extends Element = HTMLElement>(sel: string): T[] {
-  return Array.from(document.querySelectorAll(sel)) as T[];
-}
 
 const debug = debugFactory('renderer.singlewhois');
 const error = errorFactory('renderer.singlewhois');
@@ -72,108 +66,98 @@ async function handleResults(domainResults: string) {
 
   switch (domainStatus) {
     case DomainStatus.Unavailable:
-      qs('#singlewhoisMessageUnavailable')?.classList.remove('is-hidden');
-      if (qs('#singlewhoisMessageWhoisResults'))
-        qs('#singlewhoisMessageWhoisResults')!.textContent = domainResults;
+      $('#singlewhoisMessageUnavailable').removeClass('is-hidden');
+      $('#singlewhoisMessageWhoisResults').text(domainResults);
 
-      qs('#singlewhoisTdDomain')?.setAttribute('url', 'http://' + (domain ?? ''));
-      if (qs('#singlewhoisTdDomain'))
-        qs('#singlewhoisTdDomain')!.textContent = domain ?? '';
+      $('#singlewhoisTdDomain').attr('url', 'http://' + (domain ?? ''));
+      $('#singlewhoisTdDomain').text(domain ?? '');
 
-      if (qs('#singlewhoisTdUpdate'))
-        qs('#singlewhoisTdUpdate')!.textContent = updateDate ?? '';
-      if (qs('#singlewhoisTdRegistrar'))
-        qs('#singlewhoisTdRegistrar')!.textContent = registrar ?? '';
-      if (qs('#singlewhoisTdCreation'))
-        qs('#singlewhoisTdCreation')!.textContent = creationDate ?? '';
-      if (qs('#singlewhoisTdCompany'))
-        qs('#singlewhoisTdCompany')!.textContent = company ?? '';
-      if (qs('#singlewhoisTdExpiry'))
-        qs('#singlewhoisTdExpiry')!.textContent = expiryDate ?? '';
-      qs('#singlewhoisTableWhoisinfo.is-hidden')?.classList.remove('is-hidden');
+      $('#singlewhoisTdUpdate').text(updateDate ?? '');
+      $('#singlewhoisTdRegistrar').text(registrar ?? '');
+      $('#singlewhoisTdCreation').text(creationDate ?? '');
+      $('#singlewhoisTdCompany').text(company ?? '');
+      $('#singlewhoisTdExpiry').text(expiryDate ?? '');
+      $('#singlewhoisTableWhoisinfo.is-hidden').removeClass('is-hidden');
       break;
 
     case DomainStatus.Available:
-      if (qs('#singlewhoisMessageWhoisResults'))
-        qs('#singlewhoisMessageWhoisResults')!.textContent = domainResults;
-      qs('#singlewhoisMessageAvailable')?.classList.remove('is-hidden');
+      $('#singlewhoisMessageWhoisResults').text(domainResults);
+      $('#singlewhoisMessageAvailable').removeClass('is-hidden');
       break;
 
     default:
       if (domainStatus.includes('error')) {
-        errorReason = domainStatus.split(':')[1];
-        if (qs('#singlewhoisMessageWhoisResults'))
-          qs('#singlewhoisMessageWhoisResults')!.textContent = formatString(
-            'Whois error due to {0}:\n{1}',
-            errorReason,
-            domainResults
-          );
-        qs('#singlewhoisMessageError')?.classList.remove('is-hidden');
+        errorReason = domainStatus.split(':')[1]; // Get Error reason
+        $('#singlewhoisMessageWhoisResults').text(
+          formatString('Whois error due to {0}:\n{1}', errorReason, domainResults)
+        );
+        $('#singlewhoisMessageError').removeClass('is-hidden');
       } else {
-        if (qs('#singlewhoisMessageWhoisResults'))
-          qs('#singlewhoisMessageWhoisResults')!.textContent = formatString(
-            'Whois default error\n{0}',
-            domainResults
-          );
-        qs('#singlewhoisMessageError')?.classList.remove('is-hidden');
+        $('#singlewhoisMessageWhoisResults').text(
+          formatString('Whois default error\n{0}', domainResults)
+        );
+        $('#singlewhoisMessageError').removeClass('is-hidden');
       }
       break;
   }
 
-  qs('#singlewhoisSearchButtonSearch')?.classList.remove('is-loading');
-  qs('#singlewhoisSearchInputDomain')?.removeAttribute('readonly');
+  $('#singlewhoisSearchButtonSearch').removeClass('is-loading');
+  $('#singlewhoisSearchInputDomain').removeAttr('readonly');
 }
 
 /*
   electron.on('singlewhois:copied', function() {...});
     On event: Domain copied
  */
-electron.on('singlewhois:copied', function () {
-  qs('#singlewhoisDomainCopied')?.classList.add('is-active');
+  electron.on('singlewhois:copied', function () {
+  $('#singlewhoisDomainCopied').addClass('is-active');
 
   return;
 });
 
 /*
-  On keyup: Trigger search event with [ENTER] key
+  $('#singlewhoisSearchInputDomain').keyup(function(...) {...});
+    On keyup: Trigger search event with [ENTER] key
  */
-qs('#singlewhoisSearchInputDomain')?.addEventListener('keyup', (event: KeyboardEvent) => {
+$('#singlewhoisSearchInputDomain').keyup(function (event) {
+  // Cancel the default action, if needed
   event.preventDefault();
-  if (event.key === 'Enter') {
-    qs('#singlewhoisSearchButtonSearch')?.dispatchEvent(new Event('click'));
-  }
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) $('#singlewhoisSearchButtonSearch').click();
 
   return;
 });
 
 /*
-  On click: Open website for domain lookup URL in a new window
+  $('#singlewhoisTdDomain').click(function() {...});
+    On click: Open website for domain lookup URL in a new window
  */
-qs('#singlewhoisTdDomain')?.addEventListener('click', () => {
-  const domain = qs('#singlewhoisTdDomain')?.getAttribute('url') as string;
+$(document).on('click', '#singlewhoisTdDomain', function () {
+  const domain = $('#singlewhoisTdDomain').attr('url') as string;
   electron.send('singlewhois:openlink', domain);
 
   return;
 });
 
 /*
-  On click: Single whois lookup/search button
+  $('#singlewhoisSearchButtonSearch').click(function() {...});
+    On click: Single whois lookup/search button
  */
-qs('#singlewhoisSearchButtonSearch')?.addEventListener('click', function () {
+$(document).on('click', '#singlewhoisSearchButtonSearch', function () {
   const { input } = singleWhois;
   let { domain } = input;
 
-  if ((this as HTMLElement).classList.contains('is-loading')) return true;
+  if ($(this).hasClass('is-loading')) return true;
   debug('#singlewhoisSearchButtonSearch was clicked');
 
-  domain = (qs('#singlewhoisSearchInputDomain') as HTMLInputElement | null)?.value as string;
+  domain = $('#singlewhoisSearchInputDomain').val() as string;
 
   debug(formatString('Looking up for {0}', domain));
 
-  qs('#singlewhoisSearchButtonSearch')?.classList.add('is-loading');
-  qs('#singlewhoisSearchInputDomain')?.setAttribute('readonly', '');
-  qsa('.notification:not(.is-hidden)').forEach((el) => el.classList.add('is-hidden'));
-  qs('#singlewhoisTableWhoisinfo:not(.is-hidden)')?.classList.add('is-hidden');
+  $('#singlewhoisSearchButtonSearch').addClass('is-loading');
+  $('#singlewhoisSearchInputDomain').attr('readonly', '');
+  $('.notification:not(.is-hidden)').addClass('is-hidden');
+  $('#singlewhoisTableWhoisinfo:not(.is-hidden)').addClass('is-hidden');
   tableReset();
   void (async () => {
     try {
@@ -181,41 +165,42 @@ qs('#singlewhoisSearchButtonSearch')?.addEventListener('click', function () {
       await handleResults(result);
     } catch (e) {
       error(`Lookup failed: ${e}`);
-      qs('#singlewhoisSearchButtonSearch')?.classList.remove('is-loading');
-      qs('#singlewhoisSearchInputDomain')?.removeAttribute('readonly');
+      $('#singlewhoisSearchButtonSearch').removeClass('is-loading');
+      $('#singlewhoisSearchInputDomain').removeAttr('readonly');
     }
   })();
   return undefined;
 });
 
 /*
-  On click: Single whois lookup modal open click
+  $('.singlewhoisMessageWhoisOpen').click(function() {...});
+    On click: Single whois lookup modal open click
  */
-qsa('.singlewhoisMessageWhoisOpen').forEach((el) => {
-  el.addEventListener('click', () => {
-    debug('Opening whois reply');
-    qs('#singlewhoisMessageWhois')?.classList.add('is-active');
-
-    return;
-  });
-});
-
-/*
-  On click: Single whois lookup modal close click
- */
-qs('#singlewhoisMessageWhoisClose')?.addEventListener('click', () => {
-  debug('Closing whois reply');
-  qs('#singlewhoisMessageWhois')?.classList.remove('is-active');
+$(document).on('click', '.singlewhoisMessageWhoisOpen', function () {
+  debug('Opening whois reply');
+  $('#singlewhoisMessageWhois').addClass('is-active');
 
   return;
 });
 
 /*
-  On click: Domain copied close click
+  $('#singlewhoisMessageWhoisClose').click(function() {...});
+    On click: Single whois lookup modal close click
  */
-qs('#singlewhoisDomainCopiedClose')?.addEventListener('click', () => {
+$(document).on('click', '#singlewhoisMessageWhoisClose', function () {
+  debug('Closing whois reply');
+  $('#singlewhoisMessageWhois').removeClass('is-active');
+
+  return;
+});
+
+/*
+  $('#singlewhoisDomainCopiedClose').click(function() {...});
+    On click: Domain copied close click
+ */
+$(document).on('click', '#singlewhoisDomainCopiedClose', function () {
   debug('Closing domain copied');
-  qs('#singlewhoisDomainCopied')?.classList.remove('is-active');
+  $('#singlewhoisDomainCopied').removeClass('is-active');
 
   return;
 });
@@ -226,13 +211,13 @@ qs('#singlewhoisDomainCopiedClose')?.addEventListener('click', () => {
  */
 function tableReset() {
   debug('Resetting whois result table');
-  qs('#singlewhoisTdDomain')?.setAttribute('href', '#');
-  if (qs('#singlewhoisTdDomain')) qs('#singlewhoisTdDomain')!.textContent = 'n/a';
-  if (qs('#singlewhoisTdUpdate')) qs('#singlewhoisTdUpdate')!.textContent = 'n/a';
-  if (qs('#singlewhoisTdRegistrar')) qs('#singlewhoisTdRegistrar')!.textContent = 'n/a';
-  if (qs('#singlewhoisTdCreation')) qs('#singlewhoisTdCreation')!.textContent = 'n/a';
-  if (qs('#singlewhoisTdCompany')) qs('#singlewhoisTdCompany')!.textContent = 'n/a';
-  if (qs('#singlewhoisTdExpiry')) qs('#singlewhoisTdExpiry')!.textContent = 'n/a';
+  $('#singlewhoisTdDomain').attr('href', '#');
+  $('#singlewhoisTdDomain').text('n/a');
+  $('#singlewhoisTdUpdate').text('n/a');
+  $('#singlewhoisTdRegistrar').text('n/a');
+  $('#singlewhoisTdCreation').text('n/a');
+  $('#singlewhoisTdCompany').text('n/a');
+  $('#singlewhoisTdExpiry').text('n/a');
 
   return;
 }
