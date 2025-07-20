@@ -13,6 +13,6 @@ app/vendor/*
 !app/vendor/debug.js
 !app/vendor/debug.d.ts
 !app/vendor/debug/
-!app/vendor/debug/browser.js
+!app/vendor/debug/browser.cjs
 !app/vendor/debug/common.cjs
 app/compiled-templates/
