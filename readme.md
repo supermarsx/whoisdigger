@@ -1,8 +1,4 @@
-<p align="center"><img width=60% src="https://github.com/whois-team/brand/blob/master/png/whoisdigger_black.png"></p>
-
-<hr>
-
-![Whoisdigger app](https://github.com/whois-team/website/raw/master/images/projects/whoisdigger.gif)
+![whoisdigger](https://github.com/user-attachments/assets/4879093d-73a6-4bc8-b1d3-87b0f1bbc007)
 
 Whoisdigger is a cross-platform bulk WHOIS lookup desktop app built on Electron. Now written in TypeScript.
 
