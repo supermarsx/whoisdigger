@@ -110,7 +110,7 @@
     "supertest": "^7.1.3",
     "ts-jest": "^29.4.0",
     "typescript": "^5.8.3",
-    "webdriverio": "^9.16.2"
+    "webdriverio": "^9.18.1"
   },
   "overrides": {
     "superagent": "^10.2.1"
