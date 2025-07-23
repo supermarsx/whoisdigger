@@ -15,4 +15,5 @@ app/vendor/*
 !app/vendor/debug/
 !app/vendor/debug/browser.cjs
 !app/vendor/debug/common.cjs
+!app/vendor/jquery.js
 app/compiled-templates/
