@@ -1,5 +1,5 @@
 import * as conversions from '../../common/conversions.js';
-import $ from '../../../vendor/jquery.js';
+import { qs, on } from '../../utils/dom.js';
 import '../../../vendor/datatables.js';
 import { debugFactory } from '../../common/logger.js';
 import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';
@@ -29,33 +29,27 @@ export function renderAnalyser(contents: any): void {
   $('#bwaAnalyserButtonClose').click(function() {...});
     Bulk whois analyser close button
  */
-$('#bwaAnalyserButtonClose').click(function () {
+on('click', '#bwaAnalyserButtonClose', () => {
   debug('#bwaAnalyserButtonClose clicked');
-  $('#bwaAnalyserModalClose').addClass('is-active');
-
-  return;
+  qs('#bwaAnalyserModalClose')!.classList.add('is-active');
 });
 
 /*
   $('#bwaAnalyserModalCloseButtonYes').click(function() {...});
     bwa, close dialog confirm/yes
  */
-$('#bwaAnalyserModalCloseButtonYes').click(function () {
-  $('#bwaAnalyser').addClass('is-hidden');
-  $('#bwaAnalyserModalClose').removeClass('is-active');
-  $('#bwaEntry').removeClass('is-hidden');
-
-  return;
+on('click', '#bwaAnalyserModalCloseButtonYes', () => {
+  qs('#bwaAnalyser')!.classList.add('is-hidden');
+  qs('#bwaAnalyserModalClose')!.classList.remove('is-active');
+  qs('#bwaEntry')!.classList.remove('is-hidden');
 });
 
 /*
   $('#bwaAnalyserModalCloseButtonNo').click(function() {...});
     Bulk whois analyser close dialog cancel/no button
  */
-$('#bwaAnalyserModalCloseButtonNo').click(function () {
-  $('#bwaAnalyserModalClose').removeClass('is-active');
-
-  return;
+on('click', '#bwaAnalyserModalCloseButtonNo', () => {
+  qs('#bwaAnalyserModalClose')!.classList.remove('is-active');
 });
 
 /*
@@ -79,7 +73,7 @@ function showTable() {
   }
   header.content += '</tr>';
 
-  $('#bwaAnalyserTableThead').html(header.content);
+  qs('#bwaAnalyserTableThead')!.innerHTML = header.content;
 
   // Generate record fields
   body.content = '';
@@ -91,14 +85,14 @@ function showTable() {
     }
     body.content += '</tr>\n';
   }
-  $('#bwaAnalyserTableTbody').html(body.content);
+  qs('#bwaAnalyserTableTbody')!.innerHTML = body.content;
 
-  body.table = ($('#bwaAnalyserTable') as any).dataTable({
+  body.table = (qs('#bwaAnalyserTable') as any).dataTable({
     destroy: true
   });
 
-  $('#bwaFileinputconfirm').addClass('is-hidden');
-  $('#bwaAnalyser').removeClass('is-hidden');
+  qs('#bwaFileinputconfirm')!.classList.add('is-hidden');
+  qs('#bwaAnalyser')!.classList.remove('is-hidden');
   //body.content.destroy();
 
   return;

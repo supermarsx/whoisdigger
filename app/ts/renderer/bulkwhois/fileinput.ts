@@ -19,7 +19,7 @@ const electron = (window as any).electron as RendererElectronAPI & {
   path: { basename: (p: string) => Promise<string> };
 };
 import { tableReset } from './auxiliary.js';
-import $ from '../../../vendor/jquery.js';
+import { qs, on } from '../../utils/dom.js';
 
 import { formatString } from '../../common/stringformat.js';
 import { settings } from '../settings-renderer.js';
@@ -49,30 +49,33 @@ async function refreshBwFile(pathToFile: string): Promise<void> {
     bwFileStats.maxestimate = estimate.max;
 
     if (estimate.max) {
-      $('#bwFileSpanTimebetweenmin').text(
-        formatString('{0}ms ', lookup.randomize.timeBetween.minimum)
+      qs('#bwFileSpanTimebetweenmin')!.textContent = formatString(
+        '{0}ms ',
+        lookup.randomize.timeBetween.minimum
       );
-      $('#bwFileSpanTimebetweenmax').text(
-        formatString('/ {0}ms', lookup.randomize.timeBetween.maximum)
+      qs('#bwFileSpanTimebetweenmax')!.textContent = formatString(
+        '/ {0}ms',
+        lookup.randomize.timeBetween.maximum
       );
-      $('#bwFileTdEstimate').text(
-        formatString('{0} to {1}', bwFileStats.minestimate, bwFileStats.maxestimate)
+      qs('#bwFileTdEstimate')!.textContent = formatString(
+        '{0} to {1}',
+        bwFileStats.minestimate,
+        bwFileStats.maxestimate
       );
     } else {
-      $('#bwFileSpanTimebetweenminmax').addClass('is-hidden');
-      $('#bwFileSpanTimebetweenmin').text(settings.lookupGeneral.timeBetween + 'ms');
-      $('#bwFileTdEstimate').text(formatString('> {0}', bwFileStats.minestimate));
+      qs('#bwFileSpanTimebetweenminmax')!.classList.add('is-hidden');
+      qs('#bwFileSpanTimebetweenmin')!.textContent = settings.lookupGeneral.timeBetween + 'ms';
+      qs('#bwFileTdEstimate')!.textContent = formatString('> {0}', bwFileStats.minestimate);
     }
 
     bwFileStats.filepreview = bwFileContents.toString().substring(0, 50);
 
-    $('#bwFileTdName').text(String(bwFileStats.filename));
-    $('#bwFileTdLastmodified').text(conversions.getDate(bwFileStats.mtime) ?? '');
-    $('#bwFileTdLastaccess').text(conversions.getDate(bwFileStats.atime) ?? '');
-    $('#bwFileTdFilesize').text(
-      String(bwFileStats.humansize) + formatString(' ({0} line(s))', String(bwFileStats.linecount))
-    );
-    $('#bwFileTdFilepreview').text(String(bwFileStats.filepreview) + '...');
+    qs('#bwFileTdName')!.textContent = String(bwFileStats.filename);
+    qs('#bwFileTdLastmodified')!.textContent = conversions.getDate(bwFileStats.mtime) ?? '';
+    qs('#bwFileTdLastaccess')!.textContent = conversions.getDate(bwFileStats.atime) ?? '';
+    qs('#bwFileTdFilesize')!.textContent =
+      String(bwFileStats.humansize) + formatString(' ({0} line(s))', String(bwFileStats.linecount));
+    qs('#bwFileTdFilepreview')!.textContent = String(bwFileStats.filepreview) + '...';
   } catch (e) {
     error(`Failed to reload file: ${e}`);
   }
@@ -101,13 +104,13 @@ async function handleFileConfirmation(
   debug(filePath);
   if (filePath === undefined || filePath == '' || filePath === null) {
     debug(filePath);
-    $('#bwFileinputloading').addClass('is-hidden');
-    $('#bwEntry').removeClass('is-hidden');
+    qs('#bwFileinputloading')!.classList.add('is-hidden');
+    qs('#bwEntry')!.classList.remove('is-hidden');
   } else {
-    $('#bwLoadingInfo').text('Loading file stats...');
+    qs('#bwLoadingInfo')!.textContent = 'Loading file stats...';
     if (isDragDrop === true) {
-      $('#bwEntry').addClass('is-hidden');
-      $('#bwFileinputloading').removeClass('is-hidden');
+      qs('#bwEntry')!.classList.add('is-hidden');
+      qs('#bwFileinputloading')!.classList.remove('is-hidden');
       try {
         bwFileStats = (await electron.stat(filePath as string)) as FileStats;
         bwFileStats.filename = await electron.path.basename(filePath as string);
@@ -115,11 +118,11 @@ async function handleFileConfirmation(
           bwFileStats.size,
           misc.useStandardSize
         );
-        $('#bwFileSpanInfo').text('Loading file contents...');
+        qs('#bwFileSpanInfo')!.textContent = 'Loading file contents...';
         bwFileContents = await electron.bwFileRead(filePath as string);
       } catch (e) {
         error(`Failed to read file: ${e}`);
-        $('#bwFileSpanInfo').text('Failed to load file');
+        qs('#bwFileSpanInfo')!.textContent = 'Failed to load file';
         return;
       }
     } else {
@@ -130,15 +133,15 @@ async function handleFileConfirmation(
           bwFileStats.size,
           misc.useStandardSize
         );
-        $('#bwFileSpanInfo').text('Loading file contents...');
+        qs('#bwFileSpanInfo')!.textContent = 'Loading file contents...';
         bwFileContents = await electron.bwFileRead((filePath as string[])[0]);
       } catch (e) {
         error(`Failed to read file: ${e}`);
-        $('#bwFileSpanInfo').text('Failed to load file');
+        qs('#bwFileSpanInfo')!.textContent = 'Failed to load file';
         return;
       }
     }
-    $('#bwFileSpanInfo').text('Getting line count...');
+    qs('#bwFileSpanInfo')!.textContent = 'Getting line count...';
     bwFileStats.linecount = bwFileContents.toString().split('\n').length;
 
     const estimate = getTimeEstimates(bwFileStats.linecount!, settings);
@@ -146,34 +149,37 @@ async function handleFileConfirmation(
     bwFileStats.maxestimate = estimate.max;
 
     if (estimate.max) {
-      $('#bwFileSpanTimebetweenmin').text(
-        formatString('{0}ms ', lookup.randomize.timeBetween.minimum)
+      qs('#bwFileSpanTimebetweenmin')!.textContent = formatString(
+        '{0}ms ',
+        lookup.randomize.timeBetween.minimum
       );
-      $('#bwFileSpanTimebetweenmax').text(
-        formatString('/ {0}ms', lookup.randomize.timeBetween.maximum)
+      qs('#bwFileSpanTimebetweenmax')!.textContent = formatString(
+        '/ {0}ms',
+        lookup.randomize.timeBetween.maximum
       );
-      $('#bwFileTdEstimate').text(
-        formatString('{0} to {1}', bwFileStats.minestimate, bwFileStats.maxestimate)
+      qs('#bwFileTdEstimate')!.textContent = formatString(
+        '{0} to {1}',
+        bwFileStats.minestimate,
+        bwFileStats.maxestimate
       );
     } else {
-      $('#bwFileSpanTimebetweenminmax').addClass('is-hidden');
-      $('#bwFileSpanTimebetweenmin').text(settings.lookupGeneral.timeBetween + 'ms');
-      $('#bwFileTdEstimate').text(formatString('> {0}', bwFileStats.minestimate));
+      qs('#bwFileSpanTimebetweenminmax')!.classList.add('is-hidden');
+      qs('#bwFileSpanTimebetweenmin')!.textContent = settings.lookupGeneral.timeBetween + 'ms';
+      qs('#bwFileTdEstimate')!.textContent = formatString('> {0}', bwFileStats.minestimate);
     }
 
     bwFileStats.filepreview = bwFileContents.toString().substring(0, 50);
     debug(bwFileStats.filepreview);
-    $('#bwFileinputloading').addClass('is-hidden');
-    $('#bwFileinputconfirm').removeClass('is-hidden');
+    qs('#bwFileinputloading')!.classList.add('is-hidden');
+    qs('#bwFileinputconfirm')!.classList.remove('is-hidden');
 
     // stats
-    $('#bwFileTdName').text(String(bwFileStats.filename));
-    $('#bwFileTdLastmodified').text(conversions.getDate(bwFileStats.mtime) ?? '');
-    $('#bwFileTdLastaccess').text(conversions.getDate(bwFileStats.atime) ?? '');
-    $('#bwFileTdFilesize').text(
-      String(bwFileStats.humansize) + formatString(' ({0} line(s))', String(bwFileStats.linecount))
-    );
-    $('#bwFileTdFilepreview').text(String(bwFileStats.filepreview) + '...');
+    qs('#bwFileTdName')!.textContent = String(bwFileStats.filename);
+    qs('#bwFileTdLastmodified')!.textContent = conversions.getDate(bwFileStats.mtime) ?? '';
+    qs('#bwFileTdLastaccess')!.textContent = conversions.getDate(bwFileStats.atime) ?? '';
+    qs('#bwFileTdFilesize')!.textContent =
+      String(bwFileStats.humansize) + formatString(' ({0} line(s))', String(bwFileStats.linecount));
+    qs('#bwFileTdFilepreview')!.textContent = String(bwFileStats.filepreview) + '...';
     //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']); // show estimated bulk lookup time
     debug('cont:' + bwFileContents);
 
@@ -208,46 +214,45 @@ electron.on(
   $('#bwEntryButtonFile').click(function() {...});
     File Input, Entry container button
  */
-$(document).on('click', '#bwEntryButtonFile', function () {
-  $('#bwEntry').addClass('is-hidden');
-  $.when($('#bwFileinputloading').removeClass('is-hidden').delay(10)).done(async function () {
+on('click', '#bwEntryButtonFile', () => {
+  qs('#bwEntry')!.classList.add('is-hidden');
+  const loader = qs('#bwFileinputloading')!;
+  loader.classList.remove('is-hidden');
+  setTimeout(async () => {
     const filePath = await electron.invoke(IpcChannel.BulkwhoisInputFile);
     await handleFileConfirmation(filePath);
-  });
-
-  return;
+  }, 10);
 });
 
 /*
   $('#bwFileButtonCancel').click(function() {...});
     File Input, cancel file confirmation
  */
-$(document).on('click', '#bwFileButtonCancel', function () {
+on('click', '#bwFileButtonCancel', () => {
   watcher.close();
-  $('#bwFileinputconfirm').addClass('is-hidden');
-  $('#bwEntry').removeClass('is-hidden');
-
-  return;
+  qs('#bwFileinputconfirm')!.classList.add('is-hidden');
+  qs('#bwEntry')!.classList.remove('is-hidden');
 });
 
 /*
   $('#bwFileButtonConfirm').click(function() {...});
     File Input, proceed to bulk whois
  */
-$(document).on('click', '#bwFileButtonConfirm', function () {
+on('click', '#bwFileButtonConfirm', () => {
   watcher.close();
   const bwDomainArray = bwFileContents
     .toString()
     .split('\n')
     .map(Function.prototype.call, String.prototype.trim);
-  const bwTldsArray = (($('#bwFileInputTlds').val() as string) || '')
+  const input = qs<HTMLInputElement>('#bwFileInputTlds');
+  const bwTldsArray = (input?.value || '')
     .split(',')
     .map((t) => t.trim())
     .filter(Boolean);
 
   tableReset(bwDomainArray.length, bwTldsArray.length);
-  $('#bwFileinputconfirm').addClass('is-hidden');
-  $('#bwProcessing').removeClass('is-hidden');
+  qs('#bwFileinputconfirm')!.classList.add('is-hidden');
+  qs('#bwProcessing')!.classList.remove('is-hidden');
 
   debug(bwDomainArray);
   debug(bwTldsArray);
@@ -259,47 +264,35 @@ $(document).on('click', '#bwFileButtonConfirm', function () {
   dragDropInitialization (self-executing)
     Bulk whois file input by drag and drop
  */
-(function dragDropInitialization() {
-  $(document).ready(() => {
-    const holder = document.getElementById('bulkwhoisMainContainer') as HTMLElement | null;
-    if (!holder) return;
+document.addEventListener('DOMContentLoaded', () => {
+  const holder = document.getElementById('bulkwhoisMainContainer') as HTMLElement | null;
+  if (!holder) return;
 
-    holder.ondragover = function () {
-      return false;
-    };
-
-    holder.ondragleave = function () {
-      return false;
-    };
-
-    holder.ondragend = function () {
-      return false;
-    };
-
-    holder.ondrop = function (event) {
-      event.preventDefault();
-      for (const f of Array.from(event.dataTransfer!.files)) {
-        const file = f as any;
-        debug(`File(s) you dragged here: ${file.path}`);
-        electron.send('ondragstart', file.path);
-      }
-      return false;
-    };
-  });
-})();
+  holder.ondragover = () => false;
+  holder.ondragleave = () => false;
+  holder.ondragend = () => false;
+  holder.ondrop = (event) => {
+    event.preventDefault();
+    for (const f of Array.from(event.dataTransfer!.files)) {
+      const file = f as any;
+      debug(`File(s) you dragged here: ${file.path}`);
+      electron.send('ondragstart', file.path);
+    }
+    return false;
+  };
+});
 
 /*
   $('#bulkwhoisMainContainer').on('drop', function(...) {...});
     On Drop ipsum
  */
-$('#bulkwhoisMainContainer').on('drop', function (event) {
+on('drop', '#bulkwhoisMainContainer', (event: DragEvent) => {
   event.preventDefault();
-  for (const f of Array.from((event as any).originalEvent.dataTransfer.files)) {
+  for (const f of Array.from(event.dataTransfer!.files)) {
     const file = f as any;
     debug(`File(s) you dragged here: ${file.path}`);
     electron.send('ondragstart', file.path);
   }
-
   return false;
 });
 
@@ -307,14 +300,9 @@ $('#bulkwhoisMainContainer').on('drop', function (event) {
   $('#bwFileInputTlds').keyup(function(...) {...});
     ipsum
  */
-$('#bwFileInputTlds').keyup(function (event) {
-  // Cancel the default action, if needed
+qs('#bwFileInputTlds')?.addEventListener('keyup', (event: KeyboardEvent) => {
   event.preventDefault();
-  // Number 13 is the "Enter" key on the keyboard
-  if (event.keyCode === 13) {
-    // Trigger the button element with a click
-    $('#bwFileButtonConfirm').click();
+  if (event.key === 'Enter' || event.keyCode === 13) {
+    qs('#bwFileButtonConfirm')?.dispatchEvent(new Event('click', { bubbles: true }));
   }
-
-  return;
 });

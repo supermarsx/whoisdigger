@@ -1,4 +1,4 @@
-import $ from '../../../vendor/jquery.js';
+import { qs, on } from '../../utils/dom.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
 import { debugFactory } from '../../common/logger.js';
 
@@ -7,17 +7,20 @@ const debug = debugFactory('bulkwhois.events');
 export function bindProcessingEvents(electron: {
   send: (channel: string, ...args: any[]) => void;
 }): void {
-  $(document).on('click', '#bwProcessingButtonPause', function () {
-    const searchStatus = $('#bwProcessingButtonPauseSpanText').text();
+  on('click', '#bwProcessingButtonPause', () => {
+    const searchStatus = qs('#bwProcessingButtonPauseSpanText')?.textContent ?? '';
     switch (searchStatus) {
       case 'Continue':
         setPauseButton();
         electron.send(IpcChannel.BulkwhoisLookupContinue);
         break;
       case 'Pause':
-        $('#bwProcessingButtonPause').removeClass('is-warning').addClass('is-success');
-        $('#bwProcessingButtonPauseicon').removeClass('fa-pause').addClass('fa-play');
-        $('#bwProcessingButtonPauseSpanText').text('Continue');
+        qs('#bwProcessingButtonPause')!.classList.remove('is-warning');
+        qs('#bwProcessingButtonPause')!.classList.add('is-success');
+        qs('#bwProcessingButtonPauseicon')!.classList.remove('fa-pause');
+        qs('#bwProcessingButtonPauseicon')!.classList.add('fa-play');
+        if (qs('#bwProcessingButtonPauseSpanText'))
+          qs('#bwProcessingButtonPauseSpanText')!.textContent = 'Continue';
         electron.send(IpcChannel.BulkwhoisLookupPause);
         break;
       default:
@@ -25,44 +28,49 @@ export function bindProcessingEvents(electron: {
     }
   });
 
-  $(document).on('click', '#bwProcessingButtonStop', function () {
+  on('click', '#bwProcessingButtonStop', () => {
     debug('Pausing whois & opening stop modal');
-    $('#bwProcessingButtonPause').text().includes('Pause')
-      ? $('#bwProcessingButtonPause').trigger('click')
-      : false;
-    $('#bwProcessingModalStop').addClass('is-active');
+    const btn = qs('#bwProcessingButtonPause');
+    if (btn?.textContent?.includes('Pause')) {
+      btn.dispatchEvent(new Event('click', { bubbles: true }));
+    }
+    qs('#bwProcessingModalStop')!.classList.add('is-active');
   });
 
-  $(document).on('click', '#bwProcessingModalStopButtonContinue', function () {
+  on('click', '#bwProcessingModalStopButtonContinue', () => {
     debug('Closing Stop modal & continue');
-    $('#bwProcessingModalStop').removeClass('is-active');
+    qs('#bwProcessingModalStop')!.classList.remove('is-active');
   });
 
-  $(document).on('click', '#bwProcessingModalStopButtonStop', function () {
+  on('click', '#bwProcessingModalStopButtonStop', () => {
     debug('Closing Stop modal & going back to start');
-    $('#bwProcessingModalStop').removeClass('is-active');
-    $('#bwProcessing').addClass('is-hidden');
+    qs('#bwProcessingModalStop')!.classList.remove('is-active');
+    qs('#bwProcessing')!.classList.add('is-hidden');
     setPauseButton();
-    $('#bwEntry').removeClass('is-hidden');
+    qs('#bwEntry')!.classList.remove('is-hidden');
   });
 
-  $(document).on('click', '#bwProcessingModalStopButtonStopsave', function () {
+  on('click', '#bwProcessingModalStopButtonStopsave', () => {
     debug('Closing Stop modal & exporting');
     electron.send(IpcChannel.BulkwhoisLookupStop);
-    $('#bwProcessingModalStop').removeClass('is-active');
-    $('#bwProcessing').addClass('is-hidden');
+    qs('#bwProcessingModalStop')!.classList.remove('is-active');
+    qs('#bwProcessing')!.classList.add('is-hidden');
     setPauseButton();
-    $('#bwExport').removeClass('is-hidden');
+    qs('#bwExport')!.classList.remove('is-hidden');
   });
 
-  $(document).on('click', '#bwProcessingButtonNext', function () {
-    $('#bwProcessing').addClass('is-hidden');
-    $('#bwExport').removeClass('is-hidden');
+  on('click', '#bwProcessingButtonNext', () => {
+    qs('#bwProcessing')!.classList.add('is-hidden');
+    qs('#bwExport')!.classList.remove('is-hidden');
   });
 }
 
 function setPauseButton() {
-  $('#bwProcessingButtonPause').removeClass('is-success').addClass('is-warning');
-  $('#bwProcessingButtonPauseicon').removeClass('fa-play').addClass('fa-pause');
-  $('#bwProcessingButtonPauseSpanText').text('Pause');
+  const btn = qs('#bwProcessingButtonPause')!;
+  btn.classList.remove('is-success');
+  btn.classList.add('is-warning');
+  qs('#bwProcessingButtonPauseicon')!.classList.remove('fa-play');
+  qs('#bwProcessingButtonPauseicon')!.classList.add('fa-pause');
+  if (qs('#bwProcessingButtonPauseSpanText'))
+    qs('#bwProcessingButtonPauseSpanText')!.textContent = 'Pause';
 }
