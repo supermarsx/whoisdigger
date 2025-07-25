@@ -1,6 +1,6 @@
 import * as conversions from '../../common/conversions.js';
 import type { FileStats } from '../../common/fileStats.js';
-import $ from '../../../vendor/jquery.js';
+import { qs, on } from '../../utils/dom.js';
 import '../../../vendor/datatables.js';
 import { settings } from '../settings-renderer.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
@@ -43,14 +43,13 @@ async function readFileContents(path: string): Promise<any> {
 }
 
 function updateFileInfoUI(stats: FileStats): void {
-  $('#bwaFileTdFilename').text(String(stats.filename));
-  $('#bwaFileTdLastmodified').text(conversions.getDate(stats.mtime) ?? '');
-  $('#bwaFileTdLastaccessed').text(conversions.getDate(stats.atime) ?? '');
-  $('#bwaFileTdFilesize').text(
-    String(stats.humansize) + formatString(' ({0} record(s))', String(stats.linecount))
-  );
-  $('#bwaFileTdFilepreview').text(String(stats.filepreview) + '...');
-  $('#bwaFileTextareaErrors').text(String(stats.errors || 'No errors'));
+  qs('#bwaFileTdFilename')!.textContent = String(stats.filename);
+  qs('#bwaFileTdLastmodified')!.textContent = conversions.getDate(stats.mtime) ?? '';
+  qs('#bwaFileTdLastaccessed')!.textContent = conversions.getDate(stats.atime) ?? '';
+  qs('#bwaFileTdFilesize')!.textContent =
+    String(stats.humansize) + formatString(' ({0} record(s))', String(stats.linecount));
+  qs('#bwaFileTdFilepreview')!.textContent = String(stats.filepreview) + '...';
+  qs('#bwaFileTextareaErrors')!.textContent = String(stats.errors || 'No errors');
 }
 
 async function refreshBwaFile(pathToFile: string): Promise<void> {
@@ -75,15 +74,16 @@ async function refreshBwaFile(pathToFile: string): Promise<void> {
       bwaFileStats.filepreview = '';
     }
     bwaFileStats.errors = JSON.stringify(bwaFileContents.errors).slice(1, -1);
-    $('#bwaFileTdFilename').text(String(bwaFileStats.filename));
-    $('#bwaFileTdLastmodified').text(conversions.getDate(bwaFileStats.mtime) ?? '');
-    $('#bwaFileTdLastaccessed').text(conversions.getDate(bwaFileStats.atime) ?? '');
-    $('#bwaFileTdFilesize').text(
+    qs('#bwaFileTdFilename')!.textContent = String(bwaFileStats.filename);
+    qs('#bwaFileTdLastmodified')!.textContent =
+      conversions.getDate(bwaFileStats.mtime) ?? '';
+    qs('#bwaFileTdLastaccessed')!.textContent =
+      conversions.getDate(bwaFileStats.atime) ?? '';
+    qs('#bwaFileTdFilesize')!.textContent =
       String(bwaFileStats.humansize) +
-        formatString(' ({0} record(s))', String(bwaFileStats.linecount))
-    );
-    $('#bwaFileTdFilepreview').text(String(bwaFileStats.filepreview) + '...');
-    $('#bwaFileTextareaErrors').text(String(bwaFileStats.errors || 'No errors'));
+      formatString(' ({0} record(s))', String(bwaFileStats.linecount));
+    qs('#bwaFileTdFilepreview')!.textContent = String(bwaFileStats.filepreview) + '...';
+    qs('#bwaFileTextareaErrors')!.textContent = String(bwaFileStats.errors || 'No errors');
   } catch (e) {
     error(`Failed to reload file: ${e}`);
   }
@@ -107,32 +107,32 @@ async function handleFileConfirmation(
       : null
     : (filePath as string | null);
 
-  $('#bwaFileSpanInfo').text('Waiting for file...');
+  qs('#bwaFileSpanInfo')!.textContent = 'Waiting for file...';
 
   if (filePath === undefined || filePath == '' || filePath === null) {
-    $('#bwaFileinputloading').addClass('is-hidden');
-    $('#bwaEntry').removeClass('is-hidden');
+    qs('#bwaFileinputloading')!.classList.add('is-hidden');
+    qs('#bwaEntry')!.classList.remove('is-hidden');
     return;
   }
 
-  $('#bwaFileSpanInfo').text('Loading file stats...');
+  qs('#bwaFileSpanInfo')!.textContent = 'Loading file stats...';
   if (isDragDrop === true) {
-    $('#bwaEntry').addClass('is-hidden');
-    $('#bwaFileinputloading').removeClass('is-hidden');
+    qs('#bwaEntry')!.classList.add('is-hidden');
+    qs('#bwaFileinputloading')!.classList.remove('is-hidden');
   }
 
   try {
     const targetPath = Array.isArray(filePath) ? (filePath as string[])[0] : (filePath as string);
     bwaFileStats = await loadFileStats(targetPath, isDragDrop);
-    $('#bwaFileSpanInfo').text('Loading file contents...');
+    qs('#bwaFileSpanInfo')!.textContent = 'Loading file contents...';
     bwaFileContents = await readFileContents(targetPath);
   } catch (e) {
     error(`Failed to read file: ${e}`);
-    $('#bwaFileSpanInfo').text('Failed to load file');
+    qs('#bwaFileSpanInfo')!.textContent = 'Failed to load file';
     return;
   }
 
-  $('#bwaFileSpanInfo').text('Getting line count...');
+  qs('#bwaFileSpanInfo')!.textContent = 'Getting line count...';
   bwaFileStats.linecount = bwaFileContents.data.length;
   try {
     bwaFileStats.filepreview = JSON.stringify(bwaFileContents.data[0], null, '\t').substring(0, 50);
@@ -140,8 +140,8 @@ async function handleFileConfirmation(
     bwaFileStats.filepreview = '';
   }
   bwaFileStats.errors = JSON.stringify(bwaFileContents.errors).slice(1, -1);
-  $('#bwaFileinputloading').addClass('is-hidden');
-  $('#bwaFileinputconfirm').removeClass('is-hidden');
+  qs('#bwaFileinputloading')!.classList.add('is-hidden');
+  qs('#bwaFileinputconfirm')!.classList.remove('is-hidden');
 
   updateFileInfoUI(bwaFileStats);
 
@@ -162,35 +162,31 @@ electron.on('bwa:fileinput.confirmation', (_e: unknown, filePath: string | strin
   $('#bwaEntryButtonOpen').click(function() {...});
     Bulk whois, file input, entry container button
  */
-$(document).on('click', '#bwaEntryButtonOpen', function () {
-  $('#bwaEntry').addClass('is-hidden');
-  $.when($('#bwaFileinputloading').removeClass('is-hidden').delay(10)).done(function () {
-    void (async () => {
-      const path = await electron.invoke(IpcChannel.BwaInputFile);
-      void handleFileConfirmation(path);
-    })();
-  });
-
-  return;
+on('click', '#bwaEntryButtonOpen', () => {
+  qs('#bwaEntry')!.classList.add('is-hidden');
+  const loader = qs('#bwaFileinputloading')!;
+  loader.classList.remove('is-hidden');
+  setTimeout(async () => {
+    const path = await electron.invoke(IpcChannel.BwaInputFile);
+    void handleFileConfirmation(path);
+  }, 10);
 });
 
 /*
   $('#bwaFileinputconfirmButtonCancel').click(function() {...});
     Bulk whois, file input, cancel button, file confirmation
  */
-$('#bwaFileinputconfirmButtonCancel').click(function () {
+on('click', '#bwaFileinputconfirmButtonCancel', () => {
   watcher.close();
-  $('#bwaFileinputconfirm').addClass('is-hidden');
-  $('#bwaEntry').removeClass('is-hidden');
-
-  return;
+  qs('#bwaFileinputconfirm')!.classList.add('is-hidden');
+  qs('#bwaEntry')!.classList.remove('is-hidden');
 });
 
 /*
   $('#bwaFileinputconfirmButtonStart').click(function() {...});
     Bulk whois, file input, start button, file confirmation
  */
-$('#bwaFileinputconfirmButtonStart').click(function () {
+on('click', '#bwaFileinputconfirmButtonStart', () => {
   watcher.close();
   void (async () => {
     const data = await electron.invoke(IpcChannel.BwaAnalyserStart, bwaFileContents);
@@ -202,41 +198,32 @@ $('#bwaFileinputconfirmButtonStart').click(function () {
     showTable();
   });*/
 
-  return;
 });
 
 /*
 // File Input, proceed to bulk whois
-$('#bwafButtonConfirm').click(function() {
-  const bwDomainArray = bwFileContents.toString().split('\n').map(Function.prototype.call, String.prototype.trim);
-  const bwTldsArray = $('#bwfSearchTlds').val().toString().split(',');
+on('click', '#bwafButtonConfirm', () => {
+  const bwDomainArray = bwaFileContents.toString().split('\n').map(Function.prototype.call, String.prototype.trim);
+  const bwTldsArray = (qs<HTMLInputElement>('#bwfSearchTlds')?.value || '').split(',');
 
-  $('#bwFileInputConfirm').addClass('is-hidden');
-  $('#bwProcessing').removeClass('is-hidden');
+  qs('#bwFileInputConfirm')!.classList.add('is-hidden');
+  qs('#bwProcessing')!.classList.remove('is-hidden');
 
   electron.send(IpcChannel.BulkwhoisLookup, bwDomainArray, bwTldsArray);
 });
 
 // Bulk whois file input by drag and drop
-(function() {
+(() => {
   const holder = document.getElementById('bwaMainContainer');
-  holder.ondragover = function() {
-    return false;
-  };
-
-  holder.ondragleave = function() {
-    return false;
-  };
-
-  holder.ondragend = function() {
-    return false;
-  };
-
-  holder.ondrop = function(event) {
+  if (!holder) return;
+  holder.ondragover = () => false;
+  holder.ondragleave = () => false;
+  holder.ondragend = () => false;
+  holder.ondrop = (event) => {
     event.preventDefault();
-    for (const file of event.dataTransfer.files) {
+    for (const file of Array.from(event.dataTransfer!.files)) {
       debug(`File(s) you dragged here: ${file.path}`);
-      electron.send('ondragstart', file.path);
+      electron.send('ondragstart', (file as any).path);
     }
     return false;
   };

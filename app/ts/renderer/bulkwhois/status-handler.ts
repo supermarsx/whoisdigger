@@ -1,4 +1,4 @@
-import $ from '../../../vendor/jquery.js';
+import { qs } from '../../utils/dom.js';
 import { debugFactory } from '../../common/logger.js';
 import { formatString } from '../../common/stringformat.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
@@ -14,96 +14,130 @@ export function registerStatusUpdates(electron: {
     let percent;
     switch (stat) {
       case 'start':
-        if ($('#bwProcessingButtonNext').hasClass('is-hidden') === false) {
-          $('#bwProcessingButtonNext').addClass('is-hidden');
-          $('#bwProcessingButtonPause').removeClass('is-hidden');
-          $('#bwProcessingButtonStop').removeClass('is-hidden');
+        if (!qs('#bwProcessingButtonNext')!.classList.contains('is-hidden')) {
+          qs('#bwProcessingButtonNext')!.classList.add('is-hidden');
+          qs('#bwProcessingButtonPause')!.classList.remove('is-hidden');
+          qs('#bwProcessingButtonStop')!.classList.remove('is-hidden');
         }
         break;
       case 'domains.processed':
         percent =
           parseFloat(
-            ((value / parseInt($('#bwProcessingSpanTotal').text(), base)) * 100).toFixed(1)
+            (
+              (value / parseInt(qs('#bwProcessingSpanTotal')!.textContent || '0', base)) *
+              100
+            ).toFixed(1)
           ) || 0;
-        $('#bwProcessingSpanProcessed').text(formatString('{0} ({1}%)', value, percent));
+        qs('#bwProcessingSpanProcessed')!.textContent = formatString('{0} ({1}%)', value, percent);
         break;
       case 'domains.waiting':
         percent =
           parseFloat(
-            ((value / parseInt($('#bwProcessingSpanSent').text(), base)) * 100).toFixed(1)
+            (
+              (value / parseInt(qs('#bwProcessingSpanSent')!.textContent || '0', base)) *
+              100
+            ).toFixed(1)
           ) || 0;
-        $('#bwProcessingSpanWaiting').text(formatString('{0} ({1}%)', value, percent));
+        qs('#bwProcessingSpanWaiting')!.textContent = formatString('{0} ({1}%)', value, percent);
         break;
       case 'domains.sent':
         percent =
           parseFloat(
-            ((value / parseInt($('#bwProcessingSpanTotal').text(), base)) * 100).toFixed(1)
+            (
+              (value / parseInt(qs('#bwProcessingSpanTotal')!.textContent || '0', base)) *
+              100
+            ).toFixed(1)
           ) || 0;
-        $('#bwProcessingSpanSent').text(formatString('{0} ({1}%)', value, percent));
+        qs('#bwProcessingSpanSent')!.textContent = formatString('{0} ({1}%)', value, percent);
         break;
       case 'domains.total':
-        $('#bwProcessingSpanTotal').text(value);
+        qs('#bwProcessingSpanTotal')!.textContent = String(value);
         break;
       case 'time.current':
-        $('#bwProcessingSpanTimecurrent').text(formatString('{0}', value));
+        qs('#bwProcessingSpanTimecurrent')!.textContent = formatString('{0}', value);
         break;
       case 'time.remaining':
-        $('#bwProcessingSpanTimeremaining').text(formatString('{0}', value));
+        qs('#bwProcessingSpanTimeremaining')!.textContent = formatString('{0}', value);
         break;
       case 'reqtimes.maximum':
-        $('#bwProcessingSpanReqtimemax').text(
-          formatString('{0}ms', typeof value === 'number' ? value.toFixed(2) : value)
+        qs('#bwProcessingSpanReqtimemax')!.textContent = formatString(
+          '{0}ms',
+          typeof value === 'number' ? value.toFixed(2) : value
         );
         break;
       case 'reqtimes.minimum':
-        $('#bwProcessingSpanReqtimemin').text(
-          formatString('{0}ms', typeof value === 'number' ? value.toFixed(2) : value)
+        qs('#bwProcessingSpanReqtimemin')!.textContent = formatString(
+          '{0}ms',
+          typeof value === 'number' ? value.toFixed(2) : value
         );
         break;
       case 'reqtimes.last':
-        $('#bwProcessingSpanReqtimelast').text(
-          formatString('{0}ms', typeof value === 'number' ? value.toFixed(2) : value)
+        qs('#bwProcessingSpanReqtimelast')!.textContent = formatString(
+          '{0}ms',
+          typeof value === 'number' ? value.toFixed(2) : value
         );
         break;
       case 'reqtimes.average':
-        $('#bwProcessingSpanReqtimeavg').text(
-          formatString('{0}ms', typeof value === 'number' ? value.toFixed(2) : value)
+        qs('#bwProcessingSpanReqtimeavg')!.textContent = formatString(
+          '{0}ms',
+          typeof value === 'number' ? value.toFixed(2) : value
         );
         break;
       case 'status.available':
         percent =
           parseFloat(
-            ((value / parseInt($('#bwProcessingSpanTotal').text(), base)) * 100).toFixed(1)
+            (
+              (value / parseInt(qs('#bwProcessingSpanTotal')!.textContent || '0', base)) *
+              100
+            ).toFixed(1)
           ) || 0;
-        $('#bwProcessingSpanStatusavailable').text(formatString('{0} ({1}%)', value, percent));
+        qs('#bwProcessingSpanStatusavailable')!.textContent = formatString(
+          '{0} ({1}%)',
+          value,
+          percent
+        );
         break;
       case 'status.unavailable':
         percent =
           parseFloat(
-            ((value / parseInt($('#bwProcessingSpanTotal').text(), base)) * 100).toFixed(1)
+            (
+              (value / parseInt(qs('#bwProcessingSpanTotal')!.textContent || '0', base)) *
+              100
+            ).toFixed(1)
           ) || 0;
-        $('#bwProcessingSpanStatusunavailable').text(formatString('{0} ({1}%)', value, percent));
+        qs('#bwProcessingSpanStatusunavailable')!.textContent = formatString(
+          '{0} ({1}%)',
+          value,
+          percent
+        );
         break;
       case 'status.error':
         percent =
           parseFloat(
-            ((value / parseInt($('#bwProcessingSpanTotal').text(), base)) * 100).toFixed(1)
+            (
+              (value / parseInt(qs('#bwProcessingSpanTotal')!.textContent || '0', base)) *
+              100
+            ).toFixed(1)
           ) || 0;
-        $('#bwProcessingSpanStatuserror').text(formatString('{0} ({1}%)', value, percent));
+        qs('#bwProcessingSpanStatuserror')!.textContent = formatString(
+          '{0} ({1}%)',
+          value,
+          percent
+        );
         break;
       case 'laststatus.available':
-        $('#bwProcessingSpanLaststatusavailable').text(formatString('{0}', value));
+        qs('#bwProcessingSpanLaststatusavailable')!.textContent = formatString('{0}', value);
         break;
       case 'laststatus.unavailable':
-        $('#bwProcessingSpanLaststatusunavailable').text(formatString('{0}', value));
+        qs('#bwProcessingSpanLaststatusunavailable')!.textContent = formatString('{0}', value);
         break;
       case 'laststatus.error':
-        $('#bwProcessingSpanLaststatuserror').text(formatString('{0}', value));
+        qs('#bwProcessingSpanLaststatuserror')!.textContent = formatString('{0}', value);
         break;
       case 'finished':
-        $('#bwProcessingButtonPause').addClass('is-hidden');
-        $('#bwProcessingButtonStop').addClass('is-hidden');
-        $('#bwProcessingButtonNext').removeClass('is-hidden');
+        qs('#bwProcessingButtonPause')!.classList.add('is-hidden');
+        qs('#bwProcessingButtonStop')!.classList.add('is-hidden');
+        qs('#bwProcessingButtonNext')!.classList.remove('is-hidden');
         break;
       default:
         break;
