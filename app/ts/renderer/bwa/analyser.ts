@@ -1,5 +1,6 @@
 import * as conversions from '../../common/conversions.js';
 import { qs, on } from '../../utils/dom.js';
+import '../../../vendor/jquery.js';
 import '../../../vendor/datatables.js';
 import { debugFactory } from '../../common/logger.js';
 import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';

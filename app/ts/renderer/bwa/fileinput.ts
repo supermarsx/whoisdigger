@@ -1,6 +1,7 @@
 import * as conversions from '../../common/conversions.js';
 import type { FileStats } from '../../common/fileStats.js';
 import { qs, on } from '../../utils/dom.js';
+import '../../../vendor/jquery.js';
 import '../../../vendor/datatables.js';
 import { settings } from '../settings-renderer.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
