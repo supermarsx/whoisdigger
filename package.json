@@ -91,7 +91,7 @@
     "@typescript-eslint/parser": "^8.36.0",
     "babel-jest": "^30.0.2",
     "concurrently": "^9.2.0",
-    "cross-env": "^7.0.3",
+    "cross-env": "^10.0.0",
     "cssnano": "^7.0.7",
     "electron": "^37.1.0",
     "electron-chromedriver": "^37.2.4",
