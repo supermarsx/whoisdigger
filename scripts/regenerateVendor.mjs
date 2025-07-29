@@ -38,13 +38,21 @@ export function regenerateVendor() {
   const jqSrc = path.join(modulesDir, 'jquery', 'dist', 'jquery.js');
   const jqDest = path.join(vendorDir, 'jquery.js');
   copyFile(jqSrc, jqDest);
+
+  const jqReplace = 'typeof window !== "undefined" ? window : this';
+  const jqReplaceWith = 'typeof window !== "undefined" ? window : globalThis';
+
+  let jqContent = fs.readFileSync(jqDest, 'utf8');
+  if (jqContent.includes(jqReplace)) {
+    jqContent = jqContent.replace(jqReplace, jqReplaceWith);
+  }
   const jqAppend =
     '\nif (typeof window !== "undefined") { window.$ = window.jQuery; }\n' +
     'export default window.jQuery;\n';
-  const jqContent = fs.readFileSync(jqDest, 'utf8');
   if (!jqContent.includes('export default')) {
-    fs.appendFileSync(jqDest, jqAppend);
+    jqContent += jqAppend;
   }
+  fs.writeFileSync(jqDest, jqContent);
   writeFile(
     path.join(vendorDir, 'jquery.d.ts'),
     "import jQuery from 'jquery';\nexport default jQuery;\n"
