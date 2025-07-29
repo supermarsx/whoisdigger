@@ -5,6 +5,8 @@ import { hideBin } from 'yargs/helpers';
 import JSZip from 'jszip';
 import { debugFactory, errorFactory } from './common/logger.js';
 import { lookup as whoisLookup } from './common/lookup.js';
+import * as dns from './common/dnsLookup.js';
+import { rdapLookup, RdapResponse } from './common/rdapLookup.js';
 import pLimit from 'p-limit';
 import { settings } from './common/settings.js';
 import { RequestCache } from './common/requestCache.js';
@@ -113,10 +115,25 @@ export async function lookupDomains(opts: CliOptions): Promise<WhoisResult[]> {
   const tasks = domains.map((domain) =>
     limit(async (): Promise<WhoisResult> => {
       try {
-        const data = await whoisLookup(domain);
-        const json = toJSON(data) as Record<string, unknown>;
-        const status = isDomainAvailable(data);
-        return getDomainParameters(domain, status, data, json);
+        if (settings.lookupGeneral.type === 'whois') {
+          const data = await whoisLookup(domain);
+          const json = toJSON(data) as Record<string, unknown>;
+          const status = isDomainAvailable(data);
+          return getDomainParameters(domain, status, data, json);
+        } else if (settings.lookupGeneral.type === 'dns') {
+          const res = await dns.hasNsServers(domain);
+          const status = dns.isDomainAvailable(res);
+          return { domain, status } as WhoisResult;
+        } else {
+          const res: RdapResponse = await rdapLookup(domain);
+          if (res.statusCode === 200) {
+            const json = JSON.parse(res.body) as Record<string, unknown>;
+            return getDomainParameters(domain, DomainStatus.Unavailable, res.body, json);
+          } else if (res.statusCode === 404) {
+            return { domain, status: DomainStatus.Available, whoisreply: res.body };
+          }
+          return { domain, status: DomainStatus.Error, whoisreply: res.body };
+        }
       } catch {
         return { domain, status: DomainStatus.Error, whoisreply: '' };
       }

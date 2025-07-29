@@ -7,6 +7,7 @@ import { getSettings } from '../settings-main.js';
 import { formatString } from '#common/stringformat';
 import type { BulkWhois, ProcessedResult } from './types.js';
 import * as dns from '#common/dnsLookup';
+import { RdapResponse } from '#common/rdapLookup';
 import { Result, DnsLookupError } from '#common/errors';
 import type { IpcMainEvent } from 'electron';
 import { addEntry as addHistoryEntry } from '#common/history';
@@ -20,7 +21,7 @@ export async function processData(
   event: IpcMainEvent,
   domain: string,
   index: number,
-  data: string | Result<boolean, DnsLookupError> | null = null,
+  data: string | Result<boolean, DnsLookupError> | RdapResponse | null = null,
   isError = false
 ): Promise<void> {
   let lastweight: number;
@@ -71,10 +72,20 @@ export async function processData(
     stats.laststatus.error = domain;
     sender.send(IpcChannel.BulkwhoisStatusUpdate, 'laststatus.error', stats.laststatus.error);
   } else {
-    domainAvailable =
-      settings.lookupGeneral.type == 'whois'
-        ? isDomainAvailable(data as string)
-        : dns.isDomainAvailable(data as Result<boolean, DnsLookupError>);
+    if (settings.lookupGeneral.type == 'whois') {
+      domainAvailable = isDomainAvailable(data as string);
+    } else if (settings.lookupGeneral.type == 'dns') {
+      domainAvailable = dns.isDomainAvailable(data as Result<boolean, DnsLookupError>);
+    } else {
+      const rdap = data as RdapResponse;
+      if (rdap.statusCode === 200) {
+        domainAvailable = DomainStatus.Unavailable;
+      } else if (rdap.statusCode === 404) {
+        domainAvailable = DomainStatus.Available;
+      } else {
+        domainAvailable = DomainStatus.Error;
+      }
+    }
     switch (domainAvailable) {
       case DomainStatus.Available:
         status.available++;
@@ -147,9 +158,33 @@ export async function processData(
     resultFilter.expirydate = params.expiryDate ?? null;
     resultFilter.whoisreply = params.whoisreply ?? null;
     resultFilter.whoisjson = params.whoisJson ?? null;
-  } else {
+  } else if (settings.lookupGeneral.type == 'dns') {
     resultFilter.domain = domain;
     resultFilter.status = lastStatus ?? null;
+  } else {
+    const rdap = data as RdapResponse;
+    resultFilter.domain = domain;
+    resultFilter.status = lastStatus ?? null;
+    if (rdap.statusCode === 200) {
+      try {
+        resultsJSON = JSON.parse(rdap.body);
+        const params = getDomainParameters(
+          domain,
+          lastStatus ?? null,
+          rdap.body,
+          resultsJSON as Record<string, unknown>
+        );
+        resultFilter.registrar = params.registrar ?? null;
+        resultFilter.company = params.company ?? null;
+        resultFilter.creationdate = params.creationDate ?? null;
+        resultFilter.updatedate = params.updateDate ?? null;
+        resultFilter.expirydate = params.expiryDate ?? null;
+        resultFilter.whoisjson = params.whoisJson ?? null;
+        resultFilter.whoisreply = params.whoisreply ?? null;
+      } catch (e) {
+        debug(`Failed to parse RDAP response: ${e}`);
+      }
+    }
   }
 
   resultFilter.requesttime = reqtime[index];

@@ -117,7 +117,7 @@ function updateStats(data: {
 }
 
 const enumOptions: Record<string, string[]> = {
-  'lookupGeneral.type': ['dns', 'whois'],
+  'lookupGeneral.type': ['dns', 'whois', 'rdap'],
   'lookupProxy.mode': ['single', 'multi'],
   'lookupProxy.multimode': ['sequential', 'random', 'ascending', 'descending'],
   'lookupProxy.checktype': ['ping', 'request', 'ping+request'],
