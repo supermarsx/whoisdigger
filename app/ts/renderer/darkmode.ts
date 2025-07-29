@@ -1,4 +1,8 @@
-import $ from './jqueryGlobal.js';
+import jQuery from 'jquery';
+
+(globalThis as any).jQuery = jQuery;
+(globalThis as any).$ = jQuery;
+const $ = jQuery;
 import { settings, saveSettings } from './settings-renderer.js';
 import { debugFactory } from '../common/logger.js';
 
