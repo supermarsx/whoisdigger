@@ -84,6 +84,7 @@ export function regenerateVendor() {
       "import jQuery from 'jquery';\n" +
       'globalThis.jQuery = jQuery;\n' +
       'globalThis.$ = jQuery;\n' +
+      'const $ = jQuery;\n' +
       dtContent +
       '\nexport default window.jQuery;\n';
     fs.writeFileSync(dtPath, dtContent);
