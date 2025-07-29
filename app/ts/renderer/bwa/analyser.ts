@@ -3,7 +3,15 @@ import { qs, on } from '../../utils/dom.js';
 import jq from '../jqueryGlobal.js';
 (window as any).jQuery = jq;
 (window as any).$ = jq;
-import '../../../vendor/datatables.js';
+
+let datatablesReady: Promise<unknown> | null = null;
+
+async function ensureDataTables(): Promise<void> {
+  if (!(jq as any).fn.DataTable) {
+    datatablesReady ??= import('../../../vendor/datatables.js');
+    await datatablesReady;
+  }
+}
 import { debugFactory } from '../../common/logger.js';
 import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';
 
@@ -23,9 +31,9 @@ let bwaFileContents: any;
     event
     contents
  */
-export function renderAnalyser(contents: any): void {
+export async function renderAnalyser(contents: any): Promise<void> {
   bwaFileContents = contents;
-  showTable();
+  await showTable();
 }
 
 /*
@@ -59,7 +67,8 @@ on('click', '#bwaAnalyserModalCloseButtonNo', () => {
   showTable
     ipsum
  */
-function showTable() {
+async function showTable() {
+  await ensureDataTables();
   const header: Record<string, any> = {},
     body: Record<string, any> = {};
   header.columns = Object.keys(bwaFileContents.data[0]);
