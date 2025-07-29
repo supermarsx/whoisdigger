@@ -1,5 +1,5 @@
 /** @jest-environment jsdom */
-import jQuery from '../app/ts/renderer/jqueryGlobal';
+import jQuery from 'jquery';
 import { bindProcessingEvents } from '../app/ts/renderer/bulkwhois/event-bindings';
 import { IpcChannel } from '../app/ts/common/ipcChannels';
 

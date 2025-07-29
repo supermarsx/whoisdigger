@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 
-import jQuery from '../app/ts/renderer/jqueryGlobal';
+import jQuery from 'jquery';
 import { IpcChannel } from '../app/ts/common/ipcChannels';
 
 const handlers: Record<string, (...args: any[]) => void> = {};
