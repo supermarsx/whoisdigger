@@ -1,6 +1,6 @@
 import * as conversions from '../../common/conversions.js';
 import { qs, on } from '../../utils/dom.js';
-import jq from '../../../vendor/jquery.js';
+import jq from '../jqueryGlobal.js';
 (window as any).jQuery = jq;
 (window as any).$ = jq;
 import '../../../vendor/datatables.js';

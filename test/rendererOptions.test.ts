@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 
-let jQuery: typeof import('../app/vendor/jquery.js');
+let jQuery: typeof import('../app/ts/renderer/jqueryGlobal');
 let settingsModule: any;
 const invokeMock = jest.fn();
 jest.setTimeout(10000);
@@ -54,7 +54,7 @@ beforeEach(() => {
 });
 
 test('changing setting updates configuration', async () => {
-  jQuery = require('../app/vendor/jquery.js');
+  jQuery = require('../app/ts/renderer/jqueryGlobal');
   (window as any).$ = (window as any).jQuery = jQuery;
   settingsModule = require('../app/ts/renderer/settings-renderer');
   require('../app/ts/renderer/settings');
@@ -71,7 +71,7 @@ test('changing setting updates configuration', async () => {
 });
 
 test('reloadApp invokes ipcRenderer', async () => {
-  jQuery = require('../app/vendor/jquery.js');
+  jQuery = require('../app/ts/renderer/jqueryGlobal');
   (window as any).$ = (window as any).jQuery = jQuery;
   require('../app/ts/renderer/settings');
   jQuery.ready();
@@ -91,7 +91,7 @@ test('reloadApp invokes ipcRenderer', async () => {
 });
 
 test('openDataFolder invokes settings:open-data-dir', async () => {
-  jQuery = require('../app/vendor/jquery.js');
+  jQuery = require('../app/ts/renderer/jqueryGlobal');
   (window as any).$ = (window as any).jQuery = jQuery;
   require('../app/ts/renderer/settings');
   jQuery.ready();
