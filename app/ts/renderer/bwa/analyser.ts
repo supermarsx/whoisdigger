@@ -90,7 +90,8 @@ function showTable() {
   }
   qs('#bwaAnalyserTableTbody')!.innerHTML = body.content;
 
-  body.table = (qs('#bwaAnalyserTable') as any).dataTable({
+  // Use jQuery wrapper to initialise DataTables correctly
+  body.table = (jq('#bwaAnalyserTable') as any).DataTable({
     destroy: true
   });
 
