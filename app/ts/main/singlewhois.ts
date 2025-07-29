@@ -1,6 +1,7 @@
 import { ipcMain, clipboard, shell } from 'electron';
 import type { IpcMainEvent } from 'electron';
 import { lookup as whoisLookup } from '../common/lookup.js';
+import { rdapLookup } from '../common/rdap.js';
 import { isDomainAvailable } from '../common/availability.js';
 import DomainStatus from '../common/status.js';
 import { addEntry as addHistoryEntry } from '../common/history.js';
@@ -32,6 +33,11 @@ ipcMain.handle(IpcChannel.SingleWhoisLookup, async (_event, domain) => {
     addHistoryEntry(domain, DomainStatus.Error);
     throw err;
   }
+});
+
+ipcMain.handle(IpcChannel.RdapLookup, async (_event, domain) => {
+  debug('Starting RDAP lookup');
+  return rdapLookup(domain);
 });
 
 /*

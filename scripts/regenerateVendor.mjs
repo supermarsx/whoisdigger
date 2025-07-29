@@ -74,7 +74,7 @@ export function regenerateVendor() {
   writeFile(path.join(vendorDir, 'change-case.d.ts'), "export * from 'change-case';\n");
 
   copyFile(
-    path.join(modulesDir, 'datatables', 'media', 'js', 'jquery.dataTables.js'),
+    path.join(modulesDir, 'datatables.net', 'js', 'dataTables.js'),
     path.join(vendorDir, 'datatables.js')
   );
   const dtPath = path.join(vendorDir, 'datatables.js');

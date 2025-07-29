@@ -27,6 +27,7 @@ If you clone this repo please patch `node_modules\whois\index.js` and remove the
 - Raw text WHOIS replies
 - Bulk WHOIS lookup
 - Bulk DNS sweep lookup
+- RDAP lookup support
 - Optional request caching with configurable SQLite backend
 - Proxy support for outgoing requests
 - Wordlist capabilities with drag n' drop

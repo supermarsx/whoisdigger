@@ -17,10 +17,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - WebdriverIO and Jest test suites with coverage reporting.
 - Settings persistence with automatic saves and live updates.
 - Additional unit test coverage for core features.
+- RDAP lookup capabilities.
 
 ### Changed
 
 - Codebase migrated to TypeScript and integrated with Prettier.
+- Bundled DataTables updated to v2.
 - Updated major libraries such as better-sqlite3 and TypeScript ESLint.
 - Enhanced content security policies and build scripts.
 - README documentation updated.

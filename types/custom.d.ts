@@ -46,6 +46,7 @@ declare module 'electron' {
     'bulkwhois:input.wordlist': [];
     ondragstart: [string];
     'singlewhois:lookup': [string];
+    'rdap:lookup': [string];
     'singlewhois:openlink': [string];
     'stats:start': [string, string];
     'stats:refresh': [number];
