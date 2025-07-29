@@ -69,6 +69,12 @@ export function regenerateVendor() {
     path.join(modulesDir, 'datatables', 'media', 'js', 'jquery.dataTables.js'),
     path.join(vendorDir, 'datatables.js')
   );
+  const dtPath = path.join(vendorDir, 'datatables.js');
+  let dtContent = fs.readFileSync(dtPath, 'utf8');
+  if (!dtContent.startsWith("import './jquery.js';")) {
+    dtContent = "import './jquery.js';\n" + dtContent + '\nexport default window.jQuery;\n';
+    fs.writeFileSync(dtPath, dtContent);
+  }
   writeFile(
     path.join(vendorDir, 'datatables.d.ts'),
     'const datatables: any;\nexport default datatables;\n'
