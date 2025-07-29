@@ -1,17 +1,6 @@
 import * as conversions from '../../common/conversions.js';
 import { qs, on } from '../../utils/dom.js';
-import jq from '../jqueryGlobal.js';
-(window as any).jQuery = jq;
-(window as any).$ = jq;
 
-let datatablesReady: Promise<unknown> | null = null;
-
-async function ensureDataTables(): Promise<void> {
-  if (!(jq as any).fn.DataTable) {
-    datatablesReady ??= import('../../../vendor/datatables.js');
-    await datatablesReady;
-  }
-}
 import { debugFactory } from '../../common/logger.js';
 import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';
 
@@ -68,7 +57,6 @@ on('click', '#bwaAnalyserModalCloseButtonNo', () => {
     ipsum
  */
 async function showTable() {
-  await ensureDataTables();
   const header: Record<string, any> = {},
     body: Record<string, any> = {};
   header.columns = Object.keys(bwaFileContents.data[0]);
@@ -98,11 +86,6 @@ async function showTable() {
     body.content += '</tr>\n';
   }
   qs('#bwaAnalyserTableTbody')!.innerHTML = body.content;
-
-  // Use jQuery wrapper to initialise DataTables correctly
-  body.table = (jq('#bwaAnalyserTable') as any).DataTable({
-    destroy: true
-  });
 
   qs('#bwaFileinputconfirm')!.classList.add('is-hidden');
   qs('#bwaAnalyser')!.classList.remove('is-hidden');

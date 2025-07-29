@@ -1,4 +1,4 @@
-import $ from './jqueryGlobal.js';
+import { qs, qsa, on } from '../utils/dom.js';
 import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
 const electron = (window as any).electron as RendererElectronAPI;
 import { debugFactory } from '../common/logger.js';
@@ -12,26 +12,32 @@ function formatDate(ts: number): string {
 
 function loadHistory(): void {
   electron.invoke('history:get').then((entries: any[]) => {
-    const tbody = $('#historyTable tbody');
-    tbody.empty();
+    const tbody = qs('#historyTable tbody')!;
+    tbody.innerHTML = '';
     if (!entries.length) {
-      $('#historyEmpty').removeClass('is-hidden');
+      qs('#historyEmpty')!.classList.remove('is-hidden');
       return;
     }
-    $('#historyEmpty').addClass('is-hidden');
+    qs('#historyEmpty')!.classList.add('is-hidden');
     for (const e of entries) {
-      const row = $('<tr>');
-      row.append($('<td>').text(e.domain));
-      row.append($('<td>').text(e.status));
-      row.append($('<td>').text(formatDate(e.timestamp)));
-      tbody.append(row);
+      const row = document.createElement('tr');
+      const tdDomain = document.createElement('td');
+      tdDomain.textContent = e.domain;
+      row.appendChild(tdDomain);
+      const tdStatus = document.createElement('td');
+      tdStatus.textContent = e.status;
+      row.appendChild(tdStatus);
+      const tdDate = document.createElement('td');
+      tdDate.textContent = formatDate(e.timestamp);
+      row.appendChild(tdDate);
+      tbody.appendChild(row);
     }
   });
 }
 
-$(() => {
+document.addEventListener('DOMContentLoaded', () => {
   loadHistory();
-  $('#clearHistory').on('click', async () => {
+  on('click', '#clearHistory', async () => {
     await electron.invoke('history:clear');
     loadHistory();
   });

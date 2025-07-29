@@ -1,4 +1,4 @@
-import $ from './jqueryGlobal.js';
+import { qs } from '../utils/dom.js';
 import Handlebars from '../../vendor/handlebars.runtime.js';
 import { debugFactory } from '../common/logger.js';
 
@@ -14,5 +14,6 @@ export async function loadTemplate(
   const precompiled = module.default || module;
   const compiled = Handlebars.template(precompiled);
   const html = compiled(context);
-  $(selector).html(html);
+  const el = qs(selector);
+  if (el) el.innerHTML = html;
 }
