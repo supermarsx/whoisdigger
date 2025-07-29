@@ -55,7 +55,7 @@ export interface Settings {
   startup: StartupSettings;
   lookupConversion: { enabled: boolean; algorithm: string };
   lookupGeneral: {
-    type: 'dns' | 'whois';
+    type: 'dns' | 'whois' | 'rdap';
     psl: boolean;
     server: string;
     verbose: boolean;

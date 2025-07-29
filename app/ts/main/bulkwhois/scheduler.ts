@@ -2,6 +2,7 @@ import { debugFactory } from '../../common/logger.js';
 import { performance } from 'perf_hooks';
 import { lookup as whoisLookup } from '../../common/lookup.js';
 import * as dns from '../../common/dnsLookup.js';
+import { rdapLookup, RdapResponse } from '../../common/rdapLookup.js';
 import { Result, DnsLookupError } from '../../common/errors.js';
 import { formatString } from '../../common/stringformat.js';
 import { msToHumanTime } from '../../common/conversions.js';
@@ -33,7 +34,7 @@ export function processDomain(
   const { sender } = event;
 
   processingIDs[domainSetup.index!] = setTimeout(async () => {
-    let data: string | Result<boolean, DnsLookupError> | null = null;
+    let data: string | Result<boolean, DnsLookupError> | RdapResponse | null = null;
     const settings = getSettings();
     stats.domains.sent++;
     sender.send(IpcChannel.BulkwhoisStatusUpdate, 'domains.sent', stats.domains.sent);
@@ -45,13 +46,16 @@ export function processDomain(
     debug(formatString('Looking up domain: {0}', domainSetup.domain));
 
     try {
-      data =
-        settings.lookupGeneral.type === 'whois'
-          ? await whoisLookup(domainSetup.domain!, {
-              follow: domainSetup.follow,
-              timeout: domainSetup.timeout
-            })
-          : await dns.hasNsServers(domainSetup.domain!);
+      if (settings.lookupGeneral.type === 'whois') {
+        data = await whoisLookup(domainSetup.domain!, {
+          follow: domainSetup.follow,
+          timeout: domainSetup.timeout
+        });
+      } else if (settings.lookupGeneral.type === 'dns') {
+        data = await dns.hasNsServers(domainSetup.domain!);
+      } else {
+        data = await rdapLookup(domainSetup.domain!);
+      }
       await processData(
         bulkWhois,
         reqtime,
