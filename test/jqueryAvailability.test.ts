@@ -23,11 +23,10 @@ jest.mock('../app/ts/renderer/settings-renderer', () => ({
 import jQuery from '../app/ts/renderer/jqueryGlobal';
 
 describe('renderer jQuery availability', () => {
-  test('global $ references jQuery function', () => {
+  test('no global jQuery is assigned', () => {
     expect((window as any).$).toBeUndefined();
     require('../app/ts/renderer');
-    expect((window as any).$).toBe(jQuery);
-    expect((window as any).jQuery).toBe(jQuery);
-    expect(typeof (window as any).$).toBe('function');
+    expect((window as any).$).toBeUndefined();
+    expect(jQuery).toBeUndefined();
   });
 });

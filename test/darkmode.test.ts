@@ -2,8 +2,6 @@
 
 import '../test/electronMock';
 
-let jQuery: typeof import('../app/ts/renderer/jqueryGlobal');
-
 const listeners: Array<(e: { matches: boolean }) => void> = [];
 let systemPref = true;
 
@@ -29,13 +27,11 @@ beforeEach(() => {
 });
 
 async function loadDarkmode(): Promise<any> {
-  jQuery = require('../app/ts/renderer/jqueryGlobal');
-  (window as any).$ = (window as any).jQuery = jQuery;
   const settingsModule = require('../app/ts/renderer/settings-renderer');
   settingsModule.settings.theme.followSystem = true;
   settingsModule.settings.theme.darkMode = false;
   require('../app/ts/renderer/darkmode');
-  jQuery.ready();
+  document.dispatchEvent(new Event('DOMContentLoaded'));
   await new Promise((r) => setTimeout(r, 0));
   return settingsModule;
 }

@@ -1,8 +1,3 @@
-import jQuery from 'jquery';
-
-(globalThis as any).jQuery = jQuery;
-(globalThis as any).$ = jQuery;
-const $ = jQuery;
 import { settings, saveSettings } from './settings-renderer.js';
 import { debugFactory } from '../common/logger.js';
 
@@ -22,17 +17,17 @@ function getSystemPref(): boolean {
   return window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
-$(document).ready(() => {
-  const darkSelect = $('#theme\\.darkMode');
-  const systemSelect = $('#theme\\.followSystem');
+document.addEventListener('DOMContentLoaded', () => {
+  const darkSelect = document.getElementById('theme.darkMode') as HTMLSelectElement | null;
+  const systemSelect = document.getElementById('theme.followSystem') as HTMLSelectElement | null;
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
   const applyFromSettings = (): void => {
     const useSystem = settings.theme?.followSystem ?? false;
     const isDark = useSystem ? mediaQuery.matches : settings.theme?.darkMode ?? false;
     applyDarkMode(isDark);
-    if (darkSelect.length) darkSelect.val(settings.theme?.darkMode ? 'true' : 'false');
-    if (systemSelect.length) systemSelect.val(useSystem ? 'true' : 'false');
+    if (darkSelect) darkSelect.value = settings.theme?.darkMode ? 'true' : 'false';
+    if (systemSelect) systemSelect.value = useSystem ? 'true' : 'false';
   };
 
   applyFromSettings();
@@ -43,9 +38,9 @@ $(document).ready(() => {
     }
   });
 
-  if (darkSelect.length) {
-    darkSelect.on('change', () => {
-      const state = darkSelect.val() === 'true';
+  if (darkSelect) {
+    darkSelect.addEventListener('change', () => {
+      const state = darkSelect.value === 'true';
       settings.theme = settings.theme || { darkMode: false, followSystem: false };
       settings.theme.darkMode = state;
       void saveSettings(settings);
@@ -55,9 +50,9 @@ $(document).ready(() => {
     });
   }
 
-  if (systemSelect.length) {
-    systemSelect.on('change', () => {
-      const state = systemSelect.val() === 'true';
+  if (systemSelect) {
+    systemSelect.addEventListener('change', () => {
+      const state = systemSelect.value === 'true';
       settings.theme = settings.theme || { darkMode: false, followSystem: false };
       settings.theme.followSystem = state;
       void saveSettings(settings);

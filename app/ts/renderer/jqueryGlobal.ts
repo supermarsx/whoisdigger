@@ -1,4 +1,4 @@
-import jQuery from 'jquery';
-(globalThis as any).jQuery = jQuery;
-(globalThis as any).$ = jQuery;
-export default jQuery;
+const jQuery: typeof import('jquery') | undefined =
+  (globalThis as any).jQuery ?? (globalThis as any).$;
+
+export default jQuery as typeof import('jquery');
