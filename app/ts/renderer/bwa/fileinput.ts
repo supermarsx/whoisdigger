@@ -1,9 +1,6 @@
 import * as conversions from '../../common/conversions.js';
 import type { FileStats } from '../../common/fileStats.js';
 import { qs, on } from '../../utils/dom.js';
-import jq from '../jqueryGlobal.js';
-(window as any).jQuery = jq;
-(window as any).$ = jq;
 import { settings } from '../settings-renderer.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
 import type * as fs from 'fs';
