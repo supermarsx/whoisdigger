@@ -1,4 +1,4 @@
-import $ from '../../vendor/jquery.js';
+import $ from './jqueryGlobal.js';
 import Handlebars from '../../vendor/handlebars.runtime.js';
 import { debugFactory } from '../common/logger.js';
 

@@ -3,7 +3,7 @@
 import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
 const { invoke } = (window as any).electron as RendererElectronAPI;
 import { IpcChannel } from '../common/ipcChannels.js';
-import $ from '../../vendor/jquery.js';
+import $ from './jqueryGlobal.js';
 import { debugFactory, errorFactory } from '../common/logger.js';
 
 const debug = debugFactory('renderer.to');

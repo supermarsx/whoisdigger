@@ -1,8 +1,3 @@
-declare module '*vendor/jquery.js' {
-  const jq: typeof import('jquery');
-  export default jq;
-}
-
 declare module '*vendor/handlebars.runtime.js' {
   import Handlebars from 'handlebars';
   export default Handlebars;

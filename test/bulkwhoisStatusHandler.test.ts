@@ -1,5 +1,5 @@
 /** @jest-environment jsdom */
-import jQuery from '../app/vendor/jquery.js';
+import jQuery from '../app/ts/renderer/jqueryGlobal';
 import { registerStatusUpdates } from '../app/ts/renderer/bulkwhois/status-handler';
 import { IpcChannel } from '../app/ts/common/ipcChannels';
 

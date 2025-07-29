@@ -1,4 +1,4 @@
-import $ from '../../vendor/jquery.js';
+import $ from './jqueryGlobal.js';
 import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
 const electron = (window as any).electron as RendererElectronAPI;
 import { debugFactory } from '../common/logger.js';

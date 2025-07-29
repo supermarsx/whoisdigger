@@ -1,4 +1,4 @@
-import $ from '../../vendor/jquery.js';
+import $ from './jqueryGlobal.js';
 import { debugFactory } from '../common/logger.js';
 import { IpcChannel } from '../common/ipcChannels.js';
 import type * as fs from 'fs';

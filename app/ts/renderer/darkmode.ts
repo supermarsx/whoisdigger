@@ -1,4 +1,4 @@
-import $ from '../../vendor/jquery.js';
+import $ from './jqueryGlobal.js';
 import { settings, saveSettings } from './settings-renderer.js';
 import { debugFactory } from '../common/logger.js';
 

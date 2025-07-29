@@ -79,8 +79,13 @@ export function regenerateVendor() {
   );
   const dtPath = path.join(vendorDir, 'datatables.js');
   let dtContent = fs.readFileSync(dtPath, 'utf8');
-  if (!dtContent.startsWith("import './jquery.js';")) {
-    dtContent = "import './jquery.js';\n" + dtContent + '\nexport default window.jQuery;\n';
+  if (!dtContent.startsWith("import jQuery from 'jquery';")) {
+    dtContent =
+      "import jQuery from 'jquery';\n" +
+      '(globalThis as any).jQuery = jQuery;\n' +
+      '(globalThis as any).$ = jQuery;\n' +
+      dtContent +
+      '\nexport default window.jQuery;\n';
     fs.writeFileSync(dtPath, dtContent);
   }
   writeFile(
