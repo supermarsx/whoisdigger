@@ -82,8 +82,8 @@ export function regenerateVendor() {
   if (!dtContent.startsWith("import jQuery from 'jquery';")) {
     dtContent =
       "import jQuery from 'jquery';\n" +
-      '(globalThis as any).jQuery = jQuery;\n' +
-      '(globalThis as any).$ = jQuery;\n' +
+      'globalThis.jQuery = jQuery;\n' +
+      'globalThis.$ = jQuery;\n' +
       dtContent +
       '\nexport default window.jQuery;\n';
     fs.writeFileSync(dtPath, dtContent);
