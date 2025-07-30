@@ -10706,7 +10706,7 @@ jQuery.noConflict = function( deep ) {
 // (trac-7102#comment:10, https://github.com/jquery/jquery/pull/557)
 // and CommonJS for browser emulators (trac-13566)
 if ( typeof noGlobal === "undefined" ) {
-	window.jQuery = window.$ = jQuery;
+        /* no global assignments */
 }
 
 
@@ -10715,5 +10715,4 @@ if ( typeof noGlobal === "undefined" ) {
 return jQuery;
 } );
 
-if (typeof window !== "undefined") { window.$ = window.jQuery; }
 export default window.jQuery;

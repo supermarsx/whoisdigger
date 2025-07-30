@@ -46,9 +46,7 @@ export function regenerateVendor() {
   if (jqContent.includes(jqReplace)) {
     jqContent = jqContent.replace(jqReplace, jqReplaceWith);
   }
-  const jqAppend =
-    '\nif (typeof window !== "undefined") { window.$ = window.jQuery; }\n' +
-    'export default window.jQuery;\n';
+  const jqAppend = '\nexport default window.jQuery;\n';
   if (!jqContent.includes('export default')) {
     jqContent += jqAppend;
   }
@@ -79,14 +77,8 @@ export function regenerateVendor() {
   );
   const dtPath = path.join(vendorDir, 'datatables.js');
   let dtContent = fs.readFileSync(dtPath, 'utf8');
-  if (!dtContent.startsWith("import jQuery from 'jquery';")) {
-    dtContent =
-      "import jQuery from 'jquery';\n" +
-      'globalThis.jQuery = jQuery;\n' +
-      'globalThis.$ = jQuery;\n' +
-      'const $ = jQuery;\n' +
-      dtContent +
-      '\nexport default window.jQuery;\n';
+  if (!dtContent.includes('export default')) {
+    dtContent += '\nexport default window.DataTable;\n';
     fs.writeFileSync(dtPath, dtContent);
   }
   writeFile(
