@@ -1,5 +1,6 @@
 import * as conversions from '../../common/conversions.js';
 import { qs, on } from '../../utils/dom.js';
+import jQuery from 'jquery';
 import DataTable from 'datatables.net';
 
 import { debugFactory } from '../../common/logger.js';
