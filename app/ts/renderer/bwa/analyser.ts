@@ -1,5 +1,6 @@
 import * as conversions from '../../common/conversions.js';
 import { qs, on } from '../../utils/dom.js';
+import DataTable from 'datatables.net';
 
 import { debugFactory } from '../../common/logger.js';
 import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';
@@ -89,7 +90,7 @@ async function showTable() {
 
   qs('#bwaFileinputconfirm')!.classList.add('is-hidden');
   qs('#bwaAnalyser')!.classList.remove('is-hidden');
-  //body.content.destroy();
+  new (DataTable as any)('#bwaAnalyserTable', { destroy: true });
 
   return;
 }
