@@ -36,7 +36,12 @@ export async function nsLookup(host: string, cacheOpts: CacheOptions = {}): Prom
 
   const cached = await requestCache.get('dns', host, cacheOpts);
   if (cached !== undefined) {
-    return JSON.parse(cached) as string[];
+    try {
+      return JSON.parse(cached) as string[];
+    } catch (e) {
+      debug(`Failed to parse cached DNS response for ${host}: ${e}`);
+      await requestCache.delete('dns', host, cacheOpts);
+    }
   }
 
   try {
