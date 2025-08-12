@@ -8,12 +8,20 @@ debug('loaded');
 export async function loadTemplate(
   selector: string,
   template: string,
-  context: any = {}
+  context: any = {},
+  fallback?: string
 ): Promise<void> {
-  const module = await import(`../../compiled-templates/${template.replace(/\.hbs$/, '.cjs')}`);
-  const precompiled = module.default || module;
-  const compiled = Handlebars.template(precompiled);
-  const html = compiled(context);
   const el = qs(selector);
-  if (el) el.innerHTML = html;
+  try {
+    const module = await import(`../../compiled-templates/${template.replace(/\.hbs$/, '.cjs')}`);
+    const precompiled = module.default || module;
+    const compiled = Handlebars.template(precompiled);
+    const html = compiled(context);
+    if (el) el.innerHTML = html;
+  } catch (error) {
+    debug('failed to load template', error);
+    if (fallback && el) {
+      el.innerHTML = fallback;
+    }
+  }
 }
