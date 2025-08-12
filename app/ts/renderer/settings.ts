@@ -15,7 +15,7 @@ const electron = (window as any).electron as RendererElectronAPI & {
   watch: (
     p: string,
     opts: fs.WatchOptions,
-    cb: (evt: string) => void
+    cb: (evt: { event: string; filename: string | null }) => void
   ) => Promise<{ close: () => void }>;
   path: { join: (...args: string[]) => Promise<string>; basename: (p: string) => Promise<string> };
   send: (channel: string, ...args: any[]) => void;

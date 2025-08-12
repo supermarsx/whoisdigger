@@ -12,7 +12,7 @@ const electron = (window as any).electron as RendererElectronAPI & {
     prefix: string,
     p: string,
     opts: fs.WatchOptions,
-    cb: (evt: string) => void
+    cb: (evt: { event: string; filename: string | null }) => void
   ) => Promise<{ close: () => void }>;
   stat: (p: string) => Promise<any>;
   path: { basename: (p: string) => Promise<string> };
@@ -145,8 +145,8 @@ async function handleFileConfirmation(
   updateFileInfoUI(bwaFileStats);
 
   if (chosenPath) {
-    await watcher.watch('bwa', chosenPath, { persistent: false }, (evt: string) => {
-      if (evt === 'change') void refreshBwaFile(chosenPath);
+    await watcher.watch('bwa', chosenPath, { persistent: false }, (evt) => {
+      if (evt.event === 'change') void refreshBwaFile(chosenPath);
     });
   }
 

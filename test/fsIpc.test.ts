@@ -5,14 +5,16 @@ const ipcMainHandlers: Record<string, (...args: any[]) => any> = {};
 
 const readFileMock = jest.fn();
 const statMock = jest.fn();
-const watchCallbacks: Array<(ev: string) => void> = [];
+const watchCallbacks: Array<(ev: string, filename: string) => void> = [];
 const watchCloseMocks: jest.Mock[] = [];
-const watchMock = jest.fn((path: string, opts: fs.WatchOptions, cb: (ev: string) => void) => {
-  watchCallbacks.push(cb);
-  const watcher = { close: jest.fn() } as any;
-  watchCloseMocks.push(watcher.close);
-  return watcher;
-});
+const watchMock = jest.fn(
+  (path: string, opts: fs.WatchOptions, cb: (ev: string, filename: string) => void) => {
+    watchCallbacks.push(cb);
+    const watcher = { close: jest.fn() } as any;
+    watchCloseMocks.push(watcher.close);
+    return watcher;
+  }
+);
 
 jest.mock('electron', () => ({
   ipcMain: {
@@ -74,8 +76,11 @@ describe('fsIpc handlers', () => {
     expect(id).toBe(1);
     expect(watchMock).toHaveBeenCalledWith('/tmp/file', {}, expect.any(Function));
 
-    watchCallbacks[0]('change');
-    expect(sender.send).toHaveBeenCalledWith('fs:watch:pref:1', 'change');
+    watchCallbacks[0]('change', 'file');
+    expect(sender.send).toHaveBeenCalledWith('fs:watch:pref:1', {
+      event: 'change',
+      filename: 'file'
+    });
 
     await unwatchHandler({}, id);
     expect(watchCloseMocks[0]).toHaveBeenCalled();

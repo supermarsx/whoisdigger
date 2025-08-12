@@ -39,11 +39,12 @@ const api = {
     prefix: string,
     p: string,
     opts: import('fs').WatchOptions,
-    cb: (evt: string) => void
+    cb: (evt: { event: string; filename: string | null }) => void
   ) => {
     const id = await ipcRenderer.invoke('fs:watch', prefix, p, opts);
     const chan = `fs:watch:${prefix}:${id}`;
-    const handler = (_e: IpcRendererEvent, ev: string) => cb(ev);
+    const handler = (_e: IpcRendererEvent, ev: { event: string; filename: string | null }) =>
+      cb(ev);
     ipcRenderer.on(chan, handler);
     return {
       close: () => {
