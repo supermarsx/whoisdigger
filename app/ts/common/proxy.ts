@@ -37,6 +37,7 @@ export function getProxy(): ProxyInfo | undefined {
       entry = list[randomInt(0, list.length - 1)];
       break;
     case 'ascending':
+      // Use the current proxy before moving to the next to start from the first entry
       entry = list[index];
       index = (index + 1) % list.length;
       break;
