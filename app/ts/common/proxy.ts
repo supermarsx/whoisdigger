@@ -37,8 +37,8 @@ export function getProxy(): ProxyInfo | undefined {
       entry = list[randomInt(0, list.length - 1)];
       break;
     case 'ascending':
-      index = (index + 1) % list.length;
       entry = list[index];
+      index = (index + 1) % list.length;
       break;
     case 'descending':
       index = index <= 0 ? list.length - 1 : index - 1;
