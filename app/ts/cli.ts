@@ -94,7 +94,12 @@ export function parseArgs(argv: string[]): CliOptions {
 }
 
 export async function lookupDomains(opts: CliOptions): Promise<WhoisResult[]> {
+  let originalProxy: typeof settings.lookupProxy | undefined;
   if (opts.proxy) {
+    originalProxy = {
+      ...settings.lookupProxy,
+      list: settings.lookupProxy.list ? [...settings.lookupProxy.list] : undefined
+    };
     settings.lookupProxy.enable = true;
     settings.lookupProxy.mode = 'single';
     settings.lookupProxy.single = opts.proxy;
@@ -139,8 +144,9 @@ export async function lookupDomains(opts: CliOptions): Promise<WhoisResult[]> {
       }
     })
   );
-
-  return Promise.all(tasks);
+  const results = await Promise.all(tasks);
+  if (originalProxy) Object.assign(settings.lookupProxy, originalProxy);
+  return results;
 }
 
 export async function exportResults(results: WhoisResult[], opts: CliOptions): Promise<string> {
