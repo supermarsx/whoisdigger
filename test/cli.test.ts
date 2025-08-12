@@ -9,6 +9,7 @@ import {
 } from '../app/ts/cli';
 import DomainStatus from '../app/ts/common/status';
 import { lookup as whoisLookup } from '../app/ts/common/lookup';
+import { settings } from '../app/ts/common/settings';
 
 jest.mock('../app/ts/common/lookup', () => ({ lookup: jest.fn() }));
 
@@ -136,6 +137,22 @@ describe('cli utility', () => {
     };
     await lookupDomains(opts);
     expect(maxActive).toBeLessThanOrEqual(2);
+  });
+
+  test('lookupDomains restores proxy settings after override', async () => {
+    mockLookup.mockResolvedValueOnce('data');
+    const original = {
+      ...settings.lookupProxy,
+      list: settings.lookupProxy.list ? [...settings.lookupProxy.list] : []
+    };
+    const opts: CliOptions = {
+      domains: ['example.com'],
+      tlds: ['com'],
+      format: 'txt',
+      proxy: 'http://proxy:8080'
+    };
+    await lookupDomains(opts);
+    expect(settings.lookupProxy).toEqual(original);
   });
 
   test('exportResults writes csv output', async () => {
