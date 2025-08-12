@@ -40,18 +40,18 @@ export async function lookup(
   const { lookupConversion: conversion, lookupGeneral: general } = getSettings();
   let domainResults: string;
 
+  domain = conversion.enabled ? convertDomain(domain) : domain;
+  if (general.psl) {
+    const clean = psl.get(domain);
+    domain = clean ? clean.replace(/((\*\.)*)/g, '') : domain;
+  }
+
   const cached = await requestCache.get('whois', domain, cacheOpts);
   if (cached !== undefined) {
     return cached;
   }
 
   try {
-    domain = conversion.enabled ? convertDomain(domain) : domain;
-    if (general.psl) {
-      const clean = psl.get(domain);
-      domain = clean ? clean.replace(/((\*\.)*)/g, '') : domain;
-    }
-
     debug(`Looking up for ${domain}`);
     domainResults = await lookupPromise(domain, options);
   } catch (e) {

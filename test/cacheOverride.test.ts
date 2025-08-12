@@ -59,4 +59,20 @@ describe('cache override', () => {
     expect(spy).toHaveBeenCalledTimes(2);
     spy.mockRestore();
   });
+
+  test('whois lookup on converted domain hits cache', async () => {
+    const prev = { ...settings.lookupConversion };
+    settings.lookupConversion.enabled = true;
+    settings.lookupConversion.algorithm = 'punycode';
+    const spy = jest.spyOn(whois, 'lookup').mockImplementation((...args: any[]) => {
+      const cb = args[args.length - 1] as Function;
+      cb(null, 'DATA');
+    });
+    await lookup('täst.de');
+    await lookup('xn--tst-qla.de');
+    expect(spy).toHaveBeenCalledTimes(1);
+    spy.mockRestore();
+    settings.lookupConversion.enabled = prev.enabled;
+    settings.lookupConversion.algorithm = prev.algorithm;
+  });
 });
