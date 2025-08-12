@@ -87,17 +87,19 @@ async function trainDomains(domains: string[]): Promise<Model> {
   return trainFromSamples(samples);
 }
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   const { values } = parseArgs({
     options: { lists: { type: 'string', multiple: true } }
   });
   let files: string[] = values.lists as string[];
-  if (!files || files.length === 0) {
+  const useDefaults = !files || files.length === 0;
+  if (useDefaults) {
     files = fs.readdirSync('sample_lists').filter((f) => f.endsWith('.list'));
   }
   const domains: string[] = [];
   for (const f of files) {
-    const lines = fs.readFileSync(f, 'utf8').split(/\r?\n/).filter(Boolean);
+    const listPath = useDefaults ? path.join('sample_lists', f) : f;
+    const lines = fs.readFileSync(listPath, 'utf8').split(/\r?\n/).filter(Boolean);
     domains.push(...lines);
   }
   const model = await trainDomains(domains);
