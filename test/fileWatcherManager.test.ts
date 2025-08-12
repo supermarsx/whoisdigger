@@ -1,9 +1,9 @@
-import { FileWatcherManager } from '../app/ts/utils/fileWatcher';
+import { FileWatcherManager, type WatchFn } from '../app/ts/utils/fileWatcher';
 
 test('replaces existing watcher', async () => {
   const closeFirst = jest.fn();
   const closeSecond = jest.fn();
-  const watchFn = jest
+  const watchFn: WatchFn = jest
     .fn()
     .mockResolvedValueOnce({ close: closeFirst })
     .mockResolvedValueOnce({ close: closeSecond });

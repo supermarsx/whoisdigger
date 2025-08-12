@@ -1,10 +1,15 @@
 import type * as fs from 'fs';
 
+export interface WatchEvent {
+  event: string;
+  filename: string | null;
+}
+
 export type WatchFn = (
   prefix: string,
   path: string,
   opts: fs.WatchOptions,
-  cb: (evt: string) => void
+  cb: (evt: WatchEvent) => void
 ) => Promise<{ close: () => void }>;
 
 export class FileWatcherManager {
@@ -15,7 +20,7 @@ export class FileWatcherManager {
     prefix: string,
     path: string,
     opts: fs.WatchOptions,
-    cb: (evt: string) => void
+    cb: (evt: WatchEvent) => void
   ): Promise<void> {
     this.close();
     this.watcher = await this.watchFn(prefix, path, opts, cb);

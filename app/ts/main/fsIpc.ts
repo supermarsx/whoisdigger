@@ -41,8 +41,8 @@ ipcMain.handle('fs:exists', async (_e, p: string) => {
 ipcMain.handle('fs:watch', (e, prefix: string, p: string, opts?: fs.WatchOptions) => {
   const id = ++watcherId;
   const sender = e.sender;
-  const watcher = fs.watch(p, opts || {}, (event) => {
-    sender.send(`fs:watch:${prefix}:${id}`, event);
+  const watcher = fs.watch(p, opts || {}, (event, filename) => {
+    sender.send(`fs:watch:${prefix}:${id}`, { event, filename });
   });
   sender.once('destroyed', () => {
     watcher.close();
