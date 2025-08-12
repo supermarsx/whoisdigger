@@ -36,6 +36,15 @@ describe('proxy helper', () => {
     expect(third).toEqual({ ipaddress: '1.1.1.1', port: 8080, type: 5 });
   });
 
+  test('returns first proxy on first call in ascending mode', () => {
+    settings.lookupProxy.enable = true;
+    settings.lookupProxy.mode = 'multi';
+    settings.lookupProxy.list = ['1.1.1.1:8080', '2.2.2.2:8080'];
+    settings.lookupProxy.multimode = 'ascending';
+    const first = getProxy();
+    expect(first).toEqual({ ipaddress: '1.1.1.1', port: 8080, type: 5 });
+  });
+
   test('cycles proxies ascending', () => {
     settings.lookupProxy.enable = true;
     settings.lookupProxy.mode = 'multi';
@@ -44,9 +53,11 @@ describe('proxy helper', () => {
     const first = getProxy();
     const second = getProxy();
     const third = getProxy();
-    expect(first).toEqual({ ipaddress: '2.2.2.2', port: 8080, type: 5 });
-    expect(second).toEqual({ ipaddress: '3.3.3.3', port: 8080, type: 5 });
-    expect(third).toEqual({ ipaddress: '1.1.1.1', port: 8080, type: 5 });
+    const fourth = getProxy();
+    expect(first).toEqual({ ipaddress: '1.1.1.1', port: 8080, type: 5 });
+    expect(second).toEqual({ ipaddress: '2.2.2.2', port: 8080, type: 5 });
+    expect(third).toEqual({ ipaddress: '3.3.3.3', port: 8080, type: 5 });
+    expect(fourth).toEqual({ ipaddress: '1.1.1.1', port: 8080, type: 5 });
   });
 
   test('cycles proxies descending', () => {
