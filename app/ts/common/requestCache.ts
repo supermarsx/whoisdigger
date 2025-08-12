@@ -88,6 +88,21 @@ export class RequestCache {
     }
   }
 
+  async delete(type: string, domain: string, cacheOpts: CacheOptions = {}): Promise<void> {
+    const { requestCache } = settings;
+    const enabled = cacheOpts.enabled ?? requestCache.enabled;
+    if (!enabled) return;
+    const database = await this.init();
+    if (!database) return;
+    const key = this.makeKey(type, domain);
+    try {
+      database.prepare('DELETE FROM cache WHERE key = ?').run(key);
+      debug(`Deleted cache entry for ${key}`);
+    } catch (e) {
+      debug(`Cache delete failed: ${e}`);
+    }
+  }
+
   async purgeExpired(): Promise<number> {
     const { requestCache } = settings;
     if (!requestCache.enabled) return 0;
