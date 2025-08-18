@@ -88,7 +88,7 @@
     "@types/jquery": "^3.5.32",
     "@types/node": "^24.0.15",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
-    "@typescript-eslint/parser": "^8.36.0",
+    "@typescript-eslint/parser": "^8.39.1",
     "babel-jest": "^30.0.2",
     "concurrently": "^9.2.0",
     "cross-env": "^10.0.0",
