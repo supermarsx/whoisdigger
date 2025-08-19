@@ -89,8 +89,9 @@ const appSettings = {
       // Lookup proxy
       enable: false, // Enable proxy requests (default: false)
       mode: 'single', // Proxy request mode, 'single' - fixed single proxy, 'multi' - multiple proxies (default: 'single')
-      single: '', // Single proxy address host:port
-      list: [], // Proxy list for multi mode
+      single: '', // Single proxy address host:port (may include user:pass@)
+      list: [], // Proxy list for multi mode (strings or {proxy, username, password})
+      retries: 3, // Number of failures allowed before skipping a proxy
       /*
       multimode
         Multi proxy mode
@@ -246,8 +247,9 @@ export const appSettingsDescriptions: Record<string, string> = {
   'lookupRandomizeTimeBetween.maximum': 'Maximum delay',
   'lookupProxy.enable': 'Enable proxy requests',
   'lookupProxy.mode': 'Proxy mode',
-  'lookupProxy.single': 'Single proxy address',
-  'lookupProxy.list': 'Proxy list',
+  'lookupProxy.single': 'Single proxy address (supports user:pass@host:port or object)',
+  'lookupProxy.list': 'Proxy list (supports user:pass@host:port or {proxy, username, password})',
+  'lookupProxy.retries': 'Allowed failures per proxy',
   'lookupProxy.multimode': 'Proxy rotation mode',
   'lookupProxy.check': 'Check proxy health',
   'lookupProxy.checktype': 'Proxy health check type',

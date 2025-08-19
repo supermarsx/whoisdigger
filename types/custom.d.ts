@@ -132,10 +132,11 @@ declare module 'app/ts/common/proxy' {
   export interface ProxyInfo {
     ipaddress: string;
     port: number;
-    type?: number;
+    auth?: { username: string; password: string };
   }
   export function getProxy(): ProxyInfo | undefined;
   export function resetProxyRotation(): void;
+  export function reportProxyFailure(proxy: ProxyInfo): void;
 }
 
 declare module 'app/ts/main/bulkwhois/auxiliary' {

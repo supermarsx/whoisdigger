@@ -176,6 +176,12 @@ node dist/app/ts/cli.js --wordlist words.txt --tlds com net --format csv --out r
 # using a proxy
 node dist/app/ts/cli.js --domain example.com --proxy 127.0.0.1:9050
 
+# using an authenticated proxy
+node dist/app/ts/cli.js --domain example.com --proxy user:pass@127.0.0.1:9050
+
+Proxies that fail repeatedly are skipped once they exceed the `lookupProxy.retries` threshold (default: 3).
+Each proxy can provide its own credentials via `user:pass@host:port` or configuration objects like `{ proxy: 'host:port', username: 'user', password: 'pass' }`.
+
 # adjust concurrency
 node dist/app/ts/cli.js --wordlist words.txt --limit 10
 # defaults to 5 simultaneous lookups
