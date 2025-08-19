@@ -47,6 +47,12 @@ export interface NavigationSettings {
   enableExtendedMenu: boolean;
 }
 
+export interface ProxyEntry {
+  proxy: string;
+  username?: string;
+  password?: string;
+}
+
 export interface Settings {
   appWindow: AppWindowSettings;
   appWindowWebPreferences: WebPreferencesSettings;
@@ -74,8 +80,9 @@ export interface Settings {
     multimode: 'sequential' | 'random' | 'ascending' | 'descending';
     check: boolean;
     checktype: 'ping' | 'request' | 'ping+request';
-    single?: string;
-    list?: string[];
+    single?: string | ProxyEntry;
+    list?: (string | ProxyEntry)[];
+    retries: number;
   };
   lookupAssumptions: {
     uniregistry: boolean;
