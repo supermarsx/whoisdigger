@@ -1,14 +1,19 @@
-import { promises as fs } from 'fs';
+import { createReadStream } from 'fs';
+import readline from 'readline';
 import { randomInt } from '../utils/random.js';
 import { escapeRegex } from '../utils/regex.js';
 
-export async function concatFiles(...files: string[]): Promise<string[]> {
-  const lines: string[] = [];
+export async function* readLines(...files: string[]): AsyncGenerator<string> {
   for (const file of files) {
-    const data = await fs.readFile(file, 'utf8');
-    lines.push(...data.split(/\r?\n/));
+    const stream = createReadStream(file, { encoding: 'utf8' });
+    const rl = readline.createInterface({ input: stream, crlfDelay: Infinity });
+    for await (const line of rl) {
+      yield line;
+    }
   }
-  return lines;
+}
+export async function* concatFiles(...files: string[]): AsyncGenerator<string> {
+  yield* readLines(...files);
 }
 
 export interface SplitOptions {
@@ -18,49 +23,63 @@ export interface SplitOptions {
   pattern?: RegExp;
 }
 
-export async function splitFiles(options: SplitOptions): Promise<string[][]> {
-  const lines = await concatFiles(...options.files);
-  const result: string[][] = [];
+export async function* splitFiles(options: SplitOptions): AsyncGenerator<string[]> {
+  if (options.files.length === 0) {
+    yield [];
+    return;
+  }
+
+  const lineGen = readLines(...options.files);
 
   if (options.pattern) {
     let current: string[] = [];
-    for (const line of lines) {
+    for await (const line of lineGen) {
       if (options.pattern.test(line)) {
-        result.push(current);
+        yield current;
         current = [];
       } else {
         current.push(line);
       }
     }
-    if (current.length) result.push(current);
-    return result;
+    if (current.length) yield current;
+    return;
   }
 
   if (options.maxLines !== undefined) {
-    for (let i = 0; i < lines.length; i += options.maxLines) {
-      result.push(lines.slice(i, i + options.maxLines));
+    let current: string[] = [];
+    for await (const line of lineGen) {
+      current.push(line);
+      if (current.length === options.maxLines) {
+        yield current;
+        current = [];
+      }
     }
-    return result;
+    if (current.length) yield current;
+    return;
   }
 
   if (options.maxSize !== undefined) {
     let current: string[] = [];
     let size = 0;
-    for (const line of lines) {
+    for await (const line of lineGen) {
       const lnSize = Buffer.byteLength(line + '\n');
       if (size + lnSize > options.maxSize && current.length) {
-        result.push(current);
+        yield current;
         current = [];
         size = 0;
       }
       current.push(line);
       size += lnSize;
     }
-    if (current.length) result.push(current);
-    return result;
+    if (current.length) yield current;
+    return;
   }
 
-  return [lines];
+  const lines: string[] = [];
+  for await (const line of lineGen) {
+    lines.push(line);
+  }
+  yield lines;
 }
 
 export function addPrefix(lines: string[], prefix: string): string[] {
@@ -187,6 +206,7 @@ export function replaceRegex(lines: string[], pattern: RegExp, replacement: stri
 }
 
 const WordlistTools = {
+  readLines,
   concatFiles,
   splitFiles,
   addPrefix,

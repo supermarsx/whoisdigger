@@ -16,6 +16,7 @@ import { toJSON } from './common/parser.js';
 import { generateFilename } from './cli/export.js';
 import { downloadModel } from './ai/modelDownloader.js';
 import { suggestWords } from './ai/openaiSuggest.js';
+import { readLines } from './common/wordlist.js';
 
 const requestCache = new RequestCache();
 
@@ -107,13 +108,13 @@ export async function lookupDomains(opts: CliOptions): Promise<WhoisResult[]> {
 
   let domains: string[] = opts.domains;
   if (opts.wordlist) {
-    const contents = await fs.promises.readFile(opts.wordlist, 'utf8');
-    const words = contents.split(/\r?\n/).filter((l) => l.trim() !== '');
-    const combos: string[] = [];
-    for (const tld of opts.tlds) {
-      combos.push(...words.map((w) => `${w}${opts.tlds.length > 0 ? '.' : ''}${tld}`));
+    for await (const word of readLines(opts.wordlist)) {
+      const w = word.trim();
+      if (!w) continue;
+      for (const tld of opts.tlds) {
+        domains.push(`${w}${opts.tlds.length > 0 ? '.' : ''}${tld}`);
+      }
     }
-    domains = domains.concat(combos);
   }
 
   const limit = pLimit(opts.limit ?? CONCURRENCY_LIMIT);
