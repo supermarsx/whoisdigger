@@ -6,7 +6,10 @@ describe('wordlist tools advanced', () => {
   const sample = path.join(__dirname, '..', 'sample_lists', '3letter_alpha.list');
 
   test('splitFiles divides sample list by maxLines', async () => {
-    const parts = await splitFiles({ files: [sample], maxLines: 5 });
+    const parts: string[][] = [];
+    for await (const p of splitFiles({ files: [sample], maxLines: 5 })) {
+      parts.push(p);
+    }
     expect(parts).toEqual([
       ['aaq', 'bha', 'dyv', 'fed', 'gxp'],
       ['irq', 'jee', 'nvi', 'onr', 'xgh'],
@@ -17,7 +20,10 @@ describe('wordlist tools advanced', () => {
   test('splitFiles respects pattern option', async () => {
     const p = path.join(__dirname, 'pattern.txt');
     fs.writeFileSync(p, 'a\n---\nb\nc\n---\nd');
-    const parts = await splitFiles({ files: [p], pattern: /^---$/ });
+    const parts: string[][] = [];
+    for await (const part of splitFiles({ files: [p], pattern: /^---$/ })) {
+      parts.push(part);
+    }
     expect(parts).toEqual([['a'], ['b', 'c'], ['d']]);
     fs.unlinkSync(p);
   });
@@ -25,7 +31,10 @@ describe('wordlist tools advanced', () => {
   test('splitFiles splits by maxSize bytes', async () => {
     const p = path.join(__dirname, 'size.txt');
     fs.writeFileSync(p, 'a\nbb\nccc');
-    const parts = await splitFiles({ files: [p], maxSize: 4 });
+    const parts: string[][] = [];
+    for await (const part of splitFiles({ files: [p], maxSize: 4 })) {
+      parts.push(part);
+    }
     expect(parts).toEqual([['a'], ['bb'], ['ccc']]);
     fs.unlinkSync(p);
   });
@@ -33,7 +42,10 @@ describe('wordlist tools advanced', () => {
   test('splitFiles uses maxLines over maxSize when both set', async () => {
     const p = path.join(__dirname, 'pref.txt');
     fs.writeFileSync(p, '1\n2\n3\n4\n5\n6');
-    const parts = await splitFiles({ files: [p], maxLines: 2, maxSize: 100 });
+    const parts: string[][] = [];
+    for await (const part of splitFiles({ files: [p], maxLines: 2, maxSize: 100 })) {
+      parts.push(part);
+    }
     expect(parts).toEqual([
       ['1', '2'],
       ['3', '4'],
@@ -43,7 +55,11 @@ describe('wordlist tools advanced', () => {
   });
 
   test('splitFiles with no files returns empty array', async () => {
-    expect(await splitFiles({ files: [] })).toEqual([[]]);
+    const parts: string[][] = [];
+    for await (const part of splitFiles({ files: [] })) {
+      parts.push(part);
+    }
+    expect(parts).toEqual([[]]);
   });
 
   test('shuffleLines deterministic order with mocked random', () => {

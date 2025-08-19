@@ -95,6 +95,23 @@ describe('cli utility', () => {
     expect(maxActive).toBeLessThanOrEqual(CONCURRENCY_LIMIT);
   });
 
+  test('lookupDomains reads wordlist file', async () => {
+    mockLookup.mockClear();
+    const wl = path.join(__dirname, 'wl.txt');
+    fs.writeFileSync(wl, 'foo\nbar');
+    mockLookup.mockResolvedValue('data');
+    const opts: CliOptions = {
+      domains: [],
+      tlds: ['com'],
+      wordlist: wl,
+      format: 'txt'
+    };
+    await lookupDomains(opts);
+    expect(mockLookup).toHaveBeenCalledWith('foo.com');
+    expect(mockLookup).toHaveBeenCalledWith('bar.com');
+    fs.unlinkSync(wl);
+  });
+
   test('lookupDomains enforces concurrency limit with many domains', async () => {
     mockLookup.mockClear();
     let active = 0;

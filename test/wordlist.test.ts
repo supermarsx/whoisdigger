@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {
+  readLines,
   concatFiles,
   splitFiles,
   addPrefix,
@@ -20,7 +21,10 @@ describe('wordlist tools', () => {
     const p2 = path.join(__dirname, 'f2.txt');
     fs.writeFileSync(p1, 'a\nb');
     fs.writeFileSync(p2, 'c\nd');
-    const lines = await concatFiles(p1, p2);
+    const lines: string[] = [];
+    for await (const line of concatFiles(p1, p2)) {
+      lines.push(line);
+    }
     expect(lines).toEqual(['a', 'b', 'c', 'd']);
     fs.unlinkSync(p1);
     fs.unlinkSync(p2);
@@ -29,12 +33,32 @@ describe('wordlist tools', () => {
   test('splitFiles by lines', async () => {
     const p = path.join(__dirname, 'f3.txt');
     fs.writeFileSync(p, 'a\nb\nc\nd');
-    const parts = await splitFiles({ files: [p], maxLines: 2 });
+    const parts: string[][] = [];
+    for await (const part of splitFiles({ files: [p], maxLines: 2 })) {
+      parts.push(part);
+    }
     expect(parts).toEqual([
       ['a', 'b'],
       ['c', 'd']
     ]);
     fs.unlinkSync(p);
+  });
+
+  test('readLines handles large file with low memory', async () => {
+    const p = path.join(__dirname, 'large.txt');
+    const lines = Array.from({ length: 100000 }, (_, i) => `line${i}`);
+    fs.writeFileSync(p, lines.join('\n'));
+    global.gc?.();
+    const before = process.memoryUsage().heapUsed;
+    let count = 0;
+    for await (const _ of readLines(p)) {
+      count++;
+    }
+    global.gc?.();
+    const after = process.memoryUsage().heapUsed;
+    fs.unlinkSync(p);
+    expect(count).toBe(100000);
+    expect(after - before).toBeLessThan(20 * 1024 * 1024); // <20MB
   });
 
   test('prefix and suffix', () => {
