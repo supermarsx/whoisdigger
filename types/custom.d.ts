@@ -155,14 +155,6 @@ declare module 'app/ts/common/resetObject' {
   export { resetObj as resetObject };
 }
 
-declare module 'change-case' {
-  export function camelCase(input: string): string;
-}
-
-declare module 'html-entities' {
-  export function decode(input: string): string;
-}
-
 declare const $: any;
 declare const settings: any;
 

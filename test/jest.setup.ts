@@ -1,4 +1,4 @@
-jest.mock('../app/vendor/change-case.js', () => ({
+jest.mock('change-case', () => ({
   camelCase: (input: string) => {
     const parts = input.replace(/^[^a-zA-Z0-9]+/, '').split(/[^a-zA-Z0-9]+/);
     return parts
@@ -7,6 +7,6 @@ jest.mock('../app/vendor/change-case.js', () => ({
   }
 }));
 
-jest.mock('../app/vendor/html-entities/index.js', () => ({
+jest.mock('html-entities', () => ({
   decode: (input: string) => input
 }));

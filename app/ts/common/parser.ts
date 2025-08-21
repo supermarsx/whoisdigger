@@ -1,5 +1,5 @@
-import * as changeCase from '../../vendor/change-case.js';
-import { decode } from '../../vendor/html-entities/index.js';
+import { camelCase } from 'change-case';
+import { decode } from 'html-entities';
 
 export function preStringStrip(str: string): string {
   return str.toString().replace(/\:\t{1,2}/g, ': ');
@@ -28,7 +28,7 @@ export function parseRawData(rawData: string): Record<string, string> {
     if (line && line.includes(DELIMITER + ' ')) {
       const lineParts = line.split(DELIMITER);
       if (lineParts.length >= 2) {
-        const key = changeCase.camelCase(lineParts[0]);
+        const key = camelCase(lineParts[0]);
         const value = lineParts.splice(1).join(DELIMITER).trim();
         if (key in result) {
           result[key] += ` ${value}`;
