@@ -1,4 +1,4 @@
-import { decode } from 'html-entities';
+let decodeHtml: (input: string) => string;
 
 function camelCase(input: string): string {
   const parts = input.replace(/^[^a-zA-Z0-9]+/, '').split(/[^a-zA-Z0-9]+/);
@@ -13,7 +13,18 @@ export function preStringStrip(str: string): string {
 }
 
 function stripHTMLEntities(rawData: string): string {
-  return decode(rawData);
+  if (!decodeHtml) {
+    if (typeof window === 'undefined') {
+      decodeHtml = (eval('require')('html-entities') as { decode: (s: string) => string }).decode;
+    } else {
+      const textarea = document.createElement('textarea');
+      decodeHtml = (input: string): string => {
+        textarea.innerHTML = input;
+        return textarea.value;
+      };
+    }
+  }
+  return decodeHtml(rawData);
 }
 
 function filterColonChar(rawData: string): string {
