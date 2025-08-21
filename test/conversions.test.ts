@@ -42,6 +42,30 @@ describe('conversions', () => {
     expect(msToHumanTime(500)).toBe('500 ms');
   });
 
+  test('msToHumanTime converts one millisecond', () => {
+    expect(msToHumanTime(1)).toBe('1 ms');
+  });
+
+  test('msToHumanTime converts one second', () => {
+    expect(msToHumanTime(1000)).toBe('1 s');
+  });
+
+  test('msToHumanTime converts one minute', () => {
+    expect(msToHumanTime(60000)).toBe('1 m');
+  });
+
+  test('msToHumanTime handles combined durations', () => {
+    const minute = 60 * 1000;
+    const hour = 60 * minute;
+    const day = 24 * hour;
+    const week = 7 * day;
+    const month = 4 * week;
+    const year = 12 * month;
+    const duration = year + 2 * month + 3 * week + 4 * day + 5 * hour + 6 * minute + 7 * 1000 + 8;
+
+    expect(msToHumanTime(duration)).toBe('1 Y 2 M 3 w 4 d 5 h 6 m 7 s 8 ms');
+  });
+
   test("msToHumanTime returns '-' for zero duration", () => {
     expect(msToHumanTime(0)).toBe('-');
   });
