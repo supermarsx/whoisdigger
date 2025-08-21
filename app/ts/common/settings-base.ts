@@ -82,6 +82,8 @@ export interface Settings {
     checktype: 'ping' | 'request' | 'ping+request';
     single?: string | ProxyEntry;
     list?: (string | ProxyEntry)[];
+    username?: string;
+    password?: string;
     retries: number;
   };
   lookupAssumptions: {
