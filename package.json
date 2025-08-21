@@ -59,7 +59,6 @@
     "@fortawesome/fontawesome-free": "^7.0.0",
     "better-sqlite3": "^12.2.0",
     "bulma": "^1.0.4",
-    "change-case": "^5.4.4",
     "cp": "^0.2.0",
     "csv": "^6.4.1",
     "datatables.net": "^2.3.2",
