@@ -22,17 +22,21 @@ interface ProxySettingsEntry {
   password?: string;
 }
 
-function parseEntry(entry: string | ProxySettingsEntry): ProxyInfo | undefined {
-  let authUser: string | undefined;
-  let authPass: string | undefined;
+function parseEntry(
+  entry: string | ProxySettingsEntry,
+  defUser?: string,
+  defPass?: string
+): ProxyInfo | undefined {
+  let authUser: string | undefined = defUser;
+  let authPass: string | undefined = defPass;
   let hostPort: string;
 
   if (typeof entry === 'string') {
     hostPort = entry;
   } else {
     hostPort = entry.proxy;
-    authUser = entry.username;
-    authPass = entry.password;
+    authUser = entry.username ?? authUser;
+    authPass = entry.password ?? authPass;
   }
 
   if (hostPort.includes('@')) {
@@ -110,7 +114,7 @@ export function getProxy(): ProxyInfo | undefined {
         break;
     }
 
-    const info = parseEntry(entry);
+    const info = parseEntry(entry, proxy.username, proxy.password);
     if (!info) {
       continue;
     }

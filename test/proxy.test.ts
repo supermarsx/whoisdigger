@@ -10,6 +10,8 @@ describe('proxy helper', () => {
     settings.lookupProxy.multimode = 'sequential';
     settings.lookupProxy.single = '';
     settings.lookupProxy.list = [];
+    settings.lookupProxy.username = '';
+    settings.lookupProxy.password = '';
     settings.lookupProxy.retries = 3;
   });
 
@@ -109,6 +111,20 @@ describe('proxy helper', () => {
     settings.lookupProxy.enable = true;
     settings.lookupProxy.mode = 'multi';
     settings.lookupProxy.list = [{ proxy: '1.2.3.4:1080', username: 'user', password: 'pass' }];
+    const proxy = getProxy();
+    expect(proxy).toEqual({
+      ipaddress: '1.2.3.4',
+      port: 1080,
+      auth: { username: 'user', password: 'pass' }
+    });
+  });
+
+  test('uses global credentials', () => {
+    settings.lookupProxy.enable = true;
+    settings.lookupProxy.mode = 'single';
+    settings.lookupProxy.username = 'user';
+    settings.lookupProxy.password = 'pass';
+    settings.lookupProxy.single = '1.2.3.4:1080';
     const proxy = getProxy();
     expect(proxy).toEqual({
       ipaddress: '1.2.3.4',
