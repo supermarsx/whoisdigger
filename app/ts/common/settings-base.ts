@@ -95,6 +95,7 @@ export interface Settings {
     enabled: boolean;
     database: string;
     ttl: number;
+    purgeInterval: number;
   };
   customConfiguration: { filepath: string; load: boolean; save: boolean };
   theme: { darkMode: boolean; followSystem: boolean };

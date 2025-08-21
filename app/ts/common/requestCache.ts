@@ -14,6 +14,7 @@ export interface CacheOptions {
 
 export class RequestCache {
   private db: DatabaseType | undefined;
+  private purgeTimer: NodeJS.Timeout | undefined;
 
   private async init(): Promise<DatabaseType | undefined> {
     const { requestCache } = settings;
@@ -132,7 +133,21 @@ export class RequestCache {
     }
   }
 
+  startAutoPurge(intervalMs?: number): void {
+    const { requestCache } = settings;
+    const interval = intervalMs ?? requestCache.purgeInterval;
+    if (!requestCache.enabled || !interval || interval <= 0) return;
+    if (this.purgeTimer) clearInterval(this.purgeTimer);
+    this.purgeTimer = setInterval(() => {
+      void this.purgeExpired();
+    }, interval);
+  }
+
   close(): void {
+    if (this.purgeTimer) {
+      clearInterval(this.purgeTimer);
+      this.purgeTimer = undefined;
+    }
     if (this.db) {
       try {
         this.db.close();
