@@ -1,10 +1,11 @@
-import { ipcMain } from 'electron';
 import path from 'path';
+import { IpcChannel } from '../common/ipcChannels.js';
+import { handle } from './ipc.js';
 
-ipcMain.handle('path:join', (_e, ...args: string[]) => {
+handle(IpcChannel.PathJoin, (_e, ...args: string[]) => {
   return path.join(...args);
 });
 
-ipcMain.handle('path:basename', (_e, p: string) => {
+handle(IpcChannel.PathBasename, (_e, p: string) => {
   return path.basename(p);
 });

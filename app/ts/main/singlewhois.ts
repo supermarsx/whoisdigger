@@ -11,12 +11,13 @@ import { formatString } from '../common/stringformat.js';
 import { settings } from './settings-main.js';
 import type { Settings } from './settings-main.js';
 import { IpcChannel } from '../common/ipcChannels.js';
+import { handle } from './ipc.js';
 
 /*
   ipcMain.on('singlewhois:lookup', function(...) {...});
     Single whois lookup
  */
-ipcMain.handle(IpcChannel.SingleWhoisLookup, async (_event, domain) => {
+handle(IpcChannel.SingleWhoisLookup, async (_event, domain) => {
   debug('Starting whois lookup');
   try {
     const data = await whoisLookup(domain);

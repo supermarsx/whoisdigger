@@ -3,6 +3,7 @@ import { debugFactory } from '../../common/logger.js';
 const debug = debugFactory('bulkwhois.fileinput');
 import { formatString } from '../../common/stringformat.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
+import { handle } from '../ipc.js';
 
 import { getSettings } from '../settings-main.js';
 
@@ -10,7 +11,7 @@ import { getSettings } from '../settings-main.js';
   ipcMain.handle('bulkwhois:input.file', function() {...});
     Open file dialog for bulk whois input
 */
-ipcMain.handle(IpcChannel.BulkwhoisInputFile, async () => {
+handle(IpcChannel.BulkwhoisInputFile, async () => {
   debug('Waiting for file selection');
   const filePath = dialog.showOpenDialogSync({
     title: 'Select wordlist file',

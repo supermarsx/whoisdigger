@@ -1,8 +1,9 @@
-import { ipcMain, dialog } from 'electron';
+import { dialog } from 'electron';
 import fs from 'fs';
 import { debugFactory } from '../common/logger.js';
 import { processLines, ProcessOptions } from '../common/tools.js';
 import { IpcChannel } from '../common/ipcChannels.js';
+import { handle } from './ipc.js';
 const debug = debugFactory('main.to');
 
 /*
@@ -11,7 +12,7 @@ const debug = debugFactory('main.to');
   parameters
     event (object) - renderer object
 */
-ipcMain.handle(IpcChannel.ToInputFile, async () => {
+handle(IpcChannel.ToInputFile, async () => {
   debug('Waiting for tools file selection');
   const filePath = dialog.showOpenDialogSync({
     title: 'Select wordlist file',
@@ -30,7 +31,7 @@ ipcMain.handle(IpcChannel.ToInputFile, async () => {
     filePath (string) - path to wordlist file
     options (object) - processing options
 */
-ipcMain.handle(
+handle(
   IpcChannel.ToProcess,
   async (_event, filePath: string, options: ProcessOptions) => {
     try {

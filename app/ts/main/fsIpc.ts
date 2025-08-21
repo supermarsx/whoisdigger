@@ -1,5 +1,7 @@
 import { ipcMain } from 'electron';
 import fs from 'fs';
+import { IpcChannel } from '../common/ipcChannels.js';
+import { handle } from './ipc.js';
 
 type ReadFileOpts = BufferEncoding | fs.ReadFileOptions;
 type ReaddirOpts = fs.ReaddirOptions | BufferEncoding | undefined;
@@ -60,10 +62,10 @@ ipcMain.handle('fs:unwatch', (_e, id: number) => {
   }
 });
 
-ipcMain.handle('bw:file-read', async (_e, p: string) => {
+handle(IpcChannel.BwFileRead, async (_e, p: string) => {
   return fs.promises.readFile(p);
 });
 
-ipcMain.handle('bwa:file-read', async (_e, p: string) => {
+handle(IpcChannel.BwaFileRead, async (_e, p: string) => {
   return fs.promises.readFile(p);
 });
