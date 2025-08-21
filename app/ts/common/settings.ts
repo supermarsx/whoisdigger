@@ -14,6 +14,7 @@ import {
   validateSettings,
   type Settings
 } from './settings-base.js';
+import { ZodError } from 'zod';
 
 const debug = debugFactory('common.settings');
 
@@ -50,21 +51,26 @@ export async function load(): Promise<Settings> {
       try {
         const parsed = JSON.parse(raw) as Partial<Settings>;
         try {
-          setSettings(mergeDefaults(parsed));
-          if (settings.appWindowWebPreferences) {
-            settings.appWindowWebPreferences.contextIsolation = false;
-            settings.appWindowWebPreferences.nodeIntegration = true;
+          const validated = validateSettings(parsed);
+          if (validated.appWindowWebPreferences) {
+            validated.appWindowWebPreferences.contextIsolation = false;
+            validated.appWindowWebPreferences.nodeIntegration = true;
           }
+          setSettings(validated);
           setCustomSettingsLoaded(true);
           debug(`Loaded custom configuration at ${filePath}`);
         } catch (mergeError) {
+          const message =
+            mergeError instanceof ZodError
+              ? mergeError.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join('; ')
+              : String(mergeError);
           setSettings(JSON.parse(JSON.stringify(defaultSettings)));
           if (settings.appWindowWebPreferences) {
             settings.appWindowWebPreferences.contextIsolation = false;
             settings.appWindowWebPreferences.nodeIntegration = true;
           }
           setCustomSettingsLoaded(false);
-          debug(`Failed to merge custom configuration with error: ${mergeError}`);
+          debug(`Failed to merge custom configuration with error: ${message}`);
         }
       } catch (parseError) {
         setCustomSettingsLoaded(false);
@@ -99,20 +105,25 @@ export async function load(): Promise<Settings> {
 export async function save(newSettings: Settings): Promise<string | Error | undefined> {
   const configuration = newSettings.customConfiguration ?? defaultCustomConfiguration;
 
-  if (configuration && configuration.save) {
-    try {
+  try {
+    const validated = validateSettings(newSettings);
+    if (configuration && configuration.save) {
       const filePath = path.join(getUserDataPath(), configuration.filepath);
       await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
-      await fs.promises.writeFile(filePath, JSON.stringify(newSettings, null, 2));
+      await fs.promises.writeFile(filePath, JSON.stringify(validated, null, 2));
       debug(`Saved custom configuration at ${filePath}`);
-      setSettings(newSettings);
+      setSettings(validated);
       return 'SAVED';
-    } catch (e) {
-      debug(`Failed to save custom configuration with error: ${e}`);
-      return e as Error;
     }
+    setSettings(validated);
+  } catch (e) {
+    const message =
+      e instanceof ZodError
+        ? e.errors.map((err) => `${err.path.join('.')}: ${err.message}`).join('; ')
+        : String(e);
+    debug(`Failed to save custom configuration with error: ${message}`);
+    return new Error(message);
   }
-  setSettings(newSettings);
 }
 
 export const loadSettings = load;
