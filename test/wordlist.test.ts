@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import {
-  readLines,
   concatFiles,
   splitFiles,
   addPrefix,
@@ -44,14 +43,14 @@ describe('wordlist tools', () => {
     fs.unlinkSync(p);
   });
 
-  test('readLines handles large file with low memory', async () => {
+  test('concatFiles handles large file with low memory', async () => {
     const p = path.join(__dirname, 'large.txt');
     const lines = Array.from({ length: 100000 }, (_, i) => `line${i}`);
     fs.writeFileSync(p, lines.join('\n'));
     global.gc?.();
     const before = process.memoryUsage().heapUsed;
     let count = 0;
-    for await (const _ of readLines(p)) {
+    for await (const _ of concatFiles(p)) {
       count++;
     }
     global.gc?.();
