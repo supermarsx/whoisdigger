@@ -1,5 +1,12 @@
-import { camelCase } from 'change-case';
 import { decode } from 'html-entities';
+
+function camelCase(input: string): string {
+  const parts = input.replace(/^[^a-zA-Z0-9]+/, '').split(/[^a-zA-Z0-9]+/);
+  return parts
+    .filter(Boolean)
+    .map((p, i) => (i === 0 ? p.toLowerCase() : p.charAt(0).toUpperCase() + p.slice(1)))
+    .join('');
+}
 
 export function preStringStrip(str: string): string {
   return str.toString().replace(/\:\t{1,2}/g, ': ');

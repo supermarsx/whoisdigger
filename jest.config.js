@@ -8,7 +8,7 @@ export default {
     '^.+\\.cts$': ['ts-jest', { tsconfig: 'tsconfig.json', diagnostics: false, useESM: true }],
     '^.+\\.m?js$': 'babel-jest'
   },
-  transformIgnorePatterns: ['node_modules/(?!(change-case|html-entities)/)'],
+  transformIgnorePatterns: ['node_modules/(?!(html-entities)/)'],
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
     '^#common/(.*)\\.js$': '<rootDir>/app/ts/common/$1.ts',
@@ -19,7 +19,7 @@ export default {
     '^#cli/(.*)\\.js$': '<rootDir>/app/ts/cli/$1.ts',
     '^#server/(.*)\\.js$': '<rootDir>/app/ts/server/$1.ts'
   },
-  setupFilesAfterEnv: ['<rootDir>/test/jest.setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/test/jest.setup.cjs'],
   collectCoverage: true,
   coverageDirectory: 'coverage'
 };
