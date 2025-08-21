@@ -160,7 +160,7 @@ Whoisdigger provides sample wordlists as example for testing purposes inside `sa
 
 When choosing export options, you can decide what domain status to export, if you want errors included, only basic domain information such as creation, expiration and update dates.
 
-Exporting as text will only export raw replies for each domain in a zip file, as a csv you're able to see both both basic information and whois replies (in text, inline csv or separate csv inside a zip file).
+Exporting as text will only export raw replies for each domain in a zip file; as a csv you're able to see both basic information and whois replies (in text, inline csv or separate csv inside a zip file); and as json the structured results array is written to a single file.
 
 ### CLI usage
 
@@ -172,6 +172,9 @@ node dist/app/ts/cli.js --domain example.com
 
 # bulk search using a wordlist
 node dist/app/ts/cli.js --wordlist words.txt --tlds com net --format csv --out results.csv
+
+# output JSON results
+node dist/app/ts/cli.js --wordlist words.txt --tlds com net --format json --out results.json
 
 # using a proxy
 node dist/app/ts/cli.js --domain example.com --proxy 127.0.0.1:9050

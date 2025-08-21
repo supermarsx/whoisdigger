@@ -22,6 +22,11 @@ describe('cli utility', () => {
     expect(opts.format).toBe('csv');
   });
 
+  test('parseArgs accepts json format', () => {
+    const opts = parseArgs(['--domain', 'example.com', '--format', 'json']);
+    expect(opts.format).toBe('json');
+  });
+
   test('parseArgs recognizes cache flags', () => {
     const opts = parseArgs(['--purge-cache', '--clear-cache']);
     expect(opts.purgeCache).toBe(true);
@@ -193,6 +198,31 @@ describe('cli utility', () => {
     );
     const content = await fs.promises.readFile(file, 'utf8');
     expect(content).toContain('example.com');
+    fs.unlinkSync(file);
+  });
+
+  test('exportResults writes json output', async () => {
+    const file = path.join(__dirname, 'out.json');
+    const opts: CliOptions = { domains: [], tlds: ['com'], format: 'json', out: file };
+    await exportResults(
+      [
+        {
+          domain: 'example.com',
+          status: 'available',
+          registrar: 'reg',
+          company: 'comp',
+          creationDate: 'c',
+          updateDate: 'u',
+          expiryDate: 'e',
+          whoisreply: 'r',
+          whoisJson: {}
+        }
+      ],
+      opts
+    );
+    const content = await fs.promises.readFile(file, 'utf8');
+    const data = JSON.parse(content);
+    expect(data[0].domain).toBe('example.com');
     fs.unlinkSync(file);
   });
 
