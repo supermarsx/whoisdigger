@@ -19,6 +19,17 @@ import { suggestWords } from './ai/openaiSuggest.js';
 import { readLines } from './common/wordlist.js';
 
 const requestCache = new RequestCache();
+requestCache.startAutoPurge(settings.requestCache.purgeInterval);
+const cleanup = (): void => requestCache.close();
+process.on('exit', cleanup);
+process.on('SIGINT', () => {
+  cleanup();
+  process.exit(0);
+});
+process.on('SIGTERM', () => {
+  cleanup();
+  process.exit(0);
+});
 
 const debug = debugFactory('cli');
 const error = errorFactory('cli');

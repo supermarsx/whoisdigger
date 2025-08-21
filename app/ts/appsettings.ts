@@ -133,7 +133,8 @@ const appSettings = {
       // Request caching configuration
       enabled: false, // Enable request caching (default: false)
       database: 'request-cache.sqlite', // Cache database filename
-      ttl: 3600 // Cache entry time to live in seconds
+      ttl: 3600, // Cache entry time to live in seconds
+      purgeInterval: 60000 // Cache purge interval in milliseconds
     },
     customConfiguration: {
       // Application custom configurations
@@ -262,6 +263,7 @@ export const appSettingsDescriptions: Record<string, string> = {
   'requestCache.enabled': 'Enable request caching',
   'requestCache.database': 'Cache database filename',
   'requestCache.ttl': 'Cache entry time to live (seconds)',
+  'requestCache.purgeInterval': 'Cache purge interval (milliseconds)',
   'customConfiguration.filepath': 'Custom configuration filename',
   'customConfiguration.load': 'Load custom configuration on start',
   'customConfiguration.save': 'Save custom configuration on exit',
