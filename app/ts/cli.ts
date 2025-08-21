@@ -41,7 +41,7 @@ export interface CliOptions {
   wordlist?: string;
   tlds: string[];
   proxy?: string;
-  format: 'csv' | 'txt' | 'zip';
+  format: 'csv' | 'txt' | 'zip' | 'json';
   out?: string;
   purgeCache?: boolean;
   clearCache?: boolean;
@@ -58,7 +58,11 @@ export function parseArgs(argv: string[]): CliOptions {
     .option('wordlist', { type: 'string' })
     .option('tlds', { type: 'string', array: true, default: ['com'] })
     .option('proxy', { type: 'string' })
-    .option('format', { choices: ['csv', 'txt', 'zip'] as const, default: 'txt' })
+    .option('format', {
+      choices: ['csv', 'txt', 'zip', 'json'] as const,
+      default: 'txt',
+      describe: 'Output format (csv, txt, zip, or json)'
+    })
     .option('out', { type: 'string' })
     .option('purge-cache', { type: 'boolean' })
     .option('clear-cache', { type: 'boolean' })
@@ -94,7 +98,7 @@ export function parseArgs(argv: string[]): CliOptions {
     wordlist: args.wordlist,
     tlds: args.tlds as string[],
     proxy: args.proxy,
-    format: args.format as 'csv' | 'txt' | 'zip',
+    format: args.format as 'csv' | 'txt' | 'zip' | 'json',
     out: args.out,
     purgeCache: args['purge-cache'],
     clearCache: args['clear-cache'],
@@ -198,6 +202,11 @@ export async function exportResults(results: WhoisResult[], opts: CliOptions): P
       }
       const data = await zip.generateAsync({ type: 'uint8array' });
       await fs.promises.writeFile(file, data);
+      return file;
+    }
+    case 'json': {
+      const content = JSON.stringify(results, null, 2);
+      await fs.promises.writeFile(file, content);
       return file;
     }
     default: {
