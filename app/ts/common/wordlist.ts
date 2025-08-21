@@ -3,17 +3,22 @@ import readline from 'readline';
 import { randomInt } from '../utils/random.js';
 import { escapeRegex } from '../utils/regex.js';
 
-export async function* readLines(...files: string[]): AsyncGenerator<string> {
-  for (const file of files) {
-    const stream = createReadStream(file, { encoding: 'utf8' });
-    const rl = readline.createInterface({ input: stream, crlfDelay: Infinity });
+export async function* readLines(file: string): AsyncGenerator<string> {
+  const stream = createReadStream(file, { encoding: 'utf8' });
+  const rl = readline.createInterface({ input: stream, crlfDelay: Infinity });
+  try {
     for await (const line of rl) {
       yield line;
     }
+  } finally {
+    rl.close();
+    stream.close();
   }
 }
 export async function* concatFiles(...files: string[]): AsyncGenerator<string> {
-  yield* readLines(...files);
+  for (const file of files) {
+    yield* readLines(file);
+  }
 }
 
 export interface SplitOptions {
@@ -29,7 +34,7 @@ export async function* splitFiles(options: SplitOptions): AsyncGenerator<string[
     return;
   }
 
-  const lineGen = readLines(...options.files);
+  const lineGen = concatFiles(...options.files);
 
   if (options.pattern) {
     let current: string[] = [];

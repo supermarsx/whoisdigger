@@ -119,11 +119,11 @@ export async function lookupDomains(opts: CliOptions): Promise<WhoisResult[]> {
 
   let domains: string[] = opts.domains;
   if (opts.wordlist) {
-    for await (const word of readLines(opts.wordlist)) {
-      const w = word.trim();
-      if (!w) continue;
+    for await (const line of readLines(opts.wordlist)) {
+      const word = line.trim();
+      if (!word) continue;
       for (const tld of opts.tlds) {
-        domains.push(`${w}${opts.tlds.length > 0 ? '.' : ''}${tld}`);
+        domains.push(`${word}${opts.tlds.length > 0 ? '.' : ''}${tld}`);
       }
     }
   }
