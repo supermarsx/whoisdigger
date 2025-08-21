@@ -112,8 +112,137 @@ export interface Settings {
   [key: string]: any;
 }
 
+import { z } from 'zod';
 import { debugFactory } from './logger.js';
 import appDefaults from '../appsettings.js';
+
+const ProxyEntrySchema = z.object({
+  proxy: z.string(),
+  username: z.string().optional(),
+  password: z.string().optional()
+});
+
+export const SettingsSchema = z
+  .object({
+    appWindow: z.object({
+      frame: z.boolean(),
+      show: z.boolean(),
+      height: z.number(),
+      width: z.number(),
+      icon: z.string(),
+      center: z.boolean(),
+      minimizable: z.boolean(),
+      maximizable: z.boolean(),
+      movable: z.boolean(),
+      resizable: z.boolean(),
+      closable: z.boolean(),
+      focusable: z.boolean(),
+      alwaysOnTop: z.boolean(),
+      fullscreen: z.boolean(),
+      fullscreenable: z.boolean(),
+      kiosk: z.boolean(),
+      darkTheme: z.boolean(),
+      thickFrame: z.boolean()
+    }),
+    appWindowWebPreferences: z.object({
+      nodeIntegration: z.boolean(),
+      contextIsolation: z.boolean(),
+      zoomFactor: z.number(),
+      images: z.boolean(),
+      experimentalFeatures: z.boolean(),
+      backgroundThrottling: z.boolean(),
+      offscreen: z.boolean(),
+      spellcheck: z.boolean(),
+      enableRemoteModule: z.boolean()
+    }),
+    appWindowUrl: z.object({
+      pathname: z.string(),
+      protocol: z.string(),
+      slashes: z.boolean()
+    }),
+    appWindowNavigation: z.object({
+      developerTools: z.boolean(),
+      extendedCollapsed: z.boolean(),
+      enableExtendedMenu: z.boolean()
+    }),
+    startup: z.object({
+      developerTools: z.boolean()
+    }),
+    lookupConversion: z.object({
+      enabled: z.boolean(),
+      algorithm: z.string()
+    }),
+    lookupGeneral: z.object({
+      type: z.enum(['dns', 'whois', 'rdap']),
+      psl: z.boolean(),
+      server: z.string(),
+      verbose: z.boolean(),
+      follow: z.number(),
+      timeout: z.number(),
+      timeBetween: z.number(),
+      dnsTimeBetweenOverride: z.boolean(),
+      dnsTimeBetween: z.number()
+    }),
+    lookupRandomizeFollow: z.object({
+      randomize: z.boolean(),
+      minimumDepth: z.number(),
+      maximumDepth: z.number()
+    }),
+    lookupRandomizeTimeout: z.object({
+      randomize: z.boolean(),
+      minimum: z.number(),
+      maximum: z.number()
+    }),
+    lookupRandomizeTimeBetween: z.object({
+      randomize: z.boolean(),
+      minimum: z.number(),
+      maximum: z.number()
+    }),
+    lookupProxy: z.object({
+      enable: z.boolean(),
+      mode: z.enum(['single', 'multi']),
+      multimode: z.enum(['sequential', 'random', 'ascending', 'descending']),
+      check: z.boolean(),
+      checktype: z.enum(['ping', 'request', 'ping+request']),
+      single: z.union([z.string(), ProxyEntrySchema]).optional(),
+      list: z.array(z.union([z.string(), ProxyEntrySchema])).optional(),
+      retries: z.number()
+    }),
+    lookupAssumptions: z.object({
+      uniregistry: z.boolean(),
+      ratelimit: z.boolean(),
+      unparsable: z.boolean(),
+      dnsFailureUnavailable: z.boolean(),
+      expired: z.boolean().optional()
+    }),
+    requestCache: z.object({
+      enabled: z.boolean(),
+      database: z.string(),
+      ttl: z.number()
+    }),
+    customConfiguration: z.object({
+      filepath: z.string(),
+      load: z.boolean(),
+      save: z.boolean()
+    }),
+    theme: z.object({
+      darkMode: z.boolean(),
+      followSystem: z.boolean()
+    }),
+    ui: z.object({
+      liveReload: z.boolean(),
+      confirmExit: z.boolean(),
+      language: z.string()
+    }),
+    ai: z.object({
+      enabled: z.boolean(),
+      modelPath: z.string(),
+      dataPath: z.string(),
+      modelURL: z.string(),
+      openai: z.object({ url: z.string(), apiKey: z.string() })
+    })
+  })
+  .catchall(z.any());
 
 export const settings: Settings = appDefaults.settings as Settings;
 export const defaultSettings: Settings = JSON.parse(JSON.stringify(settings));
@@ -133,41 +262,25 @@ export function setSettings(newSettings: Settings): void {
   Object.assign(settings, newSettings);
 }
 
-export function mergeDefaults(partial: Partial<Settings>): Settings {
-  function merge<T extends Record<string, unknown>>(
-    target: T,
-    source: Partial<T>,
-    path: string[] = []
-  ): void {
-    for (const key of Object.keys(source as Record<string, unknown>)) {
-      const k = key as keyof T;
-      const src = source[k];
+export function validateSettings(partial: Partial<Settings>): Settings {
+  function merge(target: any, source: any): void {
+    for (const key of Object.keys(source ?? {})) {
+      const src = source[key];
       if (src === undefined) continue;
-      const tgt = target[k];
       if (src && typeof src === 'object' && !Array.isArray(src)) {
-        if (tgt !== undefined && typeof tgt !== 'object') {
-          throw new TypeError(`Invalid type at ${[...path, String(key)].join('.')}`);
+        if (typeof target[key] !== 'object' || Array.isArray(target[key])) {
+          target[key] = {};
         }
-        if (tgt === undefined) {
-          (target as Record<string, unknown>)[key] = {};
-        }
-        merge(
-          (target as Record<string, unknown>)[key] as unknown as Record<string, unknown>,
-          src as Partial<Record<string, unknown>>,
-          [...path, String(key)]
-        );
+        merge(target[key], src);
       } else {
-        if (tgt !== undefined && typeof src !== typeof tgt) {
-          throw new TypeError(`Invalid type at ${[...path, String(key)].join('.')}`);
-        }
-        (target as Record<string, unknown>)[key] = src as unknown;
+        target[key] = src;
       }
     }
   }
 
-  const clone = JSON.parse(JSON.stringify(defaultSettings));
+  const clone: Settings = JSON.parse(JSON.stringify(defaultSettings));
   merge(clone, partial);
-  return clone as Settings;
+  return SettingsSchema.parse(clone) as Settings;
 }
 
-export const validateSettings = mergeDefaults;
+export const mergeDefaults = validateSettings;

@@ -76,7 +76,8 @@
     "papaparse": "^5.5.3",
     "psl": "^1.15.0",
     "punycode": "^2.3.1",
-    "whois": "^2.15.0"
+    "whois": "^2.15.0",
+    "zod": "^3.24.3"
   },
   "devDependencies": {
     "@babel/core": "^7.27.7",
