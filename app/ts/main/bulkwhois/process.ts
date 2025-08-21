@@ -2,10 +2,11 @@ import { ipcMain } from 'electron';
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import { BulkWhoisManager, getDomainSetup } from './manager.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
+import { handle } from '../ipc.js';
 
 const manager = new BulkWhoisManager();
 
-ipcMain.handle(
+handle(
   IpcChannel.BulkwhoisLookup,
   (event: IpcMainInvokeEvent, domains: string[], tlds: string[]) => {
     manager.startLookup(event, domains, tlds);

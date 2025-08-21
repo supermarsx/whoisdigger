@@ -2,12 +2,23 @@
 // Electron's `require` mechanism.
 const { contextBridge, ipcRenderer } = require('electron');
 type IpcRendererEvent = import('electron').IpcRendererEvent;
+import type { IpcChannel } from './common/ipcChannels.js';
+import type { IpcContracts } from './common/ipcContracts.js';
 
 const listenerMap = new WeakMap<Function, (...args: any[]) => void>();
 
+function invoke<C extends IpcChannel>(
+  channel: C,
+  ...args: IpcContracts[C]['request']
+): Promise<IpcContracts[C]['response']>;
+function invoke(channel: string, ...args: unknown[]): Promise<unknown>;
+function invoke(channel: string, ...args: unknown[]): Promise<unknown> {
+  return ipcRenderer.invoke(channel, ...args);
+}
+
 const api = {
   send: (channel: string, ...args: unknown[]) => ipcRenderer.send(channel, ...args),
-  invoke: (channel: string, ...args: unknown[]) => ipcRenderer.invoke(channel, ...args),
+  invoke,
   on: (channel: string, listener: (...args: unknown[]) => void) => {
     const wrapped = (_event: IpcRendererEvent, ...args: unknown[]) => listener(...args);
     listenerMap.set(listener, wrapped);

@@ -1,9 +1,10 @@
-import { ipcMain } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import chokidar from 'chokidar';
 import { Worker } from 'worker_threads';
 import { dirnameCompat } from '../utils/dirnameCompat.js';
+import { IpcChannel } from '../common/ipcChannels.js';
+import { handle } from './ipc.js';
 
 interface WatchState {
   worker?: Worker;
@@ -106,7 +107,7 @@ function launchWorker(state: WatchState) {
   }
 }
 
-ipcMain.handle('stats:start', async (e, configPath: string, dataDir: string) => {
+handle(IpcChannel.StatsStart, async (e, configPath: string, dataDir: string) => {
   const id = ++counter;
   const state: WatchState = { configPath, dataDir, sender: e.sender };
   states.set(id, state);
@@ -114,7 +115,7 @@ ipcMain.handle('stats:start', async (e, configPath: string, dataDir: string) => 
   return id;
 });
 
-ipcMain.handle('stats:refresh', async (e, id: number) => {
+handle(IpcChannel.StatsRefresh, async (e, id: number) => {
   const state = states.get(id);
   if (!state) return;
   if (state.worker) {
@@ -125,7 +126,7 @@ ipcMain.handle('stats:refresh', async (e, id: number) => {
   }
 });
 
-ipcMain.handle('stats:stop', (_e, id: number) => {
+handle(IpcChannel.StatsStop, (_e, id: number) => {
   const state = states.get(id);
   if (!state) return;
   state.worker?.terminate();
@@ -133,6 +134,6 @@ ipcMain.handle('stats:stop', (_e, id: number) => {
   states.delete(id);
 });
 
-ipcMain.handle('stats:get', async (_e, configPath: string, dataDir: string) => {
+handle(IpcChannel.StatsGet, async (_e, configPath: string, dataDir: string) => {
   return computeStats(configPath, dataDir);
 });

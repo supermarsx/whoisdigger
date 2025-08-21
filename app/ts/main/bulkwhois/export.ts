@@ -1,4 +1,4 @@
-import { ipcMain, dialog, shell } from 'electron';
+import { dialog, shell } from 'electron';
 import fs from 'fs';
 import { debugFactory } from '../../common/logger.js';
 const debug = debugFactory('bulkwhois.export');
@@ -7,6 +7,7 @@ import { formatString } from '../../common/stringformat.js';
 import { getSettings } from '../settings-main.js';
 import { generateFilename } from '../../cli/export.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
+import { handle } from '../ipc.js';
 import {
   buildExportIndices,
   generateContent,
@@ -23,7 +24,7 @@ import {
     results (object) - bulk whois results object
     options (object) - bulk whois export options object
  */
-ipcMain.handle(IpcChannel.BulkwhoisExport, async function (event, results, options) {
+handle(IpcChannel.BulkwhoisExport, async function (event, results, options) {
   const { lookupExport: resExports } = getSettings();
   const sender = event.sender;
 

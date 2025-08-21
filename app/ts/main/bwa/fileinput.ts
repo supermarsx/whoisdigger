@@ -1,8 +1,9 @@
-import { ipcMain, dialog } from 'electron';
+import { dialog } from 'electron';
 import { debugFactory } from '../../common/logger.js';
 const debug = debugFactory('main.bwa.fileinput');
 import { formatString } from '../../common/stringformat.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
+import { handle } from '../ipc.js';
 
 /*
   ipcMain.on('bwa:input.file', function(...) {...});
@@ -10,7 +11,7 @@ import { IpcChannel } from '../../common/ipcChannels.js';
   parameters
     event
  */
-ipcMain.handle(IpcChannel.BwaInputFile, async () => {
+handle(IpcChannel.BwaInputFile, async () => {
   debug('Waiting for file selection');
   const filePath = dialog.showOpenDialogSync({
     title: 'Select wordlist file',
