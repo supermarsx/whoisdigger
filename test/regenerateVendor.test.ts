@@ -38,14 +38,6 @@ describe('regenerateVendor', () => {
       path.join(rootDir, 'node_modules', '@fortawesome', 'fontawesome-free', 'js', 'all.js'),
       path.join(rootDir, 'app', 'vendor', 'fontawesome.js')
     );
-    expect(copyFileMock).toHaveBeenCalledWith(
-      path.join(rootDir, 'node_modules', 'change-case', 'dist', 'index.js'),
-      path.join(rootDir, 'app', 'vendor', 'change-case.js')
-    );
-    expect(copyFileMock).toHaveBeenCalledWith(
-      path.join(rootDir, 'node_modules', 'html-entities', 'dist', 'esm', 'index.js'),
-      path.join(rootDir, 'app', 'vendor', 'html-entities', 'index.js')
-    );
     expect(writeFileMock).toHaveBeenCalledWith(
       path.join(rootDir, 'app', 'vendor', 'handlebars.runtime.d.ts'),
       expect.any(String)

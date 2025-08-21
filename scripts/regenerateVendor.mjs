@@ -66,12 +66,6 @@ export function regenerateVendor() {
   );
 
   copyFile(
-    path.join(modulesDir, 'change-case', 'dist', 'index.js'),
-    path.join(vendorDir, 'change-case.js')
-  );
-  writeFile(path.join(vendorDir, 'change-case.d.ts'), "export * from 'change-case';\n");
-
-  copyFile(
     path.join(modulesDir, 'datatables.net', 'js', 'dataTables.js'),
     path.join(vendorDir, 'datatables.js')
   );
@@ -120,19 +114,6 @@ debug.enabled = enabled;
       'export const disable: () => void;\n' +
       'export const enabled: (ns: string) => boolean;\n'
   );
-  const htmlSrcDir = path.join(modulesDir, 'html-entities', 'dist', 'esm');
-  const htmlDestDir = path.join(vendorDir, 'html-entities');
-  fs.mkdirSync(htmlDestDir, { recursive: true });
-  for (const file of [
-    'index.js',
-    'index.d.ts',
-    'named-references.js',
-    'numeric-unicode-map.js',
-    'surrogate-pairs.js'
-  ]) {
-    copyFile(path.join(htmlSrcDir, file), path.join(htmlDestDir, file));
-  }
-
   console.log('Vendor scripts regenerated.');
 }
 

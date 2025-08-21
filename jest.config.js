@@ -19,7 +19,7 @@ export default {
     '^#cli/(.*)\\.js$': '<rootDir>/app/ts/cli/$1.ts',
     '^#server/(.*)\\.js$': '<rootDir>/app/ts/server/$1.ts'
   },
-  setupFiles: ['<rootDir>/test/jest.setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/test/jest.setup.ts'],
   collectCoverage: true,
   coverageDirectory: 'coverage'
 };
