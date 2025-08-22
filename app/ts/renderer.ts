@@ -1,13 +1,13 @@
 // Base path --> assets/html
-import './renderer/index.js';
-import { loadSettings, settings, customSettingsLoaded } from './renderer/settings-renderer.js';
-import { loadTranslations, registerTranslationHelpers } from './renderer/i18n.js';
-import { formatString } from './common/stringformat.js';
-import { sendDebug, sendError } from './renderer/logger.js';
-import { debugFactory } from './common/logger.js';
-import type { RendererElectronAPI } from '../../types/renderer-electron-api.js';
+require('./renderer/index.js');
+const { loadSettings, settings, customSettingsLoaded } = require('./renderer/settings-renderer.js');
+const { loadTranslations, registerTranslationHelpers } = require('./renderer/i18n.js');
+const { formatString } = require('./common/stringformat.js');
+const { sendDebug, sendError } = require('./renderer/logger.js');
+const { debugFactory } = require('./common/logger.js');
 
-const electron = (window as any).electron as RendererElectronAPI;
+const electron = (window as any)
+  .electron as import('../../types/renderer-electron-api.js').RendererElectronAPI;
 
 const debug = debugFactory('renderer.entry');
 debug('loaded');
