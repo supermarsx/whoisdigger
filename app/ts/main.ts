@@ -165,7 +165,9 @@ app.on('ready', async function () {
     const { ui } = settings;
     if (ui.confirmExit && !exitConfirmed) {
       event.preventDefault();
-      mainWindow.webContents.send('app:confirm-exit');
+      if (!mainWindow.webContents.isDestroyed()) {
+        mainWindow.webContents.send('app:confirm-exit');
+      }
     }
   });
 
