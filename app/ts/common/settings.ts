@@ -14,7 +14,7 @@ import {
   validateSettings,
   type Settings
 } from './settings-base.js';
-import { createRequire } from 'module';
+import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const { ZodError } = require('zod') as typeof import('zod');
 

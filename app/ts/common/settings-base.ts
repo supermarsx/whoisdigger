@@ -112,7 +112,7 @@ export interface Settings {
   [key: string]: any;
 }
 
-import { createRequire } from 'module';
+import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const { z } = require('zod') as typeof import('zod');
 import { debugFactory } from './logger.js';
