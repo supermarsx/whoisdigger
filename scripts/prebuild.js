@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
-import { createRequire } from 'module';
+import { createRequire } from 'node:module';
 import { debugFactory } from './logger.js';
 import { precompileTemplates } from './precompileTemplates.js';
 import { dirnameCompat } from './dirnameCompat.js';
