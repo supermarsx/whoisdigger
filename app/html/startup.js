@@ -1,4 +1,5 @@
-import registerPartials from '../ts/renderer/registerPartials.js';
-await registerPartials();
+const { default: registerPartials } = require('../ts/renderer/registerPartials.js');
 
-import '../ts/mainPanel.js';
+registerPartials().then(() => {
+  require('../ts/mainPanel.js');
+});
