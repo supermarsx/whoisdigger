@@ -161,7 +161,7 @@ electron.on('bwa:fileinput.confirmation', (_e: unknown, filePath: string | strin
   $('#bwaEntryButtonOpen').click(function() {...});
     Bulk whois, file input, entry container button
  */
-on('click', '#bwaEntryButtonOpen', () => {
+void on('click', '#bwaEntryButtonOpen', () => {
   qs('#bwaEntry')!.classList.add('is-hidden');
   const loader = qs('#bwaFileinputloading')!;
   loader.classList.remove('is-hidden');
@@ -175,7 +175,7 @@ on('click', '#bwaEntryButtonOpen', () => {
   $('#bwaFileinputconfirmButtonCancel').click(function() {...});
     Bulk whois, file input, cancel button, file confirmation
  */
-on('click', '#bwaFileinputconfirmButtonCancel', () => {
+void on('click', '#bwaFileinputconfirmButtonCancel', () => {
   watcher.close();
   qs('#bwaFileinputconfirm')!.classList.add('is-hidden');
   qs('#bwaEntry')!.classList.remove('is-hidden');
@@ -185,7 +185,7 @@ on('click', '#bwaFileinputconfirmButtonCancel', () => {
   $('#bwaFileinputconfirmButtonStart').click(function() {...});
     Bulk whois, file input, start button, file confirmation
  */
-on('click', '#bwaFileinputconfirmButtonStart', () => {
+void on('click', '#bwaFileinputconfirmButtonStart', () => {
   watcher.close();
   void (async () => {
     const data = await electron.invoke(IpcChannel.BwaAnalyserStart, bwaFileContents);
@@ -201,7 +201,7 @@ on('click', '#bwaFileinputconfirmButtonStart', () => {
 
 /*
 // File Input, proceed to bulk whois
-on('click', '#bwafButtonConfirm', () => {
+void on('click', '#bwafButtonConfirm', () => {
   const bwDomainArray = bwaFileContents.toString().split('\n').map(Function.prototype.call, String.prototype.trim);
   const bwTldsArray = (qs<HTMLInputElement>('#bwfSearchTlds')?.value || '').split(',');
 

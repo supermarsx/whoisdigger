@@ -37,7 +37,7 @@ function loadHistory(): void {
 
 document.addEventListener('DOMContentLoaded', () => {
   loadHistory();
-  on('click', '#clearHistory', async () => {
+  void on('click', '#clearHistory', async () => {
     await electron.invoke('history:clear');
     loadHistory();
   });

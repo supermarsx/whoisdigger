@@ -7,7 +7,7 @@ const debug = debugFactory('bulkwhois.events');
 export function bindProcessingEvents(electron: {
   send: (channel: string, ...args: any[]) => void;
 }): void {
-  on('click', '#bwProcessingButtonPause', () => {
+  void on('click', '#bwProcessingButtonPause', () => {
     const searchStatus = qs('#bwProcessingButtonPauseSpanText')?.textContent ?? '';
     switch (searchStatus) {
       case 'Continue':
@@ -28,7 +28,7 @@ export function bindProcessingEvents(electron: {
     }
   });
 
-  on('click', '#bwProcessingButtonStop', () => {
+  void on('click', '#bwProcessingButtonStop', () => {
     debug('Pausing whois & opening stop modal');
     const btn = qs('#bwProcessingButtonPause');
     if (btn?.textContent?.includes('Pause')) {
@@ -37,12 +37,12 @@ export function bindProcessingEvents(electron: {
     qs('#bwProcessingModalStop')!.classList.add('is-active');
   });
 
-  on('click', '#bwProcessingModalStopButtonContinue', () => {
+  void on('click', '#bwProcessingModalStopButtonContinue', () => {
     debug('Closing Stop modal & continue');
     qs('#bwProcessingModalStop')!.classList.remove('is-active');
   });
 
-  on('click', '#bwProcessingModalStopButtonStop', () => {
+  void on('click', '#bwProcessingModalStopButtonStop', () => {
     debug('Closing Stop modal & going back to start');
     qs('#bwProcessingModalStop')!.classList.remove('is-active');
     qs('#bwProcessing')!.classList.add('is-hidden');
@@ -50,7 +50,7 @@ export function bindProcessingEvents(electron: {
     qs('#bwEntry')!.classList.remove('is-hidden');
   });
 
-  on('click', '#bwProcessingModalStopButtonStopsave', () => {
+  void on('click', '#bwProcessingModalStopButtonStopsave', () => {
     debug('Closing Stop modal & exporting');
     electron.send(IpcChannel.BulkwhoisLookupStop);
     qs('#bwProcessingModalStop')!.classList.remove('is-active');
@@ -59,7 +59,7 @@ export function bindProcessingEvents(electron: {
     qs('#bwExport')!.classList.remove('is-hidden');
   });
 
-  on('click', '#bwProcessingButtonNext', () => {
+  void on('click', '#bwProcessingButtonNext', () => {
     qs('#bwProcessing')!.classList.add('is-hidden');
     qs('#bwExport')!.classList.remove('is-hidden');
   });

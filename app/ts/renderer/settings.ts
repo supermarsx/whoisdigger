@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
     void startStatsWorker();
   });
 
-  on('change', '#settingsEntry input[id], #settingsEntry select[id]', (ev) => {
+  void on('change', '#settingsEntry input[id], #settingsEntry select[id]', (ev) => {
     const el = (ev.target as Element).closest('input[id],select[id]') as
       | HTMLInputElement
       | HTMLSelectElement
@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
     saveEntry(path, el, val);
   });
 
-  on('click', '#settingsEntry .reset-btn', (ev) => {
+  void on('click', '#settingsEntry .reset-btn', (ev) => {
     const btn = (ev.target as Element).closest('.reset-btn') as HTMLElement | null;
     if (!btn) return;
     const path = btn.getAttribute('data-path') as string;
@@ -294,11 +294,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  on('click', '#restoreDefaults', () => {
+  void on('click', '#restoreDefaults', () => {
     qs('#restoreDefaultsModal')!.classList.add('is-active');
   });
 
-  on('click', '#restoreDefaultsYes', () => {
+  void on('click', '#restoreDefaultsYes', () => {
     const defaults = validateSettings({});
     Object.assign(settings, defaults);
     populateInputs();
@@ -311,11 +311,11 @@ document.addEventListener('DOMContentLoaded', () => {
     qs('#restoreDefaultsModal')!.classList.remove('is-active');
   });
 
-  on('click', '#restoreDefaultsNo, #restoreDefaultsModal .delete', () => {
+  void on('click', '#restoreDefaultsNo, #restoreDefaultsModal .delete', () => {
     qs('#restoreDefaultsModal')!.classList.remove('is-active');
   });
 
-  on('click', '#reloadSettings', async () => {
+  void on('click', '#reloadSettings', async () => {
     await loadSettings();
     sessionStorage.setItem('customSettingsLoaded', customSettingsLoaded ? 'true' : 'false');
     populateInputs();
@@ -329,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
     refreshStats();
   });
 
-  on('click', '#saveConfig', async () => {
+  void on('click', '#saveConfig', async () => {
     const res = await saveSettings(settings);
     showToast(
       res === 'SAVED' || res === undefined ? 'Configuration saved' : 'Failed to save configuration',
@@ -338,14 +338,14 @@ document.addEventListener('DOMContentLoaded', () => {
     refreshStats();
   });
 
-  on('click', '#openDataFolder', async () => {
+  void on('click', '#openDataFolder', async () => {
     const result = await electron.openDataDir();
     if (result) {
       showToast('Failed to open data directory', false);
     }
   });
 
-  on('click', '#downloadModel', async () => {
+  void on('click', '#downloadModel', async () => {
     if (!settings.ai.modelURL) {
       showToast('Model URL not configured', false);
       return;
@@ -358,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  on('click', '#reloadApp', async () => {
+  void on('click', '#reloadApp', async () => {
     try {
       await electron.invoke('app:reload');
     } catch {
@@ -366,11 +366,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  on('click', '#deleteConfig', () => {
+  void on('click', '#deleteConfig', () => {
     qs('#deleteConfigModal')!.classList.add('is-active');
   });
 
-  on('click', '#deleteConfigYes', async () => {
+  void on('click', '#deleteConfigYes', async () => {
     const filePath = await electron.path.join(
       getUserDataPath(),
       settings.customConfiguration.filepath
@@ -389,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
     qs('#deleteConfigModal')!.classList.remove('is-active');
   });
 
-  on('click', '#deleteConfigNo, #deleteConfigModal .delete', () => {
+  void on('click', '#deleteConfigNo, #deleteConfigModal .delete', () => {
     qs('#deleteConfigModal')!.classList.remove('is-active');
   });
 
