@@ -144,4 +144,26 @@ describe('proxy helper', () => {
     const next = getProxy();
     expect(next).toEqual({ ipaddress: '2.2.2.2', port: 8080 });
   });
+
+  test('parses IPv6 proxy string', () => {
+    settings.lookupProxy.enable = true;
+    settings.lookupProxy.mode = 'single';
+    settings.lookupProxy.single = '[2001:db8::1]:1080';
+    const proxy = getProxy();
+    expect(proxy).toEqual({ ipaddress: '2001:db8::1', port: 1080 });
+  });
+
+  test('skips IPv6 proxies exceeding retry limit', () => {
+    settings.lookupProxy.enable = true;
+    settings.lookupProxy.mode = 'multi';
+    settings.lookupProxy.list = ['[2001:db8::1]:8080', '[2001:db8::2]:8080'];
+    settings.lookupProxy.retries = 1;
+    const first = getProxy();
+    reportProxyFailure(first!);
+    const second = getProxy();
+    const third = getProxy();
+    expect(first).toEqual({ ipaddress: '2001:db8::1', port: 8080 });
+    expect(second).toEqual({ ipaddress: '2001:db8::2', port: 8080 });
+    expect(third).toEqual({ ipaddress: '2001:db8::2', port: 8080 });
+  });
 });
