@@ -3,6 +3,7 @@ import '../test/electronMock';
 import whois from 'whois';
 import { lookup, getWhoisOptions, WhoisOption } from '../app/ts/common/lookup';
 import { toJSON } from '../app/ts/common/parser';
+import { RequestCache } from '../app/ts/common/requestCache';
 
 describe('whoiswrapper', () => {
   let lookupMock: jest.SpyInstance;
@@ -20,6 +21,13 @@ describe('whoiswrapper', () => {
 
   test('lookup handles invalid domain', async () => {
     await expect(lookup('invalid_domain')).resolves.toContain('Whois lookup error');
+  });
+
+  test('failed lookups are not cached', async () => {
+    const cacheSpy = jest.spyOn(RequestCache.prototype, 'set');
+    await lookup('invalid_domain');
+    expect(cacheSpy).not.toHaveBeenCalled();
+    cacheSpy.mockRestore();
   });
 
   test('toJSON parses object arrays', () => {

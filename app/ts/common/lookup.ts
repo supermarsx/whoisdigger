@@ -51,14 +51,20 @@ export async function lookup(
     return cached;
   }
 
+  let hadError = false;
+
   try {
     debug(`Looking up for ${domain}`);
     domainResults = await lookupPromise(domain, options);
   } catch (e) {
+    hadError = true;
+    debug(`Whois lookup error for ${domain}: ${e}`);
     domainResults = `Whois lookup error, ${e}`;
   }
 
-  await requestCache.set('whois', domain, domainResults, cacheOpts);
+  if (!hadError) {
+    await requestCache.set('whois', domain, domainResults, cacheOpts);
+  }
 
   return domainResults;
 }
