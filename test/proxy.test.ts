@@ -1,6 +1,11 @@
 import './electronMock';
 import { settings } from '../app/ts/renderer/settings-renderer';
-import { getProxy, resetProxyRotation, reportProxyFailure } from '../app/ts/common/proxy';
+import {
+  getProxy,
+  resetProxyRotation,
+  reportProxyFailure,
+  reportProxySuccess
+} from '../app/ts/common/proxy';
 
 describe('proxy helper', () => {
   afterEach(() => {
@@ -143,6 +148,38 @@ describe('proxy helper', () => {
     reportProxyFailure(first!);
     const next = getProxy();
     expect(next).toEqual({ ipaddress: '2.2.2.2', port: 8080 });
+  });
+
+  test('allows proxy again after success report', () => {
+    settings.lookupProxy.enable = true;
+    settings.lookupProxy.mode = 'multi';
+    settings.lookupProxy.list = ['1.1.1.1:8080', '2.2.2.2:8080'];
+    settings.lookupProxy.multimode = 'sequential';
+    settings.lookupProxy.retries = 1;
+    const first = getProxy();
+    reportProxyFailure(first!);
+    const second = getProxy();
+    expect(second).toEqual({ ipaddress: '2.2.2.2', port: 8080 });
+    reportProxySuccess(first!);
+    const third = getProxy();
+    expect(third).toEqual({ ipaddress: '1.1.1.1', port: 8080 });
+  });
+
+  test('cleans up expired failures', () => {
+    jest.useFakeTimers();
+    settings.lookupProxy.enable = true;
+    settings.lookupProxy.mode = 'multi';
+    settings.lookupProxy.list = ['1.1.1.1:8080', '2.2.2.2:8080'];
+    settings.lookupProxy.multimode = 'sequential';
+    settings.lookupProxy.retries = 1;
+    const first = getProxy();
+    reportProxyFailure(first!);
+    const second = getProxy();
+    expect(second).toEqual({ ipaddress: '2.2.2.2', port: 8080 });
+    jest.advanceTimersByTime(5 * 60 * 1000 + 1);
+    const third = getProxy();
+    expect(third).toEqual({ ipaddress: '1.1.1.1', port: 8080 });
+    jest.useRealTimers();
   });
 
   test('parses IPv6 proxy string', () => {

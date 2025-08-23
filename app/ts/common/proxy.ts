@@ -9,7 +9,12 @@ export interface ProxyInfo {
 }
 
 let index = 0;
-const failures = new Map<string, number>();
+interface FailureInfo {
+  count: number;
+  lastFailure: number;
+}
+const failures = new Map<string, FailureInfo>();
+const FAILURE_EXPIRY_MS = 5 * 60 * 1000;
 
 export function resetProxyRotation(): void {
   index = 0;
@@ -89,10 +94,24 @@ function proxyKey(p: ProxyInfo): string {
 
 export function reportProxyFailure(proxy: ProxyInfo): void {
   const key = proxyKey(proxy);
-  failures.set(key, (failures.get(key) ?? 0) + 1);
+  const prev = failures.get(key);
+  failures.set(key, { count: (prev?.count ?? 0) + 1, lastFailure: Date.now() });
+}
+
+export function reportProxySuccess(proxy: ProxyInfo): void {
+  failures.delete(proxyKey(proxy));
+}
+
+function cleanupFailures(now: number = Date.now()): void {
+  for (const [key, info] of failures) {
+    if (now - info.lastFailure > FAILURE_EXPIRY_MS) {
+      failures.delete(key);
+    }
+  }
 }
 
 export function getProxy(): ProxyInfo | undefined {
+  cleanupFailures();
   const proxy = settings.lookupProxy;
   if (!proxy || !proxy.enable) {
     return undefined;
@@ -136,7 +155,8 @@ export function getProxy(): ProxyInfo | undefined {
       continue;
     }
     const key = proxyKey(info);
-    if (maxRetries > 0 && (failures.get(key) ?? 0) >= maxRetries) {
+    const failInfo = failures.get(key);
+    if (maxRetries > 0 && (failInfo?.count ?? 0) >= maxRetries) {
       continue;
     }
     return info;
