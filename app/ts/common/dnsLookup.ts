@@ -3,13 +3,12 @@ import psl from 'psl';
 import { debugFactory } from './logger.js';
 import { convertDomain } from './lookup.js';
 import { settings, Settings } from './settings.js';
-import { RequestCache, CacheOptions } from './requestCache.js';
+import { CacheOptions } from './requestCache.js';
+import { requestCache } from './requestCacheSingleton.js';
 import { DnsLookupError, Result } from './errors.js';
 import DomainStatus from './status.js';
 
 const debug = debugFactory('common.dnsLookup');
-
-const requestCache = new RequestCache();
 
 function getSettings(): Settings {
   return settings;
