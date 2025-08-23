@@ -24,15 +24,14 @@ const appSettings = {
     },
     appWindowWebPreferences: {
       // Web preferences
-      nodeIntegration: true, // Enable Node.js integration
-      contextIsolation: false, // Disable context isolation
+      nodeIntegration: false, // Disable Node.js integration
+      contextIsolation: true, // Enable context isolation
       zoomFactor: 1.0, // Page zoom factor
       images: true, // Image support
       experimentalFeatures: false, // Enable Chromium experimental features
       backgroundThrottling: true, // Whether to throttle animations and timers when the page becomes background
       offscreen: false, // enable offscreen rendering for the browser window
-      spellcheck: false, // Enable builtin spellchecker
-      enableRemoteModule: true // Enable remote module
+      spellcheck: false // Enable builtin spellchecker
     },
     startup: {
       // Application startup
@@ -220,7 +219,6 @@ export const appSettingsDescriptions: Record<string, string> = {
   'appWindowWebPreferences.backgroundThrottling': 'Throttle in background',
   'appWindowWebPreferences.offscreen': 'Enable offscreen rendering',
   'appWindowWebPreferences.spellcheck': 'Enable spellchecker',
-  'appWindowWebPreferences.enableRemoteModule': 'Enable remote module',
   'startup.developerTools': 'Open developer tools on startup',
   'theme.followSystem': 'Follow system theme preference',
   'theme.darkMode': 'Enable dark mode theme',

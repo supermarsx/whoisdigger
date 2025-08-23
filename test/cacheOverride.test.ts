@@ -5,12 +5,13 @@ import whois from 'whois';
 import dns from 'dns/promises';
 import { lookup } from '../app/ts/common/lookup';
 import { nsLookup } from '../app/ts/common/dnsLookup';
-import { settings, getUserDataPath } from '../app/ts/renderer/settings-renderer';
+import { loadSettings, settings, getUserDataPath } from '../app/ts/renderer/settings-renderer';
 
 describe('cache override', () => {
   const dbFile = 'override-cache.sqlite';
 
-  beforeAll(() => {
+  beforeAll(async () => {
+    await loadSettings();
     settings.requestCache.enabled = true;
     settings.requestCache.database = dbFile;
     settings.requestCache.ttl = 60;

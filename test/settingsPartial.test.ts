@@ -7,6 +7,7 @@ describe('settings partial load', () => {
     const { loadSettings, settings, getUserDataPath } = await import(
       '../app/ts/renderer/settings-renderer'
     );
+    await loadSettings();
     const dir = getUserDataPath();
     fs.mkdirSync(dir, { recursive: true });
 

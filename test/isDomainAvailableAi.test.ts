@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import '../test/electronMock';
-import { settings, getUserDataPath } from '../app/ts/renderer/settings-renderer';
+import { loadSettings, settings, getUserDataPath } from '../app/ts/renderer/settings-renderer';
 import { loadModel } from '../app/ts/ai/availabilityModel';
 import { trainFromSamples } from '../scripts/train-ai';
 import { isDomainAvailable } from '../app/ts/common/availability';
@@ -11,6 +11,7 @@ describe('isDomainAvailable with AI', () => {
   const dir = 'ai-int';
 
   beforeAll(async () => {
+    await loadSettings();
     settings.ai.enabled = true;
     settings.ai.dataPath = dir;
     settings.ai.modelPath = 'model.json';

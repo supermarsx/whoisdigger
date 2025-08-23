@@ -44,16 +44,16 @@ function watchConfig(): void {
       try {
         const merged = mergeDefaults(parsed);
         if (merged.appWindowWebPreferences) {
-          merged.appWindowWebPreferences.contextIsolation = false;
-          merged.appWindowWebPreferences.nodeIntegration = true;
+          merged.appWindowWebPreferences.contextIsolation = true;
+          merged.appWindowWebPreferences.nodeIntegration = false;
         }
         setSettings(merged);
         debug(`Reloaded custom configuration at ${cfg}`);
       } catch (mergeError) {
         const defaults = JSON.parse(JSON.stringify(defaultSettings));
         if (defaults.appWindowWebPreferences) {
-          defaults.appWindowWebPreferences.contextIsolation = false;
-          defaults.appWindowWebPreferences.nodeIntegration = true;
+          defaults.appWindowWebPreferences.contextIsolation = true;
+          defaults.appWindowWebPreferences.nodeIntegration = false;
         }
         setSettings(defaults);
         debug(`Failed to merge configuration with error: ${mergeError}`);

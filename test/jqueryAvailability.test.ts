@@ -2,10 +2,6 @@
 
 import '../test/electronMock';
 
-jest.mock('@electron/remote', () => ({
-  app: { getPath: jest.fn(() => '') }
-}));
-
 jest.mock('../app/ts/renderer/index', () => ({}));
 jest.mock('../app/ts/renderer/navigation', () => ({}));
 

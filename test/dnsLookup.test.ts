@@ -7,12 +7,13 @@ import { nsLookup, hasNsServers, isDomainAvailable } from '../app/ts/common/dnsL
 import DomainStatus from '../app/ts/common/status';
 import { DnsLookupError } from '../app/ts/common/errors';
 import { RequestCache } from '../app/ts/common/requestCache';
-import { settings, getUserDataPath } from '../app/ts/renderer/settings-renderer';
+import { loadSettings, settings, getUserDataPath } from '../app/ts/renderer/settings-renderer';
 
 describe('dnsLookup', () => {
   let resolveMock: jest.SpyInstance;
 
-  beforeAll(() => {
+  beforeAll(async () => {
+    await loadSettings();
     resolveMock = jest.spyOn(dns, 'resolve').mockRejectedValue(new Error('ENOTFOUND'));
   });
 
