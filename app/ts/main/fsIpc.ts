@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron';
+import { app, ipcMain } from 'electron';
 import fs from 'fs';
 import { IpcChannel } from '../common/ipcChannels.js';
 import { handle } from './ipc.js';
@@ -15,6 +15,12 @@ export function cleanupWatchers() {
   }
   watchers.clear();
 }
+
+app?.on('will-quit', cleanupWatchers);
+process.on('exit', cleanupWatchers);
+
+const hot = (import.meta as any).hot as undefined | { dispose: (cb: () => void) => void };
+hot?.dispose(cleanupWatchers);
 
 ipcMain.handle('fs:readFile', async (_e, p: string, opts?: ReadFileOpts) => {
   return fs.promises.readFile(p, opts);
