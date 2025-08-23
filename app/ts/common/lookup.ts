@@ -4,7 +4,8 @@ import uts46 from 'idna-uts46';
 import whois from 'whois';
 import { debugFactory } from './logger.js';
 import { settings, Settings } from './settings.js';
-import { RequestCache, CacheOptions } from './requestCache.js';
+import { CacheOptions } from './requestCache.js';
+import { requestCache } from './requestCacheSingleton.js';
 import { getProxy } from './proxy.js';
 import { randomInt } from '../utils/random.js';
 
@@ -15,8 +16,6 @@ export enum WhoisOption {
 }
 
 const debug = debugFactory('common.whoisWrapper');
-
-const requestCache = new RequestCache();
 
 function getSettings(): Settings {
   return settings;

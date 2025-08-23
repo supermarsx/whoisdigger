@@ -8,7 +8,7 @@ import { debugFactory } from './common/logger.js';
 import { loadSettings, settings as store } from './main/settings-main.js';
 import type { Settings as BaseSettings } from './main/settings-main.js';
 import { formatString } from './common/stringformat.js';
-import { RequestCache } from './common/requestCache.js';
+import { requestCache } from './common/requestCacheSingleton.js';
 import { IpcChannel } from './common/ipcChannels.js';
 import {
   initialize as initializeRemote,
@@ -18,8 +18,6 @@ import type { IpcMainEvent } from 'electron';
 
 const debug = debugFactory('main');
 const debugb = debugFactory('renderer');
-
-const requestCache = new RequestCache();
 
 // Disable Chromium Autofill feature to silence devtools warnings in Electron
 app.commandLine.appendSwitch('disable-features', 'Autofill');

@@ -1,10 +1,10 @@
 import { ensureFetch } from '../utils/fetchCompat.js';
-import { RequestCache, CacheOptions } from './requestCache.js';
+import { CacheOptions } from './requestCache.js';
+import { requestCache } from './requestCacheSingleton.js';
 import { debugFactory } from './logger.js';
 import { settings, Settings } from './settings.js';
 
 const debug = debugFactory('common.rdapLookup');
-const requestCache = new RequestCache();
 
 function getSettings(): Settings {
   return settings;
