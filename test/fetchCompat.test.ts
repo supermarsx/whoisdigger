@@ -1,4 +1,5 @@
 const nodeFetchMock = jest.fn();
+const undiciFetchMock = jest.fn();
 const importTracker = jest.fn();
 
 describe('ensureFetch', () => {
@@ -7,6 +8,7 @@ describe('ensureFetch', () => {
   beforeEach(() => {
     jest.resetModules();
     nodeFetchMock.mockClear();
+    undiciFetchMock.mockClear();
     importTracker.mockClear();
   });
 
@@ -52,5 +54,47 @@ describe('ensureFetch', () => {
     await ensureFetch();
     expect(globalThis.fetch).toBe(customFetch);
     expect(importTracker).not.toHaveBeenCalled();
+  });
+
+  test('warns and falls back to undici when node-fetch import fails', async () => {
+    delete (globalThis as any).fetch;
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.doMock(
+      'node-fetch',
+      () => {
+        throw new Error('fail');
+      },
+      { virtual: true }
+    );
+    jest.doMock('undici', () => ({ fetch: undiciFetchMock }), { virtual: true });
+    const { ensureFetch } = await import('../app/ts/utils/fetchCompat');
+    await ensureFetch();
+    expect(globalThis.fetch).toBe(undiciFetchMock);
+    expect(warnSpy).toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
+
+  test('throws error when no fetch polyfill can be loaded', async () => {
+    delete (globalThis as any).fetch;
+    jest.doMock(
+      'node-fetch',
+      () => {
+        throw new Error('fail');
+      },
+      { virtual: true }
+    );
+    jest.doMock(
+      'undici',
+      () => {
+        throw new Error('fail');
+      },
+      { virtual: true }
+    );
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const { ensureFetch } = await import('../app/ts/utils/fetchCompat');
+    await expect(ensureFetch()).rejects.toThrow(
+      'Fetch API is not available and no polyfill could be loaded.'
+    );
+    warnSpy.mockRestore();
   });
 });
