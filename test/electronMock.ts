@@ -7,8 +7,7 @@ export const mockIpcSend = jest.fn();
 jest.mock('electron', () => ({
   ipcRenderer: { send: mockIpcSend },
   dialog: {},
-  app: undefined,
-  remote: { app: { getPath: mockGetPath } }
+  app: { getPath: mockGetPath }
 }));
 
 if (!(global as any).window) {
@@ -49,6 +48,5 @@ if (!(global as any).window) {
   path: {
     join: (...args: string[]) => path.join(...args),
     basename: (p: string) => path.basename(p)
-  },
-  remote: { app: { getPath: mockGetPath } }
+  }
 };

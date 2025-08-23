@@ -55,8 +55,8 @@ export async function load(): Promise<Settings> {
         try {
           const validated = validateSettings(parsed);
           if (validated.appWindowWebPreferences) {
-            validated.appWindowWebPreferences.contextIsolation = false;
-            validated.appWindowWebPreferences.nodeIntegration = true;
+            validated.appWindowWebPreferences.contextIsolation = true;
+            validated.appWindowWebPreferences.nodeIntegration = false;
           }
           setSettings(validated);
           setCustomSettingsLoaded(true);
@@ -68,8 +68,8 @@ export async function load(): Promise<Settings> {
               : String(mergeError);
           setSettings(JSON.parse(JSON.stringify(defaultSettings)));
           if (settings.appWindowWebPreferences) {
-            settings.appWindowWebPreferences.contextIsolation = false;
-            settings.appWindowWebPreferences.nodeIntegration = true;
+            settings.appWindowWebPreferences.contextIsolation = true;
+            settings.appWindowWebPreferences.nodeIntegration = false;
           }
           setCustomSettingsLoaded(false);
           debug(`Failed to merge custom configuration with error: ${message}`);
@@ -82,8 +82,8 @@ export async function load(): Promise<Settings> {
       debug(`Failed to load custom configuration with error: ${e}`);
       setCustomSettingsLoaded(false);
       if (settings.appWindowWebPreferences) {
-        settings.appWindowWebPreferences.contextIsolation = false;
-        settings.appWindowWebPreferences.nodeIntegration = true;
+        settings.appWindowWebPreferences.contextIsolation = true;
+        settings.appWindowWebPreferences.nodeIntegration = false;
       }
       // Silently ignore loading errors
     }
@@ -91,9 +91,9 @@ export async function load(): Promise<Settings> {
 
   if (!customSettingsLoaded) setCustomSettingsLoaded(false);
   if (settings.appWindowWebPreferences) {
-    // Force context isolation to remain disabled
-    settings.appWindowWebPreferences.contextIsolation = false;
-    settings.appWindowWebPreferences.nodeIntegration = true;
+    // Force secure defaults
+    settings.appWindowWebPreferences.contextIsolation = true;
+    settings.appWindowWebPreferences.nodeIntegration = false;
   }
   return settings;
 }

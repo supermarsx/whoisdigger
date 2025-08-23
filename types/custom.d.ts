@@ -174,19 +174,6 @@ declare global {
   }
 }
 
-declare module '@electron/remote' {
-  export const app: any;
-  export const dialog: any;
-  export const BrowserWindow: any;
-  export function getCurrentWindow(): any;
-  export function getCurrentWebContents(): any;
-}
-
-declare module '@electron/remote/main' {
-  export function initialize(): void;
-  export function enable(webContents: any): void;
-}
-
 declare module 'papaparse' {
   const Papa: any;
   export default Papa;

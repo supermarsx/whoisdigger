@@ -28,7 +28,6 @@ export interface WebPreferencesSettings {
   backgroundThrottling: boolean;
   offscreen: boolean;
   spellcheck: boolean;
-  enableRemoteModule: boolean;
 }
 
 export interface AppUrlSettings {
@@ -154,8 +153,7 @@ export const SettingsSchema = z
       experimentalFeatures: z.boolean(),
       backgroundThrottling: z.boolean(),
       offscreen: z.boolean(),
-      spellcheck: z.boolean(),
-      enableRemoteModule: z.boolean()
+      spellcheck: z.boolean()
     }),
     appWindowUrl: z.object({
       pathname: z.string(),

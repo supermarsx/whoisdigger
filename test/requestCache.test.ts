@@ -1,5 +1,5 @@
 import '../test/electronMock';
-import { settings, getUserDataPath } from '../app/ts/renderer/settings-renderer';
+import { loadSettings, settings, getUserDataPath } from '../app/ts/renderer/settings-renderer';
 import { RequestCache } from '../app/ts/common/requestCache';
 import fs from 'fs';
 import path from 'path';
@@ -8,7 +8,8 @@ describe('requestCache', () => {
   const dbFile = 'test-cache.sqlite';
   let cache: RequestCache;
 
-  beforeAll(() => {
+  beforeAll(async () => {
+    await loadSettings();
     settings.requestCache.enabled = true;
     settings.requestCache.database = dbFile;
     settings.requestCache.ttl = 1;

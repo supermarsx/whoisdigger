@@ -10,10 +10,6 @@ import type { Settings as BaseSettings } from './main/settings-main.js';
 import { formatString } from './common/stringformat.js';
 import { requestCache } from './common/requestCacheSingleton.js';
 import { IpcChannel } from './common/ipcChannels.js';
-import {
-  initialize as initializeRemote,
-  enable as enableRemote
-} from '@electron/remote/main/index.js';
 import type { IpcMainEvent } from 'electron';
 
 const debug = debugFactory('main');
@@ -52,7 +48,6 @@ interface WebPreferencesSettings {
   backgroundThrottling: boolean;
   offscreen: boolean;
   spellcheck: boolean;
-  enableRemoteModule: boolean;
 }
 
 interface AppUrlSettings {
@@ -90,7 +85,6 @@ app.on('will-quit', cleanupWatchers);
     When application is ready
  */
 app.on('ready', async function () {
-  initializeRemote();
   await loadSettings();
   settings = store as MainSettings;
   const { appWindow, appWindowWebPreferences: webPreferences, appWindowUrl: appUrl } = settings;
@@ -122,8 +116,8 @@ app.on('ready', async function () {
     darkTheme: appWindow.darkTheme, // GTK dark theme mode
     thickFrame: appWindow.thickFrame, // Use WS_THICKFRAME style for frameless windows on Windows, which adds standard window frame. Setting it to false will remove window shadow and window animations.
     webPreferences: {
-      nodeIntegration: true, // Enable node integration always
-      contextIsolation: false, // Disable context isolation
+      nodeIntegration: false, // Disable node integration
+      contextIsolation: true, // Enable context isolation
       zoomFactor: webPreferences.zoomFactor, // Page zoom factor
       images: webPreferences.images, // Image support
       experimentalFeatures: webPreferences.experimentalFeatures, // Enable Chromium experimental features
@@ -133,8 +127,6 @@ app.on('ready', async function () {
       preload: path.resolve(baseDir, 'preload.cjs')
     }
   });
-
-  enableRemote(mainWindow.webContents);
 
   // mainWindow, Main window URL load
   const loadPath = path.isAbsolute(appUrl.pathname)

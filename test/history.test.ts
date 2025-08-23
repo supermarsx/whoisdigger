@@ -1,5 +1,5 @@
 import '../test/electronMock';
-import { getUserDataPath } from '../app/ts/renderer/settings-renderer';
+import { loadSettings, getUserDataPath } from '../app/ts/renderer/settings-renderer';
 import DomainStatus from '../app/ts/common/status';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -11,6 +11,7 @@ describe('history module', () => {
   let history: typeof import('../app/ts/common/history');
 
   beforeAll(async () => {
+    await loadSettings();
     process.env.HISTORY_DB_PATH = dbFile;
     history = await import('../app/ts/common/history');
     history.clearHistory();
