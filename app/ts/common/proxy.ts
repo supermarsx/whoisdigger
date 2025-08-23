@@ -49,7 +49,24 @@ function parseEntry(
     }
   }
 
-  const [ip, port] = hostPort.split(':');
+  let ip: string | undefined;
+  let port: string | undefined;
+
+  if (hostPort.startsWith('[')) {
+    const end = hostPort.indexOf(']');
+    if (end === -1) {
+      return undefined;
+    }
+    ip = hostPort.slice(1, end);
+    const remainder = hostPort.slice(end + 1);
+    if (!remainder.startsWith(':')) {
+      return undefined;
+    }
+    port = remainder.slice(1);
+  } else {
+    [ip, port] = hostPort.split(':');
+  }
+
   const portNum = parseInt(port ?? '', 10);
 
   if (!ip || isIP(ip) === 0) {
@@ -67,7 +84,7 @@ function parseEntry(
 }
 
 function proxyKey(p: ProxyInfo): string {
-  return `${p.ipaddress}:${p.port}`;
+  return isIP(p.ipaddress) === 6 ? `[${p.ipaddress}]:${p.port}` : `${p.ipaddress}:${p.port}`;
 }
 
 export function reportProxyFailure(proxy: ProxyInfo): void {
