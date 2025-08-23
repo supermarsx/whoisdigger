@@ -214,7 +214,7 @@ electron.on(
   $('#bwEntryButtonFile').click(function() {...});
     File Input, Entry container button
  */
-on('click', '#bwEntryButtonFile', () => {
+void on('click', '#bwEntryButtonFile', () => {
   qs('#bwEntry')!.classList.add('is-hidden');
   const loader = qs('#bwFileinputloading')!;
   loader.classList.remove('is-hidden');
@@ -228,7 +228,7 @@ on('click', '#bwEntryButtonFile', () => {
   $('#bwFileButtonCancel').click(function() {...});
     File Input, cancel file confirmation
  */
-on('click', '#bwFileButtonCancel', () => {
+void on('click', '#bwFileButtonCancel', () => {
   watcher.close();
   qs('#bwFileinputconfirm')!.classList.add('is-hidden');
   qs('#bwEntry')!.classList.remove('is-hidden');
@@ -238,7 +238,7 @@ on('click', '#bwFileButtonCancel', () => {
   $('#bwFileButtonConfirm').click(function() {...});
     File Input, proceed to bulk whois
  */
-on('click', '#bwFileButtonConfirm', () => {
+void on('click', '#bwFileButtonConfirm', () => {
   watcher.close();
   const bwDomainArray = bwFileContents
     .toString()
@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#bulkwhoisMainContainer').on('drop', function(...) {...});
     On Drop ipsum
  */
-on('drop', '#bulkwhoisMainContainer', (event: DragEvent) => {
+void on('drop', '#bulkwhoisMainContainer', (event: DragEvent) => {
   event.preventDefault();
   for (const f of Array.from(event.dataTransfer!.files)) {
     const file = f as any;

@@ -31,7 +31,7 @@ export async function renderAnalyser(contents: any): Promise<void> {
   $('#bwaAnalyserButtonClose').click(function() {...});
     Bulk whois analyser close button
  */
-on('click', '#bwaAnalyserButtonClose', () => {
+void on('click', '#bwaAnalyserButtonClose', () => {
   debug('#bwaAnalyserButtonClose clicked');
   qs('#bwaAnalyserModalClose')!.classList.add('is-active');
 });
@@ -40,7 +40,7 @@ on('click', '#bwaAnalyserButtonClose', () => {
   $('#bwaAnalyserModalCloseButtonYes').click(function() {...});
     bwa, close dialog confirm/yes
  */
-on('click', '#bwaAnalyserModalCloseButtonYes', () => {
+void on('click', '#bwaAnalyserModalCloseButtonYes', () => {
   qs('#bwaAnalyser')!.classList.add('is-hidden');
   qs('#bwaAnalyserModalClose')!.classList.remove('is-active');
   qs('#bwaEntry')!.classList.remove('is-hidden');
@@ -50,7 +50,7 @@ on('click', '#bwaAnalyserModalCloseButtonYes', () => {
   $('#bwaAnalyserModalCloseButtonNo').click(function() {...});
     Bulk whois analyser close dialog cancel/no button
  */
-on('click', '#bwaAnalyserModalCloseButtonNo', () => {
+void on('click', '#bwaAnalyserModalCloseButtonNo', () => {
   qs('#bwaAnalyserModalClose')!.classList.remove('is-active');
 });
 

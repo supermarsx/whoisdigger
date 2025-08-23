@@ -16,11 +16,15 @@ export function on<K extends keyof HTMLElementEventMap>(
   event: K,
   selector: string,
   handler: (event: HTMLElementEventMap[K]) => void
-): void {
-  document.addEventListener(event, (e) => {
+): () => void {
+  const listener = (e: Event) => {
     const target = e.target as Element | null;
     if (target && target.closest(selector)) {
       handler(e as any);
     }
-  });
+  };
+  document.addEventListener(event, listener);
+  return () => {
+    document.removeEventListener(event, listener);
+  };
 }
