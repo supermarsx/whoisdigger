@@ -141,6 +141,7 @@ export class RequestCache {
     this.purgeTimer = setInterval(() => {
       void this.purgeExpired();
     }, interval);
+    this.purgeTimer.unref?.();
   }
 
   close(): void {
