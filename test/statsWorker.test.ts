@@ -113,3 +113,33 @@ test('statsWorker reports stats and updates on file changes', async () => {
 
   await worker.terminate();
 });
+
+test('statsWorker ignores symbolic links to avoid loops', async () => {
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'stats-link-'));
+  const dataDir = path.join(tmpRoot, 'data');
+  fs.mkdirSync(dataDir);
+  const configPath = path.join(tmpRoot, 'config.json');
+  fs.writeFileSync(configPath, 'cfg');
+
+  fs.writeFileSync(path.join(dataDir, 'file.txt'), 'hello');
+  fs.symlinkSync(path.join(dataDir, 'file.txt'), path.join(dataDir, 'file-link'));
+  const subDir = path.join(dataDir, 'sub');
+  fs.mkdirSync(subDir);
+  fs.symlinkSync(dataDir, path.join(subDir, 'loop'));
+
+  const worker = new Worker(workerPath, { workerData: { configPath, dataDir } });
+  const waitForStats = () =>
+    new Promise<any>((resolve) => {
+      const handler = (msg: any) => {
+        worker.off('message', handler);
+        resolve(msg);
+      };
+      worker.on('message', handler);
+    });
+
+  const stats: any = await waitForStats();
+  const realSize = fs.statSync(path.join(dataDir, 'file.txt')).size;
+  expect(stats.size).toBe(realSize);
+
+  await worker.terminate();
+});
