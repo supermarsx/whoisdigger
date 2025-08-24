@@ -68,4 +68,18 @@ describe('requestCache', () => {
     expect(await cache.get('whois', 'a.com')).toBeUndefined();
     expect(await cache.get('whois', 'b.com')).toBeUndefined();
   });
+
+  test('startAutoPurge unrefs timer and close clears interval', () => {
+    settings.requestCache.enabled = true;
+    const testCache = new RequestCache();
+    const timer = { unref: jest.fn() } as unknown as NodeJS.Timeout;
+    const si = jest.spyOn(global, 'setInterval').mockReturnValue(timer);
+    const ci = jest.spyOn(global, 'clearInterval').mockImplementation(() => {});
+    testCache.startAutoPurge(100);
+    expect(timer.unref).toHaveBeenCalled();
+    testCache.close();
+    expect(ci).toHaveBeenCalledWith(timer);
+    si.mockRestore();
+    ci.mockRestore();
+  });
 });
