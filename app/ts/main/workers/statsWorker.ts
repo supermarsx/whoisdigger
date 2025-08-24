@@ -16,10 +16,13 @@ async function dirSize(dir: string): Promise<number> {
     for (const entry of entries) {
       const full = path.join(dir, entry.name);
       try {
+        if (entry.isSymbolicLink()) {
+          continue;
+        }
         if (entry.isDirectory()) {
           total += await dirSize(full);
         } else {
-          total += (await fs.promises.stat(full)).size;
+          total += (await fs.promises.lstat(full)).size;
         }
       } catch {
         /* ignore */
