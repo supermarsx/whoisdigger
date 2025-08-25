@@ -38,6 +38,7 @@ export interface CliOptions {
   suggest?: string;
   suggestCount?: number;
   limit?: number;
+  lookupType?: 'whois' | 'dns' | 'rdap';
 }
 
 export function parseArgs(argv: string[]): CliOptions {
@@ -51,6 +52,11 @@ export function parseArgs(argv: string[]): CliOptions {
       choices: ['csv', 'txt', 'zip', 'json'] as const,
       default: 'txt',
       describe: 'Output format (csv, txt, zip, or json)'
+    })
+    .option('lookup-type', {
+      choices: ['whois', 'dns', 'rdap'] as const,
+      default: 'whois',
+      describe: 'Lookup type (whois, dns, or rdap)'
     })
     .option('out', { type: 'string' })
     .option('purge-cache', { type: 'boolean' })
@@ -94,11 +100,17 @@ export function parseArgs(argv: string[]): CliOptions {
     downloadModel: args['download-model'],
     suggest: args.suggest,
     suggestCount: args['suggest-count'],
-    limit: args.limit
+    limit: args.limit,
+    lookupType: args['lookup-type'] as 'whois' | 'dns' | 'rdap'
   };
 }
 
 export async function lookupDomains(opts: CliOptions): Promise<WhoisResult[]> {
+  let originalType: typeof settings.lookupGeneral.type | undefined;
+  if (opts.lookupType) {
+    originalType = settings.lookupGeneral.type;
+    settings.lookupGeneral.type = opts.lookupType;
+  }
   let originalProxy: typeof settings.lookupProxy | undefined;
   if (opts.proxy) {
     originalProxy = {
@@ -151,6 +163,7 @@ export async function lookupDomains(opts: CliOptions): Promise<WhoisResult[]> {
   );
   const results = await Promise.all(tasks);
   if (originalProxy) Object.assign(settings.lookupProxy, originalProxy);
+  if (originalType) settings.lookupGeneral.type = originalType;
   return results;
 }
 

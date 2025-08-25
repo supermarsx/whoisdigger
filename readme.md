@@ -182,6 +182,10 @@ node dist/app/ts/cli.js --domain example.com --proxy 127.0.0.1:9050
 # using an authenticated proxy
 node dist/app/ts/cli.js --domain example.com --proxy user:pass@127.0.0.1:9050
 
+# use DNS or RDAP lookup
+node dist/app/ts/cli.js --domain example.com --lookup-type dns
+node dist/app/ts/cli.js --domain example.com --lookup-type rdap
+
 Proxies that fail repeatedly are skipped once they exceed the `lookupProxy.retries` threshold (default: 3).
 Each proxy can provide its own credentials via `user:pass@host:port` or configuration objects like `{ proxy: 'host:port', username: 'user', password: 'pass' }`.
 Default credentials may also be supplied through `lookupProxy.username` and `lookupProxy.password` settings.
