@@ -10,10 +10,20 @@ import {
 import DomainStatus from '../app/ts/common/status';
 import { lookup as whoisLookup } from '../app/ts/common/lookup';
 import { settings } from '../app/ts/common/settings';
+import * as dns from '../app/ts/common/dnsLookup';
+import { rdapLookup } from '../app/ts/common/rdapLookup';
 
 jest.mock('../app/ts/common/lookup', () => ({ lookup: jest.fn() }));
+jest.mock('../app/ts/common/dnsLookup', () => ({
+  hasNsServers: jest.fn(),
+  isDomainAvailable: jest.fn()
+}));
+jest.mock('../app/ts/common/rdapLookup', () => ({ rdapLookup: jest.fn() }));
 
 const mockLookup = whoisLookup as jest.Mock;
+const mockDnsLookup = dns.hasNsServers as jest.Mock;
+const mockDnsAvailable = dns.isDomainAvailable as jest.Mock;
+const mockRdapLookup = rdapLookup as jest.Mock;
 
 describe('cli utility', () => {
   test('parseArgs extracts options', () => {
@@ -49,12 +59,66 @@ describe('cli utility', () => {
     expect(opts.limit).toBe(3);
   });
 
+  test('parseArgs handles lookup-type option', () => {
+    const opts = parseArgs(['--domain', 'a.com', '--lookup-type', 'dns']);
+    expect(opts.lookupType).toBe('dns');
+  });
+
   test('lookupDomains uses whois module', async () => {
+    mockLookup.mockClear();
+    mockDnsLookup.mockClear();
+    mockRdapLookup.mockClear();
     mockLookup.mockResolvedValueOnce('data');
-    const opts: CliOptions = { domains: ['example.com'], tlds: ['com'], format: 'txt' };
+    const opts: CliOptions = {
+      domains: ['example.com'],
+      tlds: ['com'],
+      format: 'txt',
+      lookupType: 'whois'
+    };
     const results = await lookupDomains(opts);
     expect(results[0].domain).toBe('example.com');
     expect(results[0].whoisreply).toBe('data');
+    expect(mockLookup).toHaveBeenCalled();
+    expect(mockDnsLookup).not.toHaveBeenCalled();
+    expect(mockRdapLookup).not.toHaveBeenCalled();
+  });
+
+  test('lookupDomains uses dns module', async () => {
+    mockLookup.mockClear();
+    mockDnsLookup.mockClear();
+    mockRdapLookup.mockClear();
+    mockDnsLookup.mockResolvedValueOnce('dnsres');
+    mockDnsAvailable.mockReturnValueOnce(DomainStatus.Available);
+    const opts: CliOptions = {
+      domains: ['example.com'],
+      tlds: ['com'],
+      format: 'txt',
+      lookupType: 'dns'
+    };
+    const results = await lookupDomains(opts);
+    expect(results[0].domain).toBe('example.com');
+    expect(mockDnsLookup).toHaveBeenCalledWith('example.com');
+    expect(mockLookup).not.toHaveBeenCalled();
+    expect(mockRdapLookup).not.toHaveBeenCalled();
+    expect(results[0].status).toBe(DomainStatus.Available);
+  });
+
+  test('lookupDomains uses rdap module', async () => {
+    mockLookup.mockClear();
+    mockDnsLookup.mockClear();
+    mockRdapLookup.mockClear();
+    mockRdapLookup.mockResolvedValueOnce({ statusCode: 404, body: 'not found' });
+    const opts: CliOptions = {
+      domains: ['example.com'],
+      tlds: ['com'],
+      format: 'txt',
+      lookupType: 'rdap'
+    };
+    const results = await lookupDomains(opts);
+    expect(mockRdapLookup).toHaveBeenCalledWith('example.com');
+    expect(mockLookup).not.toHaveBeenCalled();
+    expect(mockDnsLookup).not.toHaveBeenCalled();
+    expect(results[0].status).toBe(DomainStatus.Available);
   });
 
   test('lookupDomains handles lookup errors', async () => {
