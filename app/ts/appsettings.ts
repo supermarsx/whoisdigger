@@ -186,6 +186,11 @@ const appSettings = {
       dataPath: 'ai-data',
       modelURL: '',
       openai: { url: '', apiKey: '' }
+    },
+    monitor: {
+      // Domain monitoring configuration
+      list: [], // Domains to monitor
+      interval: 60000 // Monitoring interval in milliseconds
     }
   }
 };
@@ -295,5 +300,7 @@ export const appSettingsDescriptions: Record<string, string> = {
   'ai.dataPath': 'Directory for AI data',
   'ai.modelURL': 'URL to download the ONNX model',
   'ai.openai.url': 'Custom OpenAI API endpoint',
-  'ai.openai.apiKey': 'OpenAI API key'
+  'ai.openai.apiKey': 'OpenAI API key',
+  'monitor.list': 'Domains to monitor',
+  'monitor.interval': 'Monitoring interval in milliseconds'
 };

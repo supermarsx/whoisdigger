@@ -32,5 +32,8 @@ export enum IpcChannel {
   GetBaseDir = 'app:get-base-dir',
   I18nLoad = 'i18n:load',
   BwFileRead = 'bw:file-read',
-  BwaFileRead = 'bwa:file-read'
+  BwaFileRead = 'bwa:file-read',
+  MonitorStart = 'monitor:start',
+  MonitorStop = 'monitor:stop',
+  MonitorUpdate = 'monitor:update'
 }

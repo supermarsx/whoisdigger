@@ -108,6 +108,7 @@ export interface Settings {
     modelURL: string;
     openai: { url: string; apiKey: string };
   };
+  monitor: { list: string[]; interval: number };
   [key: string]: any;
 }
 
@@ -240,6 +241,10 @@ export const SettingsSchema = z
       dataPath: z.string(),
       modelURL: z.string(),
       openai: z.object({ url: z.string(), apiKey: z.string() })
+    }),
+    monitor: z.object({
+      list: z.array(z.string()),
+      interval: z.number()
     })
   })
   .catchall(z.any());
