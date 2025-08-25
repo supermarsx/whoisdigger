@@ -78,6 +78,9 @@ export interface IpcContracts {
   [IpcChannel.I18nLoad]: { request: [string]; response: string };
   [IpcChannel.BwFileRead]: { request: [string]; response: Buffer };
   [IpcChannel.BwaFileRead]: { request: [string]; response: Buffer };
+  [IpcChannel.MonitorStart]: { request: []; response: void };
+  [IpcChannel.MonitorStop]: { request: []; response: void };
+  [IpcChannel.MonitorUpdate]: { request: [string, DomainStatus]; response: void };
 }
 
 export type IpcRequest<C extends IpcChannel> = IpcContracts[C]['request'];
