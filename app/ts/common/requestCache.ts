@@ -84,6 +84,21 @@ export class RequestCache {
         .prepare('INSERT OR REPLACE INTO cache(key, response, timestamp) VALUES(?, ?, ?)')
         .run(key, response, Date.now());
       debug(`Cached response for ${key}`);
+      const max = requestCache.maxEntries;
+      if (max && max > 0) {
+        const total = database.prepare('SELECT COUNT(*) as count FROM cache').get() as {
+          count: number;
+        };
+        if (total.count > max) {
+          const toDelete = total.count - max;
+          database
+            .prepare(
+              'DELETE FROM cache WHERE key IN (SELECT key FROM cache ORDER BY timestamp ASC LIMIT ?)'
+            )
+            .run(toDelete);
+          debug(`Evicted ${toDelete} oldest cache entries`);
+        }
+      }
     } catch (e) {
       debug(`Cache set failed: ${e}`);
     }

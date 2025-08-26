@@ -98,6 +98,7 @@ export interface Settings {
     database: string;
     ttl: number;
     purgeInterval: number;
+    maxEntries: number;
   };
   customConfiguration: { filepath: string; load: boolean; save: boolean };
   theme: { darkMode: boolean; followSystem: boolean };
@@ -223,7 +224,9 @@ export const SettingsSchema = z
     requestCache: z.object({
       enabled: z.boolean(),
       database: z.string(),
-      ttl: z.number()
+      ttl: z.number(),
+      purgeInterval: z.number(),
+      maxEntries: z.number()
     }),
     customConfiguration: z.object({
       filepath: z.string(),

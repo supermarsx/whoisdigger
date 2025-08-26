@@ -13,6 +13,7 @@ describe('requestCache', () => {
     settings.requestCache.enabled = true;
     settings.requestCache.database = dbFile;
     settings.requestCache.ttl = 1;
+    settings.requestCache.maxEntries = 100;
     cache = new RequestCache();
   });
 
@@ -67,6 +68,18 @@ describe('requestCache', () => {
     await cache.clear();
     expect(await cache.get('whois', 'a.com')).toBeUndefined();
     expect(await cache.get('whois', 'b.com')).toBeUndefined();
+  });
+
+  test('evicts oldest entries when exceeding maxEntries', async () => {
+    settings.requestCache.maxEntries = 2;
+    await cache.clear();
+    await cache.set('whois', 'a.com', '1');
+    await cache.set('whois', 'b.com', '2');
+    await cache.set('whois', 'c.com', '3');
+    expect(await cache.get('whois', 'a.com')).toBeUndefined();
+    expect(await cache.get('whois', 'b.com')).toBe('2');
+    expect(await cache.get('whois', 'c.com')).toBe('3');
+    settings.requestCache.maxEntries = 100;
   });
 
   test('startAutoPurge unrefs timer and close clears interval', () => {
