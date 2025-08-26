@@ -24,19 +24,32 @@ export async function rdapLookup(
   if (cached !== undefined) {
     return JSON.parse(cached) as RdapResponse;
   }
-  const { lookupGeneral } = getSettings();
+  const { lookupGeneral, lookupRdap } = getSettings();
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), lookupGeneral.timeout);
+  let lastError: unknown;
   try {
-    const url = `https://rdap.org/domain/${encodeURIComponent(domain)}`;
-    const res = await fetch(url, { signal: controller.signal });
-    if (!res.ok) {
-      throw new Error(String(res.status));
+    for (const endpoint of lookupRdap.endpoints) {
+      const url = `${endpoint}${encodeURIComponent(domain)}`;
+      debug(`Attempting RDAP endpoint: ${url}`);
+      try {
+        const res = await fetch(url, { signal: controller.signal });
+        if (!res.ok) {
+          lastError = new Error(String(res.status));
+          debug(`Endpoint ${url} responded with status ${res.status}`);
+          continue;
+        }
+        const body = await res.text();
+        const result: RdapResponse = { statusCode: res.status, body };
+        await requestCache.set('rdap', domain, JSON.stringify(result), cacheOpts);
+        return result;
+      } catch (e) {
+        lastError = e;
+        debug(`Endpoint ${url} failed: ${e}`);
+        if (controller.signal.aborted) throw e;
+      }
     }
-    const body = await res.text();
-    const result: RdapResponse = { statusCode: res.status, body };
-    await requestCache.set('rdap', domain, JSON.stringify(result), cacheOpts);
-    return result;
+    throw lastError ?? new Error('RDAP lookup failed');
   } catch (e) {
     debug(`RDAP request failed: ${e}`);
     throw e;

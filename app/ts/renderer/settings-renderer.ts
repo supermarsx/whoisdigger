@@ -12,7 +12,6 @@ const electron = (window as any).electron as RendererElectronAPI & {
   path: { join: (...args: string[]) => string };
 };
 import { debugFactory } from '../common/logger.js';
-import appDefaults from '../appsettings.js';
 import {
   settings,
   customSettingsLoaded,
@@ -25,7 +24,7 @@ import {
 
 const debug = debugFactory('renderer.settings');
 debug('loaded');
-const defaultSettings: Settings = JSON.parse(JSON.stringify(appDefaults.settings as Settings));
+const defaultSettings: Settings = JSON.parse(JSON.stringify(settings));
 const defaultCustomConfiguration = settings.customConfiguration;
 let userDataPath = '';
 
