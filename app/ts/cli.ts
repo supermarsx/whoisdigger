@@ -39,6 +39,7 @@ export interface CliOptions {
   suggestCount?: number;
   limit?: number;
   lookupType?: 'whois' | 'dns' | 'rdap';
+  maxCacheEntries?: number;
 }
 
 export function parseArgs(argv: string[]): CliOptions {
@@ -65,6 +66,10 @@ export function parseArgs(argv: string[]): CliOptions {
     .option('suggest', { type: 'string' })
     .option('suggest-count', { type: 'number', default: 5 })
     .option('limit', { type: 'number', default: CONCURRENCY_LIMIT })
+    .option('max-cache-entries', {
+      type: 'number',
+      describe: 'Maximum number of request cache entries'
+    })
     .check((args) => {
       if (
         !args.domain &&
@@ -85,9 +90,18 @@ export function parseArgs(argv: string[]): CliOptions {
       if (args.limit !== undefined && (!Number.isInteger(args.limit) || args.limit <= 0)) {
         throw new Error('--limit must be a positive integer');
       }
+      if (
+        args['max-cache-entries'] !== undefined &&
+        (!Number.isInteger(args['max-cache-entries']) || args['max-cache-entries'] <= 0)
+      ) {
+        throw new Error('--max-cache-entries must be a positive integer');
+      }
       return true;
     })
     .parseSync();
+  if (args['max-cache-entries'] !== undefined) {
+    settings.requestCache.maxEntries = args['max-cache-entries'];
+  }
   return {
     domains: args.domain ?? [],
     wordlist: args.wordlist,
@@ -101,7 +115,8 @@ export function parseArgs(argv: string[]): CliOptions {
     suggest: args.suggest,
     suggestCount: args['suggest-count'],
     limit: args.limit,
-    lookupType: args['lookup-type'] as 'whois' | 'dns' | 'rdap'
+    lookupType: args['lookup-type'] as 'whois' | 'dns' | 'rdap',
+    maxCacheEntries: args['max-cache-entries']
   };
 }
 
