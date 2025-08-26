@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { ipcMain, BrowserWindow } from 'electron';
 import { debugFactory } from '../common/logger.js';
-import appDefaults from '../appsettings.js';
 import {
   settings,
   customSettingsLoaded,
@@ -17,7 +16,7 @@ import {
 } from '../common/settings.js';
 
 const debug = debugFactory('main.settings');
-const defaultSettings: Settings = JSON.parse(JSON.stringify(appDefaults.settings as Settings));
+const defaultSettings: Settings = JSON.parse(JSON.stringify(settings));
 const defaultCustomConfiguration = settings.customConfiguration;
 let watcher: fs.FSWatcher | undefined;
 

@@ -70,6 +70,7 @@ export interface Settings {
     dnsTimeBetweenOverride: boolean;
     dnsTimeBetween: number;
   };
+  lookupRdap: { endpoints: string[] };
   lookupRandomizeFollow: { randomize: boolean; minimumDepth: number; maximumDepth: number };
   lookupRandomizeTimeout: { randomize: boolean; minimum: number; maximum: number };
   lookupRandomizeTimeBetween: { randomize: boolean; minimum: number; maximum: number };
@@ -184,6 +185,9 @@ export const SettingsSchema = z
       dnsTimeBetweenOverride: z.boolean(),
       dnsTimeBetween: z.number()
     }),
+    lookupRdap: z
+      .object({ endpoints: z.array(z.string()) })
+      .default({ endpoints: ['https://rdap.org/domain/'] }),
     lookupRandomizeFollow: z.object({
       randomize: z.boolean(),
       minimumDepth: z.number(),
@@ -249,7 +253,7 @@ export const SettingsSchema = z
   })
   .catchall(z.any());
 
-export const settings: Settings = appDefaults.settings as Settings;
+export const settings: Settings = SettingsSchema.parse(appDefaults.settings) as Settings;
 export const defaultSettings: Settings = JSON.parse(JSON.stringify(settings));
 export const defaultCustomConfiguration = settings.customConfiguration;
 
