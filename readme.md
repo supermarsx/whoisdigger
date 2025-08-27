@@ -302,6 +302,14 @@ Configure these features in the `ai` section of `appsettings.ts`:
 - `ai.modelURL` - remote URL to download the model
 - `ai.openai.url` and `ai.openai.apiKey` - OpenAI endpoint and API key
 
+Train a local model from a labelled dataset via the CLI:
+
+```
+node dist/app/cli.js --train-model path/to/dataset.json
+```
+
+The dataset format is documented in [docs/ai.md](docs/ai.md).
+
 ## Building
 
 Whoisdigger uses a small build step before packaging. Each packaging command
