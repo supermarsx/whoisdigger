@@ -64,6 +64,11 @@ describe('cli utility', () => {
     expect(opts.lookupType).toBe('dns');
   });
 
+  test('parseArgs detects progress flag', () => {
+    const opts = parseArgs(['--domain', 'a.com', '--progress']);
+    expect(opts.progress).toBe(true);
+  });
+
   test('lookupDomains uses whois module', async () => {
     mockLookup.mockClear();
     mockDnsLookup.mockClear();
@@ -119,6 +124,22 @@ describe('cli utility', () => {
     expect(mockLookup).not.toHaveBeenCalled();
     expect(mockDnsLookup).not.toHaveBeenCalled();
     expect(results[0].status).toBe(DomainStatus.Available);
+  });
+
+  test('lookupDomains emits progress updates', async () => {
+    mockLookup.mockReset();
+    mockLookup.mockResolvedValue('data');
+    const stderrSpy = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    const opts: CliOptions = {
+      domains: ['a.com', 'b.com'],
+      tlds: ['com'],
+      format: 'txt',
+      progress: true
+    };
+    await lookupDomains(opts);
+    expect(stderrSpy.mock.calls.some((c) => c[0].toString().includes('50'))).toBe(true);
+    expect(stderrSpy.mock.calls.some((c) => c[0].toString().includes('100'))).toBe(true);
+    stderrSpy.mockRestore();
   });
 
   test('lookupDomains handles lookup errors', async () => {
