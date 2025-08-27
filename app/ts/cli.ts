@@ -18,6 +18,7 @@ import { downloadModel } from './ai/modelDownloader.js';
 import { suggestWords } from './ai/openaiSuggest.js';
 import { readLines } from './common/wordlist.js';
 import { createProgressRenderer } from './cli/progress.js';
+import { trainModel } from './ai/trainModel.js';
 
 requestCache.startAutoPurge(settings.requestCache.purgeInterval);
 
@@ -42,6 +43,7 @@ export interface CliOptions {
   lookupType?: 'whois' | 'dns' | 'rdap';
   maxCacheEntries?: number;
   progress?: boolean;
+  trainModel?: string;
 }
 
 export function parseArgs(argv: string[]): CliOptions {
@@ -65,6 +67,7 @@ export function parseArgs(argv: string[]): CliOptions {
     .option('purge-cache', { type: 'boolean' })
     .option('clear-cache', { type: 'boolean' })
     .option('download-model', { type: 'boolean' })
+    .option('train-model', { type: 'string' })
     .option('suggest', { type: 'string' })
     .option('suggest-count', { type: 'number', default: 5 })
     .option('limit', { type: 'number', default: CONCURRENCY_LIMIT })
@@ -80,7 +83,8 @@ export function parseArgs(argv: string[]): CliOptions {
         !args.suggest &&
         !args['download-model'] &&
         !args['purge-cache'] &&
-        !args['clear-cache']
+        !args['clear-cache'] &&
+        !args['train-model']
       ) {
         throw new Error('Either --domain or --wordlist must be provided');
       }
@@ -115,6 +119,7 @@ export function parseArgs(argv: string[]): CliOptions {
     purgeCache: args['purge-cache'],
     clearCache: args['clear-cache'],
     downloadModel: args['download-model'],
+    trainModel: args['train-model'],
     suggest: args.suggest,
     suggestCount: args['suggest-count'],
     limit: args.limit,
@@ -265,6 +270,12 @@ if (require.main === module) {
       await downloadModel(url, settings.ai.modelPath);
       process.stdout.write('Model downloaded\n');
       debug('Model downloaded');
+      return;
+    }
+    if (opts.trainModel) {
+      await trainModel(opts.trainModel, settings.ai.modelPath);
+      process.stdout.write('Model trained\n');
+      debug('Model trained');
       return;
     }
     if (opts.purgeCache || opts.clearCache) {
