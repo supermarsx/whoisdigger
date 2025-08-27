@@ -17,6 +17,7 @@ import { generateFilename } from './cli/export.js';
 import { downloadModel } from './ai/modelDownloader.js';
 import { suggestWords } from './ai/openaiSuggest.js';
 import { readLines } from './common/wordlist.js';
+import { createProgressRenderer } from './cli/progress.js';
 
 requestCache.startAutoPurge(settings.requestCache.purgeInterval);
 
@@ -40,6 +41,7 @@ export interface CliOptions {
   limit?: number;
   lookupType?: 'whois' | 'dns' | 'rdap';
   maxCacheEntries?: number;
+  progress?: boolean;
 }
 
 export function parseArgs(argv: string[]): CliOptions {
@@ -70,6 +72,7 @@ export function parseArgs(argv: string[]): CliOptions {
       type: 'number',
       describe: 'Maximum number of request cache entries'
     })
+    .option('progress', { type: 'boolean' })
     .check((args) => {
       if (
         !args.domain &&
@@ -116,7 +119,8 @@ export function parseArgs(argv: string[]): CliOptions {
     suggestCount: args['suggest-count'],
     limit: args.limit,
     lookupType: args['lookup-type'] as 'whois' | 'dns' | 'rdap',
-    maxCacheEntries: args['max-cache-entries']
+    maxCacheEntries: args['max-cache-entries'],
+    progress: args.progress
   };
 }
 
@@ -148,6 +152,8 @@ export async function lookupDomains(opts: CliOptions): Promise<WhoisResult[]> {
     }
   }
 
+  const report =
+    opts.progress && domains.length > 0 ? createProgressRenderer(domains.length) : undefined;
   const limit = pLimit(opts.limit ?? CONCURRENCY_LIMIT);
   const tasks = domains.map((domain) =>
     limit(async (): Promise<WhoisResult> => {
@@ -173,6 +179,8 @@ export async function lookupDomains(opts: CliOptions): Promise<WhoisResult[]> {
         }
       } catch {
         return { domain, status: DomainStatus.Error, whoisreply: '' };
+      } finally {
+        report?.();
       }
     })
   );
