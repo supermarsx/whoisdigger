@@ -29,4 +29,19 @@ describe('i18n loader', () => {
     expect(_getTranslations()).toEqual({ hello: 'world' });
     expect(Handlebars.helpers.t('hello')).toBe('world');
   });
+
+  test('falls back to navigator language when setting missing', async () => {
+    invokeMock.mockResolvedValue('{"hello":"bonjour"}');
+    Object.defineProperty(window.navigator, 'language', {
+      value: 'fr-FR',
+      configurable: true
+    });
+    const { loadTranslations, _getTranslations } = require('../app/ts/renderer/i18n');
+
+    await loadTranslations();
+
+    const args = joinMock.mock.calls[0];
+    expect(args[args.length - 1]).toBe('fr.json');
+    expect(_getTranslations()).toEqual({ hello: 'bonjour' });
+  });
 });

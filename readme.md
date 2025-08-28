@@ -351,8 +351,10 @@ npm run package-all
 ### Adding translations
 
 Translation files live under `app/locales/` and are simple JSON maps of keys to translated strings.
-Add a new `<lang>.json` file (e.g. `fr.json`) with your translations and include the language code in
-`ui.language` inside `appsettings.ts`. Templates reference strings using the `{{t}}` helper.
+Add a new `<lang>.json` file (e.g. `fr.json`) with your translations. When `ui.language` is
+omitted, the application falls back to `navigator.language` (first segment before `-`) to select the
+locale file. To force a specific language, set `ui.language` inside `appsettings.ts`. Templates
+reference strings using the `{{t}}` helper.
 
 ## Docker
 
