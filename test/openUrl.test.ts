@@ -1,8 +1,9 @@
 const ipcMainHandlers: Record<string, (...args: any[]) => any> = {};
-const mockOpenExternal = jest.fn();
-const mockDebug = jest.fn();
+var mockOpenExternal = jest.fn();
+var mockDebug = jest.fn();
 
 jest.mock('electron', () => ({
+  __esModule: true,
   ipcMain: {
     on: (channel: string, listener: (...args: any[]) => void) => {
       ipcMainHandlers[channel] = listener;
@@ -19,8 +20,12 @@ jest.mock('electron', () => ({
   clipboard: { writeText: jest.fn() }
 }));
 
-jest.mock('../app/ts/common/logger.ts', () => ({
-  debugFactory: () => mockDebug
+jest.mock('../app/ts/common/logger.js', () => ({
+  __esModule: true,
+  debugFactory:
+    () =>
+    (...args: any[]) =>
+      mockDebug(...args)
 }));
 
 import { settings } from '../app/ts/main/settings-main';
@@ -78,7 +83,7 @@ describe('openUrl', () => {
     const handler = ipcMainHandlers['singlewhois:openlink'];
     await handler(event, 'example.com');
 
-    expect(openExternalMock).not.toHaveBeenCalled();
+    expect(mockOpenExternal).not.toHaveBeenCalled();
     expect(mockDebug).toHaveBeenCalledWith('Invalid URL rejected: example.com');
     expect(event.sender.send).toHaveBeenCalledWith('singlewhois:invalid-url');
   });

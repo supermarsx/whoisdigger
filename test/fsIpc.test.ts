@@ -70,7 +70,8 @@ describe('fsIpc handlers', () => {
   test('fs:watch sends events and fs:unwatch stops watcher', async () => {
     const watchHandler = getHandler('fs:watch');
     const unwatchHandler = getHandler('fs:unwatch');
-    const sender = { send: jest.fn() };
+    const sender = new EventEmitter() as any;
+    sender.send = jest.fn();
 
     const id = await watchHandler({ sender } as any, 'pref', '/tmp/file', {});
     expect(id).toBe(1);
@@ -103,7 +104,8 @@ describe('fsIpc handlers', () => {
 
   test('cleanupWatchers closes active watchers', async () => {
     const watchHandler = getHandler('fs:watch');
-    const sender = { send: jest.fn() };
+    const sender = new EventEmitter() as any;
+    sender.send = jest.fn();
 
     await watchHandler({ sender } as any, 'a', '/tmp/a', {});
     await watchHandler({ sender } as any, 'b', '/tmp/b', {});
