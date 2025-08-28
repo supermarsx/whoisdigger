@@ -1,5 +1,11 @@
 import Handlebars from '../../vendor/handlebars.runtime.js';
 import { debugFactory } from '../common/logger.js';
+import type * as fs from 'fs';
+import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
+
+const electron = (window as any).electron as RendererElectronAPI & {
+  readdir: (p: string, opts?: fs.ReaddirOptions) => Promise<string[]>;
+};
 
 const debug = debugFactory('renderer.registerPartials');
 debug('loaded');
@@ -17,29 +23,16 @@ export async function registerPartials(): Promise<void> {
       partials[name] = Handlebars.template((mod as any).default || mod);
     }
   } else {
-    // In the renderer during development, dynamic imports of Node builtin
-    // modules fail because the module loader doesn't resolve them.
-    // When running under Electron with nodeIntegration enabled, `require`
-    // is available globally. Fall back to using it if present so the
-    // renderer can access the filesystem without throwing a module
-    // resolution error.
-    const fs: typeof import('fs') =
-      typeof require === 'function' ? require('fs') : await import('fs');
-    const path: typeof import('path') =
-      typeof require === 'function' ? require('path') : await import('path');
-    const { pathToFileURL, fileURLToPath }: typeof import('url') =
-      typeof require === 'function' ? require('url') : await import('url');
-    const dir = path.join(
-      path.dirname(fileURLToPath(import.meta.url)),
-      '..',
-      '..',
-      'compiled-templates'
-    );
-    for (const file of fs.readdirSync(dir)) {
+    // In production builds the templates are emitted to disk. When the Vite
+    // glob helper isn't available, load them using the filesystem helpers
+    // exposed via the preload script.
+    const dirUrl = new URL('../../compiled-templates/', import.meta.url);
+    const files = (await electron.readdir(dirUrl.pathname)) as string[];
+    for (const file of files) {
       if (!file.endsWith('.js') || file === 'mainPanel.js') continue;
-      const spec = await import(pathToFileURL(path.join(dir, file)).href);
+      const spec = await import(/* @vite-ignore */ new URL(file, dirUrl).href);
       const name = file.replace(/\.js$/, '');
-      partials[name] = Handlebars.template(spec.default || spec);
+      partials[name] = Handlebars.template((spec as any).default || spec);
     }
   }
 
