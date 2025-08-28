@@ -2,9 +2,9 @@
 
 import jQuery from 'jquery';
 
-const debugMock = jest.fn();
+const mockDebug = jest.fn();
 jest.mock('../app/ts/common/logger.ts', () => ({
-  debugFactory: () => debugMock
+  debugFactory: () => mockDebug
 }));
 
 declare global {
@@ -17,20 +17,20 @@ declare global {
   }
 }
 
-let sendMock: jest.Mock;
-let invokeMock: jest.Mock;
+let mockSend: jest.Mock;
+let mockInvoke: jest.Mock;
 
 beforeEach(() => {
   jest.resetModules();
   document.body.innerHTML = '<button id="navButtonDevtools"></button>';
   (window as any).$ = (window as any).jQuery = jQuery;
-  sendMock = jest.fn();
-  invokeMock = jest.fn();
-  debugMock.mockClear();
+  mockSend = jest.fn();
+  mockInvoke = jest.fn();
+  mockDebug.mockClear();
   (window as any).electron = {
     getBaseDir: () => Promise.resolve(__dirname),
-    send: sendMock,
-    invoke: invokeMock,
+    send: mockSend,
+    invoke: mockInvoke,
     on: jest.fn()
   };
 });
@@ -54,7 +54,7 @@ test('drop event prevents default and logs debug', () => {
   document.dispatchEvent(dropEvent);
 
   expect(dropEvent.preventDefault).toHaveBeenCalled();
-  expect(debugMock).toHaveBeenCalledWith('Preventing drag and drop redirect');
+  expect(mockDebug).toHaveBeenCalledWith('Preventing drag and drop redirect');
 });
 
 test('dragover event prevents default', () => {
@@ -72,6 +72,6 @@ test('devtools button triggers ipc calls', () => {
 
   jQuery('#navButtonDevtools').trigger('click');
 
-  expect(invokeMock).toHaveBeenCalledWith('app:toggleDevtools');
-  expect(debugMock).toHaveBeenCalledWith('#navButtonDevtools was clicked');
+  expect(mockInvoke).toHaveBeenCalledWith('app:toggleDevtools');
+  expect(mockDebug).toHaveBeenCalledWith('#navButtonDevtools was clicked');
 });

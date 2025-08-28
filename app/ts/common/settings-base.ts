@@ -114,9 +114,7 @@ export interface Settings {
   [key: string]: any;
 }
 
-import { createRequire } from 'node:module';
-const require = createRequire(import.meta.url);
-const { z } = require('zod') as typeof import('zod');
+import { z } from 'zod';
 import { debugFactory } from './logger.js';
 import appDefaults from '../appsettings.js';
 

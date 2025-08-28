@@ -2,16 +2,17 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 export function dirnameCompat(metaUrl?: string | URL): string {
-  const globalDir = (global as any).__dirname;
-  if (typeof globalDir === 'string') {
-    return globalDir;
-  }
+  // Prefer explicit metaUrl when provided
   if (metaUrl) {
     try {
       return path.dirname(fileURLToPath(metaUrl));
     } catch {
       /* ignore */
     }
+  }
+  const globalDir = (global as any).__dirname;
+  if (typeof globalDir === 'string') {
+    return globalDir;
   }
   if (typeof __dirname !== 'undefined') {
     return __dirname;

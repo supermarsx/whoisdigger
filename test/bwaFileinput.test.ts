@@ -8,7 +8,7 @@ jest.mock('electron', () => ({
     },
     on: jest.fn()
   },
-  dialog: { showOpenDialogSync: mockShowOpenDialogSync },
+  dialog: { showOpenDialogSync: (...args: any[]) => mockShowOpenDialogSync(...args) },
   app: undefined,
   BrowserWindow: class {},
   Menu: {}

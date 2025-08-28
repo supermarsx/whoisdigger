@@ -1,3 +1,4 @@
+/** @jest-environment jsdom */
 import '../test/electronMock';
 
 import { buildPatterns, checkPatterns } from '../app/ts/common/whoiswrapper/patterns';

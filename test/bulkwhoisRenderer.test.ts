@@ -2,15 +2,15 @@
 import jQuery from 'jquery';
 import { IpcChannel } from '../app/ts/common/ipcChannels';
 const handlers: Record<string, (...args: any[]) => void> = {};
-const invokeMock = jest.fn();
-const sendMock = jest.fn();
+const mockInvoke = jest.fn();
+const mockSend = jest.fn();
 const statMock = jest.fn();
 const readFileMock = jest.fn();
 
 jest.mock('electron', () => ({
   ipcRenderer: {
-    invoke: (...args: any[]) => invokeMock(...args),
-    send: (...args: any[]) => sendMock(...args),
+    invoke: (...args: any[]) => mockInvoke(...args),
+    send: (...args: any[]) => mockSend(...args),
     on: (channel: string, cb: (...args: any[]) => void) => {
       handlers[channel] = cb;
     }
@@ -36,8 +36,8 @@ beforeEach(() => {
   `;
   (window as any).$ = (window as any).jQuery = jQuery;
   (window as any).electron = {
-    invoke: invokeMock,
-    send: sendMock,
+    invoke: mockInvoke,
+    send: mockSend,
     on: (channel: string, cb: (...args: any[]) => void) => {
       handlers[channel] = cb;
     },
@@ -46,8 +46,8 @@ beforeEach(() => {
     watch: jest.fn(async () => ({ close: jest.fn() })),
     path: { basename: async (p: string) => require('path').basename(p) }
   };
-  invokeMock.mockReset();
-  sendMock.mockReset();
+  mockInvoke.mockReset();
+  mockSend.mockReset();
   statMock.mockResolvedValue({ size: 0, mtime: new Date(), atime: new Date() });
   readFileMock.mockResolvedValue(Buffer.from('a\nb'));
 });
@@ -58,8 +58,8 @@ test.skip('invokes bulkwhois:input.file and bulkwhois:lookup', async () => {
   });
   jQuery('#bwEntryButtonFile').trigger('click');
   await new Promise((r) => setTimeout(r, 20));
-  expect(invokeMock).toHaveBeenCalledWith(IpcChannel.BulkwhoisInputFile);
-  invokeMock.mockClear();
+  expect(mockInvoke).toHaveBeenCalledWith(IpcChannel.BulkwhoisInputFile);
+  mockInvoke.mockClear();
   handlers[IpcChannel.BulkwhoisFileinputConfirmation]?.({}, '/tmp/list.txt', false);
   await new Promise((r) => setTimeout(r, 0));
   jQuery('#bwFileInputTlds').val('com');
@@ -67,7 +67,7 @@ test.skip('invokes bulkwhois:input.file and bulkwhois:lookup', async () => {
   jQuery('#bwFileButtonConfirm').trigger('click');
   await new Promise((r) => setTimeout(r, 0));
 
-  expect(invokeMock).toHaveBeenCalledWith(IpcChannel.BulkwhoisLookup, ['a', 'b'], ['com']);
+  expect(mockInvoke).toHaveBeenCalledWith(IpcChannel.BulkwhoisLookup, ['a', 'b'], ['com']);
 });
 
 test('invokes bulkwhois:input.wordlist and lookup', async () => {
@@ -78,10 +78,10 @@ test('invokes bulkwhois:input.wordlist and lookup', async () => {
   jQuery('#bwWordlistInputTlds').val('net');
   jQuery('#bwWordlistinputButtonConfirm').trigger('click');
   await new Promise((r) => setTimeout(r, 0));
-  expect(invokeMock).toHaveBeenCalledWith(IpcChannel.BulkwhoisInputWordlist);
-  invokeMock.mockClear();
+  expect(mockInvoke).toHaveBeenCalledWith(IpcChannel.BulkwhoisInputWordlist);
+  mockInvoke.mockClear();
   handlers[IpcChannel.BulkwhoisWordlistInputConfirmation]?.();
   jQuery('#bwWordlistconfirmButtonStart').trigger('click');
   await new Promise((r) => setTimeout(r, 0));
-  expect(invokeMock).toHaveBeenCalledWith(IpcChannel.BulkwhoisLookup, ['c', 'd'], ['net']);
+  expect(mockInvoke).toHaveBeenCalledWith(IpcChannel.BulkwhoisLookup, ['c', 'd'], ['net']);
 });

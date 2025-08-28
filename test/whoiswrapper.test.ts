@@ -1,3 +1,4 @@
+/** @jest-environment jsdom */
 import '../test/electronMock';
 
 import whois from 'whois';

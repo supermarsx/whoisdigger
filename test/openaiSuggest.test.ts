@@ -1,8 +1,8 @@
 import { suggestWords } from '../app/ts/ai/openaiSuggest';
 import { settings } from '../app/ts/common/settings';
 
-const nodeFetchMock = jest.fn();
-jest.mock('node-fetch', () => ({ __esModule: true, default: nodeFetchMock }), { virtual: true });
+const mockNodeFetch = jest.fn();
+jest.mock('node-fetch', () => ({ __esModule: true, default: mockNodeFetch }), { virtual: true });
 
 describe('openai suggestions', () => {
   beforeEach(() => {
@@ -33,12 +33,12 @@ describe('openai suggestions', () => {
     delete (global as any).fetch;
     settings.ai.openai.url = 'https://api';
     settings.ai.openai.apiKey = 'key';
-    nodeFetchMock.mockResolvedValue({
+    mockNodeFetch.mockResolvedValue({
       ok: true,
       json: async () => ({ choices: [{ message: { content: 'alpha' } }] })
     });
     const res = await suggestWords('hello', 1);
-    expect(nodeFetchMock).toHaveBeenCalled();
+    expect(mockNodeFetch).toHaveBeenCalled();
     expect(res).toEqual(['alpha']);
   });
 

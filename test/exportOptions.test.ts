@@ -1,6 +1,6 @@
 import './electronMainMock';
 import fs from 'fs';
-import { ipcMainHandlers, mockShowSaveDialogSync, openPathMock } from './electronMainMock';
+import { ipcMainHandlers, mockShowSaveDialogSync, mockOpenPath } from './electronMainMock';
 import { settings } from '../app/ts/main/settings-main';
 import '../app/ts/main/bulkwhois/export';
 import { IpcChannel } from '../app/ts/common/ipcChannels';
@@ -21,7 +21,7 @@ const results = {
 
 beforeEach(() => {
   mockShowSaveDialogSync.mockReset();
-  openPathMock.mockReset();
+  mockOpenPath.mockReset();
 });
 
 test('suggests filename when enabled', async () => {
@@ -51,7 +51,7 @@ test('opens exported csv when enabled', async () => {
     information: 'domain',
     whoisreply: 'no'
   });
-  expect(openPathMock).toHaveBeenCalledWith('/tmp/out.csv');
+  expect(mockOpenPath).toHaveBeenCalledWith('/tmp/out.csv');
 });
 
 test('opens exported zip when enabled', async () => {
@@ -66,5 +66,5 @@ test('opens exported zip when enabled', async () => {
     information: 'domain',
     whoisreply: 'yes+block'
   });
-  expect(openPathMock).toHaveBeenCalledWith('/tmp/out.zip');
+  expect(mockOpenPath).toHaveBeenCalledWith('/tmp/out.zip');
 });

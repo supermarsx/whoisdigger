@@ -3,13 +3,13 @@
 import jQuery from 'jquery';
 
 const handlers: Record<string, (...args: any[]) => void> = {};
-const sendMock = jest.fn();
-const invokeMock = jest.fn();
+const mockSend = jest.fn();
+const mockInvoke = jest.fn();
 
 jest.mock('electron', () => ({
   ipcRenderer: {
-    send: (...args: any[]) => sendMock(...args),
-    invoke: (...args: any[]) => invokeMock(...args),
+    send: (...args: any[]) => mockSend(...args),
+    invoke: (...args: any[]) => mockInvoke(...args),
     on: (channel: string, cb: (...args: any[]) => void) => {
       handlers[channel] = cb;
     }
@@ -32,14 +32,14 @@ beforeEach(() => {
   `;
   (window as any).$ = (window as any).jQuery = jQuery;
   (window as any).electron = {
-    send: (...args: any[]) => sendMock(...args),
-    invoke: (...args: any[]) => invokeMock(...args),
+    send: (...args: any[]) => mockSend(...args),
+    invoke: (...args: any[]) => mockInvoke(...args),
     on: (channel: string, cb: (...args: any[]) => void) => {
       handlers[channel] = cb;
     }
   };
-  sendMock.mockClear();
-  invokeMock.mockReset();
+  mockSend.mockClear();
+  mockInvoke.mockReset();
   require('../app/ts/renderer/to');
   jQuery.ready();
 });
@@ -52,10 +52,10 @@ afterEach(() => {
 });
 
 test('select and process file flow', async () => {
-  invokeMock.mockResolvedValueOnce('/tmp/list.txt');
+  mockInvoke.mockResolvedValueOnce('/tmp/list.txt');
   jQuery('#toButtonSelect').trigger('click');
   await new Promise((r) => setTimeout(r, 0));
-  expect(invokeMock).toHaveBeenCalledWith('to:input.file');
+  expect(mockInvoke).toHaveBeenCalledWith('to:input.file');
   expect(jQuery('#toFileSelected').text()).toBe('/tmp/list.txt');
 
   jQuery('#toPrefix').val('pre');
@@ -65,11 +65,11 @@ test('select and process file flow', async () => {
   jQuery('#toDedupe').prop('checked', true);
   jQuery('#radioAsc').prop('checked', true);
 
-  invokeMock.mockResolvedValueOnce('ok');
+  mockInvoke.mockResolvedValueOnce('ok');
   jQuery('#toButtonProcess').trigger('click');
   await new Promise((r) => setTimeout(r, 0));
 
-  expect(invokeMock).toHaveBeenCalledWith('to:process', '/tmp/list.txt', {
+  expect(mockInvoke).toHaveBeenCalledWith('to:process', '/tmp/list.txt', {
     prefix: 'pre',
     suffix: 'suf',
     trimSpaces: true,

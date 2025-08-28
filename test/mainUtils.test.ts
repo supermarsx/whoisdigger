@@ -1,6 +1,6 @@
 const ipcMainHandlers: Record<string, (...args: any[]) => any> = {};
-const openPathMock = jest.fn();
-const parseMock = jest.fn();
+const mockOpenPath = jest.fn();
+const mockParse = jest.fn();
 
 jest.mock('electron', () => ({
   ipcMain: {
@@ -8,13 +8,13 @@ jest.mock('electron', () => ({
       ipcMainHandlers[channel] = listener;
     }
   },
-  shell: { openPath: openPathMock },
+  shell: { openPath: mockOpenPath },
   app: undefined,
   BrowserWindow: class {},
   Menu: {}
 }));
 
-jest.mock('papaparse', () => ({ __esModule: true, default: { parse: parseMock } }));
+jest.mock('papaparse', () => ({ __esModule: true, default: { parse: mockParse } }));
 
 jest.mock('../app/ts/common/availability', () => ({
   isDomainAvailable: jest.fn(),
@@ -35,8 +35,8 @@ import { getUserDataPath } from '../app/ts/common/settings';
 const getHandler = (c: string) => ipcMainHandlers[c];
 
 beforeEach(() => {
-  openPathMock.mockReset();
-  parseMock.mockReset();
+  mockOpenPath.mockReset();
+  mockParse.mockReset();
   (isDomainAvailable as jest.Mock).mockReset();
   (getDomainParameters as jest.Mock).mockReset();
   (toJSON as jest.Mock).mockReset();
@@ -45,10 +45,10 @@ beforeEach(() => {
 describe('main utils IPC handlers', () => {
   test('csv parse handler returns parsed rows', async () => {
     const rows = { data: [{ a: 1 }] };
-    parseMock.mockReturnValue(rows);
+    mockParse.mockReturnValue(rows);
     const handler = getHandler(IpcChannel.ParseCsv);
     const result = await handler({}, 'csv');
-    expect(parseMock).toHaveBeenCalledWith('csv', { header: true });
+    expect(mockParse).toHaveBeenCalledWith('csv', { header: true });
     expect(result).toBe(rows);
   });
 
@@ -76,18 +76,18 @@ describe('main utils IPC handlers', () => {
   });
 
   test('open path handler forwards to shell.openPath', async () => {
-    openPathMock.mockResolvedValue('ok');
+    mockOpenPath.mockResolvedValue('ok');
     const handler = getHandler(IpcChannel.OpenPath);
     const res = await handler({}, '/tmp/file');
-    expect(openPathMock).toHaveBeenCalledWith('/tmp/file');
+    expect(mockOpenPath).toHaveBeenCalledWith('/tmp/file');
     expect(res).toBe('ok');
   });
 
   test('open data dir handler forwards to shell.openPath', async () => {
-    openPathMock.mockResolvedValue('ok');
+    mockOpenPath.mockResolvedValue('ok');
     const handler = getHandler(IpcChannel.OpenDataDir);
     const res = await handler({} as any);
-    expect(openPathMock).toHaveBeenCalledWith(getUserDataPath());
+    expect(mockOpenPath).toHaveBeenCalledWith(getUserDataPath());
     expect(res).toBe('ok');
   });
 });

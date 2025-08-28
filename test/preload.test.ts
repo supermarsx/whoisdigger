@@ -1,27 +1,27 @@
-const exposeMock = jest.fn();
-const ipcSendMock = jest.fn();
-const ipcInvokeMock = jest.fn();
-const ipcOnMock = jest.fn();
-const shellOpenPathMock = jest.fn();
+const mockExpose = jest.fn();
+const mockIpcSend = jest.fn();
+const mockIpcInvoke = jest.fn();
+const mockIpcOn = jest.fn();
+const mockShellOpenPath = jest.fn();
 
 jest.mock('electron', () => ({
-  contextBridge: { exposeInMainWorld: exposeMock },
+  contextBridge: { exposeInMainWorld: mockExpose },
   ipcRenderer: {
-    send: ipcSendMock,
-    invoke: ipcInvokeMock,
-    on: ipcOnMock
+    send: mockIpcSend,
+    invoke: mockIpcInvoke,
+    on: mockIpcOn
   },
-  shell: { openPath: shellOpenPathMock }
+  shell: { openPath: mockShellOpenPath }
 }));
 
 describe('preload', () => {
   beforeEach(() => {
     jest.resetModules();
-    exposeMock.mockClear();
-    ipcSendMock.mockClear();
-    ipcInvokeMock.mockClear();
-    ipcOnMock.mockClear();
-    shellOpenPathMock.mockClear();
+    mockExpose.mockClear();
+    mockIpcSend.mockClear();
+    mockIpcInvoke.mockClear();
+    mockIpcOn.mockClear();
+    mockShellOpenPath.mockClear();
     delete (global as any).window;
   });
 
@@ -29,21 +29,21 @@ describe('preload', () => {
     (process as any).contextIsolated = true;
     require('../app/ts/preload.cts');
 
-    expect(exposeMock).toHaveBeenCalledTimes(1);
-    const api = exposeMock.mock.calls[0][1];
+    expect(mockExpose).toHaveBeenCalledTimes(1);
+    const api = mockExpose.mock.calls[0][1];
     expect(typeof api.send).toBe('function');
     api.send('chan', 1);
-    expect(ipcSendMock).toHaveBeenCalledWith('chan', 1);
+    expect(mockIpcSend).toHaveBeenCalledWith('chan', 1);
     expect(typeof api.invoke).toBe('function');
     api.invoke('chan', 2);
-    expect(ipcInvokeMock).toHaveBeenCalledWith('chan', 2);
+    expect(mockIpcInvoke).toHaveBeenCalledWith('chan', 2);
     expect(typeof api.getBaseDir).toBe('function');
     expect(typeof api.openDataDir).toBe('function');
     expect(typeof api.on).toBe('function');
     const listener = jest.fn();
     api.on('chan', listener);
-    expect(ipcOnMock).toHaveBeenCalled();
-    const onHandler = ipcOnMock.mock.calls[0][1];
+    expect(mockIpcOn).toHaveBeenCalled();
+    const onHandler = mockIpcOn.mock.calls[0][1];
     onHandler({}, 'a', 'b');
     expect(listener).toHaveBeenCalledWith('a', 'b');
   });
@@ -53,11 +53,11 @@ describe('preload', () => {
     (global as any).window = {};
     require('../app/ts/preload.cts');
 
-    expect(exposeMock).not.toHaveBeenCalled();
+    expect(mockExpose).not.toHaveBeenCalled();
     expect((global as any).window.electron).toBeDefined();
     const api = (global as any).window.electron;
     api.send('chan2');
-    expect(ipcSendMock).toHaveBeenCalledWith('chan2');
+    expect(mockIpcSend).toHaveBeenCalledWith('chan2');
     expect(typeof api.getBaseDir).toBe('function');
     expect(typeof api.openDataDir).toBe('function');
   });

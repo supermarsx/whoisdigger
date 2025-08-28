@@ -2,7 +2,7 @@
 
 import jQuery from 'jquery';
 
-let invokeMock: jest.Mock;
+let mockInvoke: jest.Mock;
 
 beforeEach(() => {
   jest.resetModules();
@@ -10,8 +10,8 @@ beforeEach(() => {
     <table id="historyTable"><tbody></tbody></table>
     <div id="historyEmpty" class="is-hidden"></div>
   `;
-  invokeMock = jest.fn();
-  (window as any).electron = { invoke: invokeMock };
+  mockInvoke = jest.fn();
+  (window as any).electron = { invoke: mockInvoke };
   (window as any).$ = (window as any).jQuery = jQuery;
 });
 
@@ -22,20 +22,20 @@ afterEach(() => {
 });
 
 test('loadHistory displays entries in table', async () => {
-  invokeMock.mockResolvedValue([
+  mockInvoke.mockResolvedValue([
     { domain: 'a.com', status: 'ok', timestamp: 1 },
     { domain: 'b.com', status: 'error', timestamp: 2 }
   ]);
   const { _test } = require('../app/ts/renderer/history');
   await _test.loadHistory();
   await Promise.resolve();
-  expect(invokeMock).toHaveBeenCalledWith('history:get');
+  expect(mockInvoke).toHaveBeenCalledWith('history:get');
   expect(jQuery('#historyEmpty').hasClass('is-hidden')).toBe(true);
   expect(jQuery('#historyTable tbody tr').length).toBe(2);
 });
 
 test('loadHistory shows empty message when no entries', async () => {
-  invokeMock.mockResolvedValue([]);
+  mockInvoke.mockResolvedValue([]);
   const { _test } = require('../app/ts/renderer/history');
   await _test.loadHistory();
   await Promise.resolve();

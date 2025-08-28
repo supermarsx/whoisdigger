@@ -4,7 +4,7 @@ import jQuery from 'jquery';
 import { IpcChannel } from '../app/ts/common/ipcChannels';
 
 const handlers: Record<string, (...args: any[]) => void> = {};
-let invokeMock: jest.Mock;
+let mockInvoke: jest.Mock;
 
 beforeEach(() => {
   jest.useRealTimers();
@@ -24,10 +24,10 @@ beforeEach(() => {
     <div id="bwExportMessageError" class="is-hidden"><span id="bwExportErrorText"></span></div>
   `;
   (window as any).$ = (window as any).jQuery = jQuery;
-  invokeMock = jest.fn().mockResolvedValue('ok');
+  mockInvoke = jest.fn().mockResolvedValue('ok');
   (window as any).electron = {
     getBaseDir: () => Promise.resolve(__dirname),
-    invoke: invokeMock,
+    invoke: mockInvoke,
     send: jest.fn(),
     on: (channel: string, cb: (...args: any[]) => void) => {
       handlers[channel] = cb;
@@ -57,7 +57,7 @@ it('invokes export and shows loading', async () => {
   jQuery('#bwExportButtonExport').trigger('click');
   await new Promise((r) => setTimeout(r, 20));
 
-  expect(invokeMock).toHaveBeenCalledWith(
+  expect(mockInvoke).toHaveBeenCalledWith(
     IpcChannel.BulkwhoisExport,
     { id: [1] },
     {
@@ -79,11 +79,11 @@ it('cancel button hides export and shows entry', () => {
 
   expect(jQuery('#bwExport').hasClass('is-hidden')).toBe(true);
   expect(jQuery('#bwEntry').hasClass('is-hidden')).toBe(false);
-  expect(invokeMock).not.toHaveBeenCalled();
+  expect(mockInvoke).not.toHaveBeenCalled();
 });
 
 it('displays error when export fails', async () => {
-  invokeMock.mockRejectedValueOnce(new Error('fail'));
+  mockInvoke.mockRejectedValueOnce(new Error('fail'));
   loadModule();
   setResults({ id: [1] });
 

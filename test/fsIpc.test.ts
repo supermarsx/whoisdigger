@@ -3,11 +3,11 @@ import { EventEmitter } from 'events';
 
 const ipcMainHandlers: Record<string, (...args: any[]) => any> = {};
 
-const readFileMock = jest.fn();
-const statMock = jest.fn();
+const mockReadFile = jest.fn();
+const mockStat = jest.fn();
 const watchCallbacks: Array<(ev: string, filename: string) => void> = [];
 const watchCloseMocks: jest.Mock[] = [];
-const watchMock = jest.fn(
+const mockWatch = jest.fn(
   (path: string, opts: fs.WatchOptions, cb: (ev: string, filename: string) => void) => {
     watchCallbacks.push(cb);
     const watcher = { close: jest.fn() } as any;
@@ -33,10 +33,10 @@ jest.mock('fs', () => {
     ...actual,
     promises: {
       ...actual.promises,
-      readFile: (...args: any[]) => readFileMock(...args),
-      stat: (...args: any[]) => statMock(...args)
+      readFile: (...args: any[]) => mockReadFile(...args),
+      stat: (...args: any[]) => mockStat(...args)
     },
-    watch: (...args: any[]) => watchMock(...args)
+    watch: (...args: any[]) => mockWatch(...args)
   };
 });
 
@@ -46,25 +46,25 @@ const getHandler = (c: string) => ipcMainHandlers[c];
 
 describe('fsIpc handlers', () => {
   beforeEach(() => {
-    readFileMock.mockClear();
-    statMock.mockClear();
-    watchMock.mockClear();
+    mockReadFile.mockClear();
+    mockStat.mockClear();
+    mockWatch.mockClear();
     watchCallbacks.length = 0;
     watchCloseMocks.length = 0;
   });
 
   test('fs:readFile calls fs.promises.readFile', async () => {
-    readFileMock.mockResolvedValue('data');
+    mockReadFile.mockResolvedValue('data');
     const handler = getHandler('fs:readFile');
     await handler({}, '/tmp/file.txt', 'utf8');
-    expect(readFileMock).toHaveBeenCalledWith('/tmp/file.txt', 'utf8');
+    expect(mockReadFile).toHaveBeenCalledWith('/tmp/file.txt', 'utf8');
   });
 
   test('fs:stat calls fs.promises.stat', async () => {
-    statMock.mockResolvedValue({});
+    mockStat.mockResolvedValue({});
     const handler = getHandler('fs:stat');
     await handler({}, '/tmp/file.txt');
-    expect(statMock).toHaveBeenCalledWith('/tmp/file.txt');
+    expect(mockStat).toHaveBeenCalledWith('/tmp/file.txt');
   });
 
   test('fs:watch sends events and fs:unwatch stops watcher', async () => {
@@ -74,7 +74,7 @@ describe('fsIpc handlers', () => {
 
     const id = await watchHandler({ sender } as any, 'pref', '/tmp/file', {});
     expect(id).toBe(1);
-    expect(watchMock).toHaveBeenCalledWith('/tmp/file', {}, expect.any(Function));
+    expect(mockWatch).toHaveBeenCalledWith('/tmp/file', {}, expect.any(Function));
 
     watchCallbacks[0]('change', 'file');
     expect(sender.send).toHaveBeenCalledWith('fs:watch:pref:1', {

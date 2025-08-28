@@ -19,8 +19,18 @@ export function cleanupWatchers() {
 app?.on('will-quit', cleanupWatchers);
 process.on('exit', cleanupWatchers);
 
-const hot = (import.meta as any).hot as undefined | { dispose: (cb: () => void) => void };
-hot?.dispose(cleanupWatchers);
+// Avoid direct import.meta usage for CJS test environment
+const hot = (() => {
+  try {
+    // eslint-disable-next-line no-eval
+    return (eval('import.meta') as any)?.hot as
+      | undefined
+      | { dispose: (cb: () => void) => void };
+  } catch {
+    return undefined;
+  }
+})();
+hot?.dispose?.(cleanupWatchers);
 
 ipcMain.handle('fs:readFile', async (_e, p: string, opts?: ReadFileOpts) => {
   return fs.promises.readFile(p, opts);

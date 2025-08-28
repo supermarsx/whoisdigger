@@ -1,3 +1,4 @@
+/** @jest-environment jsdom */
 import '../test/electronMock';
 
 import { isDomainAvailable } from '../app/ts/common/availability';

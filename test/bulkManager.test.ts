@@ -4,7 +4,7 @@ import { IpcChannel } from '../app/ts/common/ipcChannels';
 
 jest.useFakeTimers();
 
-const processDomainMock = jest.fn(
+const mockProcessDomain = jest.fn(
   (bulk: any, _req: any, setup: any, _event: any, delay: number) => {
     bulk.processingIDs[setup.index] = setTimeout(() => {
       bulk.stats.domains.sent++;
@@ -12,7 +12,7 @@ const processDomainMock = jest.fn(
   }
 );
 
-const counterMock = jest.fn((bulk: any, _event: any, start = true) => {
+const mockCounter = jest.fn((bulk: any, _event: any, start = true) => {
   if (start) {
     bulk.stats.time.counter = setInterval(() => {}, 1000);
   } else {
@@ -21,8 +21,8 @@ const counterMock = jest.fn((bulk: any, _event: any, start = true) => {
 });
 
 jest.mock('../app/ts/main/bulkwhois/scheduler', () => ({
-  processDomain: (...args: any[]) => processDomainMock(...args),
-  counter: (...args: any[]) => counterMock(...args)
+  processDomain: (...args: any[]) => mockProcessDomain(...args),
+  counter: (...args: any[]) => mockCounter(...args)
 }));
 
 describe('BulkWhoisManager control flow', () => {
@@ -51,12 +51,12 @@ describe('BulkWhoisManager control flow', () => {
   test('startLookup schedules from 0 and starts counter', () => {
     manager.startLookup(event, ['a', 'b'], ['com']);
 
-    expect(processDomainMock).toHaveBeenCalledTimes(2);
-    expect(processDomainMock.mock.calls[0][2].index).toBe(0);
-    expect(processDomainMock.mock.calls[0][4]).toBe(10);
-    expect(processDomainMock.mock.calls[1][2].index).toBe(1);
-    expect(processDomainMock.mock.calls[1][4]).toBe(20);
-    expect(counterMock).toHaveBeenCalledWith(manager['bulkWhois'], event);
+    expect(mockProcessDomain).toHaveBeenCalledTimes(2);
+    expect(mockProcessDomain.mock.calls[0][2].index).toBe(0);
+    expect(mockProcessDomain.mock.calls[0][4]).toBe(10);
+    expect(mockProcessDomain.mock.calls[1][2].index).toBe(1);
+    expect(mockProcessDomain.mock.calls[1][4]).toBe(20);
+    expect(mockCounter).toHaveBeenCalledWith(manager['bulkWhois'], event);
   });
 
   test('pause clears pending timers and pauses counter', () => {
@@ -68,7 +68,7 @@ describe('BulkWhoisManager control flow', () => {
     manager.pause(event);
 
     expect(clearSpy).toHaveBeenCalledWith(secondId);
-    expect(counterMock).toHaveBeenLastCalledWith(manager['bulkWhois'], event, false);
+    expect(mockCounter).toHaveBeenLastCalledWith(manager['bulkWhois'], event, false);
     clearSpy.mockRestore();
   });
 
@@ -76,16 +76,16 @@ describe('BulkWhoisManager control flow', () => {
     manager.startLookup(event, ['a', 'b'], ['com']);
     jest.advanceTimersByTime(10);
     manager.pause(event);
-    const before = processDomainMock.mock.calls.length;
+    const before = mockProcessDomain.mock.calls.length;
 
     manager.resume(event);
 
-    const newCalls = processDomainMock.mock.calls.slice(before);
+    const newCalls = mockProcessDomain.mock.calls.slice(before);
     expect(newCalls.length).toBeGreaterThan(0);
     const [, , setup, , delay] = newCalls[0];
     expect(setup.index).toBe(1);
     expect(delay).toBe(10);
-    expect(counterMock).toHaveBeenLastCalledWith(manager['bulkWhois'], event);
+    expect(mockCounter).toHaveBeenLastCalledWith(manager['bulkWhois'], event);
   });
 
   test('stop sends results and stops intervals', () => {

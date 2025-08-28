@@ -1,5 +1,6 @@
 import path from 'path';
 import { dirnameCompat } from '../app/ts/utils/dirnameCompat';
+import { pathToFileURL, fileURLToPath } from 'url';
 
 describe('dirnameCompat', () => {
   const originalDirname = (global as any).__dirname;
@@ -27,7 +28,10 @@ describe('dirnameCompat', () => {
   });
 
   test('resolves using provided metaUrl when in ESM context', () => {
-    const result = dirnameCompat('file:///tmp/foo/bar.js');
-    expect(result).toBe('/tmp/foo');
+    const abs = path.join(__dirname, 'sample', 'bar.js');
+    const meta = pathToFileURL(abs).href;
+    const expected = path.dirname(fileURLToPath(meta));
+    const result = dirnameCompat(meta);
+    expect(result).toBe(expected);
   });
 });

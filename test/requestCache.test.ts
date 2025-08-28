@@ -18,12 +18,13 @@ describe('requestCache', () => {
   });
 
   afterAll(() => {
+    // Close DB before removing files on Windows
+    cache.close();
     const dbPath = path.resolve(getUserDataPath(), dbFile);
     if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
     const evilPath = path.resolve(getUserDataPath(), '../evil.sqlite');
     if (fs.existsSync(evilPath)) fs.unlinkSync(evilPath);
     settings.requestCache.enabled = false;
-    cache.close();
   });
 
   test('rejects paths outside user data directory', async () => {

@@ -1,6 +1,6 @@
 const ipcMainHandlers: Record<string, (...args: any[]) => any> = {};
-const openExternalMock = jest.fn();
-const debugMock = jest.fn();
+const mockOpenExternal = jest.fn();
+const mockDebug = jest.fn();
 
 jest.mock('electron', () => ({
   ipcMain: {
@@ -11,7 +11,7 @@ jest.mock('electron', () => ({
       ipcMainHandlers[channel] = listener;
     }
   },
-  shell: { openExternal: openExternalMock },
+  shell: { openExternal: (...args: any[]) => mockOpenExternal(...args) },
   app: undefined,
   Menu: {},
   dialog: { showSaveDialogSync: jest.fn() },
@@ -20,7 +20,7 @@ jest.mock('electron', () => ({
 }));
 
 jest.mock('../app/ts/common/logger.ts', () => ({
-  debugFactory: () => debugMock
+  debugFactory: () => mockDebug
 }));
 
 import { settings } from '../app/ts/main/settings-main';
@@ -28,8 +28,8 @@ import '../app/ts/main/singlewhois';
 
 describe('openUrl', () => {
   beforeEach(() => {
-    openExternalMock.mockClear();
-    debugMock.mockClear();
+    mockOpenExternal.mockClear();
+    mockDebug.mockClear();
   });
 
   test('opens external browser for valid http url', async () => {
@@ -37,7 +37,7 @@ describe('openUrl', () => {
     const handler = ipcMainHandlers['singlewhois:openlink'];
     await handler({ sender: { send: jest.fn() } } as any, 'https://example.com');
 
-    expect(openExternalMock).toHaveBeenCalledWith('https://example.com/');
+    expect(mockOpenExternal).toHaveBeenCalledWith('https://example.com/');
   });
 
   test('copies url to clipboard when onlyCopy is true', async () => {
@@ -46,7 +46,7 @@ describe('openUrl', () => {
     const handler = ipcMainHandlers['singlewhois:openlink'];
     await handler({ sender: { send: jest.fn() } } as any, 'https://example.com');
 
-    expect(openExternalMock).not.toHaveBeenCalled();
+    expect(mockOpenExternal).not.toHaveBeenCalled();
     expect(clipboard.writeText).toHaveBeenCalledWith('https://example.com');
   });
 
@@ -56,8 +56,8 @@ describe('openUrl', () => {
     const handler = ipcMainHandlers['singlewhois:openlink'];
     await handler(event, 'ftp://example.com');
 
-    expect(openExternalMock).not.toHaveBeenCalled();
-    expect(debugMock).toHaveBeenCalledWith('Invalid protocol rejected: ftp:');
+    expect(mockOpenExternal).not.toHaveBeenCalled();
+    expect(mockDebug).toHaveBeenCalledWith('Invalid protocol rejected: ftp:');
     expect(event.sender.send).toHaveBeenCalledWith('singlewhois:invalid-url');
   });
 
@@ -67,8 +67,8 @@ describe('openUrl', () => {
     const handler = ipcMainHandlers['singlewhois:openlink'];
     await handler(event, 'http://');
 
-    expect(openExternalMock).not.toHaveBeenCalled();
-    expect(debugMock).toHaveBeenCalledWith('Invalid URL rejected: http://');
+    expect(mockOpenExternal).not.toHaveBeenCalled();
+    expect(mockDebug).toHaveBeenCalledWith('Invalid URL rejected: http://');
     expect(event.sender.send).toHaveBeenCalledWith('singlewhois:invalid-url');
   });
 
@@ -79,7 +79,7 @@ describe('openUrl', () => {
     await handler(event, 'example.com');
 
     expect(openExternalMock).not.toHaveBeenCalled();
-    expect(debugMock).toHaveBeenCalledWith('Invalid URL rejected: example.com');
+    expect(mockDebug).toHaveBeenCalledWith('Invalid URL rejected: example.com');
     expect(event.sender.send).toHaveBeenCalledWith('singlewhois:invalid-url');
   });
 });

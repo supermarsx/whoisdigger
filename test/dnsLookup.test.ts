@@ -68,15 +68,30 @@ describe('dnsLookup', () => {
     const cache = new RequestCache();
     await cache.set('dns', 'bad.com', 'not-json');
     const servers = ['ns.bad.com'];
+    // Clear previous suite mocks and spy for this test only
+    (dns as any).resolve.mockClear?.();
+    const before = (dns.resolve as any).mock?.calls?.length ?? 0;
     const spy = jest.spyOn(dns, 'resolve').mockResolvedValueOnce(servers);
     const result = await nsLookup('bad.com');
     expect(result).toEqual(servers);
-    expect(spy).toHaveBeenCalledTimes(1);
+    const after = (dns.resolve as any).mock?.calls?.length ?? 0;
+    expect(after - before).toBe(1);
     const cached = await cache.get('dns', 'bad.com');
     expect(cached).toBe(JSON.stringify(servers));
     spy.mockRestore();
     const dbPath = path.resolve(getUserDataPath(), dbFile);
-    if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
+    if (fs.existsSync(dbPath)) {
+      // Close any open cache before deletion
+      try {
+        const { requestCache } = require('../app/ts/common/requestCacheSingleton');
+        requestCache.close();
+      } catch {
+        /* ignore close errors */
+      }
+      try { fs.unlinkSync(dbPath); } catch {
+        /* ignore unlink errors */
+      }
+    }
     settings.requestCache.enabled = false;
   });
 });

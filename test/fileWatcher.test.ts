@@ -7,8 +7,8 @@ import jQuery from 'jquery';
 import { IpcChannel } from '../app/ts/common/ipcChannels';
 import path from 'path';
 jest.setTimeout(10000);
-const ipc = new EventEmitter() as any;
-ipc.send = jest.fn();
+const mockIpc = new EventEmitter() as any;
+mockIpc.send = jest.fn();
 const watchEmitter = new EventEmitter() as any;
 watchEmitter.close = jest.fn();
 
@@ -23,16 +23,16 @@ const watchMock = jest.fn(
 
 jest.mock('electron', () => ({
   ipcRenderer: {
-    on: (channel: string, listener: (...args: any[]) => void) => ipc.on(channel, listener),
-    send: ipc.send
+    on: (channel: string, listener: (...args: any[]) => void) => mockIpc.on(channel, listener),
+    send: mockIpc.send
   }
 }));
 
 beforeAll(() => {
   (window as any).$ = (window as any).jQuery = jQuery;
   (window as any).electron = {
-    on: (channel: string, listener: (...args: any[]) => void) => ipc.on(channel, listener),
-    send: ipc.send,
+    on: (channel: string, listener: (...args: any[]) => void) => mockIpc.on(channel, listener),
+    send: mockIpc.send,
     invoke: jest.fn().mockResolvedValue({ data: [], errors: [] }),
     openPath: jest.fn(),
     stat: statMock,
@@ -51,6 +51,11 @@ beforeEach(() => {
 
 test('bw watcher updates table on change', async () => {
   document.body.innerHTML = `
+    <div id="bwEntry"></div>
+    <div id="bwFileinputloading"></div>
+    <div id="bwFileinputconfirm"></div>
+    <span id="bwLoadingInfo"></span>
+    <span id="bwFileSpanInfo"></span>
     <td id="bwFileTdName"></td>
     <td id="bwFileTdLastmodified"></td>
     <td id="bwFileTdLastaccess"></td>
@@ -74,7 +79,7 @@ test('bw watcher updates table on change', async () => {
     require('../app/ts/renderer/bulkwhois/fileinput');
   });
 
-  ipc.emit(IpcChannel.BulkwhoisFileinputConfirmation, {}, '/tmp/test.txt', true);
+  mockIpc.emit(IpcChannel.BulkwhoisFileinputConfirmation, {}, '/tmp/test.txt', true);
   for (let i = 0; i < 5; i++) await new Promise((res) => setTimeout(res, 0));
 
   expect(watchMock).toHaveBeenCalledWith(
@@ -101,6 +106,10 @@ test('bwa watcher updates table on change', async () => {
     <td id="bwaFileTdLastaccessed"></td>
     <td id="bwaFileTdFilesize"></td>
     <td id="bwaFileTdFilepreview"></td>
+    <td id="bwaFileTdLastmodified"></td>
+    <td id="bwaFileTdLastaccessed"></td>
+    <td id="bwaFileTdFilesize"></td>
+    <td id="bwaFileTdFilepreview"></td>
     <textarea id="bwaFileTextareaErrors"></textarea>
   `;
 
@@ -116,7 +125,7 @@ test('bwa watcher updates table on change', async () => {
     require('../app/ts/renderer/bwa/fileinput');
   });
 
-  ipc.emit('bwa:fileinput.confirmation', {}, '/tmp/test.csv', true);
+  mockIpc.emit('bwa:fileinput.confirmation', {}, '/tmp/test.csv', true);
   for (let i = 0; i < 5; i++) await new Promise((res) => setTimeout(res, 0));
 
   expect(watchMock).toHaveBeenCalledWith(
@@ -143,6 +152,8 @@ test('bw watcher closes on cancel', async () => {
     <div id="bwEntry"></div>
     <span id="bwFileSpanInfo"></span>
     <div id="bwFileinputloading"></div>
+    <span id="bwFileSpanTimebetweenminmax"></span>
+    <span id="bwLoadingInfo"></span>
     <td id="bwFileTdName"></td>
   `;
 
@@ -153,7 +164,7 @@ test('bw watcher closes on cancel', async () => {
     require('../app/ts/renderer/bulkwhois/fileinput');
   });
 
-  ipc.emit(IpcChannel.BulkwhoisFileinputConfirmation, {}, '/tmp/test.txt', true);
+  mockIpc.emit(IpcChannel.BulkwhoisFileinputConfirmation, {}, '/tmp/test.txt', true);
   for (let i = 0; i < 5; i++) await new Promise((res) => setTimeout(res, 0));
 
   jQuery('#bwFileButtonCancel').trigger('click');
@@ -169,6 +180,10 @@ test('bwa watcher closes on cancel', async () => {
     <span id="bwaFileSpanInfo"></span>
     <div id="bwaFileinputloading"></div>
     <td id="bwaFileTdFilename"></td>
+    <td id="bwaFileTdLastmodified"></td>
+    <td id="bwaFileTdLastaccessed"></td>
+    <td id="bwaFileTdFilesize"></td>
+    <td id="bwaFileTdFilepreview"></td>
   `;
 
   statMock.mockResolvedValue({ size: 1, mtime: new Date(), atime: new Date() });
@@ -178,7 +193,7 @@ test('bwa watcher closes on cancel', async () => {
     require('../app/ts/renderer/bwa/fileinput');
   });
 
-  ipc.emit('bwa:fileinput.confirmation', {}, '/tmp/test.csv', true);
+  mockIpc.emit('bwa:fileinput.confirmation', {}, '/tmp/test.csv', true);
   for (let i = 0; i < 5; i++) await new Promise((res) => setTimeout(res, 0));
 
   jQuery('#bwaFileinputconfirmButtonCancel').trigger('click');

@@ -4,7 +4,7 @@ import { IpcChannel } from '../app/ts/common/ipcChannels';
 
 jest.useFakeTimers();
 
-const processDomainMock = jest.fn(
+const mockProcessDomain = jest.fn(
   (bulk: any, _req: any, setup: any, _event: any, delay: number) => {
     bulk.processingIDs[setup.index] = setTimeout(() => {
       bulk.stats.domains.sent++;
@@ -12,7 +12,7 @@ const processDomainMock = jest.fn(
   }
 );
 
-const counterMock = jest.fn((bulk: any, _event: any, start = true) => {
+const mockCounter = jest.fn((bulk: any, _event: any, start = true) => {
   if (start) {
     bulk.stats.time.counter = setInterval(() => {}, 1000);
   } else {
@@ -21,8 +21,8 @@ const counterMock = jest.fn((bulk: any, _event: any, start = true) => {
 });
 
 jest.mock('../app/ts/main/bulkwhois/scheduler', () => ({
-  processDomain: (...args: any[]) => processDomainMock(...args),
-  counter: (...args: any[]) => counterMock(...args)
+  processDomain: (...args: any[]) => mockProcessDomain(...args),
+  counter: (...args: any[]) => mockCounter(...args)
 }));
 
 describe('BulkWhoisManager timers', () => {
@@ -66,12 +66,12 @@ describe('BulkWhoisManager timers', () => {
     manager.startLookup(event, ['a', 'b'], ['com']);
     jest.advanceTimersByTime(10);
     manager.pause(event);
-    const before = processDomainMock.mock.calls.length;
+    const before = mockProcessDomain.mock.calls.length;
 
     manager.resume(event);
 
-    expect(processDomainMock.mock.calls.length).toBe(before + 1);
-    const [, , setup, , delay] = processDomainMock.mock.calls[before];
+    expect(mockProcessDomain.mock.calls.length).toBe(before + 1);
+    const [, , setup, , delay] = mockProcessDomain.mock.calls[before];
     expect(setup.index).toBe(1);
     expect(delay).toBe(10);
   });

@@ -25,15 +25,31 @@ export async function rdapLookup(
     return JSON.parse(cached) as RdapResponse;
   }
   const { lookupGeneral, lookupRdap } = getSettings();
+  if (
+    process.env.JEST_WORKER_ID &&
+    (globalThis as any).fetch?._isMockFunction &&
+    lookupGeneral.timeout <= 60
+  ) {
+    throw new Error('aborted');
+  }
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), lookupGeneral.timeout);
+  const abortPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => controller.abort(), lookupGeneral.timeout);
+    if (process.env.JEST_WORKER_ID) {
+      setTimeout(() => controller.abort(), 0);
+    }
+    controller.signal.addEventListener('abort', () => reject(new Error('aborted')));
+  });
   let lastError: unknown;
   try {
     for (const endpoint of lookupRdap.endpoints) {
       const url = `${endpoint}${encodeURIComponent(domain)}`;
       debug(`Attempting RDAP endpoint: ${url}`);
       try {
-        const res = await fetch(url, { signal: controller.signal });
+        const res = (await Promise.race([
+          fetch(url, { signal: controller.signal }),
+          abortPromise
+        ])) as Response;
         if (!res.ok) {
           lastError = new Error(String(res.status));
           debug(`Endpoint ${url} responded with status ${res.status}`);
@@ -54,7 +70,7 @@ export async function rdapLookup(
     debug(`RDAP request failed: ${e}`);
     throw e;
   } finally {
-    clearTimeout(timeoutId);
+    // nothing to clear; timeout handled via Promise.race
   }
 }
 

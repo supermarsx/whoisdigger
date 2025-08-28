@@ -1,6 +1,6 @@
 const ipcMainHandlers: Record<string, (...args: any[]) => any> = {};
-const purgeMock = jest.fn();
-const clearMock = jest.fn();
+const mockPurge = jest.fn();
+const mockClear = jest.fn();
 
 jest.mock('electron', () => ({
   ipcMain: {
@@ -17,10 +17,10 @@ jest.mock('electron', () => ({
 jest.mock('../app/ts/common/requestCache', () => ({
   RequestCache: class {
     async purgeExpired() {
-      return purgeMock();
+      return mockPurge();
     }
     async clear() {
-      clearMock();
+      mockClear();
     }
   }
 }));
@@ -31,13 +31,13 @@ describe('cache IPC handler', () => {
   test('purges expired entries', async () => {
     const handler = ipcMainHandlers['cache:purge'];
     await handler({}, { clear: false });
-    expect(purgeMock).toHaveBeenCalled();
-    expect(clearMock).not.toHaveBeenCalled();
+    expect(mockPurge).toHaveBeenCalled();
+    expect(mockClear).not.toHaveBeenCalled();
   });
 
   test('clears all entries when clear flag set', async () => {
     const handler = ipcMainHandlers['cache:purge'];
     await handler({}, { clear: true });
-    expect(clearMock).toHaveBeenCalled();
+    expect(mockClear).toHaveBeenCalled();
   });
 });

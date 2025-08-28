@@ -6,6 +6,7 @@ import dns from 'dns/promises';
 import { lookup } from '../app/ts/common/lookup';
 import { nsLookup } from '../app/ts/common/dnsLookup';
 import { loadSettings, settings, getUserDataPath } from '../app/ts/renderer/settings-renderer';
+import { requestCache } from '../app/ts/common/requestCacheSingleton';
 
 describe('cache override', () => {
   const dbFile = 'override-cache.sqlite';
@@ -18,9 +19,11 @@ describe('cache override', () => {
   });
 
   afterAll(() => {
+    // ensure DB is not locked on Windows
+    settings.requestCache.enabled = false;
+    requestCache.close();
     const dbPath = path.resolve(getUserDataPath(), dbFile);
     if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
-    settings.requestCache.enabled = false;
   });
 
   test('whois lookup bypasses cache when disabled', async () => {

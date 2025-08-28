@@ -2,14 +2,14 @@
 
 let jQuery: typeof import('jquery');
 let settingsModule: any;
-const invokeMock = jest.fn();
+const mockInvoke = jest.fn();
 jest.setTimeout(10000);
 
-const saveSettingsMock = jest.fn().mockResolvedValue('SAVED');
+const mockSaveSettings = jest.fn().mockResolvedValue('SAVED');
 
 jest.mock('../app/ts/renderer/settings-renderer', () => {
   const actual = jest.requireActual('../app/ts/renderer/settings-renderer');
-  return { ...actual, saveSettings: saveSettingsMock };
+  return { ...actual, saveSettings: mockSaveSettings };
 });
 
 beforeEach(() => {
@@ -24,6 +24,11 @@ beforeEach(() => {
         <span class="result-icon"></span>
       </div>
     </div>
+    <div id="settings-not-loaded" class="is-hidden"></div>
+    <div id="settingsMainContainer" class="current"></div>
+    <div id="contents-container"></div>
+    <button id="settingsBackToTop"></button>
+    <button id="settingsGoToBottom"></button>
     <button id="openDataFolder"></button>
     <button id="reloadApp"></button>
     <table id="opTable"></table>
@@ -32,15 +37,15 @@ beforeEach(() => {
   `;
   (window as any).electron = {
     getBaseDir: () => Promise.resolve(__dirname),
-    invoke: invokeMock,
+    invoke: mockInvoke,
     send: jest.fn(),
     on: jest.fn(),
     off: jest.fn(),
-    openDataDir: () => invokeMock('settings:open-data-dir'),
-    startStats: (...args: any[]) => invokeMock('stats:start', ...args),
-    refreshStats: (...args: any[]) => invokeMock('stats:refresh', ...args),
-    stopStats: (...args: any[]) => invokeMock('stats:stop', ...args),
-    getStats: (...args: any[]) => invokeMock('stats:get', ...args),
+    openDataDir: () => mockInvoke('settings:open-data-dir'),
+    startStats: (...args: any[]) => mockInvoke('stats:start', ...args),
+    refreshStats: (...args: any[]) => mockInvoke('stats:refresh', ...args),
+    stopStats: (...args: any[]) => mockInvoke('stats:stop', ...args),
+    getStats: (...args: any[]) => mockInvoke('stats:get', ...args),
     path: { join: (...args: string[]) => require('path').join(...args) },
     readdir: jest.fn(async () => []),
     stat: jest.fn(async () => ({ size: 0, mtime: new Date(), atime: new Date() })),
@@ -49,8 +54,8 @@ beforeEach(() => {
     unlink: jest.fn(async () => {}),
     watch: jest.fn(async () => ({ close: () => {} }))
   };
-  invokeMock.mockClear();
-  saveSettingsMock.mockClear();
+  mockInvoke.mockClear();
+  mockSaveSettings.mockClear();
 });
 
 test('changing setting updates configuration', async () => {
@@ -63,11 +68,13 @@ test('changing setting updates configuration', async () => {
 
   await new Promise((r) => setTimeout(r, 0));
 
-  jQuery('#appSettings\\.theme\\.darkMode').val('true').trigger('change');
+  const selectEl = document.getElementById('appSettings.theme.darkMode') as HTMLSelectElement;
+  selectEl.value = 'true';
+  selectEl.dispatchEvent(new Event('change', { bubbles: true }));
 
   await Promise.resolve();
   expect(settings.theme.darkMode).toBe(true);
-  expect(saveSettingsMock).toHaveBeenCalled();
+  expect(mockSaveSettings).toHaveBeenCalled();
 });
 
 test('reloadApp invokes ipcRenderer', async () => {
@@ -77,9 +84,9 @@ test('reloadApp invokes ipcRenderer', async () => {
   document.dispatchEvent(new Event('DOMContentLoaded'));
 
   await new Promise((r) => setTimeout(r, 0));
-  expect(invokeMock).toHaveBeenCalledWith('stats:start', expect.any(String), expect.any(String));
+  expect(mockInvoke).toHaveBeenCalledWith('stats:start', expect.any(String), expect.any(String));
 
-  invokeMock.mockClear();
+  mockInvoke.mockClear();
 
   await new Promise((r) => setTimeout(r, 0));
 
@@ -87,7 +94,7 @@ test('reloadApp invokes ipcRenderer', async () => {
 
   await Promise.resolve();
 
-  expect(invokeMock).toHaveBeenCalledWith('app:reload');
+  expect(mockInvoke).toHaveBeenCalledWith('app:reload');
 });
 
 test('openDataFolder invokes settings:open-data-dir', async () => {
@@ -102,5 +109,5 @@ test('openDataFolder invokes settings:open-data-dir', async () => {
 
   await Promise.resolve();
 
-  expect(invokeMock).toHaveBeenCalledWith('settings:open-data-dir');
+  expect(mockInvoke).toHaveBeenCalledWith('settings:open-data-dir');
 });
