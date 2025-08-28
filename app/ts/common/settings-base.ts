@@ -102,7 +102,7 @@ export interface Settings {
   };
   customConfiguration: { filepath: string; load: boolean; save: boolean };
   theme: { darkMode: boolean; followSystem: boolean };
-  ui: { liveReload: boolean; confirmExit: boolean; language: string };
+  ui: { liveReload: boolean; confirmExit: boolean; language?: string };
   ai: {
     enabled: boolean;
     modelPath: string;
@@ -240,7 +240,7 @@ export const SettingsSchema = z
     ui: z.object({
       liveReload: z.boolean(),
       confirmExit: z.boolean(),
-      language: z.string()
+      language: z.string().optional()
     }),
     ai: z.object({
       enabled: z.boolean(),
