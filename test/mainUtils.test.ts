@@ -1,20 +1,24 @@
 const ipcMainHandlers: Record<string, (...args: any[]) => any> = {};
-const mockOpenPath = jest.fn();
-const mockParse = jest.fn();
+var mockOpenPath = jest.fn();
+var mockParse = jest.fn();
 
 jest.mock('electron', () => ({
+  __esModule: true,
   ipcMain: {
     handle: (channel: string, listener: (...args: any[]) => any) => {
       ipcMainHandlers[channel] = listener;
     }
   },
-  shell: { openPath: mockOpenPath },
+  shell: { openPath: (...args: any[]) => mockOpenPath(...args) },
   app: undefined,
   BrowserWindow: class {},
   Menu: {}
 }));
 
-jest.mock('papaparse', () => ({ __esModule: true, default: { parse: mockParse } }));
+jest.mock('papaparse', () => ({
+  __esModule: true,
+  default: { parse: (...args: any[]) => mockParse(...args) }
+}));
 
 jest.mock('../app/ts/common/availability', () => ({
   isDomainAvailable: jest.fn(),

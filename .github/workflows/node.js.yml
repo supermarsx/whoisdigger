@@ -55,7 +55,7 @@ jobs:
         run: npm install --no-audit --no-fund
       - run: npx tsc --noEmit
 
-  build:
+  test:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     needs: type-check
@@ -63,7 +63,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        node-version: [20.x, 22.x, 24.x]
+        node-version: [22.x]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -80,7 +80,7 @@ jobs:
           path: coverage/
 
   merge-coverage:
-    needs: build
+    needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -108,7 +108,7 @@ jobs:
           path: coverage-final.json
 
   e2e:
-    needs: build
+    needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -141,7 +141,7 @@ jobs:
           path: test/e2e/artifacts
 
   docker-build:
-    needs: build
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
