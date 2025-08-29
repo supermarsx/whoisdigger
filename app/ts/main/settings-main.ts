@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { ipcMain, BrowserWindow } from 'electron';
+import { ipcMain, BrowserWindow, app } from 'electron';
 import { debugFactory } from '../common/logger.js';
 import {
   settings,
@@ -74,6 +74,19 @@ function watchConfig(): void {
     void reload();
   });
 }
+
+export function cleanup(): void {
+  if (watcher) {
+    watcher.close();
+    watcher = undefined;
+  }
+}
+
+if (app && typeof app.on === 'function') {
+  app.on('will-quit', cleanup);
+}
+
+process.on('exit', cleanup);
 
 export async function loadSettings(): Promise<Settings> {
   const result = await baseLoad();
