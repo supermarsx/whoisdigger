@@ -96,7 +96,7 @@
     "cross-env": "^10.0.0",
     "cssnano": "^7.1.0",
     "devtools": "^8.42.0",
-    "electron": "^37.2.6",
+    "electron": "^37.4.0",
     "electron-chromedriver": "^37.3.1",
     "electron-rebuild": "^3.2.9",
     "electronmon": "^2.0.3",
