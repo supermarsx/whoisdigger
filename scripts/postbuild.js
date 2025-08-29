@@ -49,6 +49,14 @@ if (fs.existsSync(bulmaSrc)) {
   copyRecursiveSync(bulmaSrc, bulmaDest);
 }
 
+// Make browser-friendly ESM deps available in renderer via import maps
+// Copy zod ESM into dist vendor so the renderer can import 'zod'
+const zodSrc = path.join(rootDir, 'node_modules', 'zod');
+const zodDest = path.join(distDir, 'vendor', 'zod');
+if (fs.existsSync(zodSrc)) {
+  copyRecursiveSync(zodSrc, zodDest);
+}
+
 /*
 // Move compiled TypeScript outputs to top-level dist folders
 const builtMain = path.join(distDir, 'ts', 'main');

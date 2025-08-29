@@ -15,7 +15,22 @@ export function preStringStrip(str: string): string {
 function stripHTMLEntities(rawData: string): string {
   if (!decodeHtml) {
     if (typeof window === 'undefined') {
-      decodeHtml = (eval('require')('html-entities') as { decode: (s: string) => string }).decode;
+      // Node/Electron main: use a minimal, synchronous HTML entity decoder
+      const named: Record<string, string> = {
+        amp: '&',
+        lt: '<',
+        gt: '>',
+        quot: '"',
+        apos: "'"
+      };
+      const decodeNumeric = (str: string): string =>
+        str
+          .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(Number(dec)))
+          .replace(/&#x([\da-fA-F]+);/g, (_, hex) => String.fromCodePoint(parseInt(hex, 16)));
+      decodeHtml = (input: string): string =>
+        decodeNumeric(
+          input.replace(/&([a-zA-Z]+);/g, (_, name) => (name in named ? named[name] : `&${name};`))
+        );
     } else {
       const textarea = document.createElement('textarea');
       decodeHtml = (input: string): string => {
@@ -61,19 +76,24 @@ export function parseRawData(rawData: string): Record<string, string> {
 }
 
 export function toJSON(
-  resultsText: string | Record<string, unknown> | Array<{ data: string }>
+  resultsText: string | Record<string, unknown> | Array<{ data: string } | { data: Record<string, string> }> | null | undefined
 ): Record<string, unknown> | string {
-  if (typeof resultsText === 'string' && resultsText.includes('lookup: timeout')) return 'timeout';
-
-  if (typeof resultsText === 'object') {
-    (resultsText as Array<{ data: string | Record<string, string> }>).map(function (data) {
-      data.data = parseRawData(data.data as string);
-      return data;
-    });
-    return resultsText as Record<string, unknown>;
-  } else {
+  if (resultsText == null) return {};
+  if (typeof resultsText === 'string') {
+    if (resultsText.includes('lookup: timeout')) return 'timeout';
     return parseRawData(preStringStrip(resultsText));
   }
+  if (Array.isArray(resultsText)) {
+    (resultsText as Array<{ data: string | Record<string, string> }>).map(function (item) {
+      if (typeof item.data === 'string') {
+        item.data = parseRawData(item.data as string);
+      }
+      return item;
+    });
+    return resultsText as unknown as Record<string, unknown>;
+  }
+  // Already an object; return as-is
+  return resultsText as Record<string, unknown>;
 }
 
 export default parseRawData;

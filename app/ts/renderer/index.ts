@@ -1,3 +1,7 @@
+// Ensure global jQuery and DataTables are available for UMD plugins BEFORE other modules
+import 'jquery';
+import 'datatables.net';
+
 import './singlewhois.js';
 import './bulkwhois.js';
 import './bwa.js';

@@ -71,6 +71,7 @@ export async function processData(
     sender.send(IpcChannel.BulkwhoisStatusUpdate, 'status.error', status.error);
     stats.laststatus.error = domain;
     sender.send(IpcChannel.BulkwhoisStatusUpdate, 'laststatus.error', stats.laststatus.error);
+    lastStatus = DomainStatus.Error;
   } else {
     if (settings.lookupGeneral.type == 'whois') {
       domainAvailable = isDomainAvailable(data as string);
@@ -142,22 +143,30 @@ export async function processData(
   };
 
   if (settings.lookupGeneral.type == 'whois') {
-    resultsJSON = toJSON(data as string);
-    const params = getDomainParameters(
-      domain,
-      lastStatus ?? null,
-      data as string,
-      resultsJSON as Record<string, unknown>
-    );
-    resultFilter.domain = params.domain ?? null;
-    resultFilter.status = params.status ?? null;
-    resultFilter.registrar = params.registrar ?? null;
-    resultFilter.company = params.company ?? null;
-    resultFilter.creationdate = params.creationDate ?? null;
-    resultFilter.updatedate = params.updateDate ?? null;
-    resultFilter.expirydate = params.expiryDate ?? null;
-    resultFilter.whoisreply = params.whoisreply ?? null;
-    resultFilter.whoisjson = params.whoisJson ?? null;
+    if (typeof data === 'string' && !isError) {
+      resultsJSON = toJSON(data as string);
+      const params = getDomainParameters(
+        domain,
+        lastStatus ?? null,
+        data as string,
+        resultsJSON as Record<string, unknown>
+      );
+      resultFilter.domain = params.domain ?? null;
+      resultFilter.status = params.status ?? null;
+      resultFilter.registrar = params.registrar ?? null;
+      resultFilter.company = params.company ?? null;
+      resultFilter.creationdate = params.creationDate ?? null;
+      resultFilter.updatedate = params.updateDate ?? null;
+      resultFilter.expirydate = params.expiryDate ?? null;
+      resultFilter.whoisreply = params.whoisreply ?? null;
+      resultFilter.whoisjson = params.whoisJson ?? null;
+    } else {
+      // Error or empty data: record minimal info
+      resultFilter.domain = domain;
+      resultFilter.status = lastStatus ?? DomainStatus.Error;
+      resultFilter.whoisreply = typeof data === 'string' ? data : null;
+      resultFilter.whoisjson = {} as any;
+    }
   } else if (settings.lookupGeneral.type == 'dns') {
     resultFilter.domain = domain;
     resultFilter.status = lastStatus ?? null;

@@ -63,6 +63,7 @@ const appSettings = {
       follow: 3, // Maximum follow request depth (default: 3)
       timeout: 2500, // Supposed timeout for whois requests in milliseconds (default: 2500)
       timeBetween: 1500, // Time between each whois request in queue in milliseconds (default: 1500)
+      concurrency: 4, // Number of concurrent WHOIS workers
       dnsTimeBetweenOverride: true, // Override delay for DNS requests (default: true)
       dnsTimeBetween: 50 // Time between request specifically for dns requests
     },

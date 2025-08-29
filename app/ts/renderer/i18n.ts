@@ -11,10 +11,11 @@ let translations: Record<string, string> = {};
 
 export async function loadTranslations(lang?: string): Promise<void> {
   const detected = (lang ?? navigator.language ?? 'en').split('-')[0];
-  const htmlDir = window.location.pathname.split('/').slice(0, -1).join('/');
-  const file = await electron.path.join(htmlDir, '..', 'locales', `${detected}.json`);
+  // Build a file: URL relative to the current HTML document and read via IPC
+  const base = new URL(window.location.href);
+  const localeUrl = new URL(`../locales/${detected}.json`, base).href;
   try {
-    const raw = (await electron.invoke('fs:readFile', file, 'utf8')) as string;
+    const raw = (await electron.invoke('fs:readFile', localeUrl, 'utf8')) as string;
     translations = JSON.parse(raw) as Record<string, string>;
   } catch {
     translations = {};

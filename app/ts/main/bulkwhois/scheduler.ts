@@ -1,6 +1,6 @@
 import { debugFactory } from '../../common/logger.js';
 import { performance } from 'perf_hooks';
-import { lookup as whoisLookup } from '../../common/lookup.js';
+import { lookup as whoisLookup, getWhoisOptions, convertDomain } from '../../common/lookup.js';
 import * as dns from '../../common/dnsLookup.js';
 import { rdapLookup, RdapResponse } from '../../common/rdapLookup.js';
 import { Result, DnsLookupError } from '../../common/errors.js';
@@ -11,6 +11,9 @@ import type { BulkWhois, DomainSetup } from './types.js';
 import { processData } from './resultHandler.js';
 import type { IpcMainEvent } from 'electron';
 import { IpcChannel } from '../../common/ipcChannels.js';
+import { runTask } from './workerPool.js';
+import { reportProxyFailure, reportProxySuccess } from '#common/proxy';
+import psl from 'psl';
 
 const debug = debugFactory('bulkwhois.scheduler');
 
@@ -47,14 +50,60 @@ export function processDomain(
 
     try {
       if (settings.lookupGeneral.type === 'whois') {
-        data = await whoisLookup(domainSetup.domain!, {
-          follow: domainSetup.follow,
-          timeout: domainSetup.timeout
-        });
+        // Prepare domain and options, run in worker pool with retry/backoff + proxy rotation
+        let dom = convertDomain(domainSetup.domain!);
+        if (settings.lookupGeneral.psl) {
+          const clean = psl.get(dom);
+          dom = clean ? clean.replace(/((\*\.)*)/g, '') : dom;
+        }
+        const maxRetries = Math.max(0, Number(getSettings().lookupProxy?.retries ?? 0));
+        let attempt = 0;
+        let lastErr: any = null;
+        while (attempt <= maxRetries) {
+          const opts = getWhoisOptions() as any;
+          const usedProxy = opts?.proxy;
+          const msg = await runTask({ id: domainSetup.index!, domain: dom, type: 'whois', options: opts });
+          if (msg && msg.ok) {
+            if (usedProxy) reportProxySuccess(usedProxy);
+            data = msg.data as string;
+            break;
+          } else {
+            if (usedProxy) reportProxyFailure(usedProxy);
+            lastErr = msg?.error || 'WHOIS_WORKER_FAILED';
+            attempt++;
+            if (attempt <= maxRetries) {
+              const backoff = Math.min(2000, 250 * Math.pow(2, attempt - 1));
+              await new Promise((r) => setTimeout(r, backoff));
+            }
+          }
+        }
+        if (data == null) throw new Error(String(lastErr || 'WHOIS_FAILED'));
       } else if (settings.lookupGeneral.type === 'dns') {
-        data = await dns.hasNsServers(domainSetup.domain!);
+        let dom = convertDomain(domainSetup.domain!);
+        if (settings.lookupGeneral.psl) {
+          const clean = psl.get(dom);
+          dom = clean ? clean.replace(/((\*\.)*)/g, '') : dom;
+        }
+        const msg = await runTask({ id: domainSetup.index!, domain: dom, type: 'dns' });
+        if (msg && msg.ok) {
+          const has = !!msg.has;
+          data = { ok: true, value: has } as Result<boolean, DnsLookupError>;
+        } else {
+          data = { ok: false, error: new DnsLookupError(String(msg?.error || 'DNS_FAILED')) } as Result<boolean, DnsLookupError>;
+        }
       } else {
-        data = await rdapLookup(domainSetup.domain!);
+        let dom = convertDomain(domainSetup.domain!);
+        if (settings.lookupGeneral.psl) {
+          const clean = psl.get(dom);
+          dom = clean ? clean.replace(/((\*\.)*)/g, '') : dom;
+        }
+        const endpoints = (settings.lookupRdap?.endpoints as string[]) || ['https://rdap.org/domain/'];
+        const msg = await runTask({ id: domainSetup.index!, domain: dom, type: 'rdap', options: { endpoints } });
+        if (msg && msg.ok) {
+          data = { statusCode: msg.statusCode as number, body: String(msg.body ?? '') } as RdapResponse;
+        } else {
+          throw new Error(String(msg?.error || 'RDAP_FAILED'));
+        }
       }
       await processData(
         bulkWhois,
@@ -67,6 +116,16 @@ export function processDomain(
       );
     } catch (e) {
       debug(e);
+      // Ensure progress counters continue even on errors
+      await processData(
+        bulkWhois,
+        reqtime,
+        event,
+        domainSetup.domain!,
+        domainSetup.index!,
+        null,
+        true
+      );
     }
   }, delay);
 

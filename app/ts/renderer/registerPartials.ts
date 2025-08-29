@@ -27,7 +27,8 @@ export async function registerPartials(): Promise<void> {
     // glob helper isn't available, load them using the filesystem helpers
     // exposed via the preload script.
     const dirUrl = new URL('../../compiled-templates/', import.meta.url);
-    const files = (await electron.readdir(dirUrl.pathname)) as string[];
+    // Pass a file URL to main; fs IPC will normalize file: URLs cross‑platform
+    const files = (await electron.readdir(dirUrl.href)) as string[];
     for (const file of files) {
       if (!file.endsWith('.js') || file === 'mainPanel.js') continue;
       const spec = await import(/* @vite-ignore */ new URL(file, dirUrl).href);

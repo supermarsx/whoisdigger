@@ -1,10 +1,10 @@
 // Base path --> assets/html
-require('./renderer/index.js');
-const { loadSettings, settings, customSettingsLoaded } = require('./renderer/settings-renderer.js');
-const { loadTranslations, registerTranslationHelpers } = require('./renderer/i18n.js');
-const { formatString } = require('./common/stringformat.js');
-const { sendDebug, sendError } = require('./renderer/logger.js');
-const { debugFactory } = require('./common/logger.js');
+import './renderer/index.js';
+import { loadSettings, settings, customSettingsLoaded } from './renderer/settings-renderer.js';
+import { loadTranslations, registerTranslationHelpers } from './renderer/i18n.js';
+import { formatString } from './common/stringformat.js';
+import { sendDebug, sendError } from './renderer/logger.js';
+import { debugFactory } from './common/logger.js';
 
 const electron = (window as any)
   .electron as import('../../types/renderer-electron-api.js').RendererElectronAPI;
@@ -24,7 +24,7 @@ function qsa<T extends Element = HTMLElement>(sel: string): T[] {
   $(document).ready(function() {...});
     When document is ready
  */
-document.addEventListener('DOMContentLoaded', async () => {
+async function onReady() {
   await loadSettings();
   await loadTranslations(settings.ui.language);
   registerTranslationHelpers();
@@ -35,7 +35,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   startup();
   void import('./renderer/navigation.js');
-});
+}
+
+const isJest = typeof process !== 'undefined' && !!(process as any).env?.JEST_WORKER_ID;
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { void onReady(); });
+} else if (!isJest) {
+  void onReady();
+}
 
 /*
   startup
@@ -60,5 +67,12 @@ function startup() {
     qs('#navButtonExpandedmenu')?.classList.add('is-force-hidden');
   } else {
     qs('#navButtonExpandedmenu')?.classList.remove('is-force-hidden');
+    // If extended menu is enabled and not collapsed, ensure special items are visible
+    if (!navigation.extendedCollapsed) {
+      qsa('.is-specialmenu').forEach((el) => el.classList.remove('is-hidden'));
+    }
   }
+  // Always ensure Options tab is discoverable
+  qs('#navButtonOp')?.classList.remove('is-hidden');
+  qs('#navButtonOp')?.classList.remove('is-force-hidden');
 }

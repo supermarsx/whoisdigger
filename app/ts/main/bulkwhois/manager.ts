@@ -32,8 +32,8 @@ export class BulkWhoisManager {
     for (let domain = start; domain < input.domainsPending.length; domain++) {
       const setup = createDomainSetup(settings, input.domainsPending[domain], domain);
       this.debug(formatString('Scheduling domain %s with delay %s', domain, setup.timebetween));
-      cumulativeDelay += setup.timebetween;
-      processDomain(this.bulkWhois, this.reqtime, setup, event, cumulativeDelay);
+      const delay = domain === start ? 0 : (cumulativeDelay += setup.timebetween);
+      processDomain(this.bulkWhois, this.reqtime, setup, event, delay);
       updateProgress(sender, stats, domain + 1);
     }
     setRemainingCounter(settings, stats);

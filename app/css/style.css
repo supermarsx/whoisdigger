@@ -222,20 +222,53 @@ html[data-theme='dark'] #toTable .button {
 /* Flat modal styling */
 .modal-card,
 .modal-content {
-  box-shadow: none;
-  border-radius: 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
 }
 
 .modal-card-head,
 .modal-card-foot {
   box-shadow: none;
-  border: 1px solid #dbdbdb;
+  border: none;
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
 .modal-card-head {
-  border-bottom: 1px solid #dbdbdb;
+  border-bottom: none;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 }
 
 .modal-card-foot {
-  border-top: 1px solid #dbdbdb;
+  border-top: none;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+/* Remove odd focus outlines inside lightbox and ensure accessible focus styles */
+.modal.is-active:focus,
+.modal .modal-content:focus,
+.modal .modal-card:focus,
+.modal .modal-card *:focus {
+  outline: none !important;
+  box-shadow: none;
+}
+
+/* Provide subtle focus styles for interactive elements inside modals */
+.modal .button:focus,
+.modal .input:focus,
+.modal .select select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(50, 115, 220, 0.35);
+}
+
+/* Prevent blue glow on modal close button in some platforms */
+.modal .modal-close:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Ensure modal background covers fully without edge artifacts */
+.modal .modal-background {
+  backdrop-filter: blur(0.25px);
 }

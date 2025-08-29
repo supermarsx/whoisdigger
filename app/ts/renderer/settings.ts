@@ -241,7 +241,7 @@ function filterOptions(term: string): void {
   qs('#opSearchNoResults')!.classList.toggle('is-hidden', anyVisible);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function initSettingsUI(): void {
   const container = qs('#settingsEntry')!;
   const table = qs('#opTable')!;
   buildEntries(appDefaults.settings, '', table);
@@ -251,11 +251,13 @@ document.addEventListener('DOMContentLoaded', () => {
     filterOptions(opSearch.value);
   });
   // Wait for the final settings to load before populating fields
-
   void startStatsWorker();
-
   if (sessionStorage.getItem('settingsLoaded') !== 'true') {
     qs('#settings-not-loaded')!.classList.remove('is-hidden');
+  } else {
+    // If settings are already loaded, populate immediately
+    populateInputs();
+    void startStatsWorker();
   }
 
   window.addEventListener('settings-loaded', () => {
@@ -413,7 +415,13 @@ document.addEventListener('DOMContentLoaded', () => {
   goToBottom.addEventListener('click', () => {
     containerEl.scrollTo({ top: containerEl.scrollHeight, behavior: 'smooth' });
   });
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initSettingsUI);
+} else {
+  initSettingsUI();
+}
 
 export const _test = {
   getValue,

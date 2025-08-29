@@ -67,6 +67,7 @@ export interface Settings {
     follow: number;
     timeout: number;
     timeBetween: number;
+    concurrency?: number;
     dnsTimeBetweenOverride: boolean;
     dnsTimeBetween: number;
   };
@@ -181,6 +182,7 @@ export const SettingsSchema = z
       follow: z.number(),
       timeout: z.number(),
       timeBetween: z.number(),
+      concurrency: z.number().default(4),
       dnsTimeBetweenOverride: z.boolean(),
       dnsTimeBetween: z.number()
     }),
