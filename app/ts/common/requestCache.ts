@@ -46,6 +46,7 @@ export class RequestCache {
     const { requestCache } = settings;
     const enabled = cacheOpts.enabled ?? requestCache.enabled;
     const ttl = cacheOpts.ttl ?? requestCache.ttl;
+    const ttlMs = typeof ttl === 'number' && Number.isFinite(ttl) ? ttl * 1000 : undefined;
     if (!enabled) return undefined;
     const database = await this.init();
     if (!database) return undefined;
@@ -55,7 +56,7 @@ export class RequestCache {
         .prepare('SELECT response, timestamp FROM cache WHERE key = ?')
         .get(key) as { response: string; timestamp: number } | undefined;
       if (!row) return undefined;
-      if (Date.now() - row.timestamp > ttl * 1000) {
+      if (ttlMs !== undefined && Date.now() - row.timestamp > ttlMs) {
         database.prepare('DELETE FROM cache WHERE key = ?').run(key);
         return undefined;
       }
