@@ -1,0 +1,23 @@
+<div class='field is-grouped is-grouped-multiline'>
+  <p class='control is-expanded'>
+    <input id='monDomain' class='input is-small' type='text' placeholder='{{t "monitor_add_domain_placeholder"}}' />
+  </p>
+  <p class='control'>
+    <button id='monAdd' class='button is-small is-info'>{{t 'add'}}</button>
+  </p>
+  <p class='control'>
+    <button id='monStart' class='button is-small is-success'>{{t 'start'}}</button>
+  </p>
+  <p class='control'>
+    <button id='monStop' class='button is-small is-warning'>{{t 'stop'}}</button>
+  </p>
+  <p class='control'>
+    <input id='monInterval' class='input is-small' type='number' min='5000' step='1000' placeholder='{{t "monitor_interval_placeholder"}}' />
+  </p>
+</div>
+<table id='monTable' class='table is-fullwidth is-striped is-narrow'>
+  <thead>
+    <tr><th>{{t 'domain'}}</th><th>{{t 'status'}}</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>

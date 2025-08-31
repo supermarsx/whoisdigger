@@ -73,7 +73,9 @@ handle(IpcChannel.CacheMerge, async (_e, sources: string[]) => {
   await fs.promises.mkdir(path.dirname(dest), { recursive: true });
   try {
     const db = new Database(dest);
-    db.exec('CREATE TABLE IF NOT EXISTS cache(key TEXT PRIMARY KEY, response TEXT, timestamp INTEGER)');
+    db.exec(
+      'CREATE TABLE IF NOT EXISTS cache(key TEXT PRIMARY KEY, response TEXT, timestamp INTEGER)'
+    );
     const insert = db.prepare('INSERT OR REPLACE INTO cache(key,response,timestamp) VALUES(?,?,?)');
     for (const src of sources || []) {
       try {
