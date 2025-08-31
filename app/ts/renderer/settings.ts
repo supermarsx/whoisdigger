@@ -144,9 +144,9 @@ function buildEntries(obj: any, prefix: string, table: HTMLElement): void {
       const enumVals = enumOptions[path];
       if (enumVals) {
         const opts = enumVals.map((v) => `<option value="${v}">${v}</option>`).join('');
-        inputHtml = `<div class="select is-small"><select id="${id}">${opts}</select></div>`;
+        inputHtml = `<div class=\"select is-small is-fullwidth\"><select id="${id}">${opts}</select></div>`;
       } else if (typeof value === 'boolean') {
-        inputHtml = `<div class="select is-small"><select id="${id}"><option value="true">true</option><option value="false">false</option></select></div>`;
+        inputHtml = `<div class=\"select is-small is-fullwidth\"><select id="${id}"><option value="true">true</option><option value="false">false</option></select></div>`;
       } else {
         inputHtml = `<input id="${id}" class="input is-small" type="text">`;
       }
@@ -429,3 +429,4 @@ export const _test = {
   parseValue,
   getDefault
 };
+
