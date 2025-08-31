@@ -9,6 +9,7 @@ import './settings.js';
 import './i18n.js';
 import './monitor.js';
 import './profiles.js';
+import './db.js';
 import { requestCache } from '../common/requestCacheSingleton.js';
 import { settings } from '../common/settings.js';
 

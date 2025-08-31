@@ -57,7 +57,8 @@ const appSettings = {
     },
     database: {
       // Database settings
-      historyName: 'history-default.sqlite' // History database filename (per profile)
+      historyName: 'history-default.sqlite', // History database filename (per profile)
+      profileDir: 'default' // Profile folder for databases
     },
     lookupGeneral: {
       // Whois lookup default values
@@ -315,5 +316,3 @@ export const appSettingsDescriptions: Record<string, string> = {
   'monitor.list': 'Domains to monitor',
   'monitor.interval': 'Monitoring interval in milliseconds'
 };
-
-

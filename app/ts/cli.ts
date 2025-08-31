@@ -129,8 +129,7 @@ export function parseArgs(argv: string[]): CliOptions {
     limit: args.limit,
     lookupType: args['lookup-type'] as 'whois' | 'dns' | 'rdap',
     maxCacheEntries: args['max-cache-entries'],
-    progress: args.progress
-    ,
+    progress: args.progress,
     resetOptions: args['reset-options']
   };
 }

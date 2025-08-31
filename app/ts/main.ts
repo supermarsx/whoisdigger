@@ -97,7 +97,7 @@ app.on('ready', async function () {
   debug(formatString("'appWindow.height': {0}", appWindow.height));
   debug(formatString("'appWindow.width': {0}", appWindow.width));
 
-    // Apply last window state if enabled and available
+  // Apply last window state if enabled and available
   const winStatePath = path.join(getUserDataPath(), 'window-state.json');
   let winBounds: Partial<Electron.Rectangle> | undefined;
   if (appWindow.restoreLastState) {
@@ -110,7 +110,7 @@ app.on('ready', async function () {
         }
       }
     } catch {}
-  }// mainWindow, Main application window initialization
+  } // mainWindow, Main application window initialization
   mainWindow = new BrowserWindow({
     frame: appWindow.frame, // Is basic frame shown (default: false)
     show: appWindow.show, // Show app before load (default: false)
@@ -306,8 +306,3 @@ ipcMain.on('app:error', function (event: IpcMainEvent, message: any) {
 
   return;
 });
-
-
-
-
-

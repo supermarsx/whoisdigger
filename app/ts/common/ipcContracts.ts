@@ -67,6 +67,9 @@ export interface IpcContracts {
   [IpcChannel.ProfilesImport]: { request: []; response: { id: string } | undefined };
   [IpcChannel.ConfigExport]: { request: []; response: string };
   [IpcChannel.ConfigImport]: { request: []; response: void };
+  [IpcChannel.DbPickFiles]: { request: []; response: string[] };
+  [IpcChannel.HistoryMerge]: { request: [string[]]; response: void };
+  [IpcChannel.CacheMerge]: { request: [string[]]; response: void };
   [IpcChannel.ToInputFile]: {
     request: [];
     response: string[] | undefined;

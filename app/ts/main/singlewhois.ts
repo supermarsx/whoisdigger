@@ -17,20 +17,23 @@ import { handle } from './ipc.js';
   ipcMain.on('singlewhois:lookup', function(...) {...});
     Single whois lookup
  */
-handle(IpcChannel.SingleWhoisLookup, async (_event, domain) => {
+handle(IpcChannel.SingleWhoisLookup, async (event, domain) => {
   debug('Starting whois lookup');
   try {
     const data = await whoisLookup(domain);
     try {
       const status = isDomainAvailable(data);
       addHistoryEntry(domain, status);
+      event?.sender?.send('history:updated');
     } catch {
       addHistoryEntry(domain, DomainStatus.Error);
+      event?.sender?.send('history:updated');
     }
     return data;
   } catch (err) {
     debug('Whois lookup threw an error');
     addHistoryEntry(domain, DomainStatus.Error);
+    event?.sender?.send('history:updated');
     throw err;
   }
 });

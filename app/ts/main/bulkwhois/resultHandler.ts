@@ -163,7 +163,7 @@ export async function processData(
     } else {
       // Error or empty data: record minimal info
       resultFilter.domain = domain;
-      resultFilter.status = isError ? null : lastStatus ?? DomainStatus.Error;
+      resultFilter.status = isError ? null : (lastStatus ?? DomainStatus.Error);
       resultFilter.whoisreply = typeof data === 'string' ? data : null;
       resultFilter.whoisjson = {} as any;
     }
@@ -199,6 +199,7 @@ export async function processData(
   resultFilter.requesttime = reqtime[index];
   if (resultFilter.domain && resultFilter.status) {
     addHistoryEntry(resultFilter.domain, resultFilter.status);
+    sender.send('history:updated');
   }
   results.id[index] = resultFilter.id;
   results.domain[index] = resultFilter.domain;

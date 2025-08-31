@@ -59,7 +59,7 @@ export interface Settings {
   appWindowUrl: AppUrlSettings;
   appWindowNavigation: NavigationSettings;
   startup: StartupSettings;
-  database: { historyName: string };
+  database: { historyName: string; profileDir?: string };
   lookupConversion: { enabled: boolean; algorithm: string };
   lookupGeneral: {
     type: 'dns' | 'whois' | 'rdap';
@@ -174,8 +174,8 @@ export const SettingsSchema = z
       developerTools: z.boolean()
     }),
     database: z
-      .object({ historyName: z.string() })
-      .default({ historyName: 'history-default.sqlite' }),
+      .object({ historyName: z.string(), profileDir: z.string().optional() })
+      .default({ historyName: 'history-default.sqlite', profileDir: 'default' }),
     lookupConversion: z.object({
       enabled: z.boolean(),
       algorithm: z.string()
@@ -302,5 +302,3 @@ export function validateSettings(partial: Partial<Settings>): Settings {
 }
 
 export const mergeDefaults = validateSettings;
-
-

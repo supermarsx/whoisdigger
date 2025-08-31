@@ -376,7 +376,7 @@ function initSettingsUI(): void {
     if (!id) return;
     const path = id.replace(/^appSettings\./, '');
     const val = parseValue((el as HTMLInputElement | HTMLSelectElement).value);
-    if (path === 'database.historyName') {
+    if (path === 'database.historyName' || path === 'requestCache.database') {
       (async () => {
         const filePath = await electron.path.join(getUserDataPath(), String(val));
         const exists = await electron.exists(filePath);
@@ -554,3 +554,41 @@ export const _test = {
   parseValue,
   getDefault
 };
+
+  // Database selection/merge handlers
+  void on('click', '#dbSelectHistory', async () => {
+    const files = (await electron.invoke('db:pick-files')) as string[];
+    if (files && files[0]) {
+      const base = await electron.path.basename(files[0]);
+      const input = qs<HTMLInputElement>('#appSettings.database.historyName');
+      if (input) {
+        input.value = String(base);
+        saveEntry('database.historyName', input, base);
+      }
+    }
+  });
+  void on('click', '#dbSelectCache', async () => {
+    const files = (await electron.invoke('db:pick-files')) as string[];
+    if (files && files[0]) {
+      const base = await electron.path.basename(files[0]);
+      const input = qs<HTMLInputElement>('#appSettings.requestCache.database');
+      if (input) {
+        input.value = String(base);
+        saveEntry('requestCache.database', input, base);
+      }
+    }
+  });
+  void on('click', '#dbMergeHistory', async () => {
+    const files = (await electron.invoke('db:pick-files')) as string[];
+    if (files && files.length) {
+      await electron.invoke('history:merge', files);
+      showToast('History merged', true);
+    }
+  });
+  void on('click', '#dbMergeCache', async () => {
+    const files = (await electron.invoke('db:pick-files')) as string[];
+    if (files && files.length) {
+      await electron.invoke('cache:merge', files);
+      showToast('Cache merged', true);
+    }
+  });

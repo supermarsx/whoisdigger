@@ -37,7 +37,9 @@ async function ensureDir(p: string): Promise<void> {
   await fs.promises.mkdir(p, { recursive: true });
 }
 
-async function listProfiles(): Promise<{ id: string; name: string; file: string; mtime?: number }[]> {
+async function listProfiles(): Promise<
+  { id: string; name: string; file: string; mtime?: number }[]
+> {
   const dir = profilesDir();
   await ensureDir(dir);
   const items = await fs.promises.readdir(dir).catch(() => []);
@@ -73,7 +75,12 @@ async function listProfiles(): Promise<{ id: string; name: string; file: string;
       const raw = await fs.promises.readFile(file, 'utf8');
       const json = JSON.parse(raw) as any;
       const st = await fs.promises.stat(file);
-      results.push({ id: path.basename(fname, '.json'), name: json.profileName ?? fname, file, mtime: st.mtimeMs });
+      results.push({
+        id: path.basename(fname, '.json'),
+        name: json.profileName ?? fname,
+        file,
+        mtime: st.mtimeMs
+      });
     } catch {
       /* ignore invalid */
     }

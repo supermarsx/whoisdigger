@@ -62,4 +62,3 @@ electron.on('monitor:update', (domain: string, status: DomainStatus) => {
 
 // Initial render when analyser view shows
 document.addEventListener('DOMContentLoaded', renderMonitorList);
-

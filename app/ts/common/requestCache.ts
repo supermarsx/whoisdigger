@@ -23,7 +23,8 @@ export class RequestCache {
     const { requestCache } = settings;
     if (!requestCache || !requestCache.enabled) return undefined;
     if (this.db) return this.db;
-    const baseDir = path.resolve(getUserDataPath());
+    const profileDir = (settings as any)?.database?.profileDir || 'default';
+    const baseDir = path.resolve(getUserDataPath(), 'profiles', profileDir);
     const dbPath = path.resolve(baseDir, requestCache.database);
     if (dbPath !== baseDir && !dbPath.startsWith(baseDir + path.sep)) {
       debug(`Invalid cache database path: ${requestCache.database}`);

@@ -173,6 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Refresh after single lookup completes (best effort)
   void on('click', '#singlewhoisButtonOk', () => setTimeout(loadHistory, 300));
+  electron.on('history:updated', () => loadHistory());
 });
 
 export const _test = { loadHistory };
