@@ -1,11 +1,12 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const baseDir = path.dirname(__filename);
 import { debugFactory } from './common/logger.js';
-import { loadSettings, settings as store } from './main/settings-main.js';
+import { loadSettings, settings as store, getUserDataPath } from './main/settings-main.js';
 import type { Settings as BaseSettings } from './main/settings-main.js';
 import { formatString } from './common/stringformat.js';
 import { requestCache } from './common/requestCacheSingleton.js';
@@ -37,6 +38,7 @@ interface AppWindowSettings {
   kiosk: boolean;
   darkTheme: boolean;
   thickFrame: boolean;
+  restoreLastState?: boolean;
 }
 
 interface WebPreferencesSettings {
@@ -95,14 +97,27 @@ app.on('ready', async function () {
   debug(formatString("'appWindow.height': {0}", appWindow.height));
   debug(formatString("'appWindow.width': {0}", appWindow.width));
 
-  // mainWindow, Main application window initialization
+    // Apply last window state if enabled and available
+  const winStatePath = path.join(getUserDataPath(), 'window-state.json');
+  let winBounds: Partial<Electron.Rectangle> | undefined;
+  if (appWindow.restoreLastState) {
+    try {
+      if (fs.existsSync(winStatePath)) {
+        const raw = fs.readFileSync(winStatePath, 'utf8');
+        const b = JSON.parse(raw) as Partial<Electron.Rectangle>;
+        if (b && typeof b.width === 'number' && typeof b.height === 'number') {
+          winBounds = b;
+        }
+      }
+    } catch {}
+  }// mainWindow, Main application window initialization
   mainWindow = new BrowserWindow({
     frame: appWindow.frame, // Is basic frame shown (default: false)
     show: appWindow.show, // Show app before load (default: false)
-    height: appWindow.height, // Window height in pixels (default: 700)
-    width: appWindow.width, // Window width in pixels (default: 1000)
+    height: (winBounds?.height as number) || appWindow.height, // Window height in pixels (default: 700)
+    width: (winBounds?.width as number) || appWindow.width, // Window width in pixels (default: 1000)
     icon: path.join(baseDir, appWindow.icon), // App icon path
-    center: appWindow.center, // Center window
+    center: winBounds?.x != null && winBounds?.y != null ? false : appWindow.center, // Center window
     minimizable: appWindow.minimizable, // Make window minimizable
     maximizable: appWindow.maximizable, // Make window maximizable
     movable: appWindow.movable, // Make window movable
@@ -133,6 +148,26 @@ app.on('ready', async function () {
     ? path.normalize(appUrl.pathname)
     : path.resolve(baseDir, appUrl.pathname);
   mainWindow.loadFile(loadPath);
+
+  if (winBounds?.x != null && winBounds?.y != null) {
+    try {
+      mainWindow.setPosition(winBounds.x as number, winBounds.y as number);
+    } catch {}
+  }
+
+  // Persist window bounds when changed
+  const saveBounds = () => {
+    if (!settings.appWindow?.restoreLastState) return;
+    try {
+      const b = mainWindow.getBounds();
+      fs.promises
+        .mkdir(getUserDataPath(), { recursive: true })
+        .then(() => fs.promises.writeFile(winStatePath, JSON.stringify(b)).catch(() => {}))
+        .catch(() => {});
+    } catch {}
+  };
+  mainWindow.on('resize', saveBounds);
+  mainWindow.on('move', saveBounds);
 
   // Some more debugging messages
   debug(formatString("'settings.url.protocol': {0}", appUrl.protocol));
@@ -271,3 +306,8 @@ ipcMain.on('app:error', function (event: IpcMainEvent, message: any) {
 
   return;
 });
+
+
+
+
+

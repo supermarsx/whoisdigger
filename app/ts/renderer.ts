@@ -39,7 +39,9 @@ async function onReady() {
 
 const isJest = typeof process !== 'undefined' && !!(process as any).env?.JEST_WORKER_ID;
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { void onReady(); });
+  document.addEventListener('DOMContentLoaded', () => {
+    void onReady();
+  });
 } else if (!isJest) {
   void onReady();
 }

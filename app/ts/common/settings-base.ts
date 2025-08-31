@@ -17,6 +17,7 @@ export interface AppWindowSettings {
   kiosk: boolean;
   darkTheme: boolean;
   thickFrame: boolean;
+  restoreLastState?: boolean;
 }
 
 export interface WebPreferencesSettings {
@@ -58,6 +59,7 @@ export interface Settings {
   appWindowUrl: AppUrlSettings;
   appWindowNavigation: NavigationSettings;
   startup: StartupSettings;
+  database: { historyName: string };
   lookupConversion: { enabled: boolean; algorithm: string };
   lookupGeneral: {
     type: 'dns' | 'whois' | 'rdap';
@@ -145,7 +147,8 @@ export const SettingsSchema = z
       fullscreenable: z.boolean(),
       kiosk: z.boolean(),
       darkTheme: z.boolean(),
-      thickFrame: z.boolean()
+      thickFrame: z.boolean(),
+      restoreLastState: z.boolean().default(false)
     }),
     appWindowWebPreferences: z.object({
       nodeIntegration: z.boolean(),
@@ -170,6 +173,9 @@ export const SettingsSchema = z
     startup: z.object({
       developerTools: z.boolean()
     }),
+    database: z
+      .object({ historyName: z.string() })
+      .default({ historyName: 'history-default.sqlite' }),
     lookupConversion: z.object({
       enabled: z.boolean(),
       algorithm: z.string()
@@ -296,3 +302,5 @@ export function validateSettings(partial: Partial<Settings>): Settings {
 }
 
 export const mergeDefaults = validateSettings;
+
+

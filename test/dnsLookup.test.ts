@@ -88,7 +88,9 @@ describe('dnsLookup', () => {
       } catch {
         /* ignore close errors */
       }
-      try { fs.unlinkSync(dbPath); } catch {
+      try {
+        fs.unlinkSync(dbPath);
+      } catch {
         /* ignore unlink errors */
       }
     }

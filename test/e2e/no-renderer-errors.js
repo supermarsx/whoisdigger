@@ -18,7 +18,9 @@ const appMainRel = pkg.main || './dist/app/ts/main.js';
 const appPath = path.resolve(rootDir, appMainRel);
 
 if (!fs.existsSync(appPath)) {
-  console.error(`App entry not found at ${appPath}. Did you run \"npm run build && npm run postbuild\"?`);
+  console.error(
+    `App entry not found at ${appPath}. Did you run \"npm run build && npm run postbuild\"?`
+  );
   process.exit(1);
 }
 

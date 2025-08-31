@@ -25,16 +25,34 @@ async function run(task: Task) {
   try {
     if (task.type === 'whois') {
       const data = await lookupPromise(task.domain, task.options || {});
-      parentPort?.postMessage({ ok: true, id: task.id, domain: task.domain, data, ms: Date.now() - start });
+      parentPort?.postMessage({
+        ok: true,
+        id: task.id,
+        domain: task.domain,
+        data,
+        ms: Date.now() - start
+      });
       return;
     }
     if (task.type === 'dns') {
       try {
         const servers = await dns.resolve(task.domain, 'NS');
         const has = Array.isArray(servers) && servers.length > 0;
-        parentPort?.postMessage({ ok: true, id: task.id, domain: task.domain, has, ms: Date.now() - start });
+        parentPort?.postMessage({
+          ok: true,
+          id: task.id,
+          domain: task.domain,
+          has,
+          ms: Date.now() - start
+        });
       } catch (e) {
-        parentPort?.postMessage({ ok: false, id: task.id, domain: task.domain, error: String((e as Error).message), ms: Date.now() - start });
+        parentPort?.postMessage({
+          ok: false,
+          id: task.id,
+          domain: task.domain,
+          error: String((e as Error).message),
+          ms: Date.now() - start
+        });
       }
       return;
     }
@@ -46,19 +64,44 @@ async function run(task: Task) {
           const url = base.endsWith('/') ? `${base}${task.domain}` : `${base}/${task.domain}`;
           const res = await fetch(url);
           const body = await res.text();
-          parentPort?.postMessage({ ok: true, id: task.id, domain: task.domain, statusCode: res.status, body, ms: Date.now() - start });
+          parentPort?.postMessage({
+            ok: true,
+            id: task.id,
+            domain: task.domain,
+            statusCode: res.status,
+            body,
+            ms: Date.now() - start
+          });
           return;
         } catch (e) {
           lastErr = e;
         }
       }
-      parentPort?.postMessage({ ok: false, id: task.id, domain: task.domain, error: String(lastErr || 'RDAP_FAILED'), ms: Date.now() - start });
+      parentPort?.postMessage({
+        ok: false,
+        id: task.id,
+        domain: task.domain,
+        error: String(lastErr || 'RDAP_FAILED'),
+        ms: Date.now() - start
+      });
       return;
     }
     // Unsupported type
-    parentPort?.postMessage({ ok: false, id: task.id, domain: task.domain, error: 'UNSUPPORTED_TYPE', ms: Date.now() - start });
+    parentPort?.postMessage({
+      ok: false,
+      id: task.id,
+      domain: task.domain,
+      error: 'UNSUPPORTED_TYPE',
+      ms: Date.now() - start
+    });
   } catch (e) {
-    parentPort?.postMessage({ ok: false, id: task.id, domain: task.domain, error: String(e), ms: Date.now() - start });
+    parentPort?.postMessage({
+      ok: false,
+      id: task.id,
+      domain: task.domain,
+      error: String(e),
+      ms: Date.now() - start
+    });
   }
 }
 

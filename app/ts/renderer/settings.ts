@@ -71,6 +71,32 @@ let statsConfigPath = '';
 let statsDataDir = '';
 let statsHandler: ((data: any) => void) | null = null;
 
+// Profiles state
+type Profile = { id: string; name: string; file: string };
+let profiles: Profile[] = [];
+let selectedProfileId: string | null = null;
+
+async function loadProfiles(): Promise<void> {
+  const list = (await electron.invoke('profiles:list')) as Profile[];
+  profiles = list ?? [];
+  const sel = qs<HTMLSelectElement>('#opProfileSelect');
+  if (sel) {
+    sel.innerHTML = '';
+    for (const p of profiles) {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.name || p.id;
+      sel.appendChild(opt);
+    }
+    if (profiles.length > 0) {
+      selectedProfileId = profiles[0].id;
+      sel.value = selectedProfileId;
+      const p = profiles[0];
+      qs<HTMLInputElement>('#opProfileName')!.value = p.name ?? p.id;
+    }
+  }
+}
+
 async function startStatsWorker(): Promise<void> {
   if (statsWatcherId !== null) {
     if (statsHandler) {
@@ -242,13 +268,82 @@ function filterOptions(term: string): void {
 }
 
 function initSettingsUI(): void {
-  const container = qs('#settingsEntry')!;
-  const table = qs('#opTable')!;
-  buildEntries(appDefaults.settings, '', table);
+  const container = qs('#settingsEntry');
+  const table = qs('#opTable');
+  if (!container || !table) {
+    return; // Not on settings page (e.g., tests)
+  }
+  buildEntries(appDefaults.settings, '', table as HTMLElement);
   filterOptions('');
   const opSearch = qs<HTMLInputElement>('#opSearch');
   opSearch?.addEventListener('input', () => {
     filterOptions(opSearch.value);
+  });
+  // Profiles init
+  void loadProfiles();
+  const profSel = qs<HTMLSelectElement>('#opProfileSelect');
+  profSel?.addEventListener('change', () => {
+    selectedProfileId = profSel.value || null;
+    const p = profiles.find((x) => x.id === selectedProfileId);
+    if (p) qs<HTMLInputElement>('#opProfileName')!.value = p.name ?? p.id;
+  });
+  qs('#opProfileCreate')?.addEventListener('click', async () => {
+    const name = (qs<HTMLInputElement>('#opProfileName')?.value || '').trim() || 'New Profile';
+    await electron.invoke('profiles:create', name, true);
+    await loadProfiles();
+    showToast('Profile created', true);
+  });
+  qs('#opProfileRename')?.addEventListener('click', async () => {
+    if (!selectedProfileId) return;
+    const newName = (qs<HTMLInputElement>('#opProfileName')?.value || '').trim();
+    if (!newName) return;
+    await electron.invoke('profiles:rename', selectedProfileId, newName);
+    await loadProfiles();
+    showToast('Profile renamed', true);
+  });
+  qs('#opProfileDelete')?.addEventListener('click', async () => {
+    if (!selectedProfileId) return;
+    try {
+      await electron.invoke('profiles:delete', selectedProfileId);
+      selectedProfileId = null;
+      await loadProfiles();
+      showToast('Profile deleted', true);
+    } catch {
+      showToast('Failed to delete profile', false);
+    }
+  });
+  qs('#opProfileSet')?.addEventListener('click', async () => {
+    if (!selectedProfileId) return;
+    await electron.invoke('profiles:set-current', selectedProfileId);
+    await loadSettings();
+    populateInputs();
+    showToast('Profile set as current', true);
+    refreshStats();
+  });
+  qs('#opProfileExport')?.addEventListener('click', async () => {
+    try {
+      const id = selectedProfileId || undefined;
+      const out = (await electron.invoke('profiles:export', id)) as string;
+      showToast(out ? 'Exported' : 'Export canceled', Boolean(out));
+    } catch {
+      showToast('Export failed', false);
+    }
+  });
+  qs('#opProfileImport')?.addEventListener('click', async () => {
+    try {
+      const res = await electron.invoke('profiles:import');
+      await loadProfiles();
+      showToast(res ? 'Imported' : 'Import canceled', Boolean(res));
+    } catch {
+      showToast('Import failed', false);
+    }
+  });
+  // Config name helpers (stored as extra key in settings)
+  const cfgNameEl = qs<HTMLInputElement>('#opConfigName');
+  if (cfgNameEl) cfgNameEl.value = String((settings as any).configName || 'Default Config');
+  cfgNameEl?.addEventListener('change', () => {
+    (settings as any).configName = cfgNameEl!.value;
+    void saveSettings(settings);
   });
   // Wait for the final settings to load before populating fields
   void startStatsWorker();
@@ -281,7 +376,16 @@ function initSettingsUI(): void {
     if (!id) return;
     const path = id.replace(/^appSettings\./, '');
     const val = parseValue((el as HTMLInputElement | HTMLSelectElement).value);
-    saveEntry(path, el, val);
+    if (path === 'database.historyName') {
+      (async () => {
+        const filePath = await electron.path.join(getUserDataPath(), String(val));
+        const exists = await electron.exists(filePath);
+        saveEntry(path, el, val);
+        showToast(exists ? 'Switching to existing database' : 'New database will be created', true);
+      })().catch(() => saveEntry(path, el, val));
+    } else {
+      saveEntry(path, el, val);
+    }
   });
 
   void on('click', '#settingsEntry .reset-btn', (ev) => {
@@ -344,6 +448,27 @@ function initSettingsUI(): void {
     const result = await electron.openDataDir();
     if (result) {
       showToast('Failed to open data directory', false);
+    }
+  });
+
+  // Config import/export buttons
+  qs('#opConfigExport')?.addEventListener('click', async () => {
+    try {
+      const out = (await electron.invoke('config:export')) as string;
+      showToast(out ? 'Exported' : 'Export canceled', Boolean(out));
+    } catch {
+      showToast('Export failed', false);
+    }
+  });
+  qs('#opConfigImport')?.addEventListener('click', async () => {
+    try {
+      await electron.invoke('config:import');
+      await loadSettings();
+      populateInputs();
+      showToast('Imported', true);
+      refreshStats();
+    } catch {
+      showToast('Import failed', false);
     }
   });
 
@@ -429,4 +554,3 @@ export const _test = {
   parseValue,
   getDefault
 };
-

@@ -20,7 +20,8 @@ const appSettings = {
       fullscreenable: true, // Make window able to go fullscreen
       kiosk: false, // Enable kiosk mode
       darkTheme: false, // GTK dark theme mode
-      thickFrame: true // Use WS_THICKFRAME style for frameless windows on Windows, which adds standard window frame. Setting it to false will remove window shadow and window animations.
+      thickFrame: true, // Use WS_THICKFRAME style for frameless windows on Windows, which adds standard window frame. Setting it to false will remove window shadow and window animations.
+      restoreLastState: false
     },
     appWindowWebPreferences: {
       // Web preferences
@@ -53,6 +54,10 @@ const appSettings = {
       developerTools: true, // Enable devtools button on extended navigation bar (default: false)
       extendedCollapsed: false, // Show extended navigation collapsed (default: false)
       enableExtendedMenu: true // Enable extended navigation toggle (default: true)
+    },
+    database: {
+      // Database settings
+      historyName: 'history-default.sqlite' // History database filename (per profile)
     },
     lookupGeneral: {
       // Whois lookup default values
@@ -218,6 +223,7 @@ export const appSettingsDescriptions: Record<string, string> = {
   'appWindow.kiosk': 'Enable kiosk mode',
   'appWindow.darkTheme': 'Use GTK dark theme',
   'appWindow.thickFrame': 'Use thick frame on Windows',
+  'appWindow.restoreLastState': 'Restore last window position and size',
   'appWindowWebPreferences.nodeIntegration': 'Enable Node integration (renderer access to Node.js)',
   'appWindowWebPreferences.contextIsolation': 'Use context isolation',
   'appWindowWebPreferences.zoomFactor': 'Page zoom factor',
@@ -235,6 +241,7 @@ export const appSettingsDescriptions: Record<string, string> = {
   'appWindowNavigation.developerTools': 'Show devtools button',
   'appWindowNavigation.extendedCollapsed': 'Collapse extended navigation',
   'appWindowNavigation.enableExtendedMenu': 'Allow extended navigation toggle',
+  'database.historyName': 'History database filename',
   'lookupGeneral.type': 'Default lookup type',
   'lookupGeneral.psl': 'Use Public Suffix List',
   'lookupGeneral.server': 'Default whois server',
@@ -242,6 +249,7 @@ export const appSettingsDescriptions: Record<string, string> = {
   'lookupGeneral.follow': 'Maximum follow depth',
   'lookupGeneral.timeout': 'Request timeout in milliseconds',
   'lookupGeneral.timeBetween': 'Delay between requests',
+  'lookupGeneral.concurrency': 'Number of concurrent WHOIS workers',
   'lookupGeneral.dnsTimeBetweenOverride': 'Override delay for DNS requests',
   'lookupGeneral.dnsTimeBetween': 'DNS request delay',
   'lookupRandomizeFollow.randomize': 'Randomize follow depth',
@@ -307,3 +315,5 @@ export const appSettingsDescriptions: Record<string, string> = {
   'monitor.list': 'Domains to monitor',
   'monitor.interval': 'Monitoring interval in milliseconds'
 };
+
+

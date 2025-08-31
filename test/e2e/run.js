@@ -42,15 +42,19 @@ let watchdog;
 
   const port = await findPort(9222);
   // Launch Electron directly with a remote debugging port, no chromedriver required
-  const electronProc = spawn(electronPath, [
-    appPath,
-    '--no-sandbox',
-    '--disable-dev-shm-usage',
-    '--disable-gpu',
-    '--headless=new',
-    `--remote-debugging-port=${port}`,
-    `--user-data-dir=${userDataDir}`
-  ], { stdio: 'inherit' });
+  const electronProc = spawn(
+    electronPath,
+    [
+      appPath,
+      '--no-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+      '--headless=new',
+      `--remote-debugging-port=${port}`,
+      `--user-data-dir=${userDataDir}`
+    ],
+    { stdio: 'inherit' }
+  );
   await new Promise((r) => setTimeout(r, 1500));
 
   try {
@@ -58,7 +62,9 @@ let watchdog;
     const TIMEOUT_MS = parseInt(process.env.E2E_TIMEOUT_MS || '90000', 10);
     watchdog = setTimeout(() => {
       console.error('E2E timeout exceeded');
-      try { electronProc.kill(); } catch {}
+      try {
+        electronProc.kill();
+      } catch {}
       process.exit(1);
     }, TIMEOUT_MS);
 
@@ -88,6 +94,8 @@ let watchdog;
     process.exit(1);
   } finally {
     if (watchdog) clearTimeout(watchdog);
-    try { electronProc.kill(); } catch {}
+    try {
+      electronProc.kill();
+    } catch {}
   }
 })();

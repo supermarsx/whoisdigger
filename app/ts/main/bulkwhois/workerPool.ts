@@ -37,21 +37,30 @@ function startNext(): void {
   w.once('message', (msg) => {
     settled = true;
     active--;
-    try { w.terminate(); } catch {}
+    try {
+      w.terminate();
+    } catch {}
     if (msg && msg.ok) next.resolve(msg);
     else next.resolve(msg); // resolve to allow caller to decide on fallback
     startNext();
   });
   w.once('error', (err) => {
     active--;
-    try { w.terminate(); } catch {}
+    try {
+      w.terminate();
+    } catch {}
     next.resolve({ ok: false, id: next.task.id, domain: next.task.domain, error: String(err) });
     startNext();
   });
   w.once('exit', (code) => {
     if (!settled) {
       active--;
-      next.resolve({ ok: false, id: next.task.id, domain: next.task.domain, error: `EXIT_${code}` });
+      next.resolve({
+        ok: false,
+        id: next.task.id,
+        domain: next.task.domain,
+        error: `EXIT_${code}`
+      });
       startNext();
     }
   });
@@ -63,4 +72,3 @@ export function runTask(task: Task): Promise<any> {
     startNext();
   });
 }
-

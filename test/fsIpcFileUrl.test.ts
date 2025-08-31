@@ -51,4 +51,3 @@ describe('fsIpc file: URL normalization', () => {
     expect(mockStat.mock.calls[0][0]).toMatch(/temp[\\/]test\.txt$/);
   });
 });
-

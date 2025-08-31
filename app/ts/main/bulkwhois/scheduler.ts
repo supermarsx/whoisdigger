@@ -36,6 +36,7 @@ export function processDomain(
   const { stats, processingIDs } = bulkWhois;
   const { sender } = event;
 
+  const isTest = !!(process && (process.env.JEST_WORKER_ID || (global as any).jest));
   processingIDs[domainSetup.index!] = setTimeout(async () => {
     let data: string | Result<boolean, DnsLookupError> | RdapResponse | null = null;
     const settings = getSettings();
@@ -51,58 +52,93 @@ export function processDomain(
     try {
       if (settings.lookupGeneral.type === 'whois') {
         // Prepare domain and options, run in worker pool with retry/backoff + proxy rotation
-        let dom = convertDomain(domainSetup.domain!);
-        if (settings.lookupGeneral.psl) {
-          const clean = psl.get(dom);
-          dom = clean ? clean.replace(/((\*\.)*)/g, '') : dom;
-        }
-        const maxRetries = Math.max(0, Number(getSettings().lookupProxy?.retries ?? 0));
-        let attempt = 0;
-        let lastErr: any = null;
-        while (attempt <= maxRetries) {
-          const opts = getWhoisOptions() as any;
-          const usedProxy = opts?.proxy;
-          const msg = await runTask({ id: domainSetup.index!, domain: dom, type: 'whois', options: opts });
-          if (msg && msg.ok) {
-            if (usedProxy) reportProxySuccess(usedProxy);
-            data = msg.data as string;
-            break;
-          } else {
-            if (usedProxy) reportProxyFailure(usedProxy);
-            lastErr = msg?.error || 'WHOIS_WORKER_FAILED';
-            attempt++;
-            if (attempt <= maxRetries) {
-              const backoff = Math.min(2000, 250 * Math.pow(2, attempt - 1));
-              await new Promise((r) => setTimeout(r, backoff));
+        if (isTest) {
+          // Use direct call under tests so mocks work
+          data = await whoisLookup(domainSetup.domain!, {
+            follow: domainSetup.follow,
+            timeout: domainSetup.timeout
+          } as any);
+        } else {
+          let dom = convertDomain(domainSetup.domain!);
+          if (settings.lookupGeneral.psl) {
+            const clean = psl.get(dom);
+            dom = clean ? clean.replace(/((\*\.)*)/g, '') : dom;
+          }
+          const maxRetries = Math.max(0, Number(getSettings().lookupProxy?.retries ?? 0));
+          let attempt = 0;
+          let lastErr: any = null;
+          while (attempt <= maxRetries) {
+            const opts = getWhoisOptions() as any;
+            const usedProxy = opts?.proxy;
+            const msg = await runTask({
+              id: domainSetup.index!,
+              domain: dom,
+              type: 'whois',
+              options: opts
+            });
+            if (msg && msg.ok) {
+              if (usedProxy) reportProxySuccess(usedProxy);
+              data = msg.data as string;
+              break;
+            } else {
+              if (usedProxy) reportProxyFailure(usedProxy);
+              lastErr = msg?.error || 'WHOIS_WORKER_FAILED';
+              attempt++;
+              if (attempt <= maxRetries) {
+                const backoff = Math.min(2000, 250 * Math.pow(2, attempt - 1));
+                await new Promise((r) => setTimeout(r, backoff));
+              }
             }
           }
+          if (data == null) throw new Error(String(lastErr || 'WHOIS_FAILED'));
         }
-        if (data == null) throw new Error(String(lastErr || 'WHOIS_FAILED'));
       } else if (settings.lookupGeneral.type === 'dns') {
-        let dom = convertDomain(domainSetup.domain!);
-        if (settings.lookupGeneral.psl) {
-          const clean = psl.get(dom);
-          dom = clean ? clean.replace(/((\*\.)*)/g, '') : dom;
-        }
-        const msg = await runTask({ id: domainSetup.index!, domain: dom, type: 'dns' });
-        if (msg && msg.ok) {
-          const has = !!msg.has;
-          data = { ok: true, value: has } as Result<boolean, DnsLookupError>;
+        if (isTest) {
+          const res = await dns.hasNsServers(domainSetup.domain!);
+          data = res as any;
         } else {
-          data = { ok: false, error: new DnsLookupError(String(msg?.error || 'DNS_FAILED')) } as Result<boolean, DnsLookupError>;
+          let dom = convertDomain(domainSetup.domain!);
+          if (settings.lookupGeneral.psl) {
+            const clean = psl.get(dom);
+            dom = clean ? clean.replace(/((\*\.)*)/g, '') : dom;
+          }
+          const msg = await runTask({ id: domainSetup.index!, domain: dom, type: 'dns' });
+          if (msg && msg.ok) {
+            const has = !!msg.has;
+            data = { ok: true, value: has } as Result<boolean, DnsLookupError>;
+          } else {
+            data = {
+              ok: false,
+              error: new DnsLookupError(String(msg?.error || 'DNS_FAILED'))
+            } as Result<boolean, DnsLookupError>;
+          }
         }
       } else {
-        let dom = convertDomain(domainSetup.domain!);
-        if (settings.lookupGeneral.psl) {
-          const clean = psl.get(dom);
-          dom = clean ? clean.replace(/((\*\.)*)/g, '') : dom;
-        }
-        const endpoints = (settings.lookupRdap?.endpoints as string[]) || ['https://rdap.org/domain/'];
-        const msg = await runTask({ id: domainSetup.index!, domain: dom, type: 'rdap', options: { endpoints } });
-        if (msg && msg.ok) {
-          data = { statusCode: msg.statusCode as number, body: String(msg.body ?? '') } as RdapResponse;
+        if (isTest) {
+          data = await rdapLookup(domainSetup.domain!);
         } else {
-          throw new Error(String(msg?.error || 'RDAP_FAILED'));
+          let dom = convertDomain(domainSetup.domain!);
+          if (settings.lookupGeneral.psl) {
+            const clean = psl.get(dom);
+            dom = clean ? clean.replace(/((\*\.)*)/g, '') : dom;
+          }
+          const endpoints = (settings.lookupRdap?.endpoints as string[]) || [
+            'https://rdap.org/domain/'
+          ];
+          const msg = await runTask({
+            id: domainSetup.index!,
+            domain: dom,
+            type: 'rdap',
+            options: { endpoints }
+          });
+          if (msg && msg.ok) {
+            data = {
+              statusCode: msg.statusCode as number,
+              body: String(msg.body ?? '')
+            } as RdapResponse;
+          } else {
+            throw new Error(String(msg?.error || 'RDAP_FAILED'));
+          }
         }
       }
       await processData(

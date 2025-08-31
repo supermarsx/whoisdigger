@@ -35,9 +35,7 @@ process.on('exit', cleanupWatchers);
 const hot = (() => {
   try {
     // eslint-disable-next-line no-eval
-    return (eval('import.meta') as any)?.hot as
-      | undefined
-      | { dispose: (cb: () => void) => void };
+    return (eval('import.meta') as any)?.hot as undefined | { dispose: (cb: () => void) => void };
   } catch {
     return undefined;
   }

@@ -76,7 +76,12 @@ export function parseRawData(rawData: string): Record<string, string> {
 }
 
 export function toJSON(
-  resultsText: string | Record<string, unknown> | Array<{ data: string } | { data: Record<string, string> }> | null | undefined
+  resultsText:
+    | string
+    | Record<string, unknown>
+    | Array<{ data: string } | { data: Record<string, string> }>
+    | null
+    | undefined
 ): Record<string, unknown> | string {
   if (resultsText == null) return {};
   if (typeof resultsText === 'string') {

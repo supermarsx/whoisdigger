@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import JSZip from 'jszip';
@@ -8,7 +9,7 @@ import { lookup as whoisLookup } from './common/lookup.js';
 import * as dns from './common/dnsLookup.js';
 import { rdapLookup, RdapResponse } from './common/rdapLookup.js';
 import pLimit from 'p-limit';
-import { settings } from './common/settings.js';
+import { settings, defaultSettings, saveSettings as saveUserSettings } from './common/settings.js';
 import { requestCache } from './common/requestCacheSingleton.js';
 import { isDomainAvailable, getDomainParameters, WhoisResult } from './common/availability.js';
 import DomainStatus from './common/status.js';
@@ -44,6 +45,7 @@ export interface CliOptions {
   maxCacheEntries?: number;
   progress?: boolean;
   trainModel?: string;
+  resetOptions?: boolean;
 }
 
 export function parseArgs(argv: string[]): CliOptions {
@@ -76,6 +78,7 @@ export function parseArgs(argv: string[]): CliOptions {
       describe: 'Maximum number of request cache entries'
     })
     .option('progress', { type: 'boolean' })
+    .option('reset-options', { type: 'boolean', describe: 'Reset options to defaults' })
     .check((args) => {
       if (
         !args.domain &&
@@ -84,7 +87,8 @@ export function parseArgs(argv: string[]): CliOptions {
         !args['download-model'] &&
         !args['purge-cache'] &&
         !args['clear-cache'] &&
-        !args['train-model']
+        !args['train-model'] &&
+        !args['reset-options']
       ) {
         throw new Error('Either --domain or --wordlist must be provided');
       }
@@ -126,6 +130,8 @@ export function parseArgs(argv: string[]): CliOptions {
     lookupType: args['lookup-type'] as 'whois' | 'dns' | 'rdap',
     maxCacheEntries: args['max-cache-entries'],
     progress: args.progress
+    ,
+    resetOptions: args['reset-options']
   };
 }
 
@@ -249,9 +255,27 @@ export async function exportResults(results: WhoisResult[], opts: CliOptions): P
   }
 }
 
-if (require.main === module) {
+// ESM-friendly main module check
+const isMain = (() => {
+  try {
+    return import.meta.url === pathToFileURL(process.argv[1]).href;
+  } catch {
+    return false;
+  }
+})();
+
+if (isMain) {
   (async () => {
     const opts = parseArgs(hideBin(process.argv));
+    if (opts.resetOptions) {
+      const res = await saveUserSettings(defaultSettings as any);
+      if (res instanceof Error) {
+        process.stdout.write(`Failed to reset options: ${res.message}\n`);
+      } else {
+        process.stdout.write('Options reset to defaults\n');
+      }
+      return;
+    }
     if (opts.suggest) {
       const words = await suggestWords(opts.suggest, opts.suggestCount ?? 5);
       for (const w of words) {

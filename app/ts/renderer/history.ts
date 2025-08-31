@@ -31,13 +31,20 @@ function ensureControls(): void {
     `;
     table.parentElement?.insertBefore(controls, table);
     (qs('#historyPrev') as HTMLButtonElement | null)?.addEventListener('click', () => {
-      if (page > 0) { page--; renderPage(); }
+      if (page > 0) {
+        page--;
+        renderPage();
+      }
     });
     (qs('#historyNext') as HTMLButtonElement | null)?.addEventListener('click', () => {
-      if ((page + 1) * pageSize < allEntries.length) { page++; renderPage(); }
+      if ((page + 1) * pageSize < allEntries.length) {
+        page++;
+        renderPage();
+      }
     });
     (qs('#historySearch') as HTMLInputElement | null)?.addEventListener('input', () => {
-      page = 0; renderPage();
+      page = 0;
+      renderPage();
     });
 
     // Add status and timeframe filters
@@ -53,31 +60,46 @@ function ensureControls(): void {
         </select>
       </div>`;
     controls.appendChild(statusCtrl);
-    (qs('#historyStatusFilter') as HTMLSelectElement | null)?.addEventListener('change', () => { page = 0; renderPage(); });
+    (qs('#historyStatusFilter') as HTMLSelectElement | null)?.addEventListener('change', () => {
+      page = 0;
+      renderPage();
+    });
 
     const timeCtrl = document.createElement('div');
     timeCtrl.className = 'control';
     timeCtrl.innerHTML = `<input id="historyDays" class="input is-small" type="number" min="0" placeholder="Last N days">`;
     controls.appendChild(timeCtrl);
-    (qs('#historyDays') as HTMLInputElement | null)?.addEventListener('input', () => { page = 0; renderPage(); });
+    (qs('#historyDays') as HTMLInputElement | null)?.addEventListener('input', () => {
+      page = 0;
+      renderPage();
+    });
 
     // Show backend mode (SQLite/JSON) as a subtle hint
-    void electron.invoke('history:mode').then((mode: string) => {
-      const hint = document.createElement('span');
-      hint.className = 'tag is-light is-rounded is-size-7';
-      hint.textContent = mode === 'json' ? 'history: JSON' : 'history: SQLite';
-      const wrap = document.createElement('div');
-      wrap.className = 'control';
-      wrap.appendChild(hint);
-      controls!.appendChild(wrap);
-    }).catch(() => {/* ignore */});
+    void electron
+      .invoke('history:mode')
+      .then((mode: string) => {
+        const hint = document.createElement('span');
+        hint.className = 'tag is-light is-rounded is-size-7';
+        hint.textContent = mode === 'json' ? 'history: JSON' : 'history: SQLite';
+        const wrap = document.createElement('div');
+        wrap.className = 'control';
+        wrap.appendChild(hint);
+        controls!.appendChild(wrap);
+      })
+      .catch(() => {
+        /* ignore */
+      });
   }
 }
 
 function getFiltered(): any[] {
   const q = (qs('#historySearch') as HTMLInputElement | null)?.value?.toLowerCase() ?? '';
   if (!q) return allEntries;
-  return allEntries.filter((e) => String(e.domain || '').toLowerCase().includes(q));
+  return allEntries.filter((e) =>
+    String(e.domain || '')
+      .toLowerCase()
+      .includes(q)
+  );
 }
 
 function renderPage(): void {
@@ -115,7 +137,8 @@ function renderPage(): void {
     row.appendChild(tdDate);
     tbody.appendChild(row);
   }
-  (qs('#historyStatus') as HTMLElement | null)!.textContent = `${start + 1}-${end} of ${entries.length}`;
+  (qs('#historyStatus') as HTMLElement | null)!.textContent =
+    `${start + 1}-${end} of ${entries.length}`;
 }
 
 function loadHistory(): void {

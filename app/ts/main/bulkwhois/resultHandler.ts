@@ -71,7 +71,7 @@ export async function processData(
     sender.send(IpcChannel.BulkwhoisStatusUpdate, 'status.error', status.error);
     stats.laststatus.error = domain;
     sender.send(IpcChannel.BulkwhoisStatusUpdate, 'laststatus.error', stats.laststatus.error);
-    lastStatus = DomainStatus.Error;
+    lastStatus = undefined;
   } else {
     if (settings.lookupGeneral.type == 'whois') {
       domainAvailable = isDomainAvailable(data as string);
@@ -163,7 +163,7 @@ export async function processData(
     } else {
       // Error or empty data: record minimal info
       resultFilter.domain = domain;
-      resultFilter.status = lastStatus ?? DomainStatus.Error;
+      resultFilter.status = isError ? null : lastStatus ?? DomainStatus.Error;
       resultFilter.whoisreply = typeof data === 'string' ? data : null;
       resultFilter.whoisjson = {} as any;
     }

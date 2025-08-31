@@ -55,6 +55,18 @@ export interface IpcContracts {
     response: unknown;
   };
   [IpcChannel.StatsUpdate]: { request: [unknown]; response: void };
+  [IpcChannel.ProfilesList]: {
+    request: [];
+    response: { id: string; name: string; file: string; mtime?: number }[];
+  };
+  [IpcChannel.ProfilesCreate]: { request: [string, boolean?]; response: { id: string } };
+  [IpcChannel.ProfilesRename]: { request: [string, string]; response: void };
+  [IpcChannel.ProfilesDelete]: { request: [string]; response: void };
+  [IpcChannel.ProfilesSetCurrent]: { request: [string]; response: void };
+  [IpcChannel.ProfilesExport]: { request: [string?]; response: string };
+  [IpcChannel.ProfilesImport]: { request: []; response: { id: string } | undefined };
+  [IpcChannel.ConfigExport]: { request: []; response: string };
+  [IpcChannel.ConfigImport]: { request: []; response: void };
   [IpcChannel.ToInputFile]: {
     request: [];
     response: string[] | undefined;

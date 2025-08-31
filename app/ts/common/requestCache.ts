@@ -6,6 +6,7 @@ import { settings, getUserDataPath } from './settings.js';
 import { debugFactory } from './logger.js';
 
 const debug = debugFactory('common.requestCache');
+const fallbackStores = new Map<string, Map<string, { response: string; timestamp: number }>>();
 
 export interface CacheOptions {
   enabled?: boolean;
@@ -15,6 +16,8 @@ export interface CacheOptions {
 export class RequestCache {
   private db: DatabaseType | undefined;
   private purgeTimer: NodeJS.Timeout | undefined;
+  private fallback: Map<string, { response: string; timestamp: number }> | undefined;
+  private fallbackKey: string | undefined;
 
   private async init(): Promise<DatabaseType | undefined> {
     const { requestCache } = settings;
@@ -27,11 +30,22 @@ export class RequestCache {
       return undefined;
     }
     await fs.mkdir(path.dirname(dbPath), { recursive: true });
-    this.db = new Database(dbPath);
-    this.db.exec(
-      'CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, response TEXT, timestamp INTEGER)'
-    );
-    return this.db;
+    try {
+      this.db = new Database(dbPath);
+      this.db.exec(
+        'CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, response TEXT, timestamp INTEGER)'
+      );
+      return this.db;
+    } catch (e) {
+      debug(`better-sqlite3 unavailable, using in-memory cache fallback: ${e}`);
+      this.db = undefined;
+      // Use a shared fallback store per dbPath so multiple instances see the same entries
+      this.fallbackKey = dbPath;
+      const existing = fallbackStores.get(dbPath);
+      this.fallback = existing ?? new Map();
+      if (!existing) fallbackStores.set(dbPath, this.fallback);
+      return undefined;
+    }
   }
 
   private makeKey(type: string, domain: string): string {
@@ -49,7 +63,18 @@ export class RequestCache {
     const ttlMs = typeof ttl === 'number' && Number.isFinite(ttl) ? ttl * 1000 : undefined;
     if (!enabled) return undefined;
     const database = await this.init();
-    if (!database) return undefined;
+    if (!database) {
+      // Fallback path
+      const key = this.makeKey(type, domain);
+      const entry = this.fallback?.get(key);
+      if (!entry) return undefined;
+      if (ttlMs !== undefined && Date.now() - entry.timestamp > ttlMs) {
+        this.fallback?.delete(key);
+        return undefined;
+      }
+      debug(`Cache hit (fallback) for ${key}`);
+      return entry.response;
+    }
     const key = this.makeKey(type, domain);
     try {
       const row = database
@@ -78,7 +103,26 @@ export class RequestCache {
     const enabled = cacheOpts.enabled ?? requestCache.enabled;
     if (!enabled) return;
     const database = await this.init();
-    if (!database) return;
+    if (!database) {
+      const key = this.makeKey(type, domain);
+      this.fallback = this.fallback || new Map();
+      this.fallback.set(key, { response, timestamp: Date.now() });
+      const max = settings.requestCache.maxEntries;
+      if (max && max > 0 && this.fallback.size > max) {
+        // Evict oldest by timestamp
+        let oldestKey: string | null = null;
+        let oldestTs = Infinity;
+        for (const [k, v] of this.fallback.entries()) {
+          if (v.timestamp < oldestTs) {
+            oldestTs = v.timestamp;
+            oldestKey = k;
+          }
+        }
+        if (oldestKey) this.fallback.delete(oldestKey);
+        debug(`Evicted oldest cache entry (fallback)`);
+      }
+      return;
+    }
     const key = this.makeKey(type, domain);
     try {
       database
@@ -110,7 +154,11 @@ export class RequestCache {
     const enabled = cacheOpts.enabled ?? requestCache.enabled;
     if (!enabled) return;
     const database = await this.init();
-    if (!database) return;
+    if (!database) {
+      const key = this.makeKey(type, domain);
+      this.fallback?.delete(key);
+      return;
+    }
     const key = this.makeKey(type, domain);
     try {
       database.prepare('DELETE FROM cache WHERE key = ?').run(key);
@@ -124,7 +172,19 @@ export class RequestCache {
     const { requestCache } = settings;
     if (!requestCache.enabled) return 0;
     const database = await this.init();
-    if (!database) return 0;
+    if (!database) {
+      if (!this.fallback) return 0;
+      const threshold = Date.now() - settings.requestCache.ttl * 1000;
+      let removed = 0;
+      for (const [k, v] of [...this.fallback.entries()]) {
+        if (v.timestamp <= threshold) {
+          this.fallback.delete(k);
+          removed++;
+        }
+      }
+      debug(`Purged ${removed} expired entries (fallback)`);
+      return removed;
+    }
     try {
       const threshold = Date.now() - requestCache.ttl * 1000;
       const res = database.prepare('DELETE FROM cache WHERE timestamp <= ?').run(threshold);
@@ -140,7 +200,10 @@ export class RequestCache {
     const { requestCache } = settings;
     if (!requestCache.enabled) return;
     const database = await this.init();
-    if (!database) return;
+    if (!database) {
+      this.fallback?.clear();
+      return;
+    }
     try {
       database.prepare('DELETE FROM cache').run();
       debug('Cleared all cache entries');

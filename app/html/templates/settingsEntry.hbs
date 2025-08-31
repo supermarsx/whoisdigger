@@ -1,13 +1,15 @@
-<h4 class='title is-4 has-text-centered'>{{t 'settings_heading'}}</h4>
-<h5>
+<h4 class='title is-4'>{{t 'settings_heading'}}</h4>
+<p class='mb-2'>
   {{t 'settings_desc_1'}}<br />
   {{t 'settings_desc_2'}}
-</h5>
+</p>
+<p class='mb-3 is-size-7'>{{t 'settings_extensive_desc'}}</p>
 <hr />
 <p id='settings-not-loaded' class='has-text-warning is-hidden'>
   {{t 'settings_not_loaded'}}
 </p>
-<table id='configStats' class='table is-narrow is-fullwidth mb-2'>
+<h5 class='title is-5'>{{t 'config_statistics'}}</h5>
+<table id='configStats' class='table is-narrow is-fullwidth has-text-left mb-2'>
   <tbody>
     <tr>
       <th>{{t 'config_file_path'}}</th>
@@ -39,15 +41,50 @@
     </tr>
   </tbody>
 </table>
-<div id='opActions' class='field is-grouped is-grouped-multiline mb-2'>
+<div id='opSearchGroup' class='field is-grouped is-grouped-multiline mb-2'>
   <p class='control has-icons-left is-expanded'>
     <input
       id='opSearch'
       class='input is-small'
       type='text'
-        placeholder='{{t "search_settings_placeholder"}}'
+      placeholder='{{t "search_settings_placeholder"}}'
     />
     <span class='icon is-small is-left'><i class='fas fa-search'></i></span>
+  </p>
+</div>
+
+<h5 class='title is-5'>{{t 'profile_management'}}</h5>
+<div id='opProfilesGroup' class='field is-grouped is-grouped-multiline mb-2'>
+  <p class='control'>
+    <label for='opProfileSelect' class='label is-small'>{{t 'profiles_select_label'}}</label>
+  </p>
+  <p class='control'>
+    <div class='select is-small is-fullwidth'>
+      <select id='opProfileSelect'></select>
+    </div>
+  </p>
+  <p class='control'>
+    <label for='opProfileName' class='label is-small'>{{t 'profiles_name_label'}}</label>
+    <input id='opProfileName' class='input is-small' type='text' placeholder='{{t "profiles_name_placeholder"}}' />
+  </p>
+  <p class='control'>
+    <button id='opProfileCreate' class='button is-small is-info'>{{t 'profiles_new'}}</button>
+  </p>
+  <p class='control'>
+    <button id='opProfileRename' class='button is-small is-warning'>{{t 'profiles_rename'}}</button>
+  </p>
+  <p class='control'>
+    <button id='opProfileDelete' class='button is-small is-danger'>{{t 'profiles_delete'}}</button>
+  </p>
+  <p class='control'>
+    <button id='opProfileSet' class='button is-small is-success'>{{t 'profiles_set_current'}}</button>
+  </p>
+</div>
+
+<h5 class='title is-5'>{{t 'config_file_management'}}</h5>
+<div id='opConfigActionsGroup' class='field is-grouped is-grouped-multiline mb-2'>
+  <p class='control'>
+    <input id='opConfigName' class='input is-small' type='text' placeholder='{{t "config_name_placeholder"}}' />
   </p>
   <p class='control'>
     <button id='restoreDefaults' class='button is-small is-danger'>{{t 'restore_defaults'}}</button>
@@ -59,6 +96,29 @@
     <button id='saveConfig' class='button is-small is-success'>{{t 'save'}}</button>
   </p>
   <p class='control'>
+    <button id='deleteConfig' class='button is-small is-danger'>{{t 'delete_config'}}</button>
+  </p>
+</div>
+
+<h5 class='title is-5'>{{t 'data_management'}}</h5>
+<div id='opDataGroup' class='field is-grouped is-grouped-multiline mb-2'>
+  <p class='control'>
+    <button id='opConfigExport' class='button is-small is-info'>{{t 'config_export'}}</button>
+  </p>
+  <p class='control'>
+    <button id='opConfigImport' class='button is-small is-info'>{{t 'config_import'}}</button>
+  </p>
+  <p class='control'>
+    <button id='opProfileExport' class='button is-small is-info'>{{t 'profiles_export'}}</button>
+  </p>
+  <p class='control'>
+    <button id='opProfileImport' class='button is-small is-info'>{{t 'profiles_import'}}</button>
+  </p>
+</div>
+
+<h5 class='title is-5'>{{t 'app_controls'}}</h5>
+<div id='opAppActionsGroup' class='field is-grouped is-grouped-multiline mb-2'>
+  <p class='control'>
     <button id='openDataFolder' class='button is-small is-info'>{{t 'open_data_folder'}}</button>
   </p>
   <p class='control'>
@@ -67,29 +127,13 @@
   <p class='control'>
     <button id='reloadApp' class='button is-small is-warning'>{{t 'reload_app'}}</button>
   </p>
-  <p class='control'>
-    <button id='deleteConfig' class='button is-small is-danger'>{{t 'delete_config'}}</button>
-  </p>
+  
 </div>
 <p id='opSearchNoResults' class='has-text-centered is-hidden'>
   {{t 'no_config_found'}}
 </p>
+<h5 class='title is-5 mt-4'>{{t 'app_configs'}}</h5>
 <table id='opTable' class='table is-striped is-hoverable is-fullwidth has-text-left'></table>
-<h4 class='title is-4 mt-5'>{{t 'history_heading'}}</h4>
-<table id='historyTable' class='table is-striped is-hoverable is-fullwidth has-text-left'>
-  <thead>
-    <tr>
-      <th>Domain</th>
-      <th>Status</th>
-      <th>Timestamp</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
-<p id='historyEmpty' class='has-text-centered is-hidden'>{{t 'history_empty'}}</p>
-<p class='control'>
-  <button id='clearHistory' class='button is-small is-danger'>{{t 'clear_history'}}</button>
-</p>
 <button id='settingsBackToTop' class='button is-info is-small back-to-top'>
   <span class='icon is-small'>
     <i class='fas fa-arrow-up'></i>

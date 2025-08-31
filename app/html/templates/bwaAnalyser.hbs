@@ -14,21 +14,55 @@
   </div>
 </div>
 
-<table id='bwaAnalyserTable' class='table is-fullwidth is-hoverable is-striped is-narrow'>
-  <thead id='bwaAnalyserTableThead'>
-    <!-- Table header containing all applicable fields -->
-  </thead>
-  <tfoot id='bwaAnalyserTableTfoot'>
-    <!-- Table footer containing all applicable fields -->
-  </tfoot>
-  <tbody id='bwaAnalyserTableTbody'>
-    <!-- Table body containing every csv record -->
-  </tbody>
-</table>
-
-<a id='bwaAnalyserButtonClose' class='button is-medium is-warning'>
-  <span class='icon is-small'>
-    <i class='fas fa-door-closed'></i>
-  </span>
-  <span>Close session</span>
-</a>
+<div class='box'>
+  <div class='tabs is-small'>
+    <ul>
+      <li id='bwaTabTable' class='is-active'><a>{{t 'bwa_tab_table'}}</a></li>
+      <li id='bwaTabMonitor'><a>{{t 'bwa_tab_monitor'}}</a></li>
+    </ul>
+  </div>
+  <div id='bwaAnalyserTabTable'>
+    <table id='bwaAnalyserTable' class='table is-fullwidth is-hoverable is-striped is-narrow'>
+      <thead id='bwaAnalyserTableThead'>
+        <!-- Table header containing all applicable fields -->
+      </thead>
+      <tfoot id='bwaAnalyserTableTfoot'>
+        <!-- Table footer containing all applicable fields -->
+      </tfoot>
+      <tbody id='bwaAnalyserTableTbody'>
+        <!-- Table body containing every csv record -->
+      </tbody>
+    </table>
+  </div>
+  <div id='bwaAnalyserTabMonitor' class='is-hidden'>
+    <div class='field is-grouped is-grouped-multiline'>
+      <p class='control is-expanded'>
+        <input id='monDomain' class='input is-small' type='text' placeholder='{{t "monitor_add_domain_placeholder"}}' />
+      </p>
+      <p class='control'>
+        <button id='monAdd' class='button is-small is-info'>{{t 'add'}}</button>
+      </p>
+      <p class='control'>
+        <button id='monStart' class='button is-small is-success'>{{t 'start'}}</button>
+      </p>
+      <p class='control'>
+        <button id='monStop' class='button is-small is-warning'>{{t 'stop'}}</button>
+      </p>
+      <p class='control'>
+        <input id='monInterval' class='input is-small' type='number' min='5000' step='1000' placeholder='{{t "monitor_interval_placeholder"}}' />
+      </p>
+    </div>
+    <table id='monTable' class='table is-fullwidth is-striped is-narrow'>
+      <thead>
+        <tr><th>{{t 'domain'}}</th><th>{{t 'status'}}</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <a id='bwaAnalyserButtonClose' class='button is-medium is-warning'>
+    <span class='icon is-small'>
+      <i class='fas fa-door-closed'></i>
+    </span>
+    <span>{{t 'close_session'}}</span>
+  </a>
+</div>

@@ -36,6 +36,15 @@ qs('#navButtonDevtools')?.addEventListener('click', () => {
   debug('#navButtonDevtools was clicked');
 });
 
+// Show/hide Dev Tools button based on settings
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = qs('#navButtonDevtools');
+  if (btn) {
+    const show = !!settings.appWindowNavigation?.developerTools;
+    btn.classList.toggle('is-hidden', !show);
+  }
+});
+
 /*
   $('section.tabs ul li').click(function() {...});
     On click: Toggle between tabs

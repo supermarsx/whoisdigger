@@ -2,7 +2,7 @@ import Database from 'better-sqlite3';
 import type { Database as DatabaseType } from 'better-sqlite3';
 import fs from 'fs';
 import path from 'path';
-import { getUserDataPath } from './settings.js';
+import { getUserDataPath, settings } from './settings.js';
 import { debugFactory } from './logger.js';
 
 const debug = debugFactory('common.history');
@@ -38,7 +38,7 @@ function saveJson(): void {
 function init(): DatabaseType | undefined {
   if (db || useJsonFallback) return db;
   const baseDir = path.resolve(getUserDataPath());
-  const fileName = process.env.HISTORY_DB_PATH || 'history.sqlite';
+  const fileName = (settings as any)?.database?.historyName || process.env.HISTORY_DB_PATH || 'history-default.sqlite';
   const dbPath = path.resolve(baseDir, fileName);
   if (dbPath !== baseDir && !dbPath.startsWith(baseDir + path.sep)) {
     debug(`Invalid history database path: ${fileName}`);
