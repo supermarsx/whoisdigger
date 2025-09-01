@@ -23,7 +23,9 @@ afterEach(() => {
 });
 
 test('handles empty dataset without errors', async () => {
-  const dtMock = jest.fn();
+  const dtMock = Object.assign(jest.fn(), {
+    isDataTable: jest.fn().mockReturnValue(false)
+  });
   (window as any).DataTable = dtMock;
   await renderAnalyser({ data: [] });
   expect(document.querySelector('#bwaAnalyserTableThead')!.children.length).toBe(0);
@@ -32,15 +34,31 @@ test('handles empty dataset without errors', async () => {
   expect(document.querySelector('#bwaFileinputconfirm')!.classList.contains('is-hidden')).toBe(
     true
   );
+  expect(dtMock.isDataTable).toHaveBeenCalledWith('#bwaAnalyserTable');
   expect(dtMock).not.toHaveBeenCalled();
 });
 
+test('destroys existing DataTable when dataset becomes empty', async () => {
+  const destroyMock = jest.fn();
+  const dtMock = Object.assign(jest.fn().mockReturnValue({ destroy: destroyMock }), {
+    isDataTable: jest.fn().mockReturnValue(true)
+  });
+  (window as any).DataTable = dtMock;
+  await renderAnalyser({ data: [] });
+  expect(dtMock.isDataTable).toHaveBeenCalledWith('#bwaAnalyserTable');
+  expect(dtMock).toHaveBeenCalledWith('#bwaAnalyserTable');
+  expect(destroyMock).toHaveBeenCalled();
+});
+
 test('escapes html values in table', async () => {
-  const dtMock = jest.fn();
+  const dtMock = Object.assign(jest.fn(), {
+    isDataTable: jest.fn().mockReturnValue(false)
+  });
   (window as any).DataTable = dtMock;
   await renderAnalyser({ data: [{ name: '<b>bold</b>' }] });
   const cell = document.querySelector('#bwaAnalyserTableTbody td')!;
   expect(cell.textContent).toBe('<b>bold</b>');
   expect(cell.innerHTML).toBe('&lt;b&gt;bold&lt;/b&gt;');
+  expect(dtMock.isDataTable).toHaveBeenCalledWith('#bwaAnalyserTable');
   expect(dtMock).toHaveBeenCalledTimes(1);
 });

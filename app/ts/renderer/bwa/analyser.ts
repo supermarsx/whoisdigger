@@ -57,6 +57,11 @@ void on('click', '#bwaAnalyserModalCloseButtonNo', () => {
 async function showTable() {
   const records = Array.isArray(bwaFileContents?.data) ? bwaFileContents.data : [];
 
+  const DT = (window as any).DataTable;
+  if (typeof DT === 'function' && DT.isDataTable?.('#bwaAnalyserTable')) {
+    DT('#bwaAnalyserTable').destroy();
+  }
+
   const thead = qs('#bwaAnalyserTableThead')!;
   const tbody = qs('#bwaAnalyserTableTbody')!;
   thead.textContent = '';
@@ -88,9 +93,8 @@ async function showTable() {
 
   qs('#bwaFileinputconfirm')!.classList.add('is-hidden');
   qs('#bwaAnalyser')!.classList.remove('is-hidden');
-  const DT = (window as any).DataTable;
   if (typeof DT === 'function' && records.length > 0) {
-    new DT('#bwaAnalyserTable', { destroy: true });
+    new DT('#bwaAnalyserTable');
   }
 }
 
