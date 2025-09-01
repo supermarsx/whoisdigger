@@ -19,4 +19,9 @@ describe('resolveUserDataPath', () => {
     const result = resolveUserDataPath(path.join('..', 'trav.json'));
     expect(result).toBe(path.join(base, 'trav.json'));
   });
+
+  test('rejects paths ending with traversal segments', () => {
+    expect(() => resolveUserDataPath('..')).toThrow();
+    expect(() => resolveUserDataPath(path.join('foo', '..'))).toThrow();
+  });
 });

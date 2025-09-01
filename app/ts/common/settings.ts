@@ -26,9 +26,15 @@ export function getUserDataPath(): string {
 }
 
 export function resolveUserDataPath(filepath: string): string {
-  const target = path.resolve(getUserDataPath(), filepath);
-  if (!target.startsWith(userDataPath + path.sep)) {
-    return path.join(userDataPath, path.basename(filepath));
+  const base = getUserDataPath();
+  const target = path.resolve(base, filepath);
+  if (!target.startsWith(base + path.sep)) {
+    const name = path.basename(filepath);
+    const sanitized = path.resolve(base, name);
+    if (name === '.' || name === '..' || !sanitized.startsWith(base + path.sep)) {
+      throw new Error('Invalid path');
+    }
+    return sanitized;
   }
   return target;
 }
