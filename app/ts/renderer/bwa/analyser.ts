@@ -1,4 +1,3 @@
-import * as conversions from '../../common/conversions.js';
 import { qs, on } from '../../utils/dom.js';
 // jQuery and DataTables are loaded globally via renderer/index.ts
 
@@ -9,8 +8,6 @@ const electron = (window as any).electron as RendererElectronAPI;
 
 const debug = debugFactory('renderer.bwa.analyser');
 debug('loaded');
-
-import { formatString } from '../../common/stringformat.js';
 
 let bwaFileContents: any;
 
@@ -58,35 +55,36 @@ void on('click', '#bwaAnalyserModalCloseButtonNo', () => {
     ipsum
  */
 async function showTable() {
-  const header: Record<string, any> = {},
-    body: Record<string, any> = {};
-  header.columns = Object.keys(bwaFileContents.data[0]);
-  body.records = bwaFileContents.data;
+  const records = Array.isArray(bwaFileContents?.data) ? bwaFileContents.data : [];
 
-  // Generate header column content
-  header.content = '<tr>\n';
-  for (const column of header.columns) {
-    header.content += formatString(
-      '\t<th><abbr title="{0}">{1}</abbr></th>\n',
-      column,
-      getInitials(column)
-    );
-  }
-  header.content += '</tr>';
+  const thead = qs('#bwaAnalyserTableThead')!;
+  const tbody = qs('#bwaAnalyserTableTbody')!;
+  thead.textContent = '';
+  tbody.textContent = '';
 
-  qs('#bwaAnalyserTableThead')!.innerHTML = header.content;
-
-  // Generate record fields
-  body.content = '';
-  for (const record of body.records) {
-    body.content += '<tr>\n';
-
-    for (const value of Object.values(record)) {
-      body.content += formatString('\t<td>{0}</td>\n', value);
+  if (records.length > 0) {
+    const columns = Object.keys(records[0]);
+    const headerRow = document.createElement('tr');
+    for (const column of columns) {
+      const th = document.createElement('th');
+      const abbr = document.createElement('abbr');
+      abbr.title = column;
+      abbr.textContent = getInitials(column);
+      th.appendChild(abbr);
+      headerRow.appendChild(th);
     }
-    body.content += '</tr>\n';
+    thead.appendChild(headerRow);
+
+    for (const record of records) {
+      const row = document.createElement('tr');
+      for (const value of Object.values(record)) {
+        const td = document.createElement('td');
+        td.textContent = String(value);
+        row.appendChild(td);
+      }
+      tbody.appendChild(row);
+    }
   }
-  qs('#bwaAnalyserTableTbody')!.innerHTML = body.content;
 
   qs('#bwaFileinputconfirm')!.classList.add('is-hidden');
   qs('#bwaAnalyser')!.classList.remove('is-hidden');
@@ -94,8 +92,6 @@ async function showTable() {
   if (typeof DT === 'function') {
     new DT('#bwaAnalyserTable', { destroy: true });
   }
-
-  return;
 }
 
 /*
