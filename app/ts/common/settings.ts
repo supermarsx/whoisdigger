@@ -19,11 +19,18 @@ import { ZodError } from 'zod';
 const debug = debugFactory('common.settings');
 
 const baseDir = dirnameCompat();
-
-const userDataPath = path.join(baseDir, '..', '..', 'data');
+const userDataPath = path.resolve(baseDir, '..', '..', 'data');
 
 export function getUserDataPath(): string {
   return userDataPath;
+}
+
+export function resolveUserDataPath(filepath: string): string {
+  const target = path.resolve(getUserDataPath(), filepath);
+  if (!target.startsWith(userDataPath + path.sep)) {
+    return path.join(userDataPath, path.basename(filepath));
+  }
+  return target;
 }
 
 function getCustomConfiguration(): { filepath: string; load: boolean; save: boolean } {
@@ -32,7 +39,7 @@ function getCustomConfiguration(): { filepath: string; load: boolean; save: bool
 
 function getConfigFile(): string {
   const { filepath } = getCustomConfiguration();
-  return path.join(getUserDataPath(), filepath);
+  return resolveUserDataPath(filepath);
 }
 
 /*
@@ -46,7 +53,7 @@ export async function load(): Promise<Settings> {
 
   if (configuration && configuration.load) {
     try {
-      const filePath = path.join(getUserDataPath(), configuration.filepath);
+      const filePath = resolveUserDataPath(configuration.filepath);
       const raw = await fs.promises.readFile(filePath, 'utf8');
       try {
         const parsed = JSON.parse(raw) as Partial<Settings>;
@@ -108,7 +115,7 @@ export async function save(newSettings: Settings): Promise<string | Error | unde
   try {
     const validated = validateSettings(newSettings);
     if (configuration && configuration.save) {
-      const filePath = path.join(getUserDataPath(), configuration.filepath);
+      const filePath = resolveUserDataPath(configuration.filepath);
       await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
       await fs.promises.writeFile(filePath, JSON.stringify(validated, null, 2));
       debug(`Saved custom configuration at ${filePath}`);
