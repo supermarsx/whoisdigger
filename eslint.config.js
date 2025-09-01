@@ -38,7 +38,8 @@ export default [
       'no-fallthrough': 'off',
       'no-prototype-builtins': 'off',
       'no-control-regex': 'off',
-      'no-useless-escape': 'off'
+      'no-useless-escape': 'off',
+      'no-empty': ['error', { allowEmptyCatch: true }]
     }
   }
 ];
