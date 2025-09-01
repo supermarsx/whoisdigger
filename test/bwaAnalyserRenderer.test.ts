@@ -19,9 +19,12 @@ beforeEach(() => {
 
 afterEach(() => {
   delete (window as any).electron;
+  delete (window as any).DataTable;
 });
 
 test('handles empty dataset without errors', async () => {
+  const dtMock = jest.fn();
+  (window as any).DataTable = dtMock;
   await renderAnalyser({ data: [] });
   expect(document.querySelector('#bwaAnalyserTableThead')!.children.length).toBe(0);
   expect(document.querySelector('#bwaAnalyserTableTbody')!.children.length).toBe(0);
@@ -29,11 +32,15 @@ test('handles empty dataset without errors', async () => {
   expect(document.querySelector('#bwaFileinputconfirm')!.classList.contains('is-hidden')).toBe(
     true
   );
+  expect(dtMock).not.toHaveBeenCalled();
 });
 
 test('escapes html values in table', async () => {
+  const dtMock = jest.fn();
+  (window as any).DataTable = dtMock;
   await renderAnalyser({ data: [{ name: '<b>bold</b>' }] });
   const cell = document.querySelector('#bwaAnalyserTableTbody td')!;
   expect(cell.textContent).toBe('<b>bold</b>');
   expect(cell.innerHTML).toBe('&lt;b&gt;bold&lt;/b&gt;');
+  expect(dtMock).toHaveBeenCalledTimes(1);
 });

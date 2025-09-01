@@ -89,7 +89,7 @@ async function showTable() {
   qs('#bwaFileinputconfirm')!.classList.add('is-hidden');
   qs('#bwaAnalyser')!.classList.remove('is-hidden');
   const DT = (window as any).DataTable;
-  if (typeof DT === 'function') {
+  if (typeof DT === 'function' && records.length > 0) {
     new DT('#bwaAnalyserTable', { destroy: true });
   }
 }
