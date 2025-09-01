@@ -13,6 +13,7 @@ import {
   setSettings,
   load as baseLoad,
   save as baseSave,
+  resolveUserDataPath,
   type Settings
 } from '../common/settings.js';
 
@@ -27,7 +28,7 @@ function getCustomConfiguration() {
 
 function getConfigFile(): string {
   const { filepath } = getCustomConfiguration();
-  return path.join(getUserDataPath(), filepath);
+  return resolveUserDataPath(filepath);
 }
 
 function watchConfig(): void {
@@ -119,7 +120,7 @@ if (ipcMain && typeof ipcMain.handle === 'function') {
   });
 
   ipcMain.handle('config:delete', (_e, filePath: string) => {
-    return fs.promises.unlink(filePath);
+    return fs.promises.unlink(resolveUserDataPath(filePath));
   });
 }
 export {
