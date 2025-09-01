@@ -70,7 +70,7 @@
     "idna-uts46": "^1.1.0",
     "jszip": "^3.10.1",
     "node-fetch": "^3.3.2",
-    "p-limit": "^6.2.0",
+    "p-limit": "^7.1.1",
     "papaparse": "^5.5.3",
     "psl": "^1.15.0",
     "punycode": "^2.3.1",
