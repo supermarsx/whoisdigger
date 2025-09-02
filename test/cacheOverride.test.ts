@@ -18,6 +18,10 @@ describe('cache override', () => {
     settings.requestCache.ttl = 60;
   });
 
+  beforeEach(async () => {
+    await requestCache.clear();
+  });
+
   afterAll(() => {
     // ensure DB is not locked on Windows
     settings.requestCache.enabled = false;
@@ -51,6 +55,7 @@ describe('cache override', () => {
       cb(null, 'DATA');
     });
     await lookup('ttl.com', undefined, { ttl: 0 });
+    await new Promise((r) => setTimeout(r, 1));
     await lookup('ttl.com', undefined, { ttl: 0 });
     expect(spy).toHaveBeenCalledTimes(2);
     spy.mockRestore();
@@ -59,6 +64,7 @@ describe('cache override', () => {
   test('dns lookup ttl override forces refresh', async () => {
     const spy = jest.spyOn(dns, 'resolve').mockResolvedValue(['ns1']);
     await nsLookup('ttl.com', { ttl: 0 });
+    await new Promise((r) => setTimeout(r, 1));
     await nsLookup('ttl.com', { ttl: 0 });
     expect(spy).toHaveBeenCalledTimes(2);
     spy.mockRestore();
