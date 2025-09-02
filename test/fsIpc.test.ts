@@ -7,10 +7,13 @@ const mockReadFile = jest.fn();
 const mockStat = jest.fn();
 const watchCallbacks: Array<(ev: string, filename: string) => void> = [];
 const watchCloseMocks: jest.Mock[] = [];
+const watchers: Array<EventEmitter & { close: jest.Mock }> = [];
 const mockWatch = jest.fn(
   (path: string, opts: fs.WatchOptions, cb: (ev: string, filename: string) => void) => {
     watchCallbacks.push(cb);
-    const watcher = { close: jest.fn() } as any;
+    const watcher = new EventEmitter() as EventEmitter & { close: jest.Mock };
+    watcher.close = jest.fn();
+    watchers.push(watcher);
     watchCloseMocks.push(watcher.close);
     return watcher;
   }
@@ -51,6 +54,7 @@ describe('fsIpc handlers', () => {
     mockWatch.mockClear();
     watchCallbacks.length = 0;
     watchCloseMocks.length = 0;
+    watchers.length = 0;
   });
 
   test('fs:readFile calls fs.promises.readFile', async () => {
@@ -114,5 +118,20 @@ describe('fsIpc handlers', () => {
 
     expect(watchCloseMocks[0]).toHaveBeenCalled();
     expect(watchCloseMocks[1]).toHaveBeenCalled();
+  });
+
+  test('watcher is disposed on error', async () => {
+    const watchHandler = getHandler('fs:watch');
+    const unwatchHandler = getHandler('fs:unwatch');
+    const sender = new EventEmitter() as any;
+    sender.send = jest.fn();
+
+    const id = await watchHandler({ sender } as any, 'pref', '/tmp/file', {});
+    watchers[0].emit('error', new Error('fail'));
+    expect(watchCloseMocks[0]).toHaveBeenCalled();
+
+    watchCloseMocks[0].mockClear();
+    await unwatchHandler({}, id);
+    expect(watchCloseMocks[0]).not.toHaveBeenCalled();
   });
 });

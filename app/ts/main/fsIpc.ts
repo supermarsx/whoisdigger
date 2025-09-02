@@ -2,12 +2,14 @@ import { app, ipcMain } from 'electron';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { IpcChannel } from '../common/ipcChannels.js';
+import { debugFactory } from '../common/logger.js';
 import { handle } from './ipc.js';
 
 type ReadFileOpts = BufferEncoding | fs.ReadFileOptions;
 type ReaddirOpts = fs.ReaddirOptions | BufferEncoding | undefined;
 
-const watchers = new Map<number, fs.FSWatcher>();
+const debug = debugFactory('main.fs');
+const watchers = new Map<number, { watcher: fs.FSWatcher; dispose: () => void }>();
 let watcherId = 0;
 
 function normalizePath(p: string): string {
@@ -22,10 +24,9 @@ function normalizePath(p: string): string {
 }
 
 export function cleanupWatchers() {
-  for (const watcher of watchers.values()) {
-    watcher.close();
+  for (const { dispose } of watchers.values()) {
+    dispose();
   }
-  watchers.clear();
 }
 
 app?.on('will-quit', cleanupWatchers);
@@ -71,20 +72,22 @@ ipcMain.handle('fs:watch', (e, prefix: string, p: string, opts?: fs.WatchOptions
   const watcher = fs.watch(normalizePath(p), opts || {}, (event, filename) => {
     sender.send(`fs:watch:${prefix}:${id}`, { event, filename });
   });
-  sender.once('destroyed', () => {
+  const dispose = () => {
+    sender.off('destroyed', dispose);
     watcher.close();
     watchers.delete(id);
+  };
+  watcher.on('error', (err) => {
+    debug(`Watcher error for ${p}: ${err}`);
+    dispose();
   });
-  watchers.set(id, watcher);
+  sender.on('destroyed', dispose);
+  watchers.set(id, { watcher, dispose });
   return id;
 });
 
 ipcMain.handle('fs:unwatch', (_e, id: number) => {
-  const watcher = watchers.get(id);
-  if (watcher) {
-    watcher.close();
-    watchers.delete(id);
-  }
+  watchers.get(id)?.dispose();
 });
 
 handle(IpcChannel.BwFileRead, async (_e, p: string) => {
