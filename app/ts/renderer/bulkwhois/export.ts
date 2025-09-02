@@ -1,7 +1,8 @@
-import * as conversions from '../../common/conversions.js';
 import defaultExportOptions from './export.defaults.js';
 import { debugFactory } from '../../common/logger.js';
 import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';
+import type { BulkWhoisResults } from '#main/bulkwhois/types';
+import type { ExportOptions } from '#main/bulkwhois/export-helpers';
 
 const electron = (window as any).electron as RendererElectronAPI;
 
@@ -12,17 +13,13 @@ function qs<T extends Element = HTMLElement>(sel: string): T | null {
   return document.querySelector(sel) as T | null;
 }
 
-function qsa<T extends Element = HTMLElement>(sel: string): T[] {
-  return Array.from(document.querySelectorAll(sel)) as T[];
-}
-import { resetObject } from '../../common/resetObject.js';
 import { getExportOptions, setExportOptions, setExportOptionsEx } from './auxiliary.js';
 
 import { formatString } from '../../common/stringformat.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
 
-let results: any;
-let options: any;
+let results: BulkWhoisResults | null = null;
+let options: ExportOptions = defaultExportOptions;
 
 /*
   electron.on('bulkwhois:result.receive', function(...) {...});
@@ -31,13 +28,16 @@ let options: any;
     event
     rcvResults
  */
-electron.on(IpcChannel.BulkwhoisResultReceive, function (_event: unknown, rcvResults: any) {
-  debug(formatString('Results are ready for export {0}', rcvResults));
+electron.on(
+  IpcChannel.BulkwhoisResultReceive,
+  function (_event: unknown, rcvResults: BulkWhoisResults) {
+    debug(formatString('Results are ready for export {0}', rcvResults));
 
-  results = rcvResults;
+    results = rcvResults;
 
-  return;
-});
+    return;
+  }
+);
 
 /*
   electron.on('bulkwhois:export.cancel', function() {...});
@@ -61,7 +61,7 @@ qs('#bwExportButtonExport')?.addEventListener('click', async () => {
     await new Promise((r) => setTimeout(r, 10));
   }
   try {
-    await electron.invoke(IpcChannel.BulkwhoisExport, results, options);
+    await electron.invoke(IpcChannel.BulkwhoisExport, results!, options);
   } catch (err) {
     const errText = qs('#bwExportErrorText');
     if (errText) errText.textContent = (err as Error).message;
