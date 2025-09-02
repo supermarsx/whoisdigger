@@ -1,7 +1,8 @@
 // In the renderer process we access IPC methods exposed from the preload script
 // via the `window.electron` bridge instead of importing from 'electron'.
 import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
-const { invoke } = (window as any).electron as RendererElectronAPI;
+import type { ProcessOptions } from '../common/tools.js';
+const { invoke } = (window as unknown as { electron: RendererElectronAPI }).electron;
 import { IpcChannel } from '../common/ipcChannels.js';
 import { debugFactory, errorFactory } from '../common/logger.js';
 
@@ -36,8 +37,8 @@ document.addEventListener('click', async (event) => {
   }
 });
 
-function collectOptions() {
-  const opts: any = {};
+function collectOptions(): ProcessOptions {
+  const opts: ProcessOptions = {};
   const prefixInput = document.querySelector<HTMLInputElement>('#toPrefix');
   const suffixInput = document.querySelector<HTMLInputElement>('#toSuffix');
   const prefix = prefixInput?.value ?? '';
