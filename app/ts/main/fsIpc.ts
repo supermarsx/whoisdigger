@@ -2,11 +2,13 @@ import { app, ipcMain } from 'electron';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { IpcChannel } from '../common/ipcChannels.js';
+import { debugFactory } from '../common/logger.js';
 import { handle } from './ipc.js';
 
 type ReadFileOpts = BufferEncoding | fs.ReadFileOptions;
 type ReaddirOpts = fs.ReaddirOptions | BufferEncoding | undefined;
 
+const debug = debugFactory('main.fs');
 const watchers = new Map<number, fs.FSWatcher>();
 let watcherId = 0;
 
@@ -71,10 +73,15 @@ ipcMain.handle('fs:watch', (e, prefix: string, p: string, opts?: fs.WatchOptions
   const watcher = fs.watch(normalizePath(p), opts || {}, (event, filename) => {
     sender.send(`fs:watch:${prefix}:${id}`, { event, filename });
   });
-  sender.once('destroyed', () => {
+  const dispose = () => {
     watcher.close();
     watchers.delete(id);
+  };
+  watcher.on('error', (err) => {
+    debug(`Watcher error for ${p}: ${err}`);
+    dispose();
   });
+  sender.once('destroyed', dispose);
   watchers.set(id, watcher);
   return id;
 });
