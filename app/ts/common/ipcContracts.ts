@@ -2,6 +2,8 @@ import type { IpcChannel } from './ipcChannels.js';
 import type DomainStatus from './status.js';
 import type { WhoisResult } from './availability.js';
 import type { ProcessOptions } from './tools.js';
+import type { BulkWhoisResults } from '#main/bulkwhois/types';
+import type { ExportOptions } from '#main/bulkwhois/export-helpers';
 
 /**
  * Mapping between IPC channels and their request/response payloads.
@@ -32,9 +34,9 @@ export interface IpcContracts {
     request: [string | string[] | null, boolean?];
     response: void;
   };
-  [IpcChannel.BulkwhoisResultReceive]: { request: [unknown]; response: void };
+  [IpcChannel.BulkwhoisResultReceive]: { request: [BulkWhoisResults]; response: void };
   [IpcChannel.BulkwhoisExport]: {
-    request: [any, any];
+    request: [BulkWhoisResults, ExportOptions];
     response: void;
   };
   [IpcChannel.BulkwhoisExportCancel]: { request: []; response: void };

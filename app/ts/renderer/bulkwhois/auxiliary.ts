@@ -1,4 +1,5 @@
 import { debugFactory } from '../../common/logger.js';
+import type { ExportOptions } from '#main/bulkwhois/export-helpers';
 
 const debug = debugFactory('bulkwhois.auxiliary');
 debug('loaded');
@@ -37,13 +38,13 @@ function tableReset(dLength = 0, tLength = 0) {
   getExportOptions
     Get export options after bulk whois processing is finished
  */
-function getExportOptions() {
+function getExportOptions(): ExportOptions {
   return {
-    filetype: (qs('#bwExportSelectFiletype') as HTMLSelectElement | null)?.value,
-    domains: (qs('#bwExportSelectDomains') as HTMLSelectElement | null)?.value,
-    errors: (qs('#bwExportSelectErrors') as HTMLSelectElement | null)?.value,
-    information: (qs('#bwExportSelectInformation') as HTMLSelectElement | null)?.value,
-    whoisreply: (qs('#bwExportSelectReply') as HTMLSelectElement | null)?.value
+    filetype: (qs('#bwExportSelectFiletype') as HTMLSelectElement | null)?.value ?? '',
+    domains: (qs('#bwExportSelectDomains') as HTMLSelectElement | null)?.value ?? '',
+    errors: (qs('#bwExportSelectErrors') as HTMLSelectElement | null)?.value ?? '',
+    information: (qs('#bwExportSelectInformation') as HTMLSelectElement | null)?.value ?? '',
+    whoisreply: (qs('#bwExportSelectReply') as HTMLSelectElement | null)?.value ?? ''
   };
 }
 
