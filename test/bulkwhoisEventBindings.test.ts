@@ -1,12 +1,22 @@
 /** @jest-environment jsdom */
 import jQuery from 'jquery';
-import { bindProcessingEvents } from '../app/ts/renderer/bulkwhois/event-bindings';
+import {
+  bindProcessingEvents,
+  BwProcessingElectron
+} from '../app/ts/renderer/bulkwhois/event-bindings';
 import { IpcChannel } from '../app/ts/common/ipcChannels';
 
 describe('event bindings', () => {
   test('pause button toggles state', () => {
-    const sendMock = jest.fn();
-    const electron = { send: sendMock } as any;
+    const sendMock: jest.Mock<
+      void,
+      [
+        | IpcChannel.BulkwhoisLookupContinue
+        | IpcChannel.BulkwhoisLookupPause
+        | IpcChannel.BulkwhoisLookupStop
+      ]
+    > = jest.fn();
+    const electron: BwProcessingElectron = { send: sendMock };
     document.body.innerHTML = `
       <button id="bwProcessingButtonPause" class="is-success">
         <i id="bwProcessingButtonPauseicon" class="fa-pause"></i>

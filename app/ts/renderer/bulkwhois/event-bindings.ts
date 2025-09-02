@@ -1,12 +1,19 @@
 import { qs, on } from '../../utils/dom.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
 import { debugFactory } from '../../common/logger.js';
+import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';
 
 const debug = debugFactory('bulkwhois.events');
 
-export function bindProcessingEvents(electron: {
-  send: (channel: string, ...args: any[]) => void;
-}): void {
+type BwProcessingChannels = {
+  [IpcChannel.BulkwhoisLookupContinue]: [];
+  [IpcChannel.BulkwhoisLookupPause]: [];
+  [IpcChannel.BulkwhoisLookupStop]: [];
+};
+
+export type BwProcessingElectron = Pick<RendererElectronAPI<BwProcessingChannels>, 'send'>;
+
+export function bindProcessingEvents(electron: BwProcessingElectron): void {
   void on('click', '#bwProcessingButtonPause', () => {
     const searchStatus = qs('#bwProcessingButtonPauseSpanText')?.textContent ?? '';
     switch (searchStatus) {
