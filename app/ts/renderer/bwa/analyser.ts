@@ -73,7 +73,7 @@ async function showTable() {
     for (const column of columns) {
       const th = document.createElement('th');
       const abbr = document.createElement('abbr');
-      abbr.title = column;
+      abbr.setAttribute('title', String(column));
       abbr.textContent = getInitials(column);
       th.appendChild(abbr);
       headerRow.appendChild(th);
@@ -84,7 +84,7 @@ async function showTable() {
       const row = document.createElement('tr');
       for (const value of Object.values(record)) {
         const td = document.createElement('td');
-        td.textContent = String(value);
+        td.textContent = value == null ? '' : String(value);
         row.appendChild(td);
       }
       tbody.appendChild(row);
