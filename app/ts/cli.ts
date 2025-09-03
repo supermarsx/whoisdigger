@@ -151,7 +151,7 @@ export async function lookupDomains(opts: CliOptions): Promise<WhoisResult[]> {
     settings.lookupProxy.single = opts.proxy;
   }
 
-  let domains: string[] = opts.domains;
+  let domains: string[] = [...opts.domains];
   if (opts.wordlist) {
     for await (const line of readLines(opts.wordlist)) {
       const word = line.trim();
@@ -161,6 +161,8 @@ export async function lookupDomains(opts: CliOptions): Promise<WhoisResult[]> {
       }
     }
   }
+
+  domains = Array.from(new Set(domains));
 
   const report =
     opts.progress && domains.length > 0 ? createProgressRenderer(domains.length) : undefined;

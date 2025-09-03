@@ -202,6 +202,24 @@ describe('cli utility', () => {
     fs.unlinkSync(wl);
   });
 
+  test('lookupDomains does not mutate input domains and skips duplicates', async () => {
+    mockLookup.mockClear();
+    const wl = path.join(__dirname, 'wl_dup.txt');
+    fs.writeFileSync(wl, 'dup\ndup');
+    mockLookup.mockResolvedValue('data');
+    const opts: CliOptions = {
+      domains: ['dup.com', 'dup.com'],
+      tlds: ['com'],
+      wordlist: wl,
+      format: 'txt'
+    };
+    const originalDomains = [...opts.domains];
+    await lookupDomains(opts);
+    expect(opts.domains).toEqual(originalDomains);
+    expect(mockLookup).toHaveBeenCalledTimes(1);
+    fs.unlinkSync(wl);
+  });
+
   test('lookupDomains enforces concurrency limit with many domains', async () => {
     mockLookup.mockClear();
     let active = 0;
