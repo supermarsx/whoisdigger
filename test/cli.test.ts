@@ -329,6 +329,41 @@ describe('cli utility', () => {
     fs.unlinkSync(file);
   });
 
+  test.each(['csv', 'json', 'zip', 'txt'])(
+    'exportResults writes %s to nested directories',
+    async (format) => {
+      const base = path.join(__dirname, `nested_${format}`, 'dir');
+      const ext = format === 'txt' ? 'txt' : format;
+      const file = path.join(base, `out.${ext}`);
+      await fs.promises.rm(path.join(__dirname, `nested_${format}`), {
+        recursive: true,
+        force: true
+      });
+      await exportResults(
+        [
+          {
+            domain: 'example.com',
+            status: 'available',
+            registrar: 'reg',
+            company: 'comp',
+            creationDate: 'c',
+            updateDate: 'u',
+            expiryDate: 'e',
+            whoisreply: 'r',
+            whoisJson: {}
+          }
+        ],
+        { domains: [], tlds: ['com'], format: format as CliOptions['format'], out: file }
+      );
+      const stat = await fs.promises.stat(file);
+      expect(stat.isFile()).toBe(true);
+      await fs.promises.rm(path.join(__dirname, `nested_${format}`), {
+        recursive: true,
+        force: true
+      });
+    }
+  );
+
   test('parseArgs requires domain or wordlist', () => {
     expect(() => parseArgs([])).toThrow('Either --domain or --wordlist must be provided');
   });

@@ -228,6 +228,7 @@ export async function exportResults(results: WhoisResult[], opts: CliOptions): P
           .join(lookupExport.separator)
       );
       const content = [header.join(lookupExport.separator), ...lines].join(lookupExport.linebreak);
+      await fs.promises.mkdir(path.dirname(file), { recursive: true });
       await fs.promises.writeFile(file, content);
       return file;
     }
@@ -238,11 +239,13 @@ export async function exportResults(results: WhoisResult[], opts: CliOptions): P
           zip.file(`${r.domain}${lookupExport.filetypeText}`, r.whoisreply);
       }
       const data = await zip.generateAsync({ type: 'uint8array' });
+      await fs.promises.mkdir(path.dirname(file), { recursive: true });
       await fs.promises.writeFile(file, data);
       return file;
     }
     case 'json': {
       const content = JSON.stringify(results, null, 2);
+      await fs.promises.mkdir(path.dirname(file), { recursive: true });
       await fs.promises.writeFile(file, content);
       return file;
     }
@@ -250,6 +253,7 @@ export async function exportResults(results: WhoisResult[], opts: CliOptions): P
       const content = results
         .map((r) => `==== ${r.domain} ====` + lookupExport.linebreak + (r.whoisreply ?? ''))
         .join(lookupExport.linebreak + lookupExport.linebreak);
+      await fs.promises.mkdir(path.dirname(file), { recursive: true });
       await fs.promises.writeFile(file, content);
       return file;
     }
