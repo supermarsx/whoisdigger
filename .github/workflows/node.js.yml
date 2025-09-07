@@ -109,11 +109,12 @@ jobs:
 
   e2e:
     needs: test
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, windows-latest]
         node-version: [22.x]
     steps:
       - uses: actions/checkout@v4
@@ -121,23 +122,14 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      - name: Cache Electron
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/electron
-            ~/.cache/electron-builder
-          key: ${{ runner.os }}-electron-${{ hashFiles('package-lock.json') }}
       - name: Install dependencies
         run: npm install --no-audit --no-fund
-      - name: Build
-        run: npm run build
       - name: Run e2e tests
         run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: e2e-artifacts-${{ matrix.node-version }}
+          name: e2e-artifacts-${{ matrix.os }}-${{ matrix.node-version }}
           path: test/e2e/artifacts
 
   docker-build:
