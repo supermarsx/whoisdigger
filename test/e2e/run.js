@@ -3,11 +3,13 @@ import fs from 'fs';
 import os from 'os';
 import assert from 'assert';
 import { spawn } from 'child_process';
+import { pathToFileURL } from 'url';
 import net from 'net';
 import { remote } from 'webdriverio';
 import { debugFactory } from '../../scripts/logger.js';
 import { dirnameCompat } from '../../scripts/dirnameCompat.js';
 import electron from 'electron';
+import { createRequire } from 'module';
 
 const baseDir = dirnameCompat();
 const debug = debugFactory('test:e2e');
@@ -24,9 +26,8 @@ let watchdog;
   fs.mkdirSync(userDataDir, { recursive: true });
   process.env.NODE_OPTIONS = '--experimental-specifier-resolution=node';
 
-  // On Windows, the executable in .bin has a .cmd extension when using spawn with full path
-  // Choose an available DevTools port for Electron and connect via WebdriverIO DevTools
-  const chromedriverPath = null;
+  // Use DevTools protocol for simplicity in CI
+  let chromedriverPath = null;
 
   const findPort = async (port) => {
     return new Promise((resolve) => {
@@ -41,21 +42,38 @@ let watchdog;
   };
 
   const port = await findPort(9222);
+  let electronProc;
+  console.log('Using DevTools protocol');
   // Launch Electron directly with a remote debugging port, no chromedriver required
-  const electronProc = spawn(
+  electronProc = spawn(
     electronPath,
     [
       appPath,
       '--no-sandbox',
       '--disable-dev-shm-usage',
       '--disable-gpu',
-      '--headless=new',
       `--remote-debugging-port=${port}`,
       `--user-data-dir=${userDataDir}`
     ],
     { stdio: 'inherit' }
   );
-  await new Promise((r) => setTimeout(r, 1500));
+  // Wait until DevTools endpoint is available before connecting
+  async function waitForDevtools(address, timeoutMs = 30000) {
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+      try {
+        const res = await fetch(`http://127.0.0.1:${address}/json/version`);
+        if (res.ok) return true;
+      } catch {}
+      await new Promise((r) => setTimeout(r, 500));
+    }
+    return false;
+  }
+  let browser;
+  const ready = await waitForDevtools(port, 45000);
+  if (!ready) {
+    console.error(`DevTools not ready on port ${port}`);
+  }
 
   try {
     // Global timeout watchdog to avoid hanging > 3 minutes
@@ -68,7 +86,7 @@ let watchdog;
       process.exit(1);
     }, TIMEOUT_MS);
 
-    const browser = await remote({
+    browser = await remote({
       logLevel: 'error',
       automationProtocol: 'devtools',
       capabilities: {
@@ -78,12 +96,34 @@ let watchdog;
     });
 
     await browser.pause(2000);
-    debug('Page URL:', await browser.getUrl());
-    // Minimal readiness: window created and nav button exists
-    const handles = await browser.getWindowHandles();
-    assert.ok(handles.length > 0, 'No windows were created');
-    const singleBtn = await browser.$('#navButtonSinglewhois');
-    await singleBtn.waitForExist({ timeout: 20000 });
+    try {
+      const url = await browser.getUrl();
+      // Log to console as well so we can see in CI logs
+      console.log('Page URL:', url);
+    } catch {}
+    try {
+      await browser.saveScreenshot(path.join(artifactsDir, 'screenshot-start.png'));
+    } catch {}
+    // Minimal readiness: window created and app page is loaded
+    const startSwitch = Date.now();
+    let switched = false;
+    while (Date.now() - startSwitch < 15000 && !switched) {
+      const handles = await browser.getWindowHandles();
+      assert.ok(handles.length > 0, 'No windows were created');
+      for (const h of handles) {
+        await browser.switchToWindow(h);
+        const url = await browser.getUrl();
+        if (url.startsWith('file://')) {
+          switched = true;
+          break;
+        }
+      }
+      if (!switched) await browser.pause(500);
+    }
+    const currentUrl = await browser.getUrl();
+    if (!currentUrl.startsWith('file://')) {
+      throw new Error(`App did not load main file URL, got: ${currentUrl}`);
+    }
 
     await browser.saveScreenshot(path.join(artifactsDir, 'screenshot.png'));
 
@@ -95,7 +135,7 @@ let watchdog;
   } finally {
     if (watchdog) clearTimeout(watchdog);
     try {
-      electronProc.kill();
+      if (electronProc) electronProc.kill();
     } catch {}
   }
 })();

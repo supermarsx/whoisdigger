@@ -16,6 +16,7 @@ module.exports = {
     '^#ai/(.*)\\.js$': '<rootDir>/app/ts/ai/$1.ts',
     '^#cli/(.*)\\.js$': '<rootDir>/app/ts/cli/$1.ts',
     '^#server/(.*)\\.js$': '<rootDir>/app/ts/server/$1.ts',
+    '^electron$': '<rootDir>/test/mocks/electron.ts',
     '^#common/(.*)$': '<rootDir>/app/ts/common/$1.ts',
     '^#main/(.*)$': '<rootDir>/app/ts/main/$1.ts',
     '^#renderer/(.*)$': '<rootDir>/app/ts/renderer/$1.ts',
