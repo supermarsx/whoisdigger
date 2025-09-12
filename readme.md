@@ -1,5 +1,18 @@
 ![whoisdigger](https://github.com/user-attachments/assets/4879093d-73a6-4bc8-b1d3-87b0f1bbc007)
 
+[![CI Status](https://github.com/whois-team/whoisdigger/actions/workflows/node.js.yml/badge.svg)](https://github.com/whois-team/whoisdigger/actions/workflows/node.js.yml)
+[![Coverage](https://img.shields.io/github/actions/coverage/whois-team/whoisdigger)](https://github.com/whois-team/whoisdigger/actions/workflows/node.js.yml)
+[![Latest Release](https://img.shields.io/github/v/release/whois-team/whoisdigger)](https://github.com/whois-team/whoisdigger/releases)
+[![Downloads](https://img.shields.io/github/downloads/whois-team/whoisdigger/total)](https://github.com/whois-team/whoisdigger/releases)
+[![Stars](https://img.shields.io/github/stars/whois-team/whoisdigger)](https://github.com/whois-team/whoisdigger/stargazers)
+[![Forks](https://img.shields.io/github/forks/whois-team/whoisdigger)](https://github.com/whois-team/whoisdigger/network/members)
+[![Watchers](https://img.shields.io/github/watchers/whois-team/whoisdigger)](https://github.com/whois-team/whoisdigger/watchers)
+[![Issues](https://img.shields.io/github/issues/whois-team/whoisdigger)](https://github.com/whois-team/whoisdigger/issues)
+[![Commit activity](https://img.shields.io/github/commit-activity/m/whois-team/whoisdigger)](https://github.com/whois-team/whoisdigger/pulse)
+[![Total commits](https://img.shields.io/github/commit-activity/total/whois-team/whoisdigger)](https://github.com/whois-team/whoisdigger/commits/master)
+[![Made with Electron](https://img.shields.io/badge/Made%20with-Electron-2b2e3b?logo=electron&logoColor=white)](https://electronjs.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](license.md)
+
 Whoisdigger is a cross-platform bulk WHOIS lookup desktop app built on Electron. Now written in TypeScript.
 
 Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on Electron. Made with builders and creators in mind, rapidly lookup up your favorite domain mashups without risking third-party logging, domain squatting and a few other common issues that come with using third-party platforms. The faster, reliable and most private way of looking for domains.
@@ -397,6 +410,6 @@ docker run --rm -it whoisdigger npm test
 
 ## License
 
-Distributed under MIT License. See `license.md` for more information.
+Distributed under the MIT License. See [license.md](license.md) for more information.
 
 Additionally when using WhoisTeam or other GitHub Logos, please refer to [GitHub logo guidelines](https://github.com/logos).
