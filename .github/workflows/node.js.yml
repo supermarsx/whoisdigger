@@ -98,7 +98,8 @@ jobs:
           merge-multiple: true
       - name: Merge coverage
         run: |
-          npx istanbul-merge coverage-files/**/coverage-final.json > coverage-final.json
+          npm ci --no-audit --no-fund
+          npm run coverage:merge
           mkdir -p .nyc_output
           cp coverage-final.json .nyc_output/out.json
       - name: Check coverage
