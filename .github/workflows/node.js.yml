@@ -25,7 +25,7 @@ jobs:
         os: [ubuntu-latest]
         node-version: [22.x]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
@@ -46,7 +46,7 @@ jobs:
         os: [ubuntu-latest]
         node-version: [22.x]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
@@ -65,7 +65,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         node-version: [22.x]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
@@ -88,7 +88,7 @@ jobs:
       contents: read
       actions: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: 22.x
@@ -119,7 +119,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         node-version: [22.x]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
@@ -140,7 +140,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build Docker image
         run: docker build -f docker/Dockerfile .
 
@@ -154,7 +154,7 @@ jobs:
       matrix:
         node-version: [22.x]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
@@ -185,7 +185,7 @@ jobs:
       matrix:
         node-version: [22.x]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
@@ -216,7 +216,7 @@ jobs:
       matrix:
         node-version: [22.x]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
