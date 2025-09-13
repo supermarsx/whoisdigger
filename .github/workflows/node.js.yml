@@ -88,6 +88,7 @@ jobs:
       contents: read
       actions: read
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22.x
@@ -98,8 +99,7 @@ jobs:
           merge-multiple: true
       - name: Merge coverage
         run: |
-          npm ci --no-audit --no-fund
-          npm run coverage:merge
+          npx -y istanbul-merge@^2 --out coverage-final.json "coverage-files/**/coverage-final.json"
           mkdir -p .nyc_output
           cp coverage-final.json .nyc_output/out.json
       - name: Check coverage
