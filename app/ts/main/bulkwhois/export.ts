@@ -1,5 +1,6 @@
 import { dialog, shell } from 'electron';
 import fs from 'fs';
+import path from 'path';
 import { debugFactory } from '../../common/logger.js';
 const debug = debugFactory('bulkwhois.export');
 import { formatString } from '../../common/stringformat.js';
@@ -85,6 +86,7 @@ handle(IpcChannel.BulkwhoisExport, async function (event, results, options) {
     exportSettings
   );
   if (content) {
+    await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
     await fs.promises.writeFile(filePath, content);
     debug(formatString('File was saved, {0}', filePath));
   }
