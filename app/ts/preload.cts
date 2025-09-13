@@ -80,15 +80,15 @@ if (process.contextIsolated) {
 
 // Hook console.error during WDIO E2E to capture renderer errors.
 try {
-  const isWdio = typeof process !== 'undefined' && (process as any)?.env?.WDIO_E2E === '1'
+  const isWdio = typeof process !== 'undefined' && (process as any)?.env?.WDIO_E2E === '1';
   if (isWdio && typeof window !== 'undefined') {
-    ;(window as any).__rendererErrors = []
-    const originalError = console.error.bind(console)
+    (window as any).__rendererErrors = [];
+    const originalError = console.error.bind(console);
     console.error = (...args: any[]) => {
       try {
-        ;(window as any).__rendererErrors.push(args.map(String).join(' '))
+        (window as any).__rendererErrors.push(args.map(String).join(' '));
       } catch {}
-      originalError(...args)
-    }
+      originalError(...args);
+    };
   }
 } catch {}
