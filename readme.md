@@ -17,14 +17,9 @@ Whoisdigger is a cross-platform bulk WHOIS lookup desktop app built on Electron.
 
 Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on Electron. Made with builders and creators in mind, rapidly lookup up your favorite domain mashups without risking third-party logging, domain squatting and a few other common issues that come with using third-party platforms. The faster, reliable and most private way of looking for domains.
 
-### Important notice
-
-If you clone this repo please patch `node_modules\whois\index.js` and remove the first line containing `#!/usr/bin/env node`.
-
 ## Index
 
 - [Features](#features)
-- [Important notice](#important-notice)
 - [Quick start](#quick-start)
 - [Setup](#setup)
 - [Development setup](#development-setup)
@@ -80,10 +75,6 @@ A: DNS sweep as it says, sweeps through NS records of every domain on the wordli
 Q: How much faster is DNS sweep?
 
 A: It will largely depend on the set time between requests but on average is between 10x to 100x faster.
-
-## Important notice
-
-Its your sole responsibility of what you do with this tool, check the licence section for more information. This tool intended use is to let anyone have a chance at finding a good domain in a crowded space, such as a good `.com`. A non conforming practice and use of the tool according to your local laws may land you criminal or civil liabilities. Other than that keep in mind that repeated whois requests to a server will eventually result in IP blacklisting for example, you should have a conservative values for time between requests and bit of common sense to minimize your risks, don't do huge bulk lookups at once and/or with the same IP, preferably use different proxies between requests.
 
 ## Quick start
 
