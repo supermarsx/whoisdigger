@@ -99,7 +99,7 @@ jobs:
           merge-multiple: true
       - name: Merge coverage
         run: |
-          npx -y istanbul-merge@^2 --out coverage-final.json "coverage-files/**/coverage-final.json"
+          npx -y nyc@^15 merge coverage-files coverage-final.json
           mkdir -p .nyc_output
           cp coverage-final.json .nyc_output/out.json
       - name: Check coverage
