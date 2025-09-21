@@ -1,0 +1,172 @@
+name: Rolling Release
+
+on:
+  workflow_run:
+    workflows: ["Node.js CI"]
+    types: [completed]
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rolling-release-main
+  cancel-in-progress: true
+
+jobs:
+  build-linux:
+    name: Build Linux (${{ matrix.arch }})
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [ x64, arm64 ]
+    steps:
+      - name: Checkout (passed CI commit)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build sources
+        run: npm run build --if-present
+
+      - name: Package (Linux ${{ matrix.arch }})
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: npx electron-builder --linux --${{ matrix.arch }} --publish never
+
+      - name: Upload artifacts (Linux ${{ matrix.arch }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-linux-${{ matrix.arch }}
+          path: |
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.rpm
+            dist/*.tar.gz
+          if-no-files-found: warn
+
+  build-windows:
+    name: Build Windows (x64)
+    runs-on: windows-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout (passed CI commit)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build sources
+        run: npm run build --if-present
+
+      - name: Package (Windows x64)
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: npx electron-builder --win --x64 --publish never
+
+      - name: Upload artifacts (Windows x64)
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-windows-x64
+          path: |
+            dist/*.exe
+            dist/*.msi
+            dist/*-win*.zip
+          if-no-files-found: warn
+
+  build-macos:
+    name: Build macOS (${{ matrix.arch }})
+    runs-on: macos-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [ x64, arm64 ]
+    steps:
+      - name: Checkout (passed CI commit)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build sources
+        run: npm run build --if-present
+
+      - name: Package (macOS ${{ matrix.arch }})
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: npx electron-builder --mac --${{ matrix.arch }} --publish never
+
+      - name: Upload artifacts (macOS ${{ matrix.arch }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-macos-${{ matrix.arch }}
+          path: |
+            dist/*.dmg
+            dist/*-mac*.zip
+          if-no-files-found: warn
+
+  publish:
+    name: Publish Rolling Release
+    runs-on: ubuntu-latest
+    needs: [ build-linux, build-windows, build-macos ]
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+          merge-multiple: true
+
+      - name: Show collected artifacts
+        run: |
+          echo "Collected artifacts:" 
+          ls -R ./artifacts || true
+
+      - name: Create/Update rolling GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: rolling
+          name: Rolling Release
+          allowUpdates: true
+          removeArtifacts: true
+          replacesArtifacts: true
+          draft: false
+          prerelease: true
+          artifacts: |
+            artifacts/**/*.AppImage,
+            artifacts/**/*.deb,
+            artifacts/**/*.rpm,
+            artifacts/**/*.dmg,
+            artifacts/**/*.zip,
+            artifacts/**/*.exe,
+            artifacts/**/*.msi,
+            artifacts/**/*.tar.gz
