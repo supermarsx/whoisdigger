@@ -57,7 +57,7 @@
   "homepage": "https://github.com/supermarsx/whoisdigger#readme",
   "dependencies": {
     "@electron/packager": "^18.3.6",
-    "@fortawesome/fontawesome-free": "^7.0.0",
+    "@fortawesome/fontawesome-free": "^7.1.0",
     "better-sqlite3": "^12.2.0",
     "bulma": "^1.0.4",
     "cp": "^0.2.0",
