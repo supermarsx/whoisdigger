@@ -76,7 +76,7 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Run tests with coverage
         run: npm test -- --coverage
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: always()
         with:
           name: coverage-${{ matrix.os }}-${{ matrix.node-version }}
@@ -106,7 +106,7 @@ jobs:
           cp coverage-final.json .nyc_output/out.json
       - name: Check coverage
         run: npx nyc check-coverage --lines=70
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: merged-coverage
           path: coverage-final.json
@@ -130,7 +130,7 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Run e2e tests
         run: npm run test:e2e
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: always()
         with:
           name: e2e-artifacts-${{ matrix.os }}-${{ matrix.node-version }}
@@ -172,7 +172,7 @@ jobs:
         run: npm install --no-audit --no-fund
       - run: npm run package-linux
       - run: mv release_builds release_builds-${{ matrix.node-version }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: linux-package-${{ matrix.node-version }}
           path: release_builds-${{ matrix.node-version }}
@@ -203,7 +203,7 @@ jobs:
         run: npm install --no-audit --no-fund
       - run: npm run package-win
       - run: mv release_builds release_builds-${{ matrix.node-version }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: windows-package-${{ matrix.node-version }}
           path: release_builds-${{ matrix.node-version }}
@@ -234,7 +234,7 @@ jobs:
         run: npm install --no-audit --no-fund
       - run: npm run package-mac
       - run: mv release_builds release_builds-${{ matrix.node-version }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: macos-package-${{ matrix.node-version }}
           path: release_builds-${{ matrix.node-version }}
