@@ -25,7 +25,7 @@ jobs:
         arch: [x64, arm64]
     steps:
       - name: Checkout (passed CI commit)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
@@ -63,7 +63,7 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout (passed CI commit)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
@@ -104,7 +104,7 @@ jobs:
         arch: [x64, arm64]
     steps:
       - name: Checkout (passed CI commit)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
