@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
 use crate::parser::parse_raw_data;
 
@@ -73,21 +72,21 @@ const UNAVAILABLE_PATTERNS: &[&str] = &[
 pub fn is_domain_available(results_text: &str) -> DomainStatus {
     for p in AVAILABLE_PATTERNS {
         if results_text.contains(p) {
-            return DomainStatus.Available;
+            return DomainStatus::Available;
         }
     }
 
     for p in UNAVAILABLE_PATTERNS {
         if results_text.contains(p) {
-            return DomainStatus.Unavailable;
+            return DomainStatus::Unavailable;
         }
     }
 
     if results_text.contains("Uniregistry") && results_text.contains("Query limit exceeded") {
-        return DomainStatus.ErrorRateLimiting;
+        return DomainStatus::ErrorRateLimiting;
     }
 
-    DomainStatus.Unavailable // Default to unavailable if no clear available pattern matches
+    DomainStatus::Unavailable // Default to unavailable if no clear available pattern matches
 }
 
 pub fn get_domain_parameters(

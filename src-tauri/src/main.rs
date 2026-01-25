@@ -310,7 +310,7 @@ struct BulkProgress {
     total: u32,
 }
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 struct BulkResult {
     domain: String,
     data: Option<String>,
@@ -404,7 +404,7 @@ async fn bulk_whois_export(
             for r in &results {
                 let registrar = r.params.as_ref().and_then(|p| p.registrar.as_ref()).map(|s| s.as_str()).unwrap_or("");
                 let company = r.params.as_ref().and_then(|p| p.company.as_ref()).map(|s| s.as_str()).unwrap_or("");
-                content.push_str(&format!("\"{{}}\"", r.domain, r.status, registrar, company));
+                content.push_str(&format!("\"{}\",\"{}\",\"{}\",\"{}\"\n", r.domain, r.status, registrar, company));
             }
             zip.write_all(content.as_bytes()).map_err(|e| e.to_string())?;
         }
@@ -422,7 +422,7 @@ async fn bulk_whois_export(
         for r in &results {
             let registrar = r.params.as_ref().and_then(|p| p.registrar.as_ref()).map(|s| s.as_str()).unwrap_or("");
             let company = r.params.as_ref().and_then(|p| p.company.as_ref()).map(|s| s.as_str()).unwrap_or("");
-            content.push_str(&format!("\"{{}}\"", r.domain, r.status, registrar, company));
+            content.push_str(&format!("\"{}\",\"{}\",\"{}\",\"{}\"\n", r.domain, r.status, registrar, company));
         }
         fs::write(path, content).map_err(|e| e.to_string())?;
     }
@@ -567,7 +567,7 @@ async fn stats_stop(
 #[tauri::command]
 async fn monitor_start(app_handle: tauri::AppHandle, data: State<'_, AppData>) -> Result<(), String> {
     let mut monitor = data.monitor.lock().await;
-    if monitor.active { return Ok(()); }
+    if monitor.active { return Ok(()); } 
     
     let (tx, mut rx) = tokio::sync::oneshot::channel();
     monitor.active = true;
