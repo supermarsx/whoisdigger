@@ -26,6 +26,48 @@ window.electron = {
                 return invoke('i18n_load', { lang: args[0] });
             case 'app:get-base-dir':
                 return invoke('app_get_base_dir');
+            case 'app:get-user-data-path':
+                return invoke('app_get_user_data_path');
+            case 'settings:load':
+                {
+                    const userDataPath = await invoke('app_get_user_data_path');
+                    const settingsJson = await invoke('settings_load', { filename: 'settings.json' });
+                    return { settings: JSON.parse(settingsJson), userDataPath };
+                }
+            case 'settings:save':
+                return invoke('settings_save', { filename: 'settings.json', content: JSON.stringify(args[0]) });
+            case 'config:delete':
+                return invoke('config_delete', { filename: args[0] });
+            case 'history:get':
+                {
+                    const userDataPath = await invoke('app_get_user_data_path');
+                    const dbPath = `${userDataPath}\\profiles\\default\\history-default.sqlite`;
+                    return invoke('db_history_get', { path: dbPath, limit: args[0] || 50 });
+                }
+            case 'history:clear':
+                {
+                    const userDataPath = await invoke('app_get_user_data_path');
+                    const dbPath = `${userDataPath}\\profiles\\default\\history-default.sqlite`;
+                    return invoke('db_history_clear', { path: dbPath });
+                }
+            case 'cache:get':
+                {
+                    const userDataPath = await invoke('app_get_user_data_path');
+                    const dbPath = `${userDataPath}\\profiles\\default\\request-cache.sqlite`;
+                    return invoke('db_cache_get', { path: dbPath, key: `${args[0]}:${args[1]}`, ttlMs: args[2]?.ttl ? args[2].ttl * 1000 : null });
+                }
+            case 'cache:set':
+                {
+                    const userDataPath = await invoke('app_get_user_data_path');
+                    const dbPath = `${userDataPath}\\profiles\\default\\request-cache.sqlite`;
+                    return invoke('db_cache_set', { path: dbPath, key: `${args[0]}:${args[1]}`, response: args[2], maxEntries: 1000 });
+                }
+            case 'cache:clear':
+                {
+                    const userDataPath = await invoke('app_get_user_data_path');
+                    const dbPath = `${userDataPath}\\profiles\\default\\request-cache.sqlite`;
+                    return invoke('db_cache_clear', { path: dbPath });
+                }
             case 'path:join':
                 return args.join('\\').replace(/[/\\]+/g, '\\'); 
             case 'path:basename':
