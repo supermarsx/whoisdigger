@@ -1,6 +1,9 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod parser;
+mod availability;
+
 use whois_rust::{WhoIs, WhoIsLookupOptions};
 use std::fs;
 use std::path::Path;
@@ -9,11 +12,15 @@ use rusqlite::{params, Connection};
 use chrono::Utc;
 use tauri::{Manager, Emitter, State};
 use std::sync::Arc;
-use tokio::sync::Semaphore;
+use tokio::sync::{Semaphore, Mutex as AsyncMutex};
 use futures::future::join_all;
 use walkdir::WalkDir;
 use std::sync::Mutex;
 use std::collections::HashMap;
+use availability::{is_domain_available, get_domain_parameters, DomainStatus, WhoisParams};
+use tauri_plugin_shell::ShellExt;
+use std::io::Write;
+use zip::write::SimpleFileOptions;
 
 #[derive(Serialize, Clone)]
 struct FileStat {
@@ -53,9 +60,15 @@ struct StatsWatcher {
     data_path: String,
 }
 
+struct MonitorState {
+    active: bool,
+    cancel_token: Option<tokio::sync::oneshot::Sender<()>>,
+}
+
 struct AppData {
     stats_watchers: Mutex<HashMap<u32, StatsWatcher>>,
     next_watcher_id: Mutex<u32>,
+    monitor: AsyncMutex<MonitorState>,
 }
 
 #[tauri::command]
@@ -74,13 +87,10 @@ async fn whois_lookup(app_handle: tauri::AppHandle, domain: String) -> Result<St
         let _ = fs::create_dir_all(&path);
         path.push("history-default.sqlite");
         
-        let status = if result.to_lowercase().contains("no match") || result.to_lowercase().contains("not found") {
-            "available"
-        } else {
-            "unavailable"
-        };
+        let status = is_domain_available(&result);
+        let status_str = serde_json::to_value(&status).unwrap().as_str().unwrap_or("unavailable").to_string();
 
-        let _ = db_history_add(path.to_string_lossy().to_string(), domain, status.to_string()).await;
+        let _ = db_history_add(path.to_string_lossy().to_string(), domain, status_str).await;
     }
         
     Ok(result)
@@ -138,6 +148,16 @@ async fn fs_access(path: String) -> Result<(), String> {
 }
 
 #[tauri::command]
+async fn fs_write_file(path: String, content: String) -> Result<(), String> {
+    fs::write(path, content).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn shell_open_path(app_handle: tauri::AppHandle, path: String) -> Result<(), String> {
+    app_handle.shell().open(path, None).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 async fn i18n_load(_app_handle: tauri::AppHandle, lang: String) -> Result<String, String> {
     let mut path = std::env::current_dir().map_err(|e| e.to_string())?;
     path.push("dist");
@@ -172,18 +192,6 @@ async fn app_get_user_data_path(app_handle: tauri::AppHandle) -> Result<String, 
         fs::create_dir_all(&path).map_err(|e| e.to_string())?;
     }
     Ok(path.to_string_lossy().to_string())
-}
-
-use tauri_plugin_shell::ShellExt;
-
-#[tauri::command]
-async fn fs_write_file(path: String, content: String) -> Result<(), String> {
-    fs::write(path, content).map_err(|e| e.to_string())
-}
-
-#[tauri::command]
-async fn shell_open_path(app_handle: tauri::AppHandle, path: String) -> Result<(), String> {
-    app_handle.shell().open(path, None).map_err(|e| e.to_string())
 }
 
 // Database commands
@@ -308,6 +316,7 @@ struct BulkResult {
     data: Option<String>,
     error: Option<String>,
     status: String,
+    params: Option<WhoisParams>,
 }
 
 #[tauri::command]
@@ -336,20 +345,18 @@ async fn bulk_whois_lookup(
                 timeout_ms
             )).ok();
             
-            let (data, err, status) = if let Some(w) = whois {
+            let (data, err, status, params) = if let Some(w) = whois {
                 match w.lookup(WhoIsLookupOptions::from_string(&domain).unwrap()) {
                     Ok(res) => {
-                        let s = if res.to_lowercase().contains("no match") || res.to_lowercase().contains("not found") {
-                            "available"
-                        } else {
-                            "unavailable"
-                        };
-                        (Some(res), None, s.to_string())
+                        let s = is_domain_available(&res);
+                        let p = get_domain_parameters(Some(domain.clone()), Some(s.clone()), res.clone());
+                        let s_str = serde_json::to_value(&s).unwrap().as_str().unwrap_or("unavailable").to_string();
+                        (Some(res), None, s_str, Some(p))
                     },
-                    Err(e) => (None, Some(e.to_string()), "error".to_string()),
+                    Err(e) => (None, Some(e.to_string()), "error".to_string(), None),
                 }
             } else {
-                (None, Some("Failed to initialize WHOIS".to_string()), "error".to_string())
+                (None, Some("Failed to initialize WHOIS".to_string()), "error".to_string(), None)
             };
 
             let mut s = sent.lock().await;
@@ -361,6 +368,7 @@ async fn bulk_whois_lookup(
                 data,
                 error: err,
                 status,
+                params,
             }
         }));
     }
@@ -369,6 +377,56 @@ async fn bulk_whois_lookup(
     let final_results: Vec<BulkResult> = results.into_iter().map(|r| r.unwrap()).collect();
     
     Ok(final_results)
+}
+
+#[derive(Deserialize)]
+struct ExportOptions {
+    filetype: String,
+    #[serde(rename = "whoisreply")]
+    whois_reply: String,
+}
+
+#[tauri::command]
+async fn bulk_whois_export(
+    results: Vec<BulkResult>,
+    options: ExportOptions,
+    path: String,
+) -> Result<(), String> {
+    if options.filetype == "txt" || options.whois_reply.contains("yes") {
+        // ZIP export
+        let file = fs::File::create(&path).map_err(|e| e.to_string())?;
+        let mut zip = zip::ZipWriter::new(file);
+        let zip_options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Stored);
+
+        if options.filetype == "csv" {
+            zip.start_file("results.csv", zip_options).map_err(|e| e.to_string())?;
+            let mut content = String::from("\"Domain\",\"Status\",\"Registrar\",\"Company\"\n");
+            for r in &results {
+                let registrar = r.params.as_ref().and_then(|p| p.registrar.as_ref()).map(|s| s.as_str()).unwrap_or("");
+                let company = r.params.as_ref().and_then(|p| p.company.as_ref()).map(|s| s.as_str()).unwrap_or("");
+                content.push_str(&format!("\"{{}}\"", r.domain, r.status, registrar, company));
+            }
+            zip.write_all(content.as_bytes()).map_err(|e| e.to_string())?;
+        }
+
+        for r in &results {
+            if let Some(data) = &r.data {
+                zip.start_file(format!("{}.txt", r.domain), zip_options).map_err(|e| e.to_string())?;
+                zip.write_all(data.as_bytes()).map_err(|e| e.to_string())?;
+            }
+        }
+        zip.finish().map_err(|e| e.to_string())?;
+    } else {
+        // Plain CSV export
+        let mut content = String::from("\"Domain\",\"Status\",\"Registrar\",\"Company\"\n");
+        for r in &results {
+            let registrar = r.params.as_ref().and_then(|p| p.registrar.as_ref()).map(|s| s.as_str()).unwrap_or("");
+            let company = r.params.as_ref().and_then(|p| p.company.as_ref()).map(|s| s.as_str()).unwrap_or("");
+            content.push_str(&format!("\"{{}}\"", r.domain, r.status, registrar, company));
+        }
+        fs::write(path, content).map_err(|e| e.to_string())?;
+    }
+    Ok(())
 }
 
 #[tauri::command]
@@ -434,7 +492,7 @@ async fn compute_stats_internal(config_path: String, data_path: String) -> AppSt
         }
     }
 
-    let size = get_dir_size(data_p);
+    let size = if data_p.exists() { get_dir_size(data_p) } else { 0 };
 
     AppStats {
         mtime,
@@ -472,7 +530,6 @@ async fn stats_start(
         id
     };
     
-    // Initial stats emission
     let stats = compute_stats_internal(config_path, data_path).await;
     let _ = app_handle.emit("stats:update", stats);
     
@@ -508,15 +565,51 @@ async fn stats_stop(
 }
 
 #[tauri::command]
-async fn availability_check(text: String) -> String {
-    if text.to_lowercase().contains("no match") || 
-       text.to_lowercase().contains("not found") || 
-       text.to_lowercase().contains("free") || 
-       text.to_lowercase().contains("available") {
-        "available".to_string()
-    } else {
-        "unavailable".to_string()
+async fn monitor_start(app_handle: tauri::AppHandle, data: State<'_, AppData>) -> Result<(), String> {
+    let mut monitor = data.monitor.lock().await;
+    if monitor.active { return Ok(()); }
+    
+    let (tx, mut rx) = tokio::sync::oneshot::channel();
+    monitor.active = true;
+    monitor.cancel_token = Some(tx);
+    
+    let app = app_handle.clone();
+    
+    tauri::async_runtime::spawn(async move {
+        loop {
+            tokio::select! {
+                _ = &mut rx => {
+                    break;
+                }
+                _ = tokio::time::sleep(tokio::time::Duration::from_secs(60)) => {
+                    let _ = app.emit("monitor:heartbeat", ());
+                }
+            }
+        }
+    });
+    
+    Ok(())
+}
+
+#[tauri::command]
+async fn monitor_stop(data: State<'_, AppData>) -> Result<(), String> {
+    let mut monitor = data.monitor.lock().await;
+    if let Some(tx) = monitor.cancel_token.take() {
+        let _ = tx.send(());
     }
+    monitor.active = false;
+    Ok(())
+}
+
+#[tauri::command]
+async fn availability_check(text: String) -> String {
+    let status = is_domain_available(&text);
+    serde_json::to_value(&status).unwrap().as_str().unwrap_or("unavailable").to_string()
+}
+
+#[tauri::command]
+async fn availability_params(domain: Option<String>, status: Option<DomainStatus>, text: String) -> WhoisParams {
+    get_domain_parameters(domain, status, text)
 }
 
 fn main() {
@@ -524,6 +617,7 @@ fn main() {
         .manage(AppData {
             stats_watchers: Mutex::new(HashMap::new()),
             next_watcher_id: Mutex::new(1),
+            monitor: AsyncMutex::new(MonitorState { active: false, cancel_token: None }),
         })
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_shell::init())
@@ -548,6 +642,7 @@ fn main() {
             db_cache_set,
             db_cache_clear,
             bulk_whois_lookup,
+            bulk_whois_export,
             settings_load,
             settings_save,
             config_delete,
@@ -555,7 +650,10 @@ fn main() {
             stats_start,
             stats_refresh,
             stats_stop,
-            availability_check
+            monitor_start,
+            monitor_stop,
+            availability_check,
+            availability_params
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

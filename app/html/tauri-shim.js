@@ -27,23 +27,7 @@ window.electron = {
                             [{ name: 'Text', extensions: ['txt'] }]
                     });
                     if (!filePath) return;
-                    
-                    let content = "";
-                    if (options.filetype === 'csv') {
-                        content = '"Domain","Status","Registrar","Company"\n';
-                        for (let i = 0; i < results.domain.length; i++) {
-                            if (results.domain[i] === null) continue;
-                            content += `"${results.domain[i]}","${results.status[i]}","${results.registrar[i] || ''}","${results.company[i] || ''}"\n`;
-                        }
-                    } else {
-                         for (let i = 0; i < results.domain.length; i++) {
-                            if (results.domain[i] === null) continue;
-                            content += `${results.domain[i]}: ${results.status[i]}\n`;
-                        }
-                    }
-                    
-                    await invoke('fs_write_file', { path: filePath, content });
-                    return;
+                    return invoke('bulk_whois_export', { results, options, path: filePath });
                 }
             case 'fs:readFile':
             case 'bw:file-read':
@@ -66,19 +50,7 @@ window.electron = {
             case 'availability:check':
                 return invoke('availability_check', { text: args[0] });
             case 'availability:params':
-                {
-                    return {
-                        domain: args[0],
-                        status: args[1],
-                        whoisreply: args[2],
-                        whoisJson: args[3],
-                        registrar: args[3]?.registrar || 'n/a',
-                        company: args[3]?.registrantOrganization || args[3]?.registrant || 'n/a',
-                        creationDate: args[3]?.creationDate || args[3]?.created || 'n/a',
-                        updateDate: args[3]?.updatedDate || args[3]?.changed || 'n/a',
-                        expiryDate: args[3]?.registryExpiryDate || args[3]?.expires || 'n/a'
-                    };
-                }
+                return invoke('availability_params', { domain: args[0], status: args[1], text: args[2] });
             case 'stats:start':
                 return invoke('stats_start', { configPath: args[0], dataPath: args[1] });
             case 'stats:refresh':
@@ -87,17 +59,14 @@ window.electron = {
                 return invoke('stats_stop', { id: args[0] });
             case 'stats:get':
                 return invoke('stats_get', { configPath: args[0], dataPath: args[1] });
+            case 'monitor:start':
+                return invoke('monitor_start');
+            case 'monitor:stop':
+                return invoke('monitor_stop');
             case 'app:get-base-dir':
                 return invoke('app_get_base_dir');
             case 'app:get-user-data-path':
                 return invoke('app_get_user_data_path');
-            case 'app:open-data-dir':
-                {
-                    const userDataPath = await invoke('app_get_user_data_path');
-                    return invoke('shell_open_path', { path: userDataPath });
-                }
-            case 'shell:openPath':
-                return invoke('shell_open_path', { path: args[0] });
             case 'settings:load':
                 {
                     const userDataPath = await invoke('app_get_user_data_path');
@@ -152,7 +121,6 @@ window.electron = {
     send: (channel, ...args) => {
         console.log(`[Tauri] Send: ${channel}`, args);
         if (channel === 'singlewhois:openlink') {
-            // open external
             invoke('shell_open_path', { path: args[0] });
         }
     },
@@ -167,6 +135,10 @@ window.electron = {
         } else if (channel === 'stats:update') {
             unlisten = await listen('stats:update', (event) => {
                 listener(event.payload);
+            });
+        } else if (channel === 'monitor:update') {
+             unlisten = await listen('monitor:heartbeat', (event) => {
+                // listener(event.payload);
             });
         } else {
             unlisten = await listen(channel, (event) => {
@@ -199,7 +171,7 @@ window.electron = {
     getStats: (cfg, dir) => invoke('stats_get', { configPath: cfg, dataPath: dir }),
     watch: async () => ({ close: () => {} }),
     getBaseDir: () => invoke('app_get_base_dir'),
-    openDataDir: () => {},
+    openDataDir: () => invoke('shell_open_path', { path: 'data' }), // Placeholder
     path: {
         join: (...args) => args.join('\').replace(/[/\]+/g, '\'),
         basename: (p) => p.split(/[\/]/).pop()
