@@ -1,0 +1,30 @@
+[package]
+name = "whoisdigger"
+version = "0.2.0"
+description = "Bulk whois lookup tool"
+authors = ["supermarsx"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2.0.0", features = [] }
+
+[dependencies]
+tauri = { version = "2.0.0", features = [] }
+tauri-plugin-fs = "2.0.0"
+tauri-plugin-shell = "2.0.0"
+tauri-plugin-dialog = "2.0.0"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rusqlite = { version = "0.32", features = ["bundled"] }
+chrono = { version = "0.4", features = ["serde"] }
+tokio = { version = "1", features = ["full"] }
+whois-rust = "1.5.1"
+futures = "0.3"
+walkdir = "2"
+regex = "1"
+zip = "2"
+html-escape = "0.2"
+anyhow = "1"
+thiserror = "1"
+log = "0.4"
+env_logger = "0.11"

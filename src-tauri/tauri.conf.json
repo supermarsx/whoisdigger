@@ -1,0 +1,46 @@
+{
+  "productName": "whoisdigger",
+  "version": "0.2.0",
+  "identifier": "com.whoisteam.whoisdigger",
+  "build": {
+    "beforeDevCommand": "npm run build:css",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build && npm run build:css",
+    "frontendDist": "../dist/app"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "whoisdigger",
+        "width": 1000,
+        "height": 700,
+        "resizable": true,
+        "fullscreen": false,
+        "visible": false,
+        "url": "html/mainPanel.html"
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  },
+  "plugins": {
+      "fs": {
+          "scope": ["**"]
+      },
+      "shell": {
+          "open": true
+      }
+  }
+}
