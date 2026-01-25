@@ -1,28 +1,14 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod parser;
-mod availability;
-
 use whoisdigger::{
     perform_lookup,
-    dns_lookup,
-    rdap_lookup,
-    db_history_add,
-    db_history_get,
-    db_cache_get,
-    db_cache_set,
+    db_history_add, db_history_get, db_cache_get, db_cache_set,
     availability::{is_domain_available, get_domain_parameters, DomainStatus, WhoisParams},
     HistoryEntry,
 };
 
-use whois_rust::WhoIs;
-use std::fs;
-use std::path::Path;
-use serde::{Serialize, Deserialize};
-use rusqlite::{params, Connection};
-use chrono::Utc;
-use tauri::{Manager, Emitter, State, Runtime};
+use tauri::{Emitter, State, Runtime, Manager};
 use std::sync::Arc;
 use tokio::sync::{Semaphore, Mutex as AsyncMutex};
 use futures::future::join_all;
@@ -30,8 +16,11 @@ use walkdir::WalkDir;
 use std::sync::Mutex;
 use std::collections::HashMap;
 use tauri_plugin_shell::ShellExt;
-use std::io::Write;
 use zip::write::SimpleFileOptions;
+use std::fs;
+use std::path::Path;
+use serde::{Serialize, Deserialize};
+use rusqlite::Connection;
 
 #[derive(Serialize, Clone)]
 struct FileStat {
@@ -90,7 +79,7 @@ async fn whois_lookup<R: Runtime>(app_handle: tauri::AppHandle<R>, domain: Strin
         let status_str = serde_json::to_value(&status).unwrap().as_str().unwrap_or("unavailable").to_string();
 
         let _ = db_history_add(&path.to_string_lossy(), &domain, &status_str);
-    } 
+    }
         
     Ok(result)
 }
@@ -337,15 +326,15 @@ async fn bulk_whois_export(
             for r in &results {
                 let registrar = r.params.as_ref().and_then(|p| p.registrar.as_ref()).map(|s| s.as_str()).unwrap_or("");
                 let company = r.params.as_ref().and_then(|p| p.company.as_ref()).map(|s| s.as_str()).unwrap_or("");
-                content.push_str(&format!("\"{}\"", r.domain, r.status, registrar, company));
+                content.push_str(&format!("\"{}\",\"{}\",\"{}\",\"{}\"\n", r.domain, r.status, registrar, company));
             }
-            zip.write_all(content.as_bytes()).map_err(|e| e.to_string())?;
+            std::io::Write::write_all(&mut zip, content.as_bytes()).map_err(|e| e.to_string())?;
         }
 
         for r in &results {
             if let Some(data) = &r.data {
                 zip.start_file(format!("{}.txt", r.domain), zip_options).map_err(|e| e.to_string())?;
-                zip.write_all(data.as_bytes()).map_err(|e| e.to_string())?;
+                std::io::Write::write_all(&mut zip, data.as_bytes()).map_err(|e| e.to_string())?;
             }
         }
         zip.finish().map_err(|e| e.to_string())?;
@@ -355,7 +344,7 @@ async fn bulk_whois_export(
         for r in &results {
             let registrar = r.params.as_ref().and_then(|p| p.registrar.as_ref()).map(|s| s.as_str()).unwrap_or("");
             let company = r.params.as_ref().and_then(|p| p.company.as_ref()).map(|s| s.as_str()).unwrap_or("");
-            content.push_str(&format!("\"{}\"", r.domain, r.status, registrar, company));
+            content.push_str(&format!("\"{}\",\"{}\",\"{}\",\"{}\"\n", r.domain, r.status, registrar, company));
         }
         fs::write(path, content).map_err(|e| e.to_string())?;
     }
@@ -600,49 +589,6 @@ mod tests {
         let stats = compute_stats_internal("non_existent.json".to_string(), ".".to_string()).await;
         assert_eq!(stats.loaded, false);
         assert!(stats.size > 0);
-    }
-
-    #[tokio::test]
-    async fn test_db_history() {
-        let db_path = "test_history.sqlite";
-        let _ = fs::remove_file(db_path);
-        
-        let res = db_history_add(db_path, "example.com", "available");
-        assert!(res.is_ok());
-        
-        let history = db_history_get(db_path, 10).unwrap();
-        assert_eq!(history.len(), 1);
-        assert_eq!(history[0].domain, "example.com");
-        
-        let _ = fs::remove_file(db_path);
-    }
-
-    #[tokio::test]
-    async fn test_db_cache() {
-        let db_path = "test_cache.sqlite";
-        let _ = fs::remove_file(db_path);
-        
-        let res = db_cache_set(db_path, "key1", "resp1", Some(10));
-        assert!(res.is_ok());
-        
-        let val = db_cache_get(db_path, "key1", None).unwrap();
-        assert_eq!(val, Some("resp1".to_string()));
-        
-        tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
-        let val_expired = db_cache_get(db_path, "key1", Some(1)).unwrap();
-        assert_eq!(val_expired, None);
-        
-        let _ = fs::remove_file(db_path);
-    }
-
-    #[tokio::test]
-    async fn test_availability_commands() {
-        let res = availability_check("No match for domain example.com".to_string()).await;
-        assert_eq!(res, "available");
-        
-        let params = availability_params(Some("test.com".to_string()), None, "Domain Name: test.com\nRegistrar: ABC".to_string()).await;
-        assert_eq!(params.domain.unwrap(), "test.com");
-        assert_eq!(params.registrar.unwrap(), "ABC");
     }
 
     #[tokio::test]

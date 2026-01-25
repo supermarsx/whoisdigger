@@ -27,12 +27,28 @@
     - Cleaned up `tsconfig.base.json` and `prebuild.js`.
     - Refactored `common/history.ts` and `common/requestCache.ts` into pure IPC wrappers for Tauri.
     - Removed redundant Electron-specific unit tests.
+- [x] **CLI Version**:
+    - Restructured Rust code into a library and binary system.
+    - Implemented `whoisdigger-cli` with subcommands: `lookup`, `history`, `cache`.
+    - Added support for WHOIS, DNS, and RDAP lookups in CLI.
+    - Integrated multi-threaded processing and progress bars in CLI.
+- [x] **Frontend Upgrade**:
+    - Scaffolded a modern Next.js 16 frontend in the `ui/` directory.
+    - Integrated Tailwind CSS and Lucide icons (via @tauri-apps/api/core).
+    - Linked Next.js build to Tauri's build pipeline.
 - [x] **Testing**:
     - Added extensive Rust unit tests for Parser, Availability, and DB logic.
     - Added Rust integration test for Bulk Lookup.
     - Added TypeScript Jest tests for the Tauri Shim.
     - Added **Edge Case Testing**: Robust verification of empty inputs, malformed data, very large strings, and error propagation across the entire stack.
 - [x] **Build**: Successfully compiled and bundled the application (`npx tauri build`).
+
+## Pending / Next Steps
+
+### Core Features & Polishing
+- [ ] **CLI Refinement**: Add config export/import to CLI for full parity with GUI.
+- [ ] **Next.js UI Completion**: Port remaining features (Bulk, History, Settings) from the Handlebars templates to the React-based UI.
+- [ ] **Robustness**: Refine `path:join` and `path:basename` in shim if needed.
 
 ## Summary
 The application has been successfully transformed into a modern, high-performance Tauri application. All core logic is now native Rust, while the frontend remains a lightweight UI layer.
