@@ -94,6 +94,16 @@ describe('Tauri Shim', () => {
             path: 'path/to/save.csv' 
         });
     });
+
+    test('handles unhandled invoke channel', async () => {
+        const res = await electron.invoke('non-existent-channel');
+        expect(res).toBeNull();
+    });
+
+    test('handles backend errors', async () => {
+        invokeMock.mockRejectedValue(new Error('Backend failure'));
+        await expect(electron.invoke('singlewhois:lookup', 'err.com')).rejects.toThrow('Backend failure');
+    });
 });
 
 // Helper for matching objects with subset of keys

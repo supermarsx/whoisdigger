@@ -1,12 +1,4 @@
-import Database from 'better-sqlite3';
-import type { Database as DatabaseType } from 'better-sqlite3';
-import fs from 'fs/promises';
-import path from 'path';
-import { settings, getUserDataPath } from './settings.js';
-import { debugFactory } from './logger.js';
-
-const debug = debugFactory('common.requestCache');
-const fallbackStores = new Map<string, Map<string, { response: string; timestamp: number }>>();
+const electron = (window as any).electron;
 
 export interface CacheOptions {
   enabled?: boolean;
@@ -14,84 +6,15 @@ export interface CacheOptions {
 }
 
 export class RequestCache {
-  private db: DatabaseType | undefined;
-  private purgeTimer: NodeJS.Timeout | undefined;
-  private fallback: Map<string, { response: string; timestamp: number }> | undefined;
-  private fallbackKey: string | undefined;
-
-  private async init(): Promise<DatabaseType | undefined> {
-    const { requestCache } = settings;
-    if (!requestCache || !requestCache.enabled) return undefined;
-    if (this.db) return this.db;
-    const profileDir = (settings as any)?.database?.profileDir || 'default';
-    const baseDir = path.resolve(getUserDataPath(), 'profiles', profileDir);
-    const dbPath = path.resolve(baseDir, requestCache.database);
-    if (dbPath !== baseDir && !dbPath.startsWith(baseDir + path.sep)) {
-      debug(`Invalid cache database path: ${requestCache.database}`);
-      return undefined;
-    }
-    await fs.mkdir(path.dirname(dbPath), { recursive: true });
-    try {
-      this.db = new Database(dbPath);
-      this.db.exec(
-        'CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, response TEXT, timestamp INTEGER)'
-      );
-      return this.db;
-    } catch (e) {
-      debug(`better-sqlite3 unavailable, using in-memory cache fallback: ${e}`);
-      this.db = undefined;
-      // Use a shared fallback store per dbPath so multiple instances see the same entries
-      this.fallbackKey = dbPath;
-      const existing = fallbackStores.get(dbPath);
-      this.fallback = existing ?? new Map();
-      if (!existing) fallbackStores.set(dbPath, this.fallback);
-      return undefined;
-    }
-  }
-
-  private makeKey(type: string, domain: string): string {
-    return `${type}:${domain}`;
-  }
-
   async get(
     type: string,
     domain: string,
     cacheOpts: CacheOptions = {}
   ): Promise<string | undefined> {
-    const { requestCache } = settings;
-    const enabled = cacheOpts.enabled ?? requestCache.enabled;
-    const ttl = cacheOpts.ttl ?? requestCache.ttl;
-    const ttlMs = typeof ttl === 'number' && Number.isFinite(ttl) ? ttl * 1000 : undefined;
-    if (!enabled) return undefined;
-    const database = await this.init();
-    if (!database) {
-      // Fallback path
-      const key = this.makeKey(type, domain);
-      const entry = this.fallback?.get(key);
-      if (!entry) return undefined;
-      if (ttlMs !== undefined && Date.now() - entry.timestamp > ttlMs) {
-        this.fallback?.delete(key);
-        return undefined;
-      }
-      debug(`Cache hit (fallback) for ${key}`);
-      return entry.response;
+    if (electron) {
+      return await electron.invoke('cache:get', type, domain, cacheOpts);
     }
-    const key = this.makeKey(type, domain);
-    try {
-      const row = database
-        .prepare('SELECT response, timestamp FROM cache WHERE key = ?')
-        .get(key) as { response: string; timestamp: number } | undefined;
-      if (!row) return undefined;
-      if (ttlMs !== undefined && Date.now() - row.timestamp > ttlMs) {
-        database.prepare('DELETE FROM cache WHERE key = ?').run(key);
-        return undefined;
-      }
-      debug(`Cache hit for ${key}`);
-      return row.response;
-    } catch (e) {
-      debug(`Cache get failed: ${e}`);
-      return undefined;
-    }
+    return undefined;
   }
 
   async set(
@@ -100,142 +23,31 @@ export class RequestCache {
     response: string,
     cacheOpts: CacheOptions = {}
   ): Promise<void> {
-    const { requestCache } = settings;
-    const enabled = cacheOpts.enabled ?? requestCache.enabled;
-    if (!enabled) return;
-    const database = await this.init();
-    if (!database) {
-      const key = this.makeKey(type, domain);
-      this.fallback = this.fallback || new Map();
-      this.fallback.set(key, { response, timestamp: Date.now() });
-      const max = settings.requestCache.maxEntries;
-      if (max && max > 0 && this.fallback.size > max) {
-        // Evict oldest by timestamp
-        let oldestKey: string | null = null;
-        let oldestTs = Infinity;
-        for (const [k, v] of this.fallback.entries()) {
-          if (v.timestamp < oldestTs) {
-            oldestTs = v.timestamp;
-            oldestKey = k;
-          }
-        }
-        if (oldestKey) this.fallback.delete(oldestKey);
-        debug(`Evicted oldest cache entry (fallback)`);
-      }
-      return;
-    }
-    const key = this.makeKey(type, domain);
-    try {
-      database
-        .prepare('INSERT OR REPLACE INTO cache(key, response, timestamp) VALUES(?, ?, ?)')
-        .run(key, response, Date.now());
-      debug(`Cached response for ${key}`);
-      const max = requestCache.maxEntries;
-      if (max && max > 0) {
-        const total = database.prepare('SELECT COUNT(*) as count FROM cache').get() as {
-          count: number;
-        };
-        if (total.count > max) {
-          const toDelete = total.count - max;
-          database
-            .prepare(
-              'DELETE FROM cache WHERE key IN (SELECT key FROM cache ORDER BY timestamp ASC LIMIT ?)'
-            )
-            .run(toDelete);
-          debug(`Evicted ${toDelete} oldest cache entries`);
-        }
-      }
-    } catch (e) {
-      debug(`Cache set failed: ${e}`);
+    if (electron) {
+      await electron.invoke('cache:set', type, domain, response, cacheOpts);
     }
   }
 
   async delete(type: string, domain: string, cacheOpts: CacheOptions = {}): Promise<void> {
-    const { requestCache } = settings;
-    const enabled = cacheOpts.enabled ?? requestCache.enabled;
-    if (!enabled) return;
-    const database = await this.init();
-    if (!database) {
-      const key = this.makeKey(type, domain);
-      this.fallback?.delete(key);
-      return;
-    }
-    const key = this.makeKey(type, domain);
-    try {
-      database.prepare('DELETE FROM cache WHERE key = ?').run(key);
-      debug(`Deleted cache entry for ${key}`);
-    } catch (e) {
-      debug(`Cache delete failed: ${e}`);
-    }
+    // TODO: implement in main.rs if needed
   }
 
   async purgeExpired(): Promise<number> {
-    const { requestCache } = settings;
-    if (!requestCache.enabled) return 0;
-    const database = await this.init();
-    if (!database) {
-      if (!this.fallback) return 0;
-      const threshold = Date.now() - settings.requestCache.ttl * 1000;
-      let removed = 0;
-      for (const [k, v] of [...this.fallback.entries()]) {
-        if (v.timestamp <= threshold) {
-          this.fallback.delete(k);
-          removed++;
-        }
-      }
-      debug(`Purged ${removed} expired entries (fallback)`);
-      return removed;
-    }
-    try {
-      const threshold = Date.now() - requestCache.ttl * 1000;
-      const res = database.prepare('DELETE FROM cache WHERE timestamp <= ?').run(threshold);
-      debug(`Purged ${res.changes} expired entries`);
-      return res.changes ?? 0;
-    } catch (e) {
-      debug(`Cache purge failed: ${e}`);
-      return 0;
-    }
+    // Backend handles this usually, but we can trigger it
+    return 0;
   }
 
   async clear(): Promise<void> {
-    const { requestCache } = settings;
-    if (!requestCache.enabled) return;
-    const database = await this.init();
-    if (!database) {
-      this.fallback?.clear();
-      return;
-    }
-    try {
-      database.prepare('DELETE FROM cache').run();
-      debug('Cleared all cache entries');
-    } catch (e) {
-      debug(`Cache clear failed: ${e}`);
+    if (electron) {
+      await electron.invoke('cache:clear');
     }
   }
 
   startAutoPurge(intervalMs?: number): void {
-    const { requestCache } = settings;
-    const interval = intervalMs ?? requestCache.purgeInterval;
-    if (!requestCache.enabled || !interval || interval <= 0) return;
-    if (this.purgeTimer) clearInterval(this.purgeTimer);
-    this.purgeTimer = setInterval(() => {
-      void this.purgeExpired();
-    }, interval);
-    this.purgeTimer.unref?.();
+    // Backend logic
   }
 
   close(): void {
-    if (this.purgeTimer) {
-      clearInterval(this.purgeTimer);
-      this.purgeTimer = undefined;
-    }
-    if (this.db) {
-      try {
-        this.db.close();
-      } catch (e) {
-        debug(`Cache close failed: ${e}`);
-      }
-      this.db = undefined;
-    }
+    // No-op in Tauri
   }
 }

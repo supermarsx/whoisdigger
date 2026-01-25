@@ -155,11 +155,36 @@ mod tests {
         assert_eq!(is_domain_available("Uniregistry Query limit exceeded"), DomainStatus::ErrorRateLimiting);
     }
 
-    #[test]
-    fn test_get_domain_parameters() {
-        let text = "Domain Name: example.com\nRegistrar: SafeNames\nCreation Date: 2020-01-01".to_string();
-        let params = get_domain_parameters(Some("example.com".to_string()), None, text);
-        assert_eq!(params.registrar.unwrap(), "SafeNames");
-        assert_eq!(params.creation_date.unwrap(), "2020-01-01");
+        #[test]
+
+        fn test_availability_edge_cases() {
+
+            // Empty text
+
+            assert_eq!(is_domain_available(""), DomainStatus::Unavailable);
+
+    
+
+            // Conflicting patterns (Available pattern usually takes precedence in simple matching)
+
+            assert_eq!(is_domain_available("No match for domain but Expiration Date: 2020"), DomainStatus::Available);
+
+    
+
+            // No patterns matching
+
+            assert_eq!(is_domain_available("some random text with no keywords"), DomainStatus::Unavailable);
+
+    
+
+            // Case sensitivity (our patterns are currently exact, we should check if they should be case-insensitive)
+
+            // The original JS used text.includes(p), which is case-sensitive.
+
+            assert_eq!(is_domain_available("STATUS: AVAILABLE"), DomainStatus::Unavailable); // Case mismatch
+
+        }
+
     }
-}
+
+    

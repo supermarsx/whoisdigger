@@ -105,4 +105,29 @@ mod tests {
         assert_eq!(result.get("domainName").unwrap(), "example.com");
         assert_eq!(result.get("registrar").unwrap(), "ABC & Co");
     }
+
+    #[test]
+    fn test_parser_edge_cases() {
+        // Empty input
+        assert!(parse_raw_data("").is_empty());
+
+        // No colons
+        assert!(parse_raw_data("no colons here").is_empty());
+
+        // Only colons
+        assert!(parse_raw_data(":::").is_empty());
+
+        // Malformed line (colon but no space after)
+        assert!(parse_raw_data("Key:Value").is_empty());
+
+        // Duplicate keys (should append)
+        let dup = "Key: Val1\nKey: Val2";
+        let res = parse_raw_data(dup);
+        assert_eq!(res.get("key").unwrap(), "Val1 Val2");
+
+        // Very large input
+        let large = "Key: ".to_string() + &"a".repeat(10000);
+        let res_large = parse_raw_data(&large);
+        assert_eq!(res_large.get("key").unwrap().len(), 10000);
+    }
 }

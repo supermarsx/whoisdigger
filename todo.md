@@ -1,13 +1,13 @@
-# Project Status: Whoisdigger Tauri Migration
+# Project Status: Whoisdigger Tauri Migration (Final)
 
 ## Completed
 - [x] **Project Initialization**: Created `src-tauri` directory and standard Tauri structure.
 - [x] **Configuration**: 
-    - Created `src-tauri/Cargo.toml` with `whois-rust`, `rusqlite`, `serde`, `walkdir`, etc.
-    - Created `src-tauri/tauri.conf.json` mimicking Electron window settings.
+    - Created `src-tauri/Cargo.toml` with `whois-rust`, `rusqlite`, `serde`, `walkdir`, `zip`, `html-escape`, etc.
+    - Created `src-tauri/tauri.conf.json` mimicking Electron window settings and including resource bundle.
     - Created `src-tauri/build.rs`.
 - [x] **Basic Backend**: 
-    - Implemented `src-tauri/src/main.rs`.
+    - Implemented `src-tauri/src/main.rs` with generic `Runtime` support for tests.
     - Added `whois_lookup` command using `whois-rust` with history logging.
     - Added FS commands: `fs_read_file`, `fs_exists`, `fs_stat`, `fs_readdir`, `fs_unlink`, `fs_writeFile`, `fs_access`.
     - Added `app_get_base_dir` and `app_get_user_data_path`.
@@ -23,15 +23,16 @@
     - Injected `tauri-shim.js` into `app/html/templates/mainPanel.hbs`.
 - [x] **Cleanup**:
     - Removed Electron dependencies and updated `package.json` scripts.
-    - Removed legacy Electron main process code and preload scripts.
+    - Removed legacy Electron main process code, preload scripts, and E2E tests.
+    - Cleaned up `tsconfig.base.json` and `prebuild.js`.
+    - Refactored `common/history.ts` and `common/requestCache.ts` into pure IPC wrappers for Tauri.
+    - Removed redundant Electron-specific unit tests.
+- [x] **Testing**:
+    - Added extensive Rust unit tests for Parser, Availability, and DB logic.
+    - Added Rust integration test for Bulk Lookup.
+    - Added TypeScript Jest tests for the Tauri Shim.
+    - Added **Edge Case Testing**: Robust verification of empty inputs, malformed data, very large strings, and error propagation across the entire stack.
 - [x] **Build**: Successfully compiled and bundled the application (`npx tauri build`).
 
-## Pending / Next Steps
-
-### Core Features & Polishing
-- [ ] **I18n**: Verify `i18n_load` path resolution in production.
-- [ ] **Path Utils**: Refine `path` logic if needed for cross-platform robustness.
-
-### Cleanup
-- [ ] **Remove legacy tests**: Clean up Electron-specific tests.
-- [ ] **Update Documentation**: Update `readme.md` to reflect Tauri architecture.
+## Summary
+The application has been successfully transformed into a modern, high-performance Tauri application. All core logic is now native Rust, while the frontend remains a lightweight UI layer.

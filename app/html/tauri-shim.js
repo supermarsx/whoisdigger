@@ -63,6 +63,21 @@ window.electron = {
                 return invoke('monitor_start');
             case 'monitor:stop':
                 return invoke('monitor_stop');
+            case 'app:minimize':
+                return window.__TAURI__.window.getCurrentWindow().minimize();
+            case 'app:close':
+                return window.__TAURI__.window.getCurrentWindow().close();
+            case 'app:reload':
+                return window.__TAURI__.process.relaunch();
+            case 'db:pick-files':
+                return window.__TAURI__.dialog.open({
+                    multiple: true,
+                    filters: [{ name: 'SQLite/JSON', extensions: ['sqlite', 'db', 'sqlite3', 'json'] }]
+                });
+            case 'app:toggleDevtools':
+                // Not easily available via JS API in v2 without plugin, 
+                // but usually handled via dev shortcut or console.
+                return;
             case 'app:get-base-dir':
                 return invoke('app_get_base_dir');
             case 'app:get-user-data-path':
@@ -129,6 +144,9 @@ window.electron = {
         console.log(`[Tauri] Send: ${channel}`, args);
         if (channel === 'singlewhois:openlink') {
             invoke('shell_open_path', { path: args[0] });
+        }
+        if (channel === 'app:exit-confirmed') {
+            window.__TAURI__.window.getCurrentWindow().close();
         }
     },
     on: async (channel, listener) => {

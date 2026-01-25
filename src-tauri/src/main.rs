@@ -158,18 +158,42 @@ async fn shell_open_path<R: Runtime>(app_handle: tauri::AppHandle<R>, path: Stri
 }
 
 #[tauri::command]
-async fn i18n_load<R: Runtime>(_app_handle: tauri::AppHandle<R>, lang: String) -> Result<String, String> {
+async fn i18n_load<R: Runtime>(app_handle: tauri::AppHandle<R>, lang: String) -> Result<String, String> {
+    let filename = format!("{}.json", lang);
+    
+    // In production, locales are in the resource directory
+    if let Ok(resource_dir) = app_handle.path().resource_dir() {
+        let mut path = resource_dir.clone();
+        path.push("dist");
+        path.push("app");
+        path.push("locales");
+        path.push(&filename);
+        
+        if path.exists() {
+            return fs::read_to_string(path).map_err(|e| e.to_string());
+        }
+        
+        // Try without dist/app if flattened in resource bundle
+        let mut path = resource_dir.clone();
+        path.push("locales");
+        path.push(&filename);
+        if path.exists() {
+            return fs::read_to_string(path).map_err(|e| e.to_string());
+        }
+    }
+
+    // Fallback for development (using current working directory)
     let mut path = std::env::current_dir().map_err(|e| e.to_string())?;
     path.push("dist");
     path.push("app");
     path.push("locales");
-    path.push(format!("{}.json", lang));
+    path.push(&filename);
     
     if !path.exists() {
         path = std::env::current_dir().map_err(|e| e.to_string())?;
         path.push("app");
         path.push("locales");
-        path.push(format!("{}.json", lang));
+        path.push(&filename);
     }
 
     if !path.exists() {
@@ -404,7 +428,7 @@ async fn bulk_whois_export(
             for r in &results {
                 let registrar = r.params.as_ref().and_then(|p| p.registrar.as_ref()).map(|s| s.as_str()).unwrap_or("");
                 let company = r.params.as_ref().and_then(|p| p.company.as_ref()).map(|s| s.as_str()).unwrap_or("");
-                content.push_str(&format!("\"{{}}\"", r.domain, r.status, registrar, company));
+                content.push_str(&format!("\"{}\",\"{}\",\"{}\",\"{}\"\n", r.domain, r.status, registrar, company));
             }
             zip.write_all(content.as_bytes()).map_err(|e| e.to_string())?;
         }
@@ -422,7 +446,7 @@ async fn bulk_whois_export(
         for r in &results {
             let registrar = r.params.as_ref().and_then(|p| p.registrar.as_ref()).map(|s| s.as_str()).unwrap_or("");
             let company = r.params.as_ref().and_then(|p| p.company.as_ref()).map(|s| s.as_str()).unwrap_or("");
-            content.push_str(&format!("\"{{}}\"", r.domain, r.status, registrar, company));
+            content.push_str(&format!("\"{}\",\"{}\",\"{}\",\"{}\"\n", r.domain, r.status, registrar, company));
         }
         fs::write(path, content).map_err(|e| e.to_string())?;
     }
@@ -722,5 +746,43 @@ mod tests {
         assert_eq!(results.len(), 2);
         assert!(!results[0].status.is_empty());
         assert!(!results[1].status.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_bulk_lookup_edge_cases() {
+        let app = tauri::test::mock_app();
+        
+        // Empty domains
+        let results_empty = bulk_whois_lookup(app.app_handle().clone(), vec![], 4, 5000).await.unwrap();
+        assert_eq!(results_empty.len(), 0);
+
+        // Single domain with invalid characters
+        let domains_invalid = vec!["!!invalid!!".to_string()];
+        let results_invalid = bulk_whois_lookup(app.app_handle().clone(), domains_invalid, 4, 5000).await.unwrap();
+        assert_eq!(results_invalid.len(), 1);
+        assert_eq!(results_invalid[0].status, "error");
+    }
+
+    #[tokio::test]
+    async fn test_db_edge_cases() {
+        let db_path = "test_edge.sqlite";
+        let _ = fs::remove_file(db_path);
+
+        // Very long domain
+        let long_domain = "a".repeat(1000) + ".com";
+        let res = db_history_add(db_path.to_string(), long_domain.clone(), "available".to_string()).await;
+        assert!(res.is_ok());
+
+        // Special characters
+        let special = "'; DROP TABLE history; --".to_string();
+        let res_special = db_history_add(db_path.to_string(), special.clone(), "error".to_string()).await;
+        assert!(res_special.is_ok());
+
+        let history = db_history_get(db_path.to_string(), 10).await.unwrap();
+        assert_eq!(history.len(), 2);
+        assert_eq!(history[0].domain, special); // Most recent first
+        assert_eq!(history[1].domain, long_domain);
+
+        let _ = fs::remove_file(db_path);
     }
 }

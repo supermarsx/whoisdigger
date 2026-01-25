@@ -10,7 +10,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "moduleDetection": "force",
-    "types": ["node", "jest", "better-sqlite3", "express"],
+    "types": ["node", "jest"],
     "typeRoots": [
       "./node_modules/@types",
       "./types",
