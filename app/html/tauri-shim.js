@@ -10,6 +10,12 @@ window.electron = {
         switch (channel) {
             case 'singlewhois:lookup':
                 return invoke('whois_lookup', { domain: args[0] });
+            case 'bulkwhois:lookup':
+                return invoke('bulk_whois_lookup', { 
+                    domains: args[0], 
+                    concurrency: 4, 
+                    timeout_ms: 5000 
+                });
             case 'fs:readFile':
             case 'bw:file-read':
             case 'bwa:file-read':
@@ -80,12 +86,28 @@ window.electron = {
     send: (channel, ...args) => {
         console.log(`[Tauri] Send: ${channel}`, args);
     },
-    on: (channel, listener) => {
+    on: async (channel, listener) => {
         console.log(`[Tauri] On: ${channel}`);
-        // TODO: Real event listening via tauri listen
+        if (channel === 'bulkwhois:status-update' || channel === 'bulkwhois:result-receive') {
+             // Map some legacy events if needed
+        }
+        const unlisten = await listen('bulk:status', (event) => {
+            // Translate Tauri event to legacy format if needed
+            // For now, just call listener with the payload
+            if (channel === 'bulkwhois:status-update') {
+                listener(null, 'domains.sent', event.payload.sent);
+                listener(null, 'domains.total', event.payload.total);
+            }
+        });
+        window._unlisteners = window._unlisteners || {};
+        window._unlisteners[channel] = unlisten;
     },
     off: (channel, listener) => {
          console.log(`[Tauri] Off: ${channel}`);
+         if (window._unlisteners && window._unlisteners[channel]) {
+             window._unlisteners[channel]();
+             delete window._unlisteners[channel];
+         }
     },
     readFile: (p) => invoke('fs_read_file', { path: p }),
     stat: (p) => invoke('fs_stat', { path: p }),

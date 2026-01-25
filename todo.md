@@ -8,35 +8,28 @@
     - Created `src-tauri/build.rs`.
 - [x] **Basic Backend**: 
     - Implemented `src-tauri/src/main.rs`.
-    - Added `whois_lookup` command using `whois-rust`.
-    - Added basic FS commands: `fs_read_file`, `fs_exists`.
-    - Added `app_get_base_dir`.
+    - Added `whois_lookup` command using `whois-rust` with history logging.
+    - Added FS commands: `fs_read_file`, `fs_exists`, `fs_stat`, `fs_readdir`, `fs_unlink`.
+    - Added `app_get_base_dir` and `app_get_user_data_path`.
+    - Ported Database (SQLite) logic for History and Cache using `rusqlite`.
+    - Ported Settings load/save and config delete logic.
 - [x] **Frontend Bridge**:
-    - Created `app/html/tauri-shim.js` to map `window.electron` calls to `window.__TAURI__.core.invoke`.
+    - Created `app/html/tauri-shim.js` with comprehensive mapping for FileSystem, DB, Settings, and Whois.
     - Injected `tauri-shim.js` into `app/html/templates/mainPanel.hbs`.
-- [x] **Build**: Successfully compiled the application (`npx tauri build`).
+- [x] **Build**: Successfully compiled and bundled the application (`npx tauri build`).
 
 ## Pending / Next Steps
 
-### IPC & Core Features
-- [ ] **Filesystem Completeness**: Implement `fs_stat`, `fs_readdir`, `fs_unlink`, `fs_access` in Rust.
-- [ ] **I18n**: Port `i18n:load` to Rust (reading locale JSONs).
+### Core Features & Cleanup
+- [ ] **I18n**: Verify `i18n_load` path resolution in production.
 - [ ] **Stats/Monitoring**: Implement `stats:start`, `stats:refresh`, `stats:stop`, `stats:get` (currently mocked in shim).
-- [ ] **Path Utils**: Ensure `path:join` and `path:basename` work reliably (currently rudimentary JS shim).
-
-### Database & Persistence (Critical)
-- [ ] **SQLite Migration**: 
-    - Port `better-sqlite3` logic to `rusqlite`.
-    - Implement `history` table management (insert/read).
-    - Implement `cache` (request cache) table management.
-- [ ] **Settings**: 
-    - Port `settings-main.ts` logic to Rust.
-    - Implement loading/saving of `settings.json` and custom profiles.
+- [ ] **Path Utils**: Refine `path` logic if needed for cross-platform robustness.
 
 ### Bulk Processing (Performance)
 - [ ] **Bulk Whois**: Port the heavy lifting of bulk domain processing from Node.js to Rust threads.
 - [ ] **Export**: Implement CSV/Text export in Rust.
 
 ### Cleanup
-- [ ] **Remove Electron**: Once functional, remove `electron`, `electron-builder`, and related npm scripts.
-- [ ] **Refactor Frontend**: specific `electron` checks in frontend code might need cleanup.
+- [ ] **Remove Electron Dependencies**: Remove `electron`, `@electron/packager`, `electron-rebuild`, etc., from `package.json`.
+- [ ] **Remove Electron Main Code**: Delete `app/ts/main`, `app/ts/preload.cts`, and related files once verified.
+- [ ] **Update Scripts**: Update `package.json` scripts to use `tauri` commands instead of `electron`.
