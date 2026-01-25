@@ -658,3 +658,32 @@ fn main() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_compute_stats_internal() {
+        // Test with a non-existent config path
+        let stats = compute_stats_internal("non_existent.json".to_string(), ".".to_string()).await;
+        assert_eq!(stats.loaded, false);
+        assert!(stats.size > 0); // current dir size should be > 0
+    }
+
+    #[tokio::test]
+    async fn test_db_history() {
+        let db_path = "test_history.sqlite";
+        let _ = fs::remove_file(db_path);
+        
+        let res = db_history_add(db_path.to_string(), "example.com".to_string(), "available".to_string()).await;
+        assert!(res.is_ok());
+        
+        let history = db_history_get(db_path.to_string(), 10).await.unwrap();
+        assert_eq!(history.len(), 1);
+        assert_eq!(history[0].domain, "example.com");
+        
+        let _ = fs::remove_file(db_path);
+    }
+}
+

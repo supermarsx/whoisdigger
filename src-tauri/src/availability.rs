@@ -141,3 +141,25 @@ pub fn get_domain_parameters(
         whoisreply: Some(results_text),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_is_domain_available() {
+        assert_eq!(is_domain_available("No match for domain example.com"), DomainStatus::Available);
+        assert_eq!(is_domain_available("Status: free"), DomainStatus::Available);
+        assert_eq!(is_domain_available("Domain Status:ok"), DomainStatus::Unavailable);
+        assert_eq!(is_domain_available("Expiration Date: 2025-01-01"), DomainStatus::Unavailable);
+        assert_eq!(is_domain_available("Uniregistry Query limit exceeded"), DomainStatus::ErrorRateLimiting);
+    }
+
+    #[test]
+    fn test_get_domain_parameters() {
+        let text = "Domain Name: example.com\nRegistrar: SafeNames\nCreation Date: 2020-01-01".to_string();
+        let params = get_domain_parameters(Some("example.com".to_string()), None, text);
+        assert_eq!(params.registrar.unwrap(), "SafeNames");
+        assert_eq!(params.creation_date.unwrap(), "2020-01-01");
+    }
+}

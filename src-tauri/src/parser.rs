@@ -29,8 +29,22 @@ pub fn pre_string_strip(str: &str) -> String {
 }
 
 pub fn filter_colon_char(raw_data: &str) -> String {
-    let re = Regex::new(r"(?m):\s*\n(?=((?![^:]*:).)*$)").unwrap();
-    re.replace_all(raw_data, ": ").to_string()
+    // Procedural implementation to replace /:\s*\n(?=((?!:).)*$)/gm
+    // This joined lines that had a colon at the end but the next line didn't seem to be a new key.
+    // Actually, let's just do a simpler version: if a line ends with a colon, join it with the next if the next doesn't have a colon.
+    let lines: Vec<&str> = raw_data.lines().collect();
+    let mut result = String::new();
+    for i in 0..lines.len() {
+        let line = lines[i].trim_end();
+        if line.ends_with(':') && i + 1 < lines.len() && !lines[i+1].contains(':') {
+            result.push_str(line);
+            result.push(' ');
+        } else {
+            result.push_str(line);
+            result.push('\n');
+        }
+    }
+    result
 }
 
 pub fn parse_raw_data(raw_data: &str) -> HashMap<String, String> {
@@ -55,6 +69,40 @@ pub fn parse_raw_data(raw_data: &str) -> HashMap<String, String> {
             }
         }
     }
-
     result
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_camel_case() {
+        assert_eq!(camel_case("Domain Name"), "domainName");
+        assert_eq!(camel_case("REGISTRAR"), "registrar");
+        assert_eq!(camel_case("Creation-Date"), "creationDate");
+        assert_eq!(camel_case("  leading space"), "leadingSpace");
+        assert_eq!(camel_case("!!special char"), "specialChar");
+    }
+
+    #[test]
+    fn test_pre_string_strip() {
+        assert_eq!(pre_string_strip("Domain:\t\tValue"), "Domain: Value");
+        assert_eq!(pre_string_strip("Domain:\tValue"), "Domain: Value");
+    }
+
+    #[test]
+    fn test_filter_colon_char() {
+        let input = "Key:\nValue\nNext: Val";
+        let expected = "Key: Value\nNext: Val\n";
+        assert_eq!(filter_colon_char(input), expected);
+    }
+
+    #[test]
+    fn test_parse_raw_data() {
+        let raw = "Domain Name: example.com\nRegistrar: ABC &amp; Co\nEmpty: \nMulti: Line 1\nLine 2";
+        let result = parse_raw_data(raw);
+        assert_eq!(result.get("domainName").unwrap(), "example.com");
+        assert_eq!(result.get("registrar").unwrap(), "ABC & Co");
+    }
 }
