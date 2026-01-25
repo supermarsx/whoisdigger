@@ -63,6 +63,22 @@ window.electron = {
                 return invoke('fs_access', { path: args[0] });
             case 'i18n:load':
                 return invoke('i18n_load', { lang: args[0] });
+            case 'availability:check':
+                return invoke('availability_check', { text: args[0] });
+            case 'availability:params':
+                {
+                    return {
+                        domain: args[0],
+                        status: args[1],
+                        whoisreply: args[2],
+                        whoisJson: args[3],
+                        registrar: args[3]?.registrar || 'n/a',
+                        company: args[3]?.registrantOrganization || args[3]?.registrant || 'n/a',
+                        creationDate: args[3]?.creationDate || args[3]?.created || 'n/a',
+                        updateDate: args[3]?.updatedDate || args[3]?.changed || 'n/a',
+                        expiryDate: args[3]?.registryExpiryDate || args[3]?.expires || 'n/a'
+                    };
+                }
             case 'stats:start':
                 return invoke('stats_start', { configPath: args[0], dataPath: args[1] });
             case 'stats:refresh':
@@ -75,6 +91,13 @@ window.electron = {
                 return invoke('app_get_base_dir');
             case 'app:get-user-data-path':
                 return invoke('app_get_user_data_path');
+            case 'app:open-data-dir':
+                {
+                    const userDataPath = await invoke('app_get_user_data_path');
+                    return invoke('shell_open_path', { path: userDataPath });
+                }
+            case 'shell:openPath':
+                return invoke('shell_open_path', { path: args[0] });
             case 'settings:load':
                 {
                     const userDataPath = await invoke('app_get_user_data_path');
@@ -97,6 +120,8 @@ window.electron = {
                     const dbPath = `${userDataPath}\profiles\default\history-default.sqlite`;
                     return invoke('db_history_clear', { path: dbPath });
                 }
+            case 'history:mode':
+                return 'tauri';
             case 'cache:get':
                 {
                     const userDataPath = await invoke('app_get_user_data_path');

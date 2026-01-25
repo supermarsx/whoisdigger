@@ -2,8 +2,8 @@ import type { IpcChannel } from './ipcChannels.js';
 import type DomainStatus from './status.js';
 import type { WhoisResult } from './availability.js';
 import type { ProcessOptions } from './tools.js';
-import type { BulkWhoisResults } from '#main/bulkwhois/types';
-import type { ExportOptions } from '#main/bulkwhois/export-helpers';
+import type { BulkWhoisResults } from './bulkwhois/types.js';
+import type { ExportOptions } from './bulkwhois/export-helpers.js';
 
 /**
  * Mapping between IPC channels and their request/response payloads.

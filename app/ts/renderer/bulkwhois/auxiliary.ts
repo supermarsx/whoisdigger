@@ -1,5 +1,5 @@
 import { debugFactory } from '../../common/logger.js';
-import type { ExportOptions } from '#main/bulkwhois/export-helpers';
+import type { ExportOptions } from '../../common/bulkwhois/export-helpers.js';
 
 const debug = debugFactory('bulkwhois.auxiliary');
 debug('loaded');

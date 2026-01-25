@@ -13,15 +13,14 @@
 [![Made with Electron](https://img.shields.io/badge/Made%20with-Electron-2b2e3b?logo=electron&logoColor=white)](https://electronjs.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](license.md)
 
-Whoisdigger is a cross-platform bulk WHOIS lookup desktop app built on Electron. Now written in TypeScript.
+Whoisdigger is a cross-platform bulk WHOIS lookup desktop app built on **Tauri v2** with a **Rust** backend. Now written in TypeScript and Rust.
 
-Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on Electron. Made with builders and creators in mind, rapidly lookup up your favorite domain mashups without risking third-party logging, domain squatting and a few other common issues that come with using third-party platforms. The faster, reliable and most private way of looking for domains.
+Whoisdigger is a bulk whois lookup, cross-platform, desktop application. Made with builders and creators in mind, rapidly lookup up your favorite domain mashups without risking third-party logging, domain squatting and a few other common issues that come with using third-party platforms. The faster, reliable and most private way of looking for domains.
 
 ## Index
 
 - [Features](#features)
 - [Quick start](#quick-start)
-- [Setup](#setup)
 - [Development setup](#development-setup)
 - [Building](#building)
 - [Docker](#docker)
@@ -30,25 +29,25 @@ Whoisdigger is a bulk whois lookup, cross-platform, desktop application built on
 
 ## Features
 
-- Fast WHOIS lookup
+- Fast WHOIS lookup using native Rust `whois-rust`
 - Better search privacy
 - Raw text WHOIS replies
-- Bulk WHOIS lookup
+- Bulk WHOIS lookup with multi-threaded performance
 - Bulk DNS sweep lookup
-- Optional request caching with configurable SQLite backend
+- Optional request caching with SQLite backend (`rusqlite`)
 - Proxy support for outgoing requests
 - Wordlist capabilities with drag n' drop
 - IDNA 2003/2008 (UTS46), Punycode, non-ASCII character filter support
 - Public Suffix List (PSL) and wildcard filtering
 - Basic bulk WHOIS result analyser (csv import)
-- Persistent settings through JSON file preload with live updates
+- Persistent settings through JSON file with live updates
 - Redesigned settings interface with auto-save
 - Dark mode toggle
 - Follow system theme option
 
 ### Planned features
 
-- Domain monitor
+- Domain monitor (Rust implementation)
 - Misc tools
 - Settings
 - Help page
@@ -86,11 +85,10 @@ Check out and download the latest release for your architecture/OS.
 
 ![Latest tag](https://img.shields.io/github/tag/whois-team/whoisdigger.svg?label=Latest%20tag&style=flat)
 [![Check out releases](https://img.shields.io/badge/Checkout%20releases-%20-orange.svg)](https://github.com/whois-team/whoisdigger/releases)
-[![Coverage](https://img.shields.io/badge/coverage-generated%20in%20CI-blue.svg)](https://github.com/whois-team/whoisdigger/actions/workflows/node.js.yml)
 
 ### Latest changes
 
-Basic whoisdigger requirements are Node.js v20 or later, `npm` and `git`.
+Basic whoisdigger requirements are Node.js v20 or later, Rust, `npm` and `git`.
 
 Clone whoisdigger code and install dependencies
 
@@ -106,138 +104,35 @@ After clone, run using
 npm start
 ```
 
-which will compile the source to `dist` and launch the application.
+which will launch the application in development mode using Tauri.
 
-### Debug
+## Building
 
-Run with debugging enabled:
-
-```
-npm run debug
-```
-
-Windows Powershell
-
-```
-npm run debug-powershell
-```
-
-Windows Command Line
-
-```
-npm run debug-cmd
-```
-
-### Using wordlists
-
-You can use wordlists by either using a file wordlist in text format or manually input using the text area option. Wordlists should follow sanitization requirements below for the best results although they're not mandatory. Not following the requirements will result in adverse or unwanted results.
-
-Wordlist requirements:
-
-- Deduplicated
-- No spaces
-- No subdomains
-- One domain per line
-- No TLDs
-- UTF-8 encoded
-- No reserved characters such as dots
-
-Example wordlist
-
-wordlist.txt (Text file)
-
-```
-pow
-mow
-cow
-low
-tow
-```
-
-Wordlists by manual input should follow the same rules with the only difference of being pasted at input stage.
-
-#### Sample wordlists
-
-Whoisdigger provides sample wordlists as example for testing purposes inside `sample_lists` folder.
-
-### Exporting bulk processing results
-
-When choosing export options, you can decide what domain status to export, if you want errors included, only basic domain information such as creation, expiration and update dates.
-
-Exporting as text will only export raw replies for each domain in a zip file; as a csv you're able to see both basic information and whois replies (in text, inline csv or separate csv inside a zip file); and as json the structured results array is written to a single file.
-
-### CLI usage
-
-After building the project you can run lookups from the command line:
+Whoisdigger uses a build step before packaging. 
 
 ```bash
-# single domain
-node dist/app/ts/cli.js --domain example.com
-
-# bulk search using a wordlist
-node dist/app/ts/cli.js --wordlist words.txt --tlds com net --format csv --out results.csv
-
-# output JSON results
-node dist/app/ts/cli.js --wordlist words.txt --tlds com net --format json --out results.json
-
-# using a proxy
-node dist/app/ts/cli.js --domain example.com --proxy 127.0.0.1:9050
-
-# using an authenticated proxy
-node dist/app/ts/cli.js --domain example.com --proxy user:pass@127.0.0.1:9050
-
-# use DNS or RDAP lookup
-node dist/app/ts/cli.js --domain example.com --lookup-type dns
-node dist/app/ts/cli.js --domain example.com --lookup-type rdap
-
-Proxies that fail repeatedly are skipped once they exceed the `lookupProxy.retries` threshold (default: 3).
-Each proxy can provide its own credentials via `user:pass@host:port` or configuration objects like `{ proxy: 'host:port', username: 'user', password: 'pass' }`.
-Default credentials may also be supplied through `lookupProxy.username` and `lookupProxy.password` settings.
-
-# adjust concurrency
-node dist/app/ts/cli.js --wordlist words.txt --limit 10
-# defaults to 5 simultaneous lookups
-
-# purge expired cache
-node dist/app/ts/cli.js --purge-cache
-
-# clear entire cache
-node dist/app/ts/cli.js --clear-cache
-
-# download the AI model
-node dist/app/ts/cli.js --download-model
-
-# get AI word suggestions
-node dist/app/ts/cli.js --suggest "short tech names" --suggest-count 5
+npm run build:app
 ```
 
-### HTTP server
+This will compile the TypeScript frontend and build the Rust backend into a production bundle.
 
-Running `node dist/app/ts/server/index.js` starts a small API exposing `/lookup`
-and `/bulk-lookup` routes. Request bodies are parsed with `express.json` and are
-limited to **1&nbsp;MB**. Payloads larger than this size are rejected with a
-`413` response.
+### Adding translations
 
-If a lookup fails, the result for that domain is still included with
-`status` set to `error` and an empty `whoisreply` field.
+Translation files live under `app/locales/` and are simple JSON maps of keys to translated strings.
+Add a new `<lang>.json` file (e.g. `fr.json`) with your translations. When `ui.language` is
+omitted, the application falls back to `navigator.language` (first segment before `-`) to select the
+locale file. To force a specific language, set `ui.language` inside `appsettings.ts`. Templates
+reference strings using the `{{t}}` helper.
 
-### Notes on errors
+## Built with
 
-Errors during bulk lookups are pretty common due to sheer request volume, this means that you'll have requests periodically getting blocked, rejected, throttled or delayed (might result in false negatives, false positives in rare cases or errors). Errors may and usually signal that a domain is already registered, at times you can assume that but take into account the domain name, tld and probability of it being registered. Whoisdigger includes assumptions settings that you can tweak for specific scenarios, see assumptions below for more.
+<a href="https://tauri.app/"><img height=40px src="https://tauri.app/img/tauri-logo.svg"></a>
 
-## Setup
+<a href="https://www.rust-lang.org/"><img height=40px src="https://www.rust-lang.org/static/images/rust-logo-blk.svg"></a>
 
-Run `npm ci` before testing or linting to install the exact dependency versions
-listed in `package-lock.json`.
-If `node_modules` is missing, `npm run prebuild` will automatically fetch
-dependencies before building. This script runs whenever you execute `npm run build`.
+<a href="https://jquery.org/"><img height=40px src="https://upload.wikimedia.org/wikipedia/en/9/9e/JQuery_logo.svg"></a>
 
-### Rebuilding native modules
-
-`npm install` automatically invokes `electron-rebuild` through the `postinstall`
-script so native modules match the bundled Electron runtime.
-If you still see errors about mismatched `NODE_MODULE_VERSION` when launching the
-app, run `npm run rebuild` manually to rebuild dependencies like `better-sqlite3`.
+<a href="https://bulma.io/"><img height=40px src="https://bulma.io/images/made-with-bulma.png"></a>
 
 ## Development setup
 

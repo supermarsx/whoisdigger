@@ -1,8 +1,8 @@
 import defaultExportOptions from './export.defaults.js';
 import { debugFactory } from '../../common/logger.js';
 import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';
-import type { BulkWhoisResults } from '#main/bulkwhois/types';
-import type { ExportOptions } from '#main/bulkwhois/export-helpers';
+import type { BulkWhoisResults } from '../../common/bulkwhois/types.js';
+import type { ExportOptions } from '../../common/bulkwhois/export-helpers.js';
 
 const electron = (window as any).electron as RendererElectronAPI;
 
