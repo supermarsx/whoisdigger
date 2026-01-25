@@ -69,17 +69,16 @@ async fn whois_lookup<R: Runtime>(app_handle: tauri::AppHandle<R>, domain: Strin
     let result = perform_lookup(&domain, 10000).await?;
     
     // Log to history
-    if let Ok(mut path) = app_handle.path().app_data_dir() {
-        path.push("profiles");
-        path.push("default");
-        let _ = fs::create_dir_all(&path);
-        path.push("history-default.sqlite");
-        
-        let status = is_domain_available(&result);
-        let status_str = serde_json::to_value(&status).unwrap().as_str().unwrap_or("unavailable").to_string();
+    let mut path = app_handle.path().app_data_dir().map_err(|e| e.to_string())?;
+    path.push("profiles");
+    path.push("default");
+    let _ = fs::create_dir_all(&path);
+    path.push("history-default.sqlite");
+    
+    let status = is_domain_available(&result);
+    let status_str = serde_json::to_value(&status).unwrap().as_str().unwrap_or("unavailable").to_string();
 
-        let _ = db_history_add(&path.to_string_lossy(), &domain, &status_str);
-    }
+    let _ = db_history_add(&path.to_string_lossy(), &domain, &status_str);
         
     Ok(result)
 }
@@ -207,8 +206,17 @@ async fn app_get_user_data_path<R: Runtime>(app_handle: tauri::AppHandle<R>) -> 
 }
 
 #[tauri::command]
-async fn db_gui_history_get(path: String, limit: u32) -> Result<Vec<HistoryEntry>, String> {
-    db_history_get(&path, limit)
+async fn db_gui_history_get<R: Runtime>(app_handle: tauri::AppHandle<R>, limit: u32) -> Result<Vec<HistoryEntry>, String> {
+    let mut path = app_handle.path().app_data_dir().map_err(|e| e.to_string())?;
+    path.push("profiles");
+    path.push("default");
+    path.push("history-default.sqlite");
+    
+    if !path.exists() {
+        return Ok(Vec::new());
+    }
+    
+    db_history_get(&path.to_string_lossy(), limit)
 }
 
 #[tauri::command]
