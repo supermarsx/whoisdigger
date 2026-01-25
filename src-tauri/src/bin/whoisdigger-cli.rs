@@ -2,7 +2,7 @@ use clap::{Parser, Subcommand, ValueEnum};
 use whoisdigger::{
     perform_lookup, dns_lookup, rdap_lookup, 
     availability::is_domain_available, 
-    db_history_get, db_cache_get, db_cache_set
+    db_history_get
 };
 use indicatif::{ProgressBar, ProgressStyle};
 use tokio::sync::Semaphore;
@@ -98,7 +98,6 @@ enum Commands {
 struct ResultItem {
     domain: String,
     status: String,
-    data: Option<String>,
 }
 
 #[tokio::main]
@@ -139,18 +138,21 @@ async fn main() -> anyhow::Result<()> {
             println!("Exported successfully.");
         },
         Commands::Config { path, set, get } => {
-            let content = fs::read_to_string(&path).unwrap_or_else(|_| "{{}}".to_string());
+            let content = fs::read_to_string(&path).unwrap_or_else(|_| "{}".to_string());
             let mut settings: serde_json::Value = serde_json::from_str(&content)?;
             
             if let Some(key) = get {
-                println!("{{}}: {{}}", key, settings.pointer(&format!("/{{}}", key.replace('.', "/"))).unwrap_or(&serde_json::Value::Null));
-            } else if let Some((k, v)) = kv.split_once('=') {
-                // Simple top-level set for now
-                settings[k] = serde_json::Value::String(v.to_string());
-                fs::write(path, serde_json::to_string_pretty(&settings)?)?;
-                println!("Updated {{}}={{}}", k, v);
+                let ptr = format!("/{}", key.replace('.', "/"));
+                let val = settings.pointer(&ptr).unwrap_or(&serde_json::Value::Null);
+                println!("{}: {}", key, val);
+            } else if let Some(kv_str) = set {
+                if let Some((k, v)) = kv_str.split_once('=') {
+                    settings[k] = serde_json::Value::String(v.to_string());
+                    fs::write(path, serde_json::to_string_pretty(&settings)?)?;
+                    println!("Updated {}={}", k, v);
+                }
             } else {
-                println!("{{}}", serde_json::to_string_pretty(&settings)?);
+                println!("{}", serde_json::to_string_pretty(&settings)?);
             }
         }
     }
@@ -159,27 +161,27 @@ async fn main() -> anyhow::Result<()> {
 }
 
 async fn process_single(domain: &str, timeout: u64, lookup_type: &LookupType) -> anyhow::Result<()> {
-    println!("Looking up {{}} using {{:?}}...", domain, lookup_type);
+    println!("Looking up {} using {:?}...", domain, lookup_type);
     match lookup_type {
         LookupType::Whois => {
             match perform_lookup(domain, timeout).await {
                 Ok(res) => {
-                    println!("Status: {{:?}}", is_domain_available(&res));
-                    println!("---\n{{}}\n---", res);
+                    println!("Status: {:?}", is_domain_available(&res));
+                    println!("---\n{}\n---", res);
                 }
-                Err(e) => eprintln!("Error: {{}}", e),
+                Err(e) => eprintln!("Error: {}", e),
             }
         }
         LookupType::Dns => {
             match dns_lookup(domain).await {
-                Ok(exists) => println!("NS Records found: {{}}", exists),
-                Err(e) => eprintln!("Error: {{}}", e),
+                Ok(exists) => println!("NS Records found: {}", exists),
+                Err(e) => eprintln!("Error: {}", e),
             }
         }
         LookupType::Rdap => {
             match rdap_lookup(domain).await {
-                Ok(res) => println!("---\n{{}}\n---", res),
-                Err(e) => eprintln!("Error: {{}}", e),
+                Ok(res) => println!("---\n{}\n---", res),
+                Err(e) => eprintln!("Error: {}", e),
             }
         }
     }
@@ -194,11 +196,11 @@ async fn process_bulk(path: &str, tlds_str: &str, concurrency: usize, timeout: u
     let mut domains = Vec::new();
     for line in lines {
         for tld in &tlds {
-            domains.push(format!("{{}}.{{}}", line, tld));
+            domains.push(format!("{}.{}", line, tld));
         }
     }
 
-    println!("Starting bulk lookup for {{}} domains (concurrency: {{}}, type: {{:?}})...", 
+    println!("Starting bulk lookup for {} domains (concurrency: {}, type: {:?})...", 
         domains.len(), concurrency, lookup_type);
     
     let pb = ProgressBar::new(domains.len() as u64);
@@ -235,9 +237,9 @@ async fn process_bulk(path: &str, tlds_str: &str, concurrency: usize, timeout: u
         let (dom, res) = r?;
         let status = match res {
             Ok(s) => s,
-            Err(e) => format!("Error: {{}}", e),
+            Err(e) => format!("Error: {}", e),
         };
-        println!("{{}}: {{}}", dom, status);
+        println!("{}: {}", dom, status);
     }
     Ok(())
 }
