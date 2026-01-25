@@ -67,6 +67,13 @@ window.electron = {
                 return invoke('app_get_base_dir');
             case 'app:get-user-data-path':
                 return invoke('app_get_user_data_path');
+            case 'app:open-data-dir':
+                {
+                    const userDataPath = await invoke('app_get_user_data_path');
+                    return invoke('shell_open_path', { path: userDataPath });
+                }
+            case 'shell:openPath':
+                return invoke('shell_open_path', { path: args[0] });
             case 'settings:load':
                 {
                     const userDataPath = await invoke('app_get_user_data_path');
@@ -110,9 +117,9 @@ window.electron = {
                     return invoke('db_cache_clear', { path: dbPath });
                 }
             case 'path:join':
-                return args.join('\').replace(/[/\]+/g, '\'); 
+                return args.join('\\').replace(/[/\\]+/g, '\\'); 
             case 'path:basename':
-                 return args[0].split(/[\/]/).pop();
+                 return args[0].split(/[/\\]/).pop();
             default:
                 console.warn(`[Tauri] Unhandled invoke: ${channel}`);
                 return null;
@@ -173,8 +180,8 @@ window.electron = {
     getBaseDir: () => invoke('app_get_base_dir'),
     openDataDir: () => invoke('shell_open_path', { path: 'data' }), // Placeholder
     path: {
-        join: (...args) => args.join('\').replace(/[/\]+/g, '\'),
-        basename: (p) => p.split(/[\/]/).pop()
+        join: (...args) => args.join('\\').replace(/[/\\]+/g, '\\'),
+        basename: (p) => p.split(/[/\\]/).pop()
     }
 };
 console.log("Tauri shim loaded.");

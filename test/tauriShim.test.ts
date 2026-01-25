@@ -55,6 +55,45 @@ describe('Tauri Shim', () => {
         expect(res.settings.key).toBe('val');
         expect(res.userDataPath).toBe('path');
     });
+
+    test('maps availability:check', async () => {
+        invokeMock.mockResolvedValue('available');
+        const res = await electron.invoke('availability:check', 'some text');
+        expect(invokeMock).toHaveBeenCalledWith('availability_check', { text: 'some text' });
+        expect(res).toBe('available');
+    });
+
+    test('maps availability:params', async () => {
+        const mockParams = { registrar: 'ABC' };
+        invokeMock.mockResolvedValue(mockParams);
+        const res = await electron.invoke('availability:params', 'test.com', 'available', 'raw text');
+        expect(invokeMock).toHaveBeenCalledWith('availability_params', { 
+            domain: 'test.com', 
+            status: 'available', 
+            text: 'raw text' 
+        });
+        expect(res).toEqual(mockParams);
+    });
+
+    test('maps shell:openPath', async () => {
+        await electron.invoke('shell:openPath', 'some/path');
+        expect(invokeMock).toHaveBeenCalledWith('shell_open_path', { path: 'some/path' });
+    });
+
+    test('maps bulkwhois:export', async () => {
+        const results = { domain: ['a.com'], status: ['available'] };
+        const options = { filetype: 'csv' };
+        const saveMock = (window as any).__TAURI__.dialog.save;
+        saveMock.mockResolvedValue('path/to/save.csv');
+        
+        await electron.invoke('bulkwhois:export', results, options);
+        expect(saveMock).toHaveBeenCalled();
+        expect(invokeMock).toHaveBeenCalledWith('bulk_whois_export', { 
+            results, 
+            options, 
+            path: 'path/to/save.csv' 
+        });
+    });
 });
 
 // Helper for matching objects with subset of keys

@@ -10,7 +10,7 @@ use std::path::Path;
 use serde::{Serialize, Deserialize};
 use rusqlite::{params, Connection};
 use chrono::Utc;
-use tauri::{Manager, Emitter, State};
+use tauri::{Manager, Emitter, State, Runtime};
 use std::sync::Arc;
 use tokio::sync::{Semaphore, Mutex as AsyncMutex};
 use futures::future::join_all;
@@ -72,7 +72,7 @@ struct AppData {
 }
 
 #[tauri::command]
-async fn whois_lookup(app_handle: tauri::AppHandle, domain: String) -> Result<String, String> {
+async fn whois_lookup<R: Runtime>(app_handle: tauri::AppHandle<R>, domain: String) -> Result<String, String> {
     let whois = WhoIs::from_string(&format!(
         "{{\"server\": null, \"port\": 43, \"timeout\": 10000, \"follow\": 0, \"punycode\": false}}"
     )).map_err(|e| e.to_string())?;
@@ -153,12 +153,12 @@ async fn fs_write_file(path: String, content: String) -> Result<(), String> {
 }
 
 #[tauri::command]
-async fn shell_open_path(app_handle: tauri::AppHandle, path: String) -> Result<(), String> {
+async fn shell_open_path<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String) -> Result<(), String> {
     app_handle.shell().open(path, None).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-async fn i18n_load(_app_handle: tauri::AppHandle, lang: String) -> Result<String, String> {
+async fn i18n_load<R: Runtime>(_app_handle: tauri::AppHandle<R>, lang: String) -> Result<String, String> {
     let mut path = std::env::current_dir().map_err(|e| e.to_string())?;
     path.push("dist");
     path.push("app");
@@ -180,13 +180,13 @@ async fn i18n_load(_app_handle: tauri::AppHandle, lang: String) -> Result<String
 }
 
 #[tauri::command]
-async fn app_get_base_dir(_app_handle: tauri::AppHandle) -> Result<String, String> {
+async fn app_get_base_dir<R: Runtime>(_app_handle: tauri::AppHandle<R>) -> Result<String, String> {
     let path = std::env::current_dir().map_err(|e| e.to_string())?;
     Ok(path.to_string_lossy().to_string())
 }
 
 #[tauri::command]
-async fn app_get_user_data_path(app_handle: tauri::AppHandle) -> Result<String, String> {
+async fn app_get_user_data_path<R: Runtime>(app_handle: tauri::AppHandle<R>) -> Result<String, String> {
     let path = app_handle.path().app_data_dir().map_err(|e| e.to_string())?;
     if !path.exists() {
         fs::create_dir_all(&path).map_err(|e| e.to_string())?;
@@ -320,8 +320,8 @@ struct BulkResult {
 }
 
 #[tauri::command]
-async fn bulk_whois_lookup(
-    app_handle: tauri::AppHandle,
+async fn bulk_whois_lookup<R: Runtime>(
+    app_handle: tauri::AppHandle<R>,
     domains: Vec<String>,
     concurrency: usize,
     timeout_ms: u64,
@@ -404,7 +404,7 @@ async fn bulk_whois_export(
             for r in &results {
                 let registrar = r.params.as_ref().and_then(|p| p.registrar.as_ref()).map(|s| s.as_str()).unwrap_or("");
                 let company = r.params.as_ref().and_then(|p| p.company.as_ref()).map(|s| s.as_str()).unwrap_or("");
-                content.push_str(&format!("\"{}\",\"{}\",\"{}\",\"{}\"\n", r.domain, r.status, registrar, company));
+                content.push_str(&format!("\"{{}}\"", r.domain, r.status, registrar, company));
             }
             zip.write_all(content.as_bytes()).map_err(|e| e.to_string())?;
         }
@@ -422,7 +422,7 @@ async fn bulk_whois_export(
         for r in &results {
             let registrar = r.params.as_ref().and_then(|p| p.registrar.as_ref()).map(|s| s.as_str()).unwrap_or("");
             let company = r.params.as_ref().and_then(|p| p.company.as_ref()).map(|s| s.as_str()).unwrap_or("");
-            content.push_str(&format!("\"{}\",\"{}\",\"{}\",\"{}\"\n", r.domain, r.status, registrar, company));
+            content.push_str(&format!("\"{{}}\"", r.domain, r.status, registrar, company));
         }
         fs::write(path, content).map_err(|e| e.to_string())?;
     }
@@ -430,7 +430,7 @@ async fn bulk_whois_export(
 }
 
 #[tauri::command]
-async fn settings_load(app_handle: tauri::AppHandle, filename: String) -> Result<String, String> {
+async fn settings_load<R: Runtime>(app_handle: tauri::AppHandle<R>, filename: String) -> Result<String, String> {
     let mut path = app_handle.path().app_data_dir().map_err(|e| e.to_string())?;
     path.push(filename);
     if !path.exists() {
@@ -440,7 +440,7 @@ async fn settings_load(app_handle: tauri::AppHandle, filename: String) -> Result
 }
 
 #[tauri::command]
-async fn settings_save(app_handle: tauri::AppHandle, filename: String, content: String) -> Result<(), String> {
+async fn settings_save<R: Runtime>(app_handle: tauri::AppHandle<R>, filename: String, content: String) -> Result<(), String> {
     let mut path = app_handle.path().app_data_dir().map_err(|e| e.to_string())?;
     fs::create_dir_all(&path).map_err(|e| e.to_string())?;
     path.push(filename);
@@ -449,7 +449,7 @@ async fn settings_save(app_handle: tauri::AppHandle, filename: String, content: 
 }
 
 #[tauri::command]
-async fn config_delete(app_handle: tauri::AppHandle, filename: String) -> Result<(), String> {
+async fn config_delete<R: Runtime>(app_handle: tauri::AppHandle<R>, filename: String) -> Result<(), String> {
     let mut path = app_handle.path().app_data_dir().map_err(|e| e.to_string())?;
     path.push(filename);
     if path.exists() {
@@ -511,8 +511,8 @@ async fn stats_get(config_path: String, data_path: String) -> Result<AppStats, S
 }
 
 #[tauri::command]
-async fn stats_start(
-    app_handle: tauri::AppHandle,
+async fn stats_start<R: Runtime>(
+    app_handle: tauri::AppHandle<R>,
     data: State<'_, AppData>,
     config_path: String,
     data_path: String,
@@ -537,8 +537,8 @@ async fn stats_start(
 }
 
 #[tauri::command]
-async fn stats_refresh(
-    app_handle: tauri::AppHandle,
+async fn stats_refresh<R: Runtime>(
+    app_handle: tauri::AppHandle<R>,
     data: State<'_, AppData>,
     id: u32,
 ) -> Result<(), String> {
@@ -565,7 +565,7 @@ async fn stats_stop(
 }
 
 #[tauri::command]
-async fn monitor_start(app_handle: tauri::AppHandle, data: State<'_, AppData>) -> Result<(), String> {
+async fn monitor_start<R: Runtime>(app_handle: tauri::AppHandle<R>, data: State<'_, AppData>) -> Result<(), String> {
     let mut monitor = data.monitor.lock().await;
     if monitor.active { return Ok(()); } 
     
@@ -665,10 +665,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_compute_stats_internal() {
-        // Test with a non-existent config path
         let stats = compute_stats_internal("non_existent.json".to_string(), ".".to_string()).await;
         assert_eq!(stats.loaded, false);
-        assert!(stats.size > 0); // current dir size should be > 0
+        assert!(stats.size > 0);
     }
 
     #[tokio::test]
@@ -685,5 +684,43 @@ mod tests {
         
         let _ = fs::remove_file(db_path);
     }
-}
 
+    #[tokio::test]
+    async fn test_db_cache() {
+        let db_path = "test_cache.sqlite";
+        let _ = fs::remove_file(db_path);
+        
+        let res = db_cache_set(db_path.to_string(), "key1".to_string(), "resp1".to_string(), Some(10)).await;
+        assert!(res.is_ok());
+        
+        let val = db_cache_get(db_path.to_string(), "key1".to_string(), None).await.unwrap();
+        assert_eq!(val, Some("resp1".to_string()));
+        
+        tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
+        let val_expired = db_cache_get(db_path.to_string(), "key1".to_string(), Some(1)).await.unwrap();
+        assert_eq!(val_expired, None);
+        
+        let _ = fs::remove_file(db_path);
+    }
+
+    #[tokio::test]
+    async fn test_availability_commands() {
+        let res = availability_check("No match for domain example.com".to_string()).await;
+        assert_eq!(res, "available");
+        
+        let params = availability_params(Some("test.com".to_string()), None, "Domain Name: test.com\nRegistrar: ABC".to_string()).await;
+        assert_eq!(params.domain.unwrap(), "test.com");
+        assert_eq!(params.registrar.unwrap(), "ABC");
+    }
+
+    #[tokio::test]
+    async fn test_bulk_lookup_logic() {
+        let app = tauri::test::mock_app();
+        let domains = vec!["google.com".to_string(), "available-test-123.com".to_string()];
+        
+        let results = bulk_whois_lookup(app.app_handle().clone(), domains, 2, 5000).await.unwrap();
+        assert_eq!(results.len(), 2);
+        assert!(!results[0].status.is_empty());
+        assert!(!results[1].status.is_empty());
+    }
+}
