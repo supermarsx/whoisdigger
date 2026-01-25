@@ -24,6 +24,10 @@ walkdir = "2"
 regex = "1"
 zip = "2"
 html-escape = "0.2"
+trust-dns-resolver = "0.23"
+reqwest = { version = "0.12", features = ["json"] }
+indicatif = "0.17"
+clap = { version = "4", features = ["derive"] }
 anyhow = "1"
 thiserror = "1"
 log = "0.4"

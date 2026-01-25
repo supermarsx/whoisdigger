@@ -3,10 +3,10 @@
   "version": "0.2.0",
   "identifier": "com.whoisteam.whoisdigger",
   "build": {
-    "beforeDevCommand": "npm run build:css",
-    "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "npm run build && npm run build:css",
-    "frontendDist": "../dist/app"
+    "beforeDevCommand": "npm run dev --prefix ../ui",
+    "devUrl": "http://localhost:3000",
+    "beforeBuildCommand": "npm run build --prefix ../ui",
+    "frontendDist": "../ui/out"
   },
   "app": {
     "windows": [

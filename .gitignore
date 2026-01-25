@@ -19,3 +19,5 @@ app/vendor/*
 app/compiled-templates/
 
 /src-tauri/target
+/ui/.next
+/ui/out

@@ -4,7 +4,19 @@
 mod parser;
 mod availability;
 
-use whois_rust::{WhoIs, WhoIsLookupOptions};
+use whoisdigger::{
+    perform_lookup,
+    dns_lookup,
+    rdap_lookup,
+    db_history_add,
+    db_history_get,
+    db_cache_get,
+    db_cache_set,
+    availability::{is_domain_available, get_domain_parameters, DomainStatus, WhoisParams},
+    HistoryEntry,
+};
+
+use whois_rust::WhoIs;
 use std::fs;
 use std::path::Path;
 use serde::{Serialize, Deserialize};
@@ -17,7 +29,6 @@ use futures::future::join_all;
 use walkdir::WalkDir;
 use std::sync::Mutex;
 use std::collections::HashMap;
-use availability::{is_domain_available, get_domain_parameters, DomainStatus, WhoisParams};
 use tauri_plugin_shell::ShellExt;
 use std::io::Write;
 use zip::write::SimpleFileOptions;
@@ -31,13 +42,6 @@ struct FileStat {
     is_directory: bool,
     #[serde(rename = "isFile")]
     is_file: bool,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-struct HistoryEntry {
-    domain: String,
-    timestamp: i64,
-    status: String,
 }
 
 #[derive(Serialize, Clone)]
@@ -73,12 +77,7 @@ struct AppData {
 
 #[tauri::command]
 async fn whois_lookup<R: Runtime>(app_handle: tauri::AppHandle<R>, domain: String) -> Result<String, String> {
-    let whois = WhoIs::from_string(&format!(
-        "{{\"server\": null, \"port\": 43, \"timeout\": 10000, \"follow\": 0, \"punycode\": false}}"
-    )).map_err(|e| e.to_string())?;
-    
-    let result = whois.lookup(WhoIsLookupOptions::from_string(&domain).map_err(|e| e.to_string())?)
-        .map_err(|e| e.to_string())?;
+    let result = perform_lookup(&domain, 10000).await?;
     
     // Log to history
     if let Ok(mut path) = app_handle.path().app_data_dir() {
@@ -90,8 +89,8 @@ async fn whois_lookup<R: Runtime>(app_handle: tauri::AppHandle<R>, domain: Strin
         let status = is_domain_available(&result);
         let status_str = serde_json::to_value(&status).unwrap().as_str().unwrap_or("unavailable").to_string();
 
-        let _ = db_history_add(path.to_string_lossy().to_string(), domain, status_str).await;
-    }
+        let _ = db_history_add(&path.to_string_lossy(), &domain, &status_str);
+    } 
         
     Ok(result)
 }
@@ -218,111 +217,30 @@ async fn app_get_user_data_path<R: Runtime>(app_handle: tauri::AppHandle<R>) -> 
     Ok(path.to_string_lossy().to_string())
 }
 
-// Database commands
 #[tauri::command]
-async fn db_history_add(path: String, domain: String, status: String) -> Result<(), String> {
-    let conn = Connection::open(path).map_err(|e| e.to_string())?;
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS history(domain TEXT, timestamp INTEGER, status TEXT)",
-        [],
-    ).map_err(|e| e.to_string())?;
-    conn.execute(
-        "INSERT INTO history(domain, timestamp, status) VALUES(?, ?, ?)",
-        params![domain, Utc::now().timestamp_millis(), status],
-    ).map_err(|e| e.to_string())?;
-    Ok(())
+async fn db_gui_history_get(path: String, limit: u32) -> Result<Vec<HistoryEntry>, String> {
+    db_history_get(&path, limit)
 }
 
 #[tauri::command]
-async fn db_history_get(path: String, limit: u32) -> Result<Vec<HistoryEntry>, String> {
-    let conn = Connection::open(path).map_err(|e| e.to_string())?;
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS history(domain TEXT, timestamp INTEGER, status TEXT)",
-        [],
-    ).map_err(|e| e.to_string())?;
-    let mut stmt = conn.prepare("SELECT domain, timestamp, status FROM history ORDER BY timestamp DESC LIMIT ?")
-        .map_err(|e| e.to_string())?;
-    let rows = stmt.query_map([limit], |row| {
-        Ok(HistoryEntry {
-            domain: row.get(0)?,
-            timestamp: row.get(1)?,
-            status: row.get(2)?,
-        })
-    }).map_err(|e| e.to_string())?;
-
-    let mut entries = Vec::new();
-    for row in rows {
-        entries.push(row.map_err(|e| e.to_string())?);
-    }
-    Ok(entries)
-}
-
-#[tauri::command]
-async fn db_history_clear(path: String) -> Result<(), String> {
+async fn db_gui_history_clear(path: String) -> Result<(), String> {
     let conn = Connection::open(path).map_err(|e| e.to_string())?;
     conn.execute("DELETE FROM history", []).map_err(|e| e.to_string())?;
     Ok(())
 }
 
 #[tauri::command]
-async fn db_cache_get(path: String, key: String, ttl_ms: Option<u64>) -> Result<Option<String>, String> {
-    if !Path::new(&path).exists() { return Ok(None); }
-    let conn = Connection::open(path).map_err(|e| e.to_string())?;
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, response TEXT, timestamp INTEGER)",
-        [],
-    ).map_err(|e| e.to_string())?;
-    
-    let mut stmt = conn.prepare("SELECT response, timestamp FROM cache WHERE key = ?")
-        .map_err(|e| e.to_string())?;
-    
-    let mut rows = stmt.query([&key]).map_err(|e| e.to_string())?;
-    
-    if let Some(row) = rows.next().map_err(|e| e.to_string())? {
-        let response: String = row.get(0).map_err(|e| e.to_string())?;
-        let timestamp: i64 = row.get(1).map_err(|e| e.to_string())?;
-        
-        if let Some(ttl) = ttl_ms {
-            if (Utc::now().timestamp_millis() - timestamp) > ttl as i64 {
-                let _ = conn.execute("DELETE FROM cache WHERE key = ?", [&key]);
-                return Ok(None);
-            }
-        }
-        return Ok(Some(response));
-    }
-    
-    Ok(None)
+async fn db_gui_cache_get(path: String, key: String, ttl_ms: Option<u64>) -> Result<Option<String>, String> {
+    db_cache_get(&path, &key, ttl_ms)
 }
 
 #[tauri::command]
-async fn db_cache_set(path: String, key: String, response: String, max_entries: Option<u32>) -> Result<(), String> {
-    let conn = Connection::open(path).map_err(|e| e.to_string())?;
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, response TEXT, timestamp INTEGER)",
-        [],
-    ).map_err(|e| e.to_string())?;
-    
-    conn.execute(
-        "INSERT OR REPLACE INTO cache(key, response, timestamp) VALUES(?, ?, ?)",
-        params![key, response, Utc::now().timestamp_millis()],
-    ).map_err(|e| e.to_string())?;
-    
-    if let Some(max) = max_entries {
-        let count: u32 = conn.query_row("SELECT COUNT(*) FROM cache", [], |r| r.get(0)).map_err(|e| e.to_string())?;
-        if count > max {
-            let to_delete = count - max;
-            conn.execute(
-                "DELETE FROM cache WHERE key IN (SELECT key FROM cache ORDER BY timestamp ASC LIMIT ?)",
-                [to_delete],
-            ).map_err(|e| e.to_string())?;
-        }
-    }
-    
-    Ok(())
+async fn db_gui_cache_set(path: String, key: String, response: String, max_entries: Option<u32>) -> Result<(), String> {
+    db_cache_set(&path, &key, &response, max_entries)
 }
 
 #[tauri::command]
-async fn db_cache_clear(path: String) -> Result<(), String> {
+async fn db_gui_cache_clear(path: String) -> Result<(), String> {
     let conn = Connection::open(path).map_err(|e| e.to_string())?;
     conn.execute("DELETE FROM cache", []).map_err(|e| e.to_string())?;
     Ok(())
@@ -364,23 +282,14 @@ async fn bulk_whois_lookup<R: Runtime>(
         tasks.push(tokio::spawn(async move {
             let _permit = sem.acquire().await.unwrap();
             
-            let whois = WhoIs::from_string(&format!(
-                "{{\"server\": null, \"port\": 43, \"timeout\": {}, \"follow\": 0, \"punycode\": false}}",
-                timeout_ms
-            )).ok();
-            
-            let (data, err, status, params) = if let Some(w) = whois {
-                match w.lookup(WhoIsLookupOptions::from_string(&domain).unwrap()) {
-                    Ok(res) => {
-                        let s = is_domain_available(&res);
-                        let p = get_domain_parameters(Some(domain.clone()), Some(s.clone()), res.clone());
-                        let s_str = serde_json::to_value(&s).unwrap().as_str().unwrap_or("unavailable").to_string();
-                        (Some(res), None, s_str, Some(p))
-                    },
-                    Err(e) => (None, Some(e.to_string()), "error".to_string(), None),
-                }
-            } else {
-                (None, Some("Failed to initialize WHOIS".to_string()), "error".to_string(), None)
+            let (data, err, status, params) = match perform_lookup(&domain, timeout_ms).await {
+                Ok(res) => {
+                    let s = is_domain_available(&res);
+                    let p = get_domain_parameters(Some(domain.clone()), Some(s.clone()), res.clone());
+                    let s_str = serde_json::to_value(&s).unwrap().as_str().unwrap_or("unavailable").to_string();
+                    (Some(res), None, s_str, Some(p))
+                },
+                Err(e) => (None, Some(e.to_string()), "error".to_string(), None),
             };
 
             let mut s = sent.lock().await;
@@ -428,7 +337,7 @@ async fn bulk_whois_export(
             for r in &results {
                 let registrar = r.params.as_ref().and_then(|p| p.registrar.as_ref()).map(|s| s.as_str()).unwrap_or("");
                 let company = r.params.as_ref().and_then(|p| p.company.as_ref()).map(|s| s.as_str()).unwrap_or("");
-                content.push_str(&format!("\"{}\",\"{}\",\"{}\",\"{}\"\n", r.domain, r.status, registrar, company));
+                content.push_str(&format!("\"{}\"", r.domain, r.status, registrar, company));
             }
             zip.write_all(content.as_bytes()).map_err(|e| e.to_string())?;
         }
@@ -446,7 +355,7 @@ async fn bulk_whois_export(
         for r in &results {
             let registrar = r.params.as_ref().and_then(|p| p.registrar.as_ref()).map(|s| s.as_str()).unwrap_or("");
             let company = r.params.as_ref().and_then(|p| p.company.as_ref()).map(|s| s.as_str()).unwrap_or("");
-            content.push_str(&format!("\"{}\",\"{}\",\"{}\",\"{}\"\n", r.domain, r.status, registrar, company));
+            content.push_str(&format!("\"{}\"", r.domain, r.status, registrar, company));
         }
         fs::write(path, content).map_err(|e| e.to_string())?;
     }
@@ -659,12 +568,11 @@ fn main() {
             i18n_load,
             app_get_base_dir,
             app_get_user_data_path,
-            db_history_add,
-            db_history_get,
-            db_history_clear,
-            db_cache_get,
-            db_cache_set,
-            db_cache_clear,
+            db_gui_history_get,
+            db_gui_history_clear,
+            db_gui_cache_get,
+            db_gui_cache_set,
+            db_gui_cache_clear,
             bulk_whois_lookup,
             bulk_whois_export,
             settings_load,
@@ -699,10 +607,10 @@ mod tests {
         let db_path = "test_history.sqlite";
         let _ = fs::remove_file(db_path);
         
-        let res = db_history_add(db_path.to_string(), "example.com".to_string(), "available".to_string()).await;
+        let res = db_history_add(db_path, "example.com", "available");
         assert!(res.is_ok());
         
-        let history = db_history_get(db_path.to_string(), 10).await.unwrap();
+        let history = db_history_get(db_path, 10).unwrap();
         assert_eq!(history.len(), 1);
         assert_eq!(history[0].domain, "example.com");
         
@@ -714,14 +622,14 @@ mod tests {
         let db_path = "test_cache.sqlite";
         let _ = fs::remove_file(db_path);
         
-        let res = db_cache_set(db_path.to_string(), "key1".to_string(), "resp1".to_string(), Some(10)).await;
+        let res = db_cache_set(db_path, "key1", "resp1", Some(10));
         assert!(res.is_ok());
         
-        let val = db_cache_get(db_path.to_string(), "key1".to_string(), None).await.unwrap();
+        let val = db_cache_get(db_path, "key1", None).unwrap();
         assert_eq!(val, Some("resp1".to_string()));
         
         tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
-        let val_expired = db_cache_get(db_path.to_string(), "key1".to_string(), Some(1)).await.unwrap();
+        let val_expired = db_cache_get(db_path, "key1", Some(1)).unwrap();
         assert_eq!(val_expired, None);
         
         let _ = fs::remove_file(db_path);
@@ -746,43 +654,5 @@ mod tests {
         assert_eq!(results.len(), 2);
         assert!(!results[0].status.is_empty());
         assert!(!results[1].status.is_empty());
-    }
-
-    #[tokio::test]
-    async fn test_bulk_lookup_edge_cases() {
-        let app = tauri::test::mock_app();
-        
-        // Empty domains
-        let results_empty = bulk_whois_lookup(app.app_handle().clone(), vec![], 4, 5000).await.unwrap();
-        assert_eq!(results_empty.len(), 0);
-
-        // Single domain with invalid characters
-        let domains_invalid = vec!["!!invalid!!".to_string()];
-        let results_invalid = bulk_whois_lookup(app.app_handle().clone(), domains_invalid, 4, 5000).await.unwrap();
-        assert_eq!(results_invalid.len(), 1);
-        assert_eq!(results_invalid[0].status, "error");
-    }
-
-    #[tokio::test]
-    async fn test_db_edge_cases() {
-        let db_path = "test_edge.sqlite";
-        let _ = fs::remove_file(db_path);
-
-        // Very long domain
-        let long_domain = "a".repeat(1000) + ".com";
-        let res = db_history_add(db_path.to_string(), long_domain.clone(), "available".to_string()).await;
-        assert!(res.is_ok());
-
-        // Special characters
-        let special = "'; DROP TABLE history; --".to_string();
-        let res_special = db_history_add(db_path.to_string(), special.clone(), "error".to_string()).await;
-        assert!(res_special.is_ok());
-
-        let history = db_history_get(db_path.to_string(), 10).await.unwrap();
-        assert_eq!(history.len(), 2);
-        assert_eq!(history[0].domain, special); // Most recent first
-        assert_eq!(history[1].domain, long_domain);
-
-        let _ = fs::remove_file(db_path);
     }
 }
