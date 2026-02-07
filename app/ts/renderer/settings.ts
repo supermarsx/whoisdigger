@@ -1,29 +1,9 @@
 import { qs, qsa, on } from '../utils/dom.js';
 import { debugFactory } from '../common/logger.js';
 import { IpcChannel } from '../common/ipcChannels.js';
-import type * as fs from 'fs';
 import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
 
-const electron = (window as any).electron as RendererElectronAPI & {
-  getBaseDir: () => Promise<string>;
-  readFile: (p: string, opts?: BufferEncoding | fs.ReadFileOptions) => Promise<any>;
-  stat: (p: string) => Promise<any>;
-  readdir: (p: string, opts?: fs.ReaddirOptions) => Promise<any>;
-  unlink: (p: string) => Promise<any>;
-  access: (p: string, mode?: number) => Promise<any>;
-  exists: (p: string) => Promise<any>;
-  watch: (
-    p: string,
-    opts: fs.WatchOptions,
-    cb: (evt: { event: string; filename: string | null }) => void
-  ) => Promise<{ close: () => void }>;
-  path: { join: (...args: string[]) => Promise<string>; basename: (p: string) => Promise<string> };
-  send: (channel: string, ...args: any[]) => void;
-  invoke: (channel: string, ...args: any[]) => Promise<any>;
-  on: (channel: string, listener: (...args: any[]) => void) => void;
-  off: (channel: string, listener: (...args: any[]) => void) => void;
-  openDataDir: () => Promise<any>;
-};
+const electron = (window as any).electron as RendererElectronAPI;
 
 const debug = debugFactory('renderer.options');
 debug('loaded');

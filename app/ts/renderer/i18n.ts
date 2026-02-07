@@ -1,7 +1,5 @@
 import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
-const electron = (window as any).electron as RendererElectronAPI & {
-  path: { join: (...args: string[]) => Promise<string> };
-};
+const electron = (window as any).electron as RendererElectronAPI;
 import Handlebars from '../../vendor/handlebars.runtime.js';
 import { debugFactory } from '../common/logger.js';
 

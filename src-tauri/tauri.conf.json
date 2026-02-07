@@ -3,25 +3,25 @@
   "version": "0.2.0",
   "identifier": "com.whoisteam.whoisdigger",
   "build": {
-    "beforeDevCommand": "npm run dev --prefix ../ui",
-    "devUrl": "http://localhost:3000",
-    "beforeBuildCommand": "npm run build --prefix ../ui",
-    "frontendDist": "../ui/out"
+    "beforeDevCommand": "npm run build && npm run build:css",
+    "beforeBuildCommand": "npm run build && npm run build:css",
+    "frontendDist": "../dist/app/html"
   },
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "whoisdigger",
         "width": 1000,
         "height": 700,
         "resizable": true,
         "fullscreen": false,
         "visible": false,
-        "url": "html/mainPanel.html"
+        "url": "mainPanel.html"
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"
     }
   },
   "bundle": {
@@ -35,7 +35,12 @@
       "icons/icon.ico"
     ],
     "resources": [
-      "../dist/app/locales/*"
+      "../dist/app/locales/*",
+      "../dist/app/css/*",
+      "../dist/app/vendor/*",
+      "../dist/app/fonts/*",
+      "../dist/app/compiled-templates/*",
+      "../dist/app/data/*"
     ]
   },
   "plugins": {

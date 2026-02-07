@@ -10,7 +10,16 @@
         listen: jest.fn().mockResolvedValue(() => {})
     },
     dialog: {
-        save: jest.fn()
+        save: jest.fn(),
+        open: jest.fn()
+    },
+    window: {
+        getCurrentWindow: () => ({
+            minimize: jest.fn(),
+            toggleMaximize: jest.fn(),
+            close: jest.fn(),
+            show: jest.fn()
+        })
     }
 };
 
@@ -38,7 +47,11 @@ describe('Tauri Shim', () => {
     test('maps bulkwhois:lookup', async () => {
         invokeMock.mockResolvedValue([]);
         await electron.invoke('bulkwhois:lookup', ['a.com'], ['com']);
-        expect(invokeMock).toHaveBeenCalledWith('bulk_whois_lookup', expect.object_with({ domains: ['a.com'] }));
+        expect(invokeMock).toHaveBeenCalledWith('bulk_whois_lookup', {
+            domains: ['a.com'],
+            concurrency: 4,
+            timeoutMs: 5000,
+        });
     });
 
     test('maps fs:readFile', async () => {

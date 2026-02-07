@@ -1,23 +1,12 @@
 import * as conversions from '../../common/conversions.js';
 import type { FileStats } from '../../common/fileStats.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
-import type * as fs from 'fs';
 import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';
 const debug = debugFactory('bulkwhois.fileinput');
 const error = errorFactory('bulkwhois.fileinput');
 debug('loaded');
 
-const electron = (window as any).electron as RendererElectronAPI & {
-  bwFileRead: (p: string) => Promise<Buffer>;
-  watch: (
-    prefix: string,
-    p: string,
-    opts: fs.WatchOptions,
-    cb: (evt: { event: string; filename: string | null }) => void
-  ) => Promise<{ close: () => void }>;
-  stat: (p: string) => Promise<any>;
-  path: { basename: (p: string) => Promise<string> };
-};
+const electron = (window as any).electron as RendererElectronAPI;
 import { tableReset } from './auxiliary.js';
 import { qs, on } from '../../utils/dom.js';
 

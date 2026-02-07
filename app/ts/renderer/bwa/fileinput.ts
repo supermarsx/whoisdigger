@@ -3,20 +3,9 @@ import type { FileStats } from '../../common/fileStats.js';
 import { qs, on } from '../../utils/dom.js';
 import { settings } from '../settings-renderer.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
-import type * as fs from 'fs';
 import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';
 
-const electron = (window as any).electron as RendererElectronAPI & {
-  bwaFileRead: (p: string) => Promise<any>;
-  watch: (
-    prefix: string,
-    p: string,
-    opts: fs.WatchOptions,
-    cb: (evt: { event: string; filename: string | null }) => void
-  ) => Promise<{ close: () => void }>;
-  stat: (p: string) => Promise<any>;
-  path: { basename: (p: string) => Promise<string> };
-};
+const electron = (window as any).electron as RendererElectronAPI;
 
 const debug = debugFactory('renderer.bwa.fileinput');
 const error = errorFactory('renderer.bwa.fileinput');

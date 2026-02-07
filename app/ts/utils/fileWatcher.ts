@@ -1,4 +1,9 @@
-import type * as fs from 'fs';
+/** Options accepted by the watch function (mirrors a subset of Node's fs.WatchOptions) */
+export interface WatchOptions {
+  persistent?: boolean;
+  recursive?: boolean;
+  encoding?: BufferEncoding | null;
+}
 
 export interface WatchEvent {
   event: string;
@@ -8,7 +13,7 @@ export interface WatchEvent {
 export type WatchFn = (
   prefix: string,
   path: string,
-  opts: fs.WatchOptions,
+  opts: WatchOptions,
   cb: (evt: WatchEvent) => void
 ) => Promise<{ close: () => void }>;
 
@@ -19,7 +24,7 @@ export class FileWatcherManager {
   async watch(
     prefix: string,
     path: string,
-    opts: fs.WatchOptions,
+    opts: WatchOptions,
     cb: (evt: WatchEvent) => void
   ): Promise<void> {
     this.close();
