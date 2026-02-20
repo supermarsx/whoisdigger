@@ -92,7 +92,4 @@
   "overrides": {
     "superagent": "^10.2.1"
   },
-  "simple-git-hooks": {
-    "pre-commit": "npm run format"
-  }
 }

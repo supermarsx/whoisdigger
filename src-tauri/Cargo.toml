@@ -5,6 +5,11 @@ description = "Bulk whois lookup tool"
 authors = ["supermarsx"]
 edition = "2021"
 
+# `cargo run` needs to know which binary to execute when multiple are
+# defined under `src/bin`. Tauri’s dev command relies on `cargo run` so
+# we default to the GUI target here.
+default-run = "whoisdigger-gui"
+
 [build-dependencies]
 tauri-build = { version = "2.0.0", features = [] }
 
