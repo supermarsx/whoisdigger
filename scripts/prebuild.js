@@ -42,6 +42,10 @@ try {
     throw err;
   }
 }
+// Some tauri build resource globs expect a data folder; make sure it exists even
+// if we don't place anything there yet so the build script doesn't error.
+const distDataDir = path.join(rootDir, 'dist', 'app', 'data');
+fs.mkdirSync(distDataDir, { recursive: true });
 regenerateVendor();
 
 // Precompile Handlebars templates so development builds have them ready
