@@ -1,4 +1,4 @@
-const electron = (window as any).electron;
+import { cacheGet, cacheSet, cacheClear } from './tauriBridge.js';
 
 export interface CacheOptions {
   enabled?: boolean;
@@ -11,10 +11,7 @@ export class RequestCache {
     domain: string,
     cacheOpts: CacheOptions = {}
   ): Promise<string | undefined> {
-    if (electron) {
-      return await electron.invoke('cache:get', type, domain, cacheOpts);
-    }
-    return undefined;
+    return await cacheGet(type, domain, cacheOpts);
   }
 
   async set(
@@ -23,9 +20,7 @@ export class RequestCache {
     response: string,
     cacheOpts: CacheOptions = {}
   ): Promise<void> {
-    if (electron) {
-      await electron.invoke('cache:set', type, domain, response, cacheOpts);
-    }
+    await cacheSet(type, domain, response, cacheOpts);
   }
 
   async delete(type: string, domain: string, cacheOpts: CacheOptions = {}): Promise<void> {
@@ -38,9 +33,7 @@ export class RequestCache {
   }
 
   async clear(): Promise<void> {
-    if (electron) {
-      await electron.invoke('cache:clear');
-    }
+    await cacheClear();
   }
 
   startAutoPurge(intervalMs?: number): void {

@@ -9,6 +9,11 @@ jest.mock('../app/ts/common/logger.js', () => ({
   errorFactory: () => () => {},
 }));
 
+jest.mock('../app/ts/common/tauriBridge.js', () => ({
+  listen: jest.fn(),
+  unlisten: jest.fn(),
+}));
+
 jest.mock('../app/ts/common/settings.js', () => ({
   settings: {
     lookupAssumptions: {

@@ -8,8 +8,14 @@ jest.mock('../app/ts/common/logger.js', () => ({
   errorFactory: () => () => {},
 }));
 
+jest.mock('../app/ts/common/tauriBridge.js', () => ({
+  openFileDialog: jest.fn(),
+  toProcess: jest.fn(),
+}));
+
 describe('to renderer', () => {
-  let mockInvoke: jest.Mock;
+  let mockOpenFileDialog: jest.Mock;
+  let mockToProcess: jest.Mock;
 
   function setupDOM(): void {
     document.body.innerHTML = `
@@ -31,17 +37,15 @@ describe('to renderer', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    mockInvoke = jest.fn();
-    (window as any).electron = {
-      invoke: mockInvoke,
-      send: jest.fn(),
-      on: jest.fn(),
-    };
+    const bridge = require('../app/ts/common/tauriBridge.js');
+    mockOpenFileDialog = bridge.openFileDialog as jest.Mock;
+    mockToProcess = bridge.toProcess as jest.Mock;
+    mockOpenFileDialog.mockReset();
+    mockToProcess.mockReset();
     setupDOM();
   });
 
   afterEach(() => {
-    delete (window as any).electron;
     document.body.innerHTML = '';
   });
 
@@ -54,19 +58,19 @@ describe('to renderer', () => {
   });
 
   it('opens file dialog on select button click', async () => {
-    mockInvoke.mockResolvedValue('/path/to/file.txt');
+    mockOpenFileDialog.mockResolvedValue('/path/to/file.txt');
     loadModule();
 
     const btn = document.getElementById('toButtonSelect')!;
     btn.click();
 
     await new Promise((resolve) => setTimeout(resolve, 20));
-    expect(mockInvoke).toHaveBeenCalledWith('to:input.file');
+    expect(mockOpenFileDialog).toHaveBeenCalled();
     expect(document.getElementById('toFileSelected')!.textContent).toBe('/path/to/file.txt');
   });
 
   it('handles array result from file dialog', async () => {
-    mockInvoke.mockResolvedValue(['/path/to/file.txt']);
+    mockOpenFileDialog.mockResolvedValue(['/path/to/file.txt']);
     loadModule();
 
     document.getElementById('toButtonSelect')!.click();
@@ -78,17 +82,12 @@ describe('to renderer', () => {
     loadModule();
     document.getElementById('toButtonProcess')!.click();
     await new Promise((resolve) => setTimeout(resolve, 20));
-    // Only the potential file-select invoke; process should not fire
-    const processCalls = mockInvoke.mock.calls.filter(
-      (c: unknown[]) => c[0] === 'to:process'
-    );
-    expect(processCalls.length).toBe(0);
+    expect(mockToProcess).not.toHaveBeenCalled();
   });
 
   it('processes file with options when file selected', async () => {
-    mockInvoke
-      .mockResolvedValueOnce('/path/to/file.txt') // file dialog
-      .mockResolvedValueOnce('processed text'); // process result
+    mockOpenFileDialog.mockResolvedValue('/path/to/file.txt');
+    mockToProcess.mockResolvedValue('processed text');
 
     loadModule();
 
@@ -104,8 +103,7 @@ describe('to renderer', () => {
     document.getElementById('toButtonProcess')!.click();
     await new Promise((resolve) => setTimeout(resolve, 20));
 
-    expect(mockInvoke).toHaveBeenCalledWith(
-      'to:process',
+    expect(mockToProcess).toHaveBeenCalledWith(
       '/path/to/file.txt',
       expect.objectContaining({ prefix: 'www.', trimSpaces: true })
     );
@@ -113,9 +111,8 @@ describe('to renderer', () => {
   });
 
   it('collects sort option correctly', async () => {
-    mockInvoke
-      .mockResolvedValueOnce('/file.txt')
-      .mockResolvedValueOnce('sorted');
+    mockOpenFileDialog.mockResolvedValue('/file.txt');
+    mockToProcess.mockResolvedValue('sorted');
 
     loadModule();
 
@@ -129,8 +126,7 @@ describe('to renderer', () => {
     document.getElementById('toButtonProcess')!.click();
     await new Promise((resolve) => setTimeout(resolve, 20));
 
-    expect(mockInvoke).toHaveBeenCalledWith(
-      'to:process',
+    expect(mockToProcess).toHaveBeenCalledWith(
       '/file.txt',
       expect.objectContaining({ sort: 'asc' })
     );

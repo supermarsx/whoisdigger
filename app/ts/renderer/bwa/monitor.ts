@@ -1,10 +1,9 @@
 import { qs, qsa, on } from '../../utils/dom.js';
 import { debugFactory } from '../../common/logger.js';
 import { settings, saveSettings } from '../settings-renderer.js';
-import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';
+import { monitorStart, monitorStop, listen } from '../../common/tauriBridge.js';
 import type DomainStatus from '../../common/status.js';
 
-const electron = (window as any).electron as RendererElectronAPI;
 const debug = debugFactory('renderer.bwa.monitor');
 debug('loaded');
 
@@ -48,14 +47,14 @@ void on('click', '#monStart', async () => {
     settings.monitor.interval = val;
     await saveSettings(settings);
   }
-  await electron.invoke('monitor:start');
+  await monitorStart();
 });
 
 void on('click', '#monStop', async () => {
-  await electron.invoke('monitor:stop');
+  await monitorStop();
 });
 
-electron.on('monitor:update', (domain: string, status: DomainStatus) => {
+void listen<{ domain: string; status: DomainStatus }>('monitor:update', ({ domain, status }) => {
   const cell = document.querySelector(`#monTable td[data-domain="${domain}"]`);
   if (cell) cell.textContent = String(status);
 });

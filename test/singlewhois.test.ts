@@ -8,11 +8,25 @@ jest.mock('../app/ts/common/logger.js', () => ({
   errorFactory: () => () => {},
 }));
 
-describe('singlewhois renderer', () => {
-  let mockInvoke: jest.Mock;
-  let mockSend: jest.Mock;
-  let handlers: Record<string, Function>;
+const mockWhoisLookup = jest.fn();
+const mockAvailabilityCheck = jest.fn();
+const mockDomainParameters = jest.fn();
+const mockOpenPath = jest.fn();
+const listenHandlers: Record<string, Function> = {};
 
+jest.mock('../app/ts/common/tauriBridge.js', () => ({
+  whoisLookup: mockWhoisLookup,
+  availabilityCheck: mockAvailabilityCheck,
+  domainParameters: mockDomainParameters,
+  listen: jest.fn((event: string, cb: Function) => {
+    listenHandlers[event] = cb;
+  }),
+  app: {
+    openPath: mockOpenPath,
+  },
+}));
+
+describe('singlewhois renderer', () => {
   function setupDOM(): void {
     document.body.innerHTML = `
       <input id="singlewhoisSearchInputDomain" type="text" value="example.com" />
@@ -38,23 +52,15 @@ describe('singlewhois renderer', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    handlers = {};
-    mockInvoke = jest.fn();
-    mockSend = jest.fn();
-
-    (window as any).electron = {
-      invoke: mockInvoke,
-      send: mockSend,
-      on: (channel: string, cb: Function) => {
-        handlers[channel] = cb;
-      },
-    };
-
+    mockWhoisLookup.mockReset();
+    mockAvailabilityCheck.mockReset();
+    mockDomainParameters.mockReset();
+    mockOpenPath.mockReset();
+    Object.keys(listenHandlers).forEach(k => delete listenHandlers[k]);
     setupDOM();
   });
 
   afterEach(() => {
-    delete (window as any).electron;
     document.body.innerHTML = '';
   });
 
@@ -68,12 +74,12 @@ describe('singlewhois renderer', () => {
 
   it('registers singlewhois:copied handler', () => {
     loadModule();
-    expect(handlers['singlewhois:copied']).toBeDefined();
+    expect(listenHandlers['singlewhois:copied']).toBeDefined();
   });
 
   it('shows copied modal on singlewhois:copied event', () => {
     loadModule();
-    handlers['singlewhois:copied']();
+    listenHandlers['singlewhois:copied']();
     expect(document.getElementById('singlewhoisDomainCopied')!.classList.contains('is-active')).toBe(true);
   });
 
@@ -97,12 +103,12 @@ describe('singlewhois renderer', () => {
     expect(clickSpy).not.toHaveBeenCalled();
   });
 
-  it('sends openlink on domain click', () => {
+  it('sends openPath on domain click', () => {
     loadModule();
     const domain = document.getElementById('singlewhoisTdDomain')!;
     domain.setAttribute('url', 'http://example.com');
     domain.click();
-    expect(mockSend).toHaveBeenCalledWith('singlewhois:openlink', 'http://example.com');
+    expect(mockOpenPath).toHaveBeenCalledWith('http://example.com');
   });
 
   it('opens whois reply modal on open click', () => {
@@ -128,9 +134,9 @@ describe('singlewhois renderer', () => {
   });
 
   it('initiates lookup on search button click', async () => {
-    mockInvoke.mockResolvedValueOnce('No match for domain example.com');
-    mockInvoke.mockResolvedValueOnce('available');
-    mockInvoke.mockResolvedValueOnce({
+    mockWhoisLookup.mockResolvedValue('No match for domain example.com');
+    mockAvailabilityCheck.mockResolvedValue('available');
+    mockDomainParameters.mockResolvedValue({
       domain: 'example.com',
       registrar: null,
       company: null,
@@ -154,7 +160,7 @@ describe('singlewhois renderer', () => {
     const btn = document.getElementById('singlewhoisSearchButtonSearch')!;
     btn.classList.add('is-loading');
     btn.click();
-    // invoke should not be called since already loading
-    expect(mockInvoke).not.toHaveBeenCalled();
+    // whoisLookup should not be called since already loading
+    expect(mockWhoisLookup).not.toHaveBeenCalled();
   });
 });

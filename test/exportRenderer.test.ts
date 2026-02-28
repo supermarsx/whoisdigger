@@ -1,10 +1,21 @@
 /** @jest-environment jsdom */
 
 import jQuery from 'jquery';
-import { IpcChannel } from '../app/ts/common/ipcChannels';
 
-const handlers: Record<string, (...args: any[]) => void> = {};
-let mockInvoke: jest.Mock;
+const mockBulkWhoisExport = jest.fn().mockResolvedValue('ok');
+const listenHandlers: Record<string, Function> = {};
+
+jest.mock('../app/ts/common/tauriBridge.js', () => ({
+  bulkWhoisExport: mockBulkWhoisExport,
+  listen: jest.fn((event: string, cb: Function) => {
+    listenHandlers[event] = cb;
+  }),
+}));
+
+jest.mock('../app/ts/common/logger.js', () => ({
+  debugFactory: () => () => {},
+  errorFactory: () => () => {},
+}));
 
 beforeEach(() => {
   jest.useRealTimers();
@@ -24,19 +35,11 @@ beforeEach(() => {
     <div id="bwExportMessageError" class="is-hidden"><span id="bwExportErrorText"></span></div>
   `;
   (window as any).$ = (window as any).jQuery = jQuery;
-  mockInvoke = jest.fn().mockResolvedValue('ok');
-  (window as any).electron = {
-    getBaseDir: () => Promise.resolve(__dirname),
-    invoke: mockInvoke,
-    send: jest.fn(),
-    on: (channel: string, cb: (...args: any[]) => void) => {
-      handlers[channel] = cb;
-    }
-  };
+  mockBulkWhoisExport.mockClear();
+  Object.keys(listenHandlers).forEach((k) => delete listenHandlers[k]);
 });
 
 afterEach(() => {
-  delete (window as any).electron;
   delete (window as any).$;
   delete (window as any).jQuery;
 });
@@ -47,7 +50,7 @@ function loadModule(): void {
 }
 
 function setResults(data: any): void {
-  handlers[IpcChannel.BulkwhoisResultReceive]?.({}, data);
+  listenHandlers['bulk:result']?.(data);
 }
 
 it('invokes export and shows loading', async () => {
@@ -57,8 +60,7 @@ it('invokes export and shows loading', async () => {
   jQuery('#bwExportButtonExport').trigger('click');
   await new Promise((r) => setTimeout(r, 20));
 
-  expect(mockInvoke).toHaveBeenCalledWith(
-    IpcChannel.BulkwhoisExport,
+  expect(mockBulkWhoisExport).toHaveBeenCalledWith(
     { id: [1] },
     {
       filetype: 'csv',
@@ -79,11 +81,11 @@ it('cancel button hides export and shows entry', () => {
 
   expect(jQuery('#bwExport').hasClass('is-hidden')).toBe(true);
   expect(jQuery('#bwEntry').hasClass('is-hidden')).toBe(false);
-  expect(mockInvoke).not.toHaveBeenCalled();
+  expect(mockBulkWhoisExport).not.toHaveBeenCalled();
 });
 
 it('displays error when export fails', async () => {
-  mockInvoke.mockRejectedValueOnce(new Error('fail'));
+  mockBulkWhoisExport.mockRejectedValueOnce(new Error('fail'));
   loadModule();
   setResults({ id: [1] });
 

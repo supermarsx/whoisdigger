@@ -1,6 +1,4 @@
-import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
-
-const electron = (window as any).electron as RendererElectronAPI;
+import { settingsLoad as tauriSettingsLoad, settingsSave as tauriSettingsSave, listen } from '../common/tauriBridge.js';
 import { debugFactory } from '../common/logger.js';
 import {
   settings,
@@ -23,13 +21,13 @@ export function getUserDataPath(): string {
 }
 
 export async function loadSettings(): Promise<Settings> {
-  const { settings: loaded, userDataPath: path } = (await electron.invoke('settings:load')) as {
+  const { settings: loaded, userDataPath: path } = (await tauriSettingsLoad()) as {
     settings: Settings;
     userDataPath: string;
   };
   setSettings(loaded);
   userDataPath = path;
-  electron.on('settings:reloaded', (_e: any, newSettings: Settings) => {
+  void listen<Settings>('settings:reloaded', (newSettings) => {
     setSettings(newSettings);
     window.dispatchEvent(new Event('settings-reloaded'));
   });
@@ -37,7 +35,7 @@ export async function loadSettings(): Promise<Settings> {
 }
 
 export async function saveSettings(newSettings: Settings): Promise<string | Error | undefined> {
-  const res = (await electron.invoke('settings:save', newSettings)) as string | Error | undefined;
+  const res = (await tauriSettingsSave(newSettings)) as string | Error | undefined;
   if (res === 'SAVED') {
     setSettings(newSettings);
   }

@@ -1,9 +1,6 @@
-// In the renderer process we access IPC methods exposed from the preload script
-// via the `window.electron` bridge instead of importing from 'electron'.
-import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
+// Renderer: Text Operations page
 import type { ProcessOptions } from '../common/tools.js';
-const { invoke } = (window as unknown as { electron: RendererElectronAPI }).electron;
-import { IpcChannel } from '../common/ipcChannels.js';
+import { openFileDialog, toProcess } from '../common/tauriBridge.js';
 import { debugFactory, errorFactory } from '../common/logger.js';
 
 const debug = debugFactory('renderer.to');
@@ -20,7 +17,10 @@ document.addEventListener('click', async (event) => {
   const target = event.target as HTMLElement | null;
   if (!target) return;
   if (target.matches('#toButtonSelect')) {
-    const result = await invoke(IpcChannel.ToInputFile);
+    const result = await openFileDialog({
+      multiple: false,
+      filters: [{ name: 'Text', extensions: ['txt', 'list', 'csv'] }],
+    });
     filePath = Array.isArray(result) ? result[0] : result;
     const fileLabel = document.querySelector<HTMLElement>('#toFileSelected');
     if (fileLabel) fileLabel.textContent = filePath ?? '';
@@ -28,7 +28,7 @@ document.addEventListener('click', async (event) => {
     if (!filePath) return;
     const options = collectOptions();
     try {
-      const result = await invoke(IpcChannel.ToProcess, filePath, options);
+      const result = await toProcess(filePath, options);
       const output = document.querySelector<HTMLElement>('#toOutput');
       if (output) output.textContent = result;
     } catch (e) {

@@ -7,37 +7,44 @@ jest.mock('../app/ts/common/logger.ts', () => ({
   debugFactory: () => mockDebug
 }));
 
-declare global {
-  interface Window {
-    electron: {
-      send: jest.Mock;
-      invoke: jest.Mock;
-      on: jest.Mock;
-    };
-  }
-}
+const mockToggleDevtools = jest.fn();
+const mockListen = jest.fn();
+const mockMinimize = jest.fn();
+const mockClose = jest.fn();
 
-let mockSend: jest.Mock;
-let mockInvoke: jest.Mock;
+jest.mock('../app/ts/common/tauriBridge.js', () => ({
+  app: {
+    toggleDevtools: mockToggleDevtools,
+    minimize: mockMinimize,
+    close: mockClose,
+    getBaseDir: jest.fn().mockResolvedValue('/tmp'),
+  },
+  listen: mockListen,
+}));
+
+jest.mock('../app/ts/renderer/settings-renderer.js', () => ({
+  settings: {},
+  saveSettings: jest.fn(),
+  loadSettings: jest.fn(),
+  customSettingsLoaded: false,
+  getUserDataPath: () => '/tmp',
+}));
+
+jest.mock('../app/ts/renderer/settings.js', () => ({
+  populateInputs: jest.fn(),
+}));
 
 beforeEach(() => {
   jest.resetModules();
   document.body.innerHTML = '<button id="navButtonDevtools"></button>';
   (window as any).$ = (window as any).jQuery = jQuery;
-  mockSend = jest.fn();
-  mockInvoke = jest.fn();
   mockDebug.mockClear();
-  (window as any).electron = {
-    getBaseDir: () => Promise.resolve(__dirname),
-    send: mockSend,
-    invoke: mockInvoke,
-    on: jest.fn()
-  };
+  mockToggleDevtools.mockClear();
+  mockListen.mockClear();
 });
 
 afterEach(() => {
   jest.resetModules();
-  delete (window as any).electron;
   delete (window as any).$;
   delete (window as any).jQuery;
 });
@@ -67,11 +74,11 @@ test('dragover event prevents default', () => {
   expect(dragEvent.preventDefault).toHaveBeenCalled();
 });
 
-test('devtools button triggers ipc calls', () => {
+test('devtools button triggers toggleDevtools', () => {
   loadModule();
 
   jQuery('#navButtonDevtools').trigger('click');
 
-  expect(mockInvoke).toHaveBeenCalledWith('app:toggleDevtools');
+  expect(mockToggleDevtools).toHaveBeenCalled();
   expect(mockDebug).toHaveBeenCalledWith('#navButtonDevtools was clicked');
 });

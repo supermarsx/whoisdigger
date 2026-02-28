@@ -1,6 +1,11 @@
 import { qs, qsa, on } from '../utils/dom.js';
-import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
-const electron = (window as any).electron as RendererElectronAPI;
+import {
+  historyGet,
+  historyClear,
+  monitorStart,
+  monitorStop,
+  listen,
+} from '../common/tauriBridge.js';
 import { debugFactory } from '../common/logger.js';
 import { IpcChannel } from '../common/ipcChannels.js';
 import DomainStatus from '../common/status.js';
@@ -75,20 +80,13 @@ function ensureControls(): void {
     });
 
     // Show backend mode (SQLite/JSON) as a subtle hint
-    void electron
-      .invoke('history:mode')
-      .then((mode: string) => {
-        const hint = document.createElement('span');
-        hint.className = 'tag is-light is-rounded is-size-7';
-        hint.textContent = mode === 'json' ? 'history: JSON' : 'history: SQLite';
-        const wrap = document.createElement('div');
-        wrap.className = 'control';
-        wrap.appendChild(hint);
-        controls!.appendChild(wrap);
-      })
-      .catch(() => {
-        /* ignore */
-      });
+    const hint = document.createElement('span');
+    hint.className = 'tag is-light is-rounded is-size-7';
+    hint.textContent = 'history: SQLite';
+    const wrap = document.createElement('div');
+    wrap.className = 'control';
+    wrap.appendChild(hint);
+    controls!.appendChild(wrap);
   }
 }
 
@@ -143,7 +141,7 @@ function renderPage(): void {
 
 function loadHistory(): void {
   ensureControls();
-  electron.invoke('history:get').then((entries: any[]) => {
+  historyGet().then((entries: any[]) => {
     allEntries = entries || [];
     page = 0;
     renderPage();
@@ -153,27 +151,27 @@ function loadHistory(): void {
 document.addEventListener('DOMContentLoaded', () => {
   loadHistory();
   void on('click', '#clearHistory', async () => {
-    await electron.invoke('history:clear');
+    await historyClear();
     loadHistory();
   });
   void on('click', '#monitorStart', async () => {
-    await electron.invoke('monitor:start');
+    await monitorStart();
   });
   void on('click', '#monitorStop', async () => {
-    await electron.invoke('monitor:stop');
+    await monitorStop();
   });
-  electron.on('monitor:update', (domain: string, status: DomainStatus) => {
+  void listen<{ domain: string; status: DomainStatus }>('monitor:update', ({ domain, status }) => {
     debug(`Monitor update for ${domain}: ${status}`);
   });
 
   // Refresh history when bulk results/status update
-  electron.on(IpcChannel.BulkwhoisResultReceive, () => loadHistory());
-  electron.on(IpcChannel.BulkwhoisExportCancel, () => loadHistory());
-  electron.on(IpcChannel.BulkwhoisStatusUpdate, () => loadHistory());
+  void listen('bulk:result', () => loadHistory());
+  void listen(IpcChannel.BulkwhoisExportCancel, () => loadHistory());
+  void listen('bulk:status', () => loadHistory());
 
   // Refresh after single lookup completes (best effort)
   void on('click', '#singlewhoisButtonOk', () => setTimeout(loadHistory, 300));
-  electron.on('history:updated', () => loadHistory());
+  void listen('history:updated', () => loadHistory());
 });
 
 export const _test = { loadHistory };

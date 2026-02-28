@@ -1,12 +1,18 @@
 import * as conversions from '../../common/conversions.js';
 import type { FileStats } from '../../common/fileStats.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
-import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';
+import {
+  fs,
+  path,
+  watch,
+  openTextFileDialog,
+  bulkWhoisLookup,
+  listen,
+} from '../../common/tauriBridge.js';
 const debug = debugFactory('bulkwhois.fileinput');
 const error = errorFactory('bulkwhois.fileinput');
 debug('loaded');
 
-const electron = (window as any).electron as RendererElectronAPI;
 import { tableReset } from './auxiliary.js';
 import { qs, on } from '../../utils/dom.js';
 
@@ -17,7 +23,7 @@ import { FileWatcherManager } from '../../utils/fileWatcher.js';
 import { getTimeEstimates } from './estimate.js';
 
 let bwFileContents: Buffer;
-const watcher = new FileWatcherManager(electron.watch);
+const watcher = new FileWatcherManager(watch);
 
 async function refreshBwFile(pathToFile: string): Promise<void> {
   try {
@@ -27,10 +33,10 @@ async function refreshBwFile(pathToFile: string): Promise<void> {
         timeBetween: settings.lookupRandomizeTimeBetween
       }
     };
-    const bwFileStats = (await electron.stat(pathToFile)) as FileStats;
-    bwFileStats.filename = await electron.path.basename(pathToFile);
+    const bwFileStats = (await fs.stat(pathToFile)) as FileStats;
+    bwFileStats.filename = path.basename(pathToFile);
     bwFileStats.humansize = conversions.byteToHumanFileSize(bwFileStats.size, misc.useStandardSize);
-    bwFileContents = await electron.bwFileRead(pathToFile);
+    bwFileContents = await fs.readFile(pathToFile) as unknown as Buffer;
     bwFileStats.linecount = bwFileContents.toString().split('\n').length;
 
     const estimate = getTimeEstimates(bwFileStats.linecount!, settings);
@@ -101,14 +107,14 @@ async function handleFileConfirmation(
       qs('#bwEntry')!.classList.add('is-hidden');
       qs('#bwFileinputloading')!.classList.remove('is-hidden');
       try {
-        bwFileStats = (await electron.stat(filePath as string)) as FileStats;
-        bwFileStats.filename = await electron.path.basename(filePath as string);
+        bwFileStats = (await fs.stat(filePath as string)) as FileStats;
+        bwFileStats.filename = path.basename(filePath as string);
         bwFileStats.humansize = conversions.byteToHumanFileSize(
           bwFileStats.size,
           misc.useStandardSize
         );
         qs('#bwFileSpanInfo')!.textContent = 'Loading file contents...';
-        bwFileContents = await electron.bwFileRead(filePath as string);
+        bwFileContents = await fs.readFile(filePath as string) as unknown as Buffer;
       } catch (e) {
         error(`Failed to read file: ${e}`);
         qs('#bwFileSpanInfo')!.textContent = 'Failed to load file';
@@ -116,14 +122,14 @@ async function handleFileConfirmation(
       }
     } else {
       try {
-        bwFileStats = (await electron.stat((filePath as string[])[0])) as FileStats;
-        bwFileStats.filename = await electron.path.basename((filePath as string[])[0]);
+        bwFileStats = (await fs.stat((filePath as string[])[0])) as FileStats;
+        bwFileStats.filename = path.basename((filePath as string[])[0]);
         bwFileStats.humansize = conversions.byteToHumanFileSize(
           bwFileStats.size,
           misc.useStandardSize
         );
         qs('#bwFileSpanInfo')!.textContent = 'Loading file contents...';
-        bwFileContents = await electron.bwFileRead((filePath as string[])[0]);
+        bwFileContents = await fs.readFile((filePath as string[])[0]) as unknown as Buffer;
       } catch (e) {
         error(`Failed to read file: ${e}`);
         qs('#bwFileSpanInfo')!.textContent = 'Failed to load file';
@@ -192,9 +198,9 @@ async function handleFileConfirmation(
     filePath
     isDragDrop
  */
-electron.on(
+void listen<{ filePath: string | string[] | null; isDragDrop?: boolean }>(
   IpcChannel.BulkwhoisFileinputConfirmation,
-  (_event: unknown, filePath: string | string[] | null = null, isDragDrop = false) => {
+  ({ filePath, isDragDrop }) => {
     void handleFileConfirmation(filePath, isDragDrop);
   }
 );
@@ -208,8 +214,8 @@ void on('click', '#bwEntryButtonFile', () => {
   const loader = qs('#bwFileinputloading')!;
   loader.classList.remove('is-hidden');
   setTimeout(async () => {
-    const filePath = await electron.invoke(IpcChannel.BulkwhoisInputFile);
-    await handleFileConfirmation(filePath);
+    const filePath = await openTextFileDialog();
+    await handleFileConfirmation(filePath as string | string[] | null);
   }, 10);
 });
 
@@ -246,7 +252,7 @@ void on('click', '#bwFileButtonConfirm', () => {
   debug(bwDomainArray);
   debug(bwTldsArray);
 
-  void electron.invoke(IpcChannel.BulkwhoisLookup, bwDomainArray, bwTldsArray);
+  void bulkWhoisLookup(bwDomainArray, bwTldsArray);
 });
 
 /*
@@ -265,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
     for (const f of Array.from(event.dataTransfer!.files)) {
       const file = f as any;
       debug(`File(s) you dragged here: ${file.path}`);
-      electron.send('ondragstart', file.path);
+      void handleFileConfirmation(file.path, true);
     }
     return false;
   };
@@ -280,7 +286,7 @@ void on('drop', '#bulkwhoisMainContainer', (event: DragEvent) => {
   for (const f of Array.from(event.dataTransfer!.files)) {
     const file = f as any;
     debug(`File(s) you dragged here: ${file.path}`);
-    electron.send('ondragstart', file.path);
+    void handleFileConfirmation(file.path, true);
   }
   return false;
 });

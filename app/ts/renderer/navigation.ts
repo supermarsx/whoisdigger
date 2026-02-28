@@ -3,12 +3,10 @@ import { populateInputs } from './settings.js';
 import { settings } from './settings-renderer.js';
 
 import { debugFactory } from '../common/logger.js';
-import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
+import { app, listen } from '../common/tauriBridge.js';
 
 const debug = debugFactory('renderer.navigation');
 debug('loaded');
-
-const electron = (window as any).electron as RendererElectronAPI;
 
 function qs<T extends Element = HTMLElement>(sel: string): T | null {
   return document.querySelector(sel) as T | null;
@@ -32,7 +30,7 @@ document.addEventListener('dragover', (event: DragEvent) => {
 
 // Developer tools toggle button
 qs('#navButtonDevtools')?.addEventListener('click', () => {
-  void electron.invoke('app:toggleDevtools');
+  app.toggleDevtools();
   debug('#navButtonDevtools was clicked');
 });
 
@@ -147,7 +145,7 @@ qs('#navButtonExtendedmenu')?.addEventListener('click', () => {
  */
 qs('#navButtonMinimize')?.addEventListener('click', () => {
   debug('#navButtonMinimize was clicked');
-  void electron.invoke('app:minimize');
+  void app.minimize();
 });
 
 /*
@@ -159,14 +157,14 @@ qs('#navButtonExit')?.addEventListener('click', () => {
   if (settings.ui?.confirmExit) {
     qs('#appModalExit')?.classList.add('is-active');
   } else {
-    void electron.invoke('app:close');
+    void app.close();
   }
 });
 
 qs('#appModalExitButtonYes')?.addEventListener('click', () => {
   debug('#appModalExitButtonYes was clicked');
   qs('#appModalExit')?.classList.remove('is-active');
-  electron.send('app:exit-confirmed');
+  void app.close();
 });
 
 qsa('#appModalExitButtonNo, #appModalExit .delete').forEach((el) => {
@@ -176,11 +174,11 @@ qsa('#appModalExitButtonNo, #appModalExit .delete').forEach((el) => {
   });
 });
 
-electron.on('app:confirm-exit', function () {
+void listen('app:confirm-exit', () => {
   if (settings.ui?.confirmExit) {
     qs('#appModalExit')?.classList.add('is-active');
   } else {
-    void electron.invoke('app:close');
+    void app.close();
   }
 });
 

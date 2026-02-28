@@ -1,9 +1,13 @@
 import type { WhoisResult } from '../common/availability.js';
 import { preStringStrip, toJSON } from '../common/parser.js';
 
-import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
-const electron = (window as any).electron as RendererElectronAPI;
-import { IpcChannel } from '../common/ipcChannels.js';
+import {
+  whoisLookup,
+  availabilityCheck,
+  domainParameters,
+  listen,
+  app,
+} from '../common/tauriBridge.js';
 import { formatString } from '../common/stringformat.js';
 
 function qs<T extends Element = HTMLElement>(sel: string): T | null {
@@ -57,11 +61,10 @@ async function handleResults(domainResults: string) {
     (domainResultsJSON.domain as string | undefined) ||
     '';
 
-  domainStatus = await electron.invoke(IpcChannel.AvailabilityCheck, domainResults);
-  resultFilter = await electron.invoke(
-    IpcChannel.DomainParameters,
+  domainStatus = await availabilityCheck(domainResults);
+  resultFilter = await domainParameters(
     domainName,
-    domainStatus,
+    domainStatus as DomainStatus,
     domainResults,
     domainResultsJSON
   );
@@ -125,7 +128,7 @@ async function handleResults(domainResults: string) {
   electron.on('singlewhois:copied', function() {...});
     On event: Domain copied
  */
-electron.on('singlewhois:copied', function () {
+void listen('singlewhois:copied', () => {
   qs('#singlewhoisDomainCopied')?.classList.add('is-active');
 });
 
@@ -146,7 +149,7 @@ qs('#singlewhoisSearchInputDomain')?.addEventListener('keyup', (event) => {
  */
 qs('#singlewhoisTdDomain')?.addEventListener('click', () => {
   const domain = qs('#singlewhoisTdDomain')?.getAttribute('url') ?? '';
-  electron.send('singlewhois:openlink', domain);
+  void app.openPath(domain);
 });
 
 /*
@@ -173,7 +176,7 @@ qs('#singlewhoisSearchButtonSearch')?.addEventListener('click', function () {
   tableReset();
   void (async () => {
     try {
-      const result = await electron.invoke(IpcChannel.SingleWhoisLookup, domain);
+      const result = await whoisLookup(domain);
       await handleResults(result);
     } catch (e) {
       error(`Lookup failed: ${e}`);

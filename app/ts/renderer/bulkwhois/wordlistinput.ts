@@ -1,8 +1,7 @@
 import { settings } from '../settings-renderer.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
-import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';
+import { aiSuggest, bulkWhoisLookup, listen } from '../../common/tauriBridge.js';
 
-const electron = (window as any).electron as RendererElectronAPI;
 import { tableReset } from './auxiliary.js';
 import { getTimeEstimates } from './estimate.js';
 
@@ -23,7 +22,7 @@ document.getElementById('bwSuggestButton')?.addEventListener('click', async () =
   const prompt = String(promptInput?.value ?? '');
   if (!prompt) return;
   try {
-    const words: string[] = await electron.invoke('ai:suggest', prompt, 5);
+    const words: string[] = await aiSuggest(prompt, 5);
     if (words.length > 0) {
       const textarea = document.getElementById(
         'bwWordlistTextareaDomains'
@@ -104,7 +103,7 @@ function handleWordlistConfirmation(): void {
   return;
 }
 
-electron.on(IpcChannel.BulkwhoisWordlistInputConfirmation, () => {
+void listen(IpcChannel.BulkwhoisWordlistInputConfirmation, () => {
   handleWordlistConfirmation();
 });
 
@@ -132,10 +131,8 @@ document.getElementById('bwWordlistinputButtonCancel')?.addEventListener('click'
  */
 document.getElementById('bwWordlistinputButtonConfirm')?.addEventListener('click', () => {
   document.getElementById('bwWordlistinput')?.classList.add('is-hidden');
-  void (async () => {
-    await electron.invoke(IpcChannel.BulkwhoisInputWordlist);
-    handleWordlistConfirmation();
-  })();
+  // BulkwhoisInputWordlist is a client-side noop in Tauri
+  handleWordlistConfirmation();
 });
 
 /*
@@ -163,7 +160,7 @@ document.getElementById('bwWordlistconfirmButtonStart')?.addEventListener('click
   document.getElementById('bwWordlistconfirm')?.classList.add('is-hidden');
   document.getElementById('bwProcessing')?.classList.remove('is-hidden');
 
-  void electron.invoke(IpcChannel.BulkwhoisLookup, bwDomainArray, bwTldsArray);
+  void bulkWhoisLookup(bwDomainArray, bwTldsArray);
 });
 
 /*

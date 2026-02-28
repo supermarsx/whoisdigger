@@ -2,7 +2,6 @@
 
 let jQuery: typeof import('jquery');
 let settingsModule: any;
-const mockInvoke = jest.fn();
 jest.setTimeout(10000);
 
 const mockSaveSettings = jest.fn().mockResolvedValue('SAVED');
@@ -11,6 +10,68 @@ jest.mock('../app/ts/renderer/settings-renderer', () => {
   const actual = jest.requireActual('../app/ts/renderer/settings-renderer');
   return { ...actual, saveSettings: mockSaveSettings };
 });
+
+const mockStatsStart = jest.fn().mockResolvedValue('watcher-1');
+const mockStatsRefresh = jest.fn();
+const mockStatsStop = jest.fn();
+const mockOpenDataDir = jest.fn();
+const mockReload = jest.fn();
+const listenHandlers: Record<string, Function> = {};
+
+jest.mock('../app/ts/common/tauriBridge.js', () => ({
+  profilesList: jest.fn().mockResolvedValue([]),
+  profilesCreate: jest.fn(),
+  profilesRename: jest.fn(),
+  profilesDelete: jest.fn(),
+  profilesSetCurrent: jest.fn(),
+  profilesExport: jest.fn(),
+  profilesImport: jest.fn(),
+  statsStart: mockStatsStart,
+  statsRefresh: mockStatsRefresh,
+  statsStop: mockStatsStop,
+  configExport: jest.fn(),
+  configImport: jest.fn(),
+  configDelete: jest.fn(),
+  openDbFileDialog: jest.fn(),
+  historyMerge: jest.fn(),
+  cacheMerge: jest.fn(),
+  aiDownloadModel: jest.fn(),
+  listen: jest.fn((event: string, cb: Function) => {
+    listenHandlers[event] = cb;
+  }),
+  unlisten: jest.fn(),
+  fs: {
+    readFile: jest.fn(),
+    writeFile: jest.fn(),
+    exists: jest.fn().mockResolvedValue(false),
+    stat: jest.fn().mockResolvedValue({ size: 0, mtime: new Date(), atime: new Date() }),
+    readdir: jest.fn().mockResolvedValue([]),
+    unlink: jest.fn(),
+    access: jest.fn(),
+    mkdir: jest.fn(),
+  },
+  path: {
+    join: (...args: string[]) => require('path').join(...args),
+    basename: (p: string) => require('path').basename(p),
+  },
+  app: {
+    getBaseDir: jest.fn().mockResolvedValue(__dirname),
+    getUserDataPath: jest.fn().mockResolvedValue(__dirname),
+    openDataDir: mockOpenDataDir,
+    openPath: jest.fn(),
+    minimize: jest.fn(),
+    toggleMaximize: jest.fn(),
+    close: jest.fn(),
+    reload: mockReload,
+    toggleDevtools: jest.fn(),
+  },
+  watch: jest.fn().mockResolvedValue({ close: () => {} }),
+}));
+
+jest.mock('../app/ts/common/logger.js', () => ({
+  debugFactory: () => () => {},
+  errorFactory: () => () => {},
+}));
 
 beforeEach(() => {
   jest.resetModules();
@@ -35,27 +96,13 @@ beforeEach(() => {
     <input id="opSearch" />
     <div id="opSearchNoResults"></div>
   `;
-  (window as any).electron = {
-    getBaseDir: () => Promise.resolve(__dirname),
-    invoke: mockInvoke,
-    send: jest.fn(),
-    on: jest.fn(),
-    off: jest.fn(),
-    openDataDir: () => mockInvoke('settings:open-data-dir'),
-    startStats: (...args: any[]) => mockInvoke('stats:start', ...args),
-    refreshStats: (...args: any[]) => mockInvoke('stats:refresh', ...args),
-    stopStats: (...args: any[]) => mockInvoke('stats:stop', ...args),
-    getStats: (...args: any[]) => mockInvoke('stats:get', ...args),
-    path: { join: (...args: string[]) => require('path').join(...args) },
-    readdir: jest.fn(async () => []),
-    stat: jest.fn(async () => ({ size: 0, mtime: new Date(), atime: new Date() })),
-    access: jest.fn(async () => {}),
-    exists: jest.fn(async () => false),
-    unlink: jest.fn(async () => {}),
-    watch: jest.fn(async () => ({ close: () => {} }))
-  };
-  mockInvoke.mockClear();
+  mockStatsStart.mockClear();
+  mockStatsRefresh.mockClear();
+  mockStatsStop.mockClear();
+  mockOpenDataDir.mockClear();
+  mockReload.mockClear();
   mockSaveSettings.mockClear();
+  Object.keys(listenHandlers).forEach((k) => delete listenHandlers[k]);
 });
 
 test('changing setting updates configuration', async () => {
@@ -77,16 +124,16 @@ test('changing setting updates configuration', async () => {
   expect(mockSaveSettings).toHaveBeenCalled();
 });
 
-test('reloadApp invokes ipcRenderer', async () => {
+test('reloadApp calls app.reload', async () => {
   jQuery = require('jquery');
   (window as any).$ = (window as any).jQuery = jQuery;
   require('../app/ts/renderer/settings');
   document.dispatchEvent(new Event('DOMContentLoaded'));
 
   await new Promise((r) => setTimeout(r, 0));
-  expect(mockInvoke).toHaveBeenCalledWith('stats:start', expect.any(String), expect.any(String));
+  expect(mockStatsStart).toHaveBeenCalled();
 
-  mockInvoke.mockClear();
+  mockStatsStart.mockClear();
 
   await new Promise((r) => setTimeout(r, 0));
 
@@ -94,10 +141,10 @@ test('reloadApp invokes ipcRenderer', async () => {
 
   await Promise.resolve();
 
-  expect(mockInvoke).toHaveBeenCalledWith('app:reload');
+  expect(mockReload).toHaveBeenCalled();
 });
 
-test('openDataFolder invokes settings:open-data-dir', async () => {
+test('openDataFolder calls app.openDataDir', async () => {
   jQuery = require('jquery');
   (window as any).$ = (window as any).jQuery = jQuery;
   require('../app/ts/renderer/settings');
@@ -109,5 +156,5 @@ test('openDataFolder invokes settings:open-data-dir', async () => {
 
   await Promise.resolve();
 
-  expect(mockInvoke).toHaveBeenCalledWith('settings:open-data-dir');
+  expect(mockOpenDataDir).toHaveBeenCalled();
 });

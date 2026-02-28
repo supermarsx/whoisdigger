@@ -1,3 +1,8 @@
+/**
+ * @deprecated — No longer used by renderer code.
+ * All renderer modules now import typed functions from `app/ts/common/tauriBridge.ts`.
+ * This type definition is kept for reference only and will be removed in a future release.
+ */
 export interface RendererElectronAPI<
   RendererToMain extends Record<string, any[]> = any,
   MainToRenderer extends Record<string, any[]> = any

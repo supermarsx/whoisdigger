@@ -2,9 +2,6 @@ import { qs, on } from '../../utils/dom.js';
 // jQuery and DataTables are loaded globally via renderer/index.ts
 
 import { debugFactory } from '../../common/logger.js';
-import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';
-
-const electron = (window as any).electron as RendererElectronAPI;
 
 const debug = debugFactory('renderer.bwa.analyser');
 debug('loaded');

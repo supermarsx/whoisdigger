@@ -1,9 +1,29 @@
 import { qs, qsa, on } from '../utils/dom.js';
 import { debugFactory } from '../common/logger.js';
-import { IpcChannel } from '../common/ipcChannels.js';
-import type { RendererElectronAPI } from '../../../types/renderer-electron-api.js';
-
-const electron = (window as any).electron as RendererElectronAPI;
+import {
+  profilesList,
+  profilesCreate,
+  profilesRename,
+  profilesDelete,
+  profilesSetCurrent,
+  profilesExport,
+  profilesImport,
+  statsStart,
+  statsRefresh,
+  statsStop,
+  configExport,
+  configImport,
+  configDelete,
+  openDbFileDialog,
+  historyMerge,
+  cacheMerge,
+  aiDownloadModel,
+  listen,
+  unlisten,
+  fs,
+  path as tauriPath,
+  app,
+} from '../common/tauriBridge.js';
 
 const debug = debugFactory('renderer.options');
 debug('loaded');
@@ -57,7 +77,7 @@ let profiles: Profile[] = [];
 let selectedProfileId: string | null = null;
 
 async function loadProfiles(): Promise<void> {
-  const list = (await electron.invoke('profiles:list')) as Profile[];
+  const list = (await profilesList()) as Profile[];
   profiles = list ?? [];
   const sel = qs<HTMLSelectElement>('#opProfileSelect');
   if (sel) {
@@ -79,26 +99,24 @@ async function loadProfiles(): Promise<void> {
 
 async function startStatsWorker(): Promise<void> {
   if (statsWatcherId !== null) {
-    if (statsHandler) {
-      electron.off('stats:update', statsHandler);
-    }
-    void electron.invoke('stats:stop', statsWatcherId);
+    unlisten('stats:update');
+    void statsStop(statsWatcherId);
     statsWatcherId = null;
     statsHandler = null;
   }
-  statsConfigPath = await electron.path.join(
+  statsConfigPath = tauriPath.join(
     getUserDataPath(),
     settings.customConfiguration.filepath
   );
   statsDataDir = getUserDataPath();
-  statsWatcherId = await electron.invoke('stats:start', statsConfigPath, statsDataDir);
+  statsWatcherId = await statsStart(statsConfigPath, statsDataDir);
   statsHandler = (data: any) => updateStats(data);
-  electron.on('stats:update', statsHandler);
+  void listen('stats:update', statsHandler);
 }
 
 function refreshStats(): void {
   if (statsWatcherId !== null) {
-    void electron.invoke('stats:refresh', statsWatcherId);
+    void statsRefresh(statsWatcherId);
   }
 }
 
@@ -269,7 +287,7 @@ function initSettingsUI(): void {
   });
   qs('#opProfileCreate')?.addEventListener('click', async () => {
     const name = (qs<HTMLInputElement>('#opProfileName')?.value || '').trim() || 'New Profile';
-    await electron.invoke('profiles:create', name, true);
+    await profilesCreate(name, true);
     await loadProfiles();
     showToast('Profile created', true);
   });
@@ -277,14 +295,14 @@ function initSettingsUI(): void {
     if (!selectedProfileId) return;
     const newName = (qs<HTMLInputElement>('#opProfileName')?.value || '').trim();
     if (!newName) return;
-    await electron.invoke('profiles:rename', selectedProfileId, newName);
+    await profilesRename(selectedProfileId, newName);
     await loadProfiles();
     showToast('Profile renamed', true);
   });
   qs('#opProfileDelete')?.addEventListener('click', async () => {
     if (!selectedProfileId) return;
     try {
-      await electron.invoke('profiles:delete', selectedProfileId);
+      await profilesDelete(selectedProfileId);
       selectedProfileId = null;
       await loadProfiles();
       showToast('Profile deleted', true);
@@ -294,7 +312,7 @@ function initSettingsUI(): void {
   });
   qs('#opProfileSet')?.addEventListener('click', async () => {
     if (!selectedProfileId) return;
-    await electron.invoke('profiles:set-current', selectedProfileId);
+    await profilesSetCurrent(selectedProfileId);
     await loadSettings();
     populateInputs();
     showToast('Profile set as current', true);
@@ -303,7 +321,7 @@ function initSettingsUI(): void {
   qs('#opProfileExport')?.addEventListener('click', async () => {
     try {
       const id = selectedProfileId || undefined;
-      const out = (await electron.invoke('profiles:export', id)) as string;
+      const out = (await profilesExport(id)) as string;
       showToast(out ? 'Exported' : 'Export canceled', Boolean(out));
     } catch {
       showToast('Export failed', false);
@@ -311,7 +329,7 @@ function initSettingsUI(): void {
   });
   qs('#opProfileImport')?.addEventListener('click', async () => {
     try {
-      const res = await electron.invoke('profiles:import');
+      const res = await profilesImport();
       await loadProfiles();
       showToast(res ? 'Imported' : 'Import canceled', Boolean(res));
     } catch {
@@ -358,8 +376,8 @@ function initSettingsUI(): void {
     const val = parseValue((el as HTMLInputElement | HTMLSelectElement).value);
     if (path === 'database.historyName' || path === 'requestCache.database') {
       (async () => {
-        const filePath = await electron.path.join(getUserDataPath(), String(val));
-        const exists = await electron.exists(filePath);
+        const filePath = tauriPath.join(getUserDataPath(), String(val));
+        const exists = await fs.exists(filePath);
         saveEntry(path, el, val);
         showToast(exists ? 'Switching to existing database' : 'New database will be created', true);
       })().catch(() => saveEntry(path, el, val));
@@ -405,11 +423,11 @@ function initSettingsUI(): void {
     await loadSettings();
     sessionStorage.setItem('customSettingsLoaded', customSettingsLoaded ? 'true' : 'false');
     populateInputs();
-    const filePath = await electron.path.join(
+    const filePath = tauriPath.join(
       getUserDataPath(),
       settings.customConfiguration.filepath
     );
-    const exists = await electron.exists(filePath);
+    const exists = await fs.exists(filePath);
     const success = customSettingsLoaded || !exists;
     showToast(success ? 'Configuration reloaded' : 'Failed to reload configuration', success);
     refreshStats();
@@ -425,8 +443,9 @@ function initSettingsUI(): void {
   });
 
   void on('click', '#openDataFolder', async () => {
-    const result = await electron.openDataDir();
-    if (result) {
+    try {
+      await app.openDataDir();
+    } catch {
       showToast('Failed to open data directory', false);
     }
   });
@@ -434,7 +453,7 @@ function initSettingsUI(): void {
   // Config import/export buttons
   qs('#opConfigExport')?.addEventListener('click', async () => {
     try {
-      const out = (await electron.invoke('config:export')) as string;
+      const out = (await configExport()) as string;
       showToast(out ? 'Exported' : 'Export canceled', Boolean(out));
     } catch {
       showToast('Export failed', false);
@@ -442,7 +461,7 @@ function initSettingsUI(): void {
   });
   qs('#opConfigImport')?.addEventListener('click', async () => {
     try {
-      await electron.invoke('config:import');
+      await configImport();
       await loadSettings();
       populateInputs();
       showToast('Imported', true);
@@ -458,19 +477,15 @@ function initSettingsUI(): void {
       return;
     }
     try {
-      await electron.invoke('ai:download-model');
+      await aiDownloadModel();
       showToast('Model download started', true);
     } catch {
       showToast('Model download failed', false);
     }
   });
 
-  void on('click', '#reloadApp', async () => {
-    try {
-      await electron.invoke('app:reload');
-    } catch {
-      showToast('Failed to reload application', false);
-    }
+  void on('click', '#reloadApp', () => {
+    app.reload();
   });
 
   void on('click', '#deleteConfig', () => {
@@ -478,12 +493,12 @@ function initSettingsUI(): void {
   });
 
   void on('click', '#deleteConfigYes', async () => {
-    const filePath = await electron.path.join(
+    const filePath = tauriPath.join(
       getUserDataPath(),
       settings.customConfiguration.filepath
     );
     try {
-      await electron.invoke('config:delete', filePath);
+      await configDelete(filePath);
       showToast('Configuration deleted', true);
     } catch (err) {
       if ((err as any).code !== 'ENOENT') {
@@ -537,9 +552,9 @@ export const _test = {
 
 // Database selection/merge handlers
 void on('click', '#dbSelectHistory', async () => {
-  const files = (await electron.invoke('db:pick-files')) as string[];
+  const files = (await openDbFileDialog()) as string[];
   if (files && files[0]) {
-    const base = await electron.path.basename(files[0]);
+    const base = tauriPath.basename(files[0]);
     const input = qs<HTMLInputElement>('#appSettings.database.historyName');
     if (input) {
       input.value = String(base);
@@ -548,9 +563,9 @@ void on('click', '#dbSelectHistory', async () => {
   }
 });
 void on('click', '#dbSelectCache', async () => {
-  const files = (await electron.invoke('db:pick-files')) as string[];
+  const files = (await openDbFileDialog()) as string[];
   if (files && files[0]) {
-    const base = await electron.path.basename(files[0]);
+    const base = tauriPath.basename(files[0]);
     const input = qs<HTMLInputElement>('#appSettings.requestCache.database');
     if (input) {
       input.value = String(base);
@@ -559,16 +574,16 @@ void on('click', '#dbSelectCache', async () => {
   }
 });
 void on('click', '#dbMergeHistory', async () => {
-  const files = (await electron.invoke('db:pick-files')) as string[];
+  const files = (await openDbFileDialog()) as string[];
   if (files && files.length) {
-    await electron.invoke('history:merge', files);
+    await historyMerge(files);
     showToast('History merged', true);
   }
 });
 void on('click', '#dbMergeCache', async () => {
-  const files = (await electron.invoke('db:pick-files')) as string[];
+  const files = (await openDbFileDialog()) as string[];
   if (files && files.length) {
-    await electron.invoke('cache:merge', files);
+    await cacheMerge(files);
     showToast('Cache merged', true);
   }
 });

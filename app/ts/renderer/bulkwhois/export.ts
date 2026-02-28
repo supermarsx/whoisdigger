@@ -1,10 +1,8 @@
 import defaultExportOptions from './export.defaults.js';
 import { debugFactory } from '../../common/logger.js';
-import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';
+import { bulkWhoisExport, listen } from '../../common/tauriBridge.js';
 import type { BulkWhoisResults } from '../../common/bulkwhois/types.js';
 import type { ExportOptions } from '../../common/bulkwhois/export-helpers.js';
-
-const electron = (window as any).electron as RendererElectronAPI;
 
 const debug = debugFactory('bulkwhois.export');
 debug('loaded');
@@ -28,9 +26,9 @@ let options: ExportOptions = defaultExportOptions;
     event
     rcvResults
  */
-electron.on(
-  IpcChannel.BulkwhoisResultReceive,
-  function (_event: unknown, rcvResults: BulkWhoisResults) {
+void listen<BulkWhoisResults>(
+  'bulk:result',
+  function (rcvResults) {
     debug(formatString('Results are ready for export {0}', rcvResults));
 
     results = rcvResults;
@@ -43,7 +41,7 @@ electron.on(
   electron.on('bulkwhois:export.cancel', function() {...});
     Bulk whois export cancel
  */
-electron.on(IpcChannel.BulkwhoisExportCancel, function () {
+void listen(IpcChannel.BulkwhoisExportCancel, function () {
   qs('#bwExportloading')?.classList.add('is-hidden');
   qs('#bwEntry')?.classList.remove('is-hidden');
 });
@@ -61,7 +59,7 @@ qs('#bwExportButtonExport')?.addEventListener('click', async () => {
     await new Promise((r) => setTimeout(r, 10));
   }
   try {
-    await electron.invoke(IpcChannel.BulkwhoisExport, results!, options);
+    await bulkWhoisExport(results!, options);
   } catch (err) {
     const errText = qs('#bwExportErrorText');
     if (errText) errText.textContent = (err as Error).message;

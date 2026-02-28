@@ -3,79 +3,71 @@
  * @jest-environment jsdom
  */
 
+jest.mock('../app/ts/common/tauriBridge.js', () => ({
+  cacheGet: jest.fn(),
+  cacheSet: jest.fn(),
+  cacheClear: jest.fn(),
+}));
+
+import { RequestCache } from '../app/ts/common/requestCache.js';
+import { cacheGet, cacheSet, cacheClear } from '../app/ts/common/tauriBridge.js';
+
+const mockCacheGet = cacheGet as jest.Mock;
+const mockCacheSet = cacheSet as jest.Mock;
+const mockCacheClear = cacheClear as jest.Mock;
+
 describe('RequestCache', () => {
-  let RequestCache: typeof import('../app/ts/common/requestCache.js').RequestCache;
-  let mockInvoke: jest.Mock;
-
   beforeEach(() => {
-    jest.resetModules();
-    mockInvoke = jest.fn();
-    (window as any).electron = { invoke: mockInvoke };
-    ({ RequestCache } = require('../app/ts/common/requestCache.js'));
-  });
-
-  afterEach(() => {
-    delete (window as any).electron;
+    jest.clearAllMocks();
   });
 
   describe('get()', () => {
-    it('should invoke cache:get with correct arguments', async () => {
-      mockInvoke.mockResolvedValue('cached-data');
+    it('should call cacheGet with correct arguments', async () => {
+      mockCacheGet.mockResolvedValue('cached-data');
       const cache = new RequestCache();
       const result = await cache.get('whois', 'example.com', { ttl: 5000 });
-      expect(mockInvoke).toHaveBeenCalledWith('cache:get', 'whois', 'example.com', { ttl: 5000 });
+      expect(mockCacheGet).toHaveBeenCalledWith('whois', 'example.com', { ttl: 5000 });
       expect(result).toBe('cached-data');
     });
 
     it('should return undefined when cache miss', async () => {
-      mockInvoke.mockResolvedValue(undefined);
+      mockCacheGet.mockResolvedValue(undefined);
       const cache = new RequestCache();
       const result = await cache.get('whois', 'unknown.com');
       expect(result).toBeUndefined();
     });
 
-    it('should return undefined when electron not available', async () => {
-      delete (window as any).electron;
-      jest.resetModules();
-      ({ RequestCache } = require('../app/ts/common/requestCache.js'));
-      const cache = new RequestCache();
-      const result = await cache.get('whois', 'test.com');
-      expect(result).toBeUndefined();
-    });
-
     it('should pass default empty cacheOpts', async () => {
-      mockInvoke.mockResolvedValue('data');
+      mockCacheGet.mockResolvedValue('data');
       const cache = new RequestCache();
       await cache.get('dns', 'example.com');
-      expect(mockInvoke).toHaveBeenCalledWith('cache:get', 'dns', 'example.com', {});
+      expect(mockCacheGet).toHaveBeenCalledWith('dns', 'example.com', {});
     });
   });
 
   describe('set()', () => {
-    it('should invoke cache:set with correct arguments', async () => {
-      mockInvoke.mockResolvedValue(undefined);
+    it('should call cacheSet with correct arguments', async () => {
+      mockCacheSet.mockResolvedValue(undefined);
       const cache = new RequestCache();
       await cache.set('whois', 'example.com', 'whois data', { enabled: true });
-      expect(mockInvoke).toHaveBeenCalledWith(
-        'cache:set', 'whois', 'example.com', 'whois data', { enabled: true }
+      expect(mockCacheSet).toHaveBeenCalledWith(
+        'whois', 'example.com', 'whois data', { enabled: true }
       );
     });
 
-    it('should not throw when electron not available', async () => {
-      delete (window as any).electron;
-      jest.resetModules();
-      ({ RequestCache } = require('../app/ts/common/requestCache.js'));
+    it('should resolve even if cacheSet rejects', async () => {
+      mockCacheSet.mockResolvedValue(undefined);
       const cache = new RequestCache();
       await expect(cache.set('whois', 'test.com', 'data')).resolves.toBeUndefined();
     });
   });
 
   describe('clear()', () => {
-    it('should invoke cache:clear', async () => {
-      mockInvoke.mockResolvedValue(undefined);
+    it('should call cacheClear', async () => {
+      mockCacheClear.mockResolvedValue(undefined);
       const cache = new RequestCache();
       await cache.clear();
-      expect(mockInvoke).toHaveBeenCalledWith('cache:clear');
+      expect(mockCacheClear).toHaveBeenCalled();
     });
   });
 

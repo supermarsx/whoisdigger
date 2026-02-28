@@ -2,21 +2,30 @@
 
 import Handlebars from '../app/vendor/handlebars.runtime.js';
 
-const invokeMock = jest.fn();
-const joinMock = jest.fn(async (...args: string[]) => args.join('/'));
+const mockGetBaseDir = jest.fn().mockResolvedValue('/base');
+const mockReadFile = jest.fn();
+const mockJoin = jest.fn((...args: string[]) => args.join('/'));
+
+jest.mock('../app/ts/common/logger.js', () => ({
+  debugFactory: () => () => {},
+}));
+
+jest.mock('../app/ts/common/tauriBridge.js', () => ({
+  app: { getBaseDir: mockGetBaseDir },
+  fs: { readFile: mockReadFile },
+  path: { join: mockJoin },
+}));
 
 describe('i18n loader', () => {
   beforeEach(() => {
-    invokeMock.mockReset();
-    joinMock.mockReset();
-    (window as any).electron = {
-      invoke: invokeMock,
-      path: { join: joinMock }
-    };
+    mockGetBaseDir.mockClear();
+    mockReadFile.mockReset();
+    mockJoin.mockClear();
+    mockJoin.mockImplementation((...args: string[]) => args.join('/'));
   });
 
   test('loads translations and registers helper', async () => {
-    invokeMock.mockResolvedValue('{"hello":"world"}');
+    mockReadFile.mockResolvedValue('{"hello":"world"}');
     const {
       loadTranslations,
       registerTranslationHelpers,
@@ -31,7 +40,7 @@ describe('i18n loader', () => {
   });
 
   test('falls back to navigator language when setting missing', async () => {
-    invokeMock.mockResolvedValue('{"hello":"bonjour"}');
+    mockReadFile.mockResolvedValue('{"hello":"bonjour"}');
     Object.defineProperty(window.navigator, 'language', {
       value: 'fr-FR',
       configurable: true
@@ -40,7 +49,7 @@ describe('i18n loader', () => {
 
     await loadTranslations();
 
-    const args = joinMock.mock.calls[0];
+    const args = mockJoin.mock.calls[0];
     expect(args[args.length - 1]).toBe('fr.json');
     expect(_getTranslations()).toEqual({ hello: 'bonjour' });
   });

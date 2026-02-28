@@ -1,25 +1,17 @@
 import { qs, on } from '../../utils/dom.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
 import { debugFactory } from '../../common/logger.js';
-import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';
+import { bulkWhoisContinue, bulkWhoisPause, bulkWhoisStop } from '../../common/tauriBridge.js';
 
 const debug = debugFactory('bulkwhois.events');
 
-type BwProcessingChannels = {
-  [IpcChannel.BulkwhoisLookupContinue]: [];
-  [IpcChannel.BulkwhoisLookupPause]: [];
-  [IpcChannel.BulkwhoisLookupStop]: [];
-};
-
-export type BwProcessingElectron = Pick<RendererElectronAPI<BwProcessingChannels>, 'send'>;
-
-export function bindProcessingEvents(electron: BwProcessingElectron): void {
+export function bindProcessingEvents(): void {
   void on('click', '#bwProcessingButtonPause', () => {
     const searchStatus = qs('#bwProcessingButtonPauseSpanText')?.textContent ?? '';
     switch (searchStatus) {
       case 'Continue':
         setPauseButton();
-        electron.send(IpcChannel.BulkwhoisLookupContinue);
+        void bulkWhoisContinue();
         break;
       case 'Pause':
         qs('#bwProcessingButtonPause')!.classList.remove('is-warning');
@@ -28,7 +20,7 @@ export function bindProcessingEvents(electron: BwProcessingElectron): void {
         qs('#bwProcessingButtonPauseicon')!.classList.add('fa-play');
         if (qs('#bwProcessingButtonPauseSpanText'))
           qs('#bwProcessingButtonPauseSpanText')!.textContent = 'Continue';
-        electron.send(IpcChannel.BulkwhoisLookupPause);
+        void bulkWhoisPause();
         break;
       default:
         break;
@@ -59,7 +51,7 @@ export function bindProcessingEvents(electron: BwProcessingElectron): void {
 
   void on('click', '#bwProcessingModalStopButtonStopsave', () => {
     debug('Closing Stop modal & exporting');
-    electron.send(IpcChannel.BulkwhoisLookupStop);
+    void bulkWhoisStop();
     qs('#bwProcessingModalStop')!.classList.remove('is-active');
     qs('#bwProcessing')!.classList.add('is-hidden');
     setPauseButton();

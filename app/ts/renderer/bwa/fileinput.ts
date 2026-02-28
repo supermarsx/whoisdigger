@@ -3,31 +3,37 @@ import type { FileStats } from '../../common/fileStats.js';
 import { qs, on } from '../../utils/dom.js';
 import { settings } from '../settings-renderer.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
-import type { RendererElectronAPI } from '../../../../types/renderer-electron-api.js';
-
-const electron = (window as any).electron as RendererElectronAPI;
+import {
+  fs,
+  path,
+  watch,
+  parseCsv,
+  openCsvJsonDialog,
+  bwaAnalyserStart,
+  bulkWhoisLookup,
+  listen,
+} from '../../common/tauriBridge.js';
 
 const debug = debugFactory('renderer.bwa.fileinput');
 const error = errorFactory('renderer.bwa.fileinput');
 debug('loaded');
 
 import { formatString } from '../../common/stringformat.js';
-import { IpcChannel } from '../../common/ipcChannels.js';
 import { renderAnalyser } from './analyser.js';
 import { FileWatcherManager } from '../../utils/fileWatcher.js';
 
 let bwaFileContents: any;
-const watcher = new FileWatcherManager(electron.watch);
+const watcher = new FileWatcherManager(watch);
 
-async function loadFileStats(path: string, _isDragDrop: boolean): Promise<FileStats> {
-  const stats = (await electron.stat(path)) as FileStats;
-  stats.filename = await electron.path.basename(path);
+async function loadFileStats(filePath: string, _isDragDrop: boolean): Promise<FileStats> {
+  const stats = (await fs.stat(filePath)) as FileStats;
+  stats.filename = path.basename(filePath);
   stats.humansize = conversions.byteToHumanFileSize(stats.size, settings.lookupMisc.useStandardSize);
   return stats;
 }
 
-async function readFileContents(path: string): Promise<any> {
-  return electron.invoke(IpcChannel.ParseCsv, (await electron.bwaFileRead(path)).toString());
+async function readFileContents(filePath: string): Promise<any> {
+  return parseCsv((await fs.readFile(filePath)).toString());
 }
 
 function updateFileInfoUI(stats: FileStats): void {
@@ -42,15 +48,14 @@ function updateFileInfoUI(stats: FileStats): void {
 
 async function refreshBwaFile(pathToFile: string): Promise<void> {
   try {
-    const bwaFileStats = (await electron.stat(pathToFile)) as FileStats;
-    bwaFileStats.filename = await electron.path.basename(pathToFile);
+    const bwaFileStats = (await fs.stat(pathToFile)) as FileStats;
+    bwaFileStats.filename = path.basename(pathToFile);
     bwaFileStats.humansize = conversions.byteToHumanFileSize(
       bwaFileStats.size,
       settings.lookupMisc.useStandardSize
     );
-    bwaFileContents = await electron.invoke(
-      IpcChannel.ParseCsv,
-      (await electron.bwaFileRead(pathToFile)).toString()
+    bwaFileContents = await parseCsv(
+      (await fs.readFile(pathToFile)).toString()
     );
     bwaFileStats.linecount = bwaFileContents.data.length;
     try {
@@ -78,8 +83,8 @@ async function refreshBwaFile(pathToFile: string): Promise<void> {
 }
 
 /*
-  electron.on('bwa:fileinput.confirmation', function(...) {...});
-    File input, path and information confirmation container
+  File input, path and information confirmation container
+  (formerly electron.on('bwa:fileinput.confirmation', ...))
  */
 async function handleFileConfirmation(
   filePath: string | string[] | null = null,
@@ -142,7 +147,7 @@ async function handleFileConfirmation(
   return;
 }
 
-electron.on('bwa:fileinput.confirmation', (_e: unknown, filePath: string | string[] | null, isDragDrop?: boolean) => {
+void listen<{ filePath: string | string[] | null; isDragDrop?: boolean }>('bwa:fileinput.confirmation', ({ filePath, isDragDrop }) => {
   void handleFileConfirmation(filePath, isDragDrop);
 });
 
@@ -155,8 +160,8 @@ void on('click', '#bwaEntryButtonOpen', () => {
   const loader = qs('#bwaFileinputloading')!;
   loader.classList.remove('is-hidden');
   setTimeout(async () => {
-    const path = await electron.invoke(IpcChannel.BwaInputFile);
-    void handleFileConfirmation(path);
+    const filePath = await openCsvJsonDialog();
+    void handleFileConfirmation(filePath);
   }, 10);
 });
 
@@ -177,7 +182,7 @@ void on('click', '#bwaFileinputconfirmButtonCancel', () => {
 void on('click', '#bwaFileinputconfirmButtonStart', () => {
   watcher.close();
   void (async () => {
-    const data = await electron.invoke(IpcChannel.BwaAnalyserStart, bwaFileContents);
+    const data = await bwaAnalyserStart(bwaFileContents);
     renderAnalyser(data);
   })();
   /*
@@ -197,7 +202,7 @@ void on('click', '#bwafButtonConfirm', () => {
   qs('#bwFileInputConfirm')!.classList.add('is-hidden');
   qs('#bwProcessing')!.classList.remove('is-hidden');
 
-  electron.send(IpcChannel.BulkwhoisLookup, bwDomainArray, bwTldsArray);
+  void bulkWhoisLookup(bwDomainArray, bwTldsArray);
 });
 
 // Bulk whois file input by drag and drop
@@ -211,7 +216,7 @@ void on('click', '#bwafButtonConfirm', () => {
     event.preventDefault();
     for (const file of Array.from(event.dataTransfer!.files)) {
       debug(`File(s) you dragged here: ${file.path}`);
-      electron.send('ondragstart', (file as any).path);
+      void handleFileConfirmation((file as any).path, true);
     }
     return false;
   };

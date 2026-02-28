@@ -327,10 +327,13 @@ export { exported as PatternsHelpers };
 
 // Rebuild patterns when settings change in the renderer
 const win = typeof window !== 'undefined' ? (window as any) : undefined;
-const electron = win?.electron;
-if (electron?.on) {
-  electron.on('settings:reloaded', () => {
-    buildPatterns();
+if (win?.__TAURI__) {
+  void import('../tauriBridge.js').then(({ listen: tauriListen }) => {
+    void tauriListen('settings:reloaded', () => {
+      buildPatterns();
+    });
+  }).catch(() => {
+    // Not in a Tauri renderer context (e.g. tests)
   });
 }
 // Fallback DOM event used by renderer settings page

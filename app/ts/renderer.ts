@@ -6,9 +6,6 @@ import { formatString } from './common/stringformat.js';
 import { sendDebug, sendError } from './renderer/logger.js';
 import { debugFactory } from './common/logger.js';
 
-const electron = (window as any)
-  .electron as import('../../types/renderer-electron-api.js').RendererElectronAPI;
-
 const debug = debugFactory('renderer.entry');
 debug('loaded');
 

@@ -1,4 +1,8 @@
 /**
+ * @deprecated — This shim is no longer loaded at runtime.
+ * All renderer code now imports from `app/ts/common/tauriBridge.ts` directly.
+ * This file is kept for reference only and will be removed in a future release.
+ *
  * Tauri Shim — bridges window.electron (Electron IPC) to Tauri invoke/listen.
  *
  * This file replaces Electron's preload bridge so that all renderer code using

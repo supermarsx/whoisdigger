@@ -1,15 +1,19 @@
 import { qs } from '../../utils/dom.js';
 import { debugFactory } from '../../common/logger.js';
 import { formatString } from '../../common/stringformat.js';
-import { IpcChannel } from '../../common/ipcChannels.js';
+import { listen } from '../../common/tauriBridge.js';
 
 const debug = debugFactory('bulkwhois.status');
 const base = 10;
 
-export function registerStatusUpdates(electron: {
-  on: (channel: string, listener: (...args: any[]) => void) => void;
-}): void {
-  electron.on(IpcChannel.BulkwhoisStatusUpdate, (_event, stat, value) => {
+export function registerStatusUpdates(): void {
+  void listen<{ sent: number; total: number }>('bulk:status', (payload) => {
+    handleStatus('domains.sent', payload.sent);
+    handleStatus('domains.total', payload.total);
+  });
+}
+
+function handleStatus(stat: string, value: any): void {
     debug(formatString('{0}, value update to {1}', stat, value));
     let percent;
     switch (stat) {
@@ -142,5 +146,4 @@ export function registerStatusUpdates(electron: {
       default:
         break;
     }
-  });
 }

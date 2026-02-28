@@ -1,22 +1,22 @@
 /** @jest-environment jsdom */
 import jQuery from 'jquery';
-import {
-  bindProcessingEvents,
-  BwProcessingElectron
-} from '../app/ts/renderer/bulkwhois/event-bindings';
-import { IpcChannel } from '../app/ts/common/ipcChannels';
+
+jest.mock('../app/ts/common/logger.js', () => ({
+  debugFactory: () => () => {},
+  errorFactory: () => () => {},
+}));
+
+jest.mock('../app/ts/common/tauriBridge.js', () => ({
+  bulkWhoisPause: jest.fn(),
+  bulkWhoisContinue: jest.fn(),
+  bulkWhoisStop: jest.fn(),
+}));
+
+import { bindProcessingEvents } from '../app/ts/renderer/bulkwhois/event-bindings';
+import { bulkWhoisPause, bulkWhoisContinue } from '../app/ts/common/tauriBridge.js';
 
 describe('event bindings', () => {
   test('pause button toggles state', () => {
-    const sendMock: jest.Mock<
-      void,
-      [
-        | IpcChannel.BulkwhoisLookupContinue
-        | IpcChannel.BulkwhoisLookupPause
-        | IpcChannel.BulkwhoisLookupStop
-      ]
-    > = jest.fn();
-    const electron: BwProcessingElectron = { send: sendMock };
     document.body.innerHTML = `
       <button id="bwProcessingButtonPause" class="is-success">
         <i id="bwProcessingButtonPauseicon" class="fa-pause"></i>
@@ -25,14 +25,15 @@ describe('event bindings', () => {
     `;
     (window as any).$ = (window as any).jQuery = jQuery;
 
-    bindProcessingEvents(electron);
+    bindProcessingEvents();
     jQuery('#bwProcessingButtonPause').trigger('click');
 
-    expect(sendMock).toHaveBeenCalledWith(IpcChannel.BulkwhoisLookupPause);
+    expect(bulkWhoisPause).toHaveBeenCalled();
     expect(jQuery('#bwProcessingButtonPauseSpanText').text()).toBe('Continue');
 
-    sendMock.mockClear();
+    (bulkWhoisPause as jest.Mock).mockClear();
+    (bulkWhoisContinue as jest.Mock).mockClear();
     jQuery('#bwProcessingButtonPause').trigger('click');
-    expect(sendMock).toHaveBeenCalledWith(IpcChannel.BulkwhoisLookupContinue);
+    expect(bulkWhoisContinue).toHaveBeenCalled();
   });
 });
