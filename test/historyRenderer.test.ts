@@ -7,17 +7,15 @@ jest.mock('../app/ts/common/logger.js', () => ({
   errorFactory: () => () => {},
 }));
 
+const mockHistoryGet = jest.fn();
+
 jest.mock('../app/ts/common/tauriBridge.js', () => ({
-  historyGet: jest.fn(),
+  historyGet: mockHistoryGet,
   historyClear: jest.fn(),
   monitorStart: jest.fn(),
   monitorStop: jest.fn(),
   listen: jest.fn(),
 }));
-
-import { historyGet } from '../app/ts/common/tauriBridge.js';
-
-const mockHistoryGet = historyGet as jest.Mock;
 
 beforeEach(() => {
   jest.resetModules();

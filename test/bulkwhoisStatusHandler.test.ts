@@ -1,47 +1,39 @@
 /** @jest-environment jsdom */
 import jQuery from 'jquery';
+
+const listenHandlers: Record<string, Function> = {};
+
+jest.mock('../app/ts/common/tauriBridge.js', () => ({
+  listen: jest.fn((event: string, cb: Function) => {
+    listenHandlers[event] = cb;
+  }),
+}));
+
+jest.mock('../app/ts/common/logger.js', () => ({
+  debugFactory: () => () => {},
+  errorFactory: () => () => {},
+}));
+
 import { registerStatusUpdates } from '../app/ts/renderer/bulkwhois/status-handler';
-import { IpcChannel } from '../app/ts/common/ipcChannels';
 
 describe('status handler', () => {
-  test('start event shows processing controls', () => {
-    const handlers: Record<string, (...args: any[]) => void> = {};
-    const electron = {
-      on: (channel: string, cb: (...args: any[]) => void) => {
-        handlers[channel] = cb;
-      }
-    } as any;
-    document.body.innerHTML = `
-      <button id="bwProcessingButtonNext"></button>
-      <button id="bwProcessingButtonPause" class="is-hidden"></button>
-      <button id="bwProcessingButtonStop" class="is-hidden"></button>
-    `;
-    (window as any).$ = (window as any).jQuery = jQuery;
-
-    registerStatusUpdates(electron);
-    handlers[IpcChannel.BulkwhoisStatusUpdate]?.({}, 'start', 0);
-
-    expect(jQuery('#bwProcessingButtonNext').hasClass('is-hidden')).toBe(true);
-    expect(jQuery('#bwProcessingButtonPause').hasClass('is-hidden')).toBe(false);
-    expect(jQuery('#bwProcessingButtonStop').hasClass('is-hidden')).toBe(false);
+  beforeEach(() => {
+    Object.keys(listenHandlers).forEach((k) => delete listenHandlers[k]);
   });
 
-  test('domains.processed updates percentage', () => {
-    const handlers: Record<string, (...args: any[]) => void> = {};
-    const electron = {
-      on: (channel: string, cb: (...args: any[]) => void) => {
-        handlers[channel] = cb;
-      }
-    } as any;
+  test('bulk:status event updates sent and total', () => {
     document.body.innerHTML = `
       <span id="bwProcessingSpanTotal">10</span>
-      <span id="bwProcessingSpanProcessed"></span>
+      <span id="bwProcessingSpanSent"></span>
     `;
     (window as any).$ = (window as any).jQuery = jQuery;
 
-    registerStatusUpdates(electron);
-    handlers[IpcChannel.BulkwhoisStatusUpdate]?.({}, 'domains.processed', 5);
+    registerStatusUpdates();
+    expect(listenHandlers['bulk:status']).toBeDefined();
 
-    expect(jQuery('#bwProcessingSpanProcessed').text()).toBe('5 (50%)');
+    listenHandlers['bulk:status']({ sent: 5, total: 10 });
+
+    expect(jQuery('#bwProcessingSpanTotal').text()).toBe('10');
+    expect(jQuery('#bwProcessingSpanSent').text()).toBe('5 (50%)');
   });
 });
