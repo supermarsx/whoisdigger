@@ -1,4 +1,3 @@
-/// <reference path="./renderer-electron-api.d.ts" />
 declare const require: any;
 declare module 'fs' {
   export function existsSync(path: string): boolean;
@@ -12,91 +11,6 @@ declare module 'url' {
 }
 declare module 'readline' {
   export function createInterface(options: any): any;
-}
-declare module 'electron' {
-  export const app: any;
-  export class BrowserWindow {
-    constructor(options?: any);
-    loadURL(url: string): void;
-    show(): void;
-    once(event: string, listener: (...args: any[]) => void): void;
-    on(event: string, listener: (...args: any[]) => void): void;
-    minimize(): void;
-    toggleDevTools(): void;
-    webContents: {
-      toggleDevTools(): void;
-    };
-  }
-  export const Menu: any;
-  export interface IpcMainEvent {}
-  export interface IpcMainInvokeEvent extends IpcMainEvent {}
-  export interface IpcRendererEvent {}
-
-  interface RendererToMainIpc {
-    'app:minimize': [];
-    'app:isMinimized': [];
-    'app:reload': [];
-    'app:debug': [message: any];
-    'bulkwhois:lookup': [string[], string[]];
-    'bulkwhois:lookup.pause': [];
-    'bulkwhois:lookup.continue': [];
-    'bulkwhois:lookup.stop': [];
-    'bulkwhois:export': [any, any];
-    'bulkwhois:input.file': [];
-    'bulkwhois:input.wordlist': [];
-    ondragstart: [string];
-    'singlewhois:lookup': [string];
-    'singlewhois:openlink': [string];
-    'stats:start': [string, string];
-    'stats:refresh': [number];
-    'stats:stop': [number];
-    'stats:get': [string, string];
-  }
-
-  interface MainToRendererIpc {
-    'bulkwhois:status.update': [string, any];
-    'bulkwhois:fileinput.confirmation': [string | string[] | null, boolean?];
-    'bulkwhois:wordlistinput.confirmation': [];
-    'bulkwhois:result.receive': [any];
-    'bulkwhois:export.cancel': [];
-    'bulkwhois:export.error': [string];
-    'singlewhois:results': [any];
-    'singlewhois:copied': [];
-    'stats:update': [any];
-  }
-
-  export interface IpcMain {
-    on<C extends keyof RendererToMainIpc>(
-      channel: C,
-      listener: (event: IpcMainEvent, ...args: RendererToMainIpc[C]) => void
-    ): void;
-    handle<C extends keyof RendererToMainIpc>(
-      channel: C,
-      listener: (event: IpcMainEvent, ...args: RendererToMainIpc[C]) => any
-    ): void;
-  }
-
-  export interface IpcRenderer {
-    send<C extends keyof RendererToMainIpc>(channel: C, ...args: RendererToMainIpc[C]): void;
-    on<C extends keyof MainToRendererIpc>(
-      channel: C,
-      listener: (...args: MainToRendererIpc[C]) => void
-    ): void;
-    off<C extends keyof MainToRendererIpc>(
-      channel: C,
-      listener: (...args: MainToRendererIpc[C]) => void
-    ): void;
-    invoke<C extends keyof RendererToMainIpc>(
-      channel: C,
-      ...args: RendererToMainIpc[C]
-    ): Promise<any>;
-  }
-
-  export const ipcMain: IpcMain;
-  export const ipcRenderer: IpcRenderer;
-  export const dialog: any;
-  export const remote: any;
-  export const clipboard: any;
 }
 declare module 'debug' {
   export default function debug(namespace: string): (...args: any[]) => void;
@@ -140,8 +54,7 @@ declare module 'app/ts/common/proxy' {
 }
 
 declare module 'app/ts/main/bulkwhois/auxiliary' {
-  import type { IpcMainEvent } from 'electron';
-  export function resetUiCounters(event: IpcMainEvent): void;
+  export function resetUiCounters(event: unknown): void;
   export { resetUiCounters as rstUiCntrs };
 }
 
@@ -162,15 +75,6 @@ declare global {
   interface Window {
     $: any;
     jQuery: any;
-    electron: {
-      send: (channel: string, ...args: any[]) => void;
-      invoke: (channel: string, ...args: any[]) => Promise<any>;
-      on: (channel: string, listener: (...args: any[]) => void) => void;
-      startStats: (cfg: string, dir: string) => Promise<number>;
-      refreshStats: (id: number) => Promise<void>;
-      stopStats: (id: number) => Promise<void>;
-      getStats: (cfg: string, dir: string) => Promise<any>;
-    };
   }
 }
 
@@ -178,3 +82,4 @@ declare module 'papaparse' {
   const Papa: any;
   export default Papa;
 }
+

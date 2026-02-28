@@ -5,7 +5,7 @@
  * This test runs the actual TypeScript build and verifies:
  * 1. tsc compiles without errors
  * 2. Expected output files exist in dist/
- * 3. tauri-shim.js is present in dist output
+ * 3. tauriBridge.js is compiled to dist output
  * 4. HTML templates are generated
  * 5. Compiled JS files are valid (can be parsed)
  */
@@ -83,9 +83,9 @@ describe('Build verification', () => {
     expect(fs.existsSync(path.join(distDir, 'app', 'html', 'mainPanel.html'))).toBe(true);
   });
 
-  test('tauri-shim.js is copied to dist', () => {
+  test('tauriBridge.js is compiled to dist', () => {
     expect(
-      fs.existsSync(path.join(distDir, 'app', 'html', 'tauri-shim.js'))
+      fs.existsSync(path.join(distDir, 'app', 'ts', 'common', 'tauriBridge.js'))
     ).toBe(true);
   });
 
