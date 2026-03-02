@@ -1,0 +1,13 @@
+[package]
+name = "wd-db"
+version = "0.1.0"
+edition = "2021"
+description = "SQLite-backed history and request cache operations"
+
+[dependencies]
+rusqlite.workspace = true
+chrono.workspace = true
+serde.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

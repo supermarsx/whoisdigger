@@ -1,3 +1,48 @@
+[workspace]
+members = ["crates/*"]
+
+[workspace.dependencies]
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# Database
+rusqlite = { version = "0.32", features = ["bundled"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+# Networking
+reqwest = { version = "0.12", features = ["json"] }
+hickory-resolver = "0.24"
+
+# Text / regex
+regex = "1"
+html-escape = "0.2"
+
+# Utilities
+rand = "0.8"
+zip = "2"
+walkdir = "2"
+csv = "1"
+idna = "1"
+publicsuffix = { version = "2", default-features = false }
+whois-rust = "1.5.1"
+thiserror = "1"
+anyhow = "1"
+log = "0.4"
+
+# Internal crates (workspace path references)
+wd-parser = { path = "crates/wd-parser" }
+wd-availability = { path = "crates/wd-availability" }
+wd-lookup = { path = "crates/wd-lookup" }
+wd-db = { path = "crates/wd-db" }
+wd-export = { path = "crates/wd-export" }
+wd-proxy = { path = "crates/wd-proxy" }
+wd-wordlist = { path = "crates/wd-wordlist" }
+wd-ai = { path = "crates/wd-ai" }
+
 [package]
 name = "whoisdigger"
 version = "0.2.0"
@@ -5,8 +50,8 @@ description = "Bulk whois lookup tool"
 authors = ["supermarsx"]
 edition = "2021"
 
-# `cargo run` needs to know which binary to execute when multiple are
-# defined under `src/bin`. Tauri’s dev command relies on `cargo run` so
+# cargo run needs to know which binary to execute when multiple are
+# defined under src/bin. Tauri dev command relies on cargo run so
 # we default to the GUI target here.
 default-run = "whoisdigger-gui"
 
@@ -14,27 +59,44 @@ default-run = "whoisdigger-gui"
 tauri-build = { version = "2.0.0", features = [] }
 
 [dependencies]
+# Internal crates
+wd-parser.workspace = true
+wd-availability.workspace = true
+wd-lookup.workspace = true
+wd-db.workspace = true
+wd-export.workspace = true
+wd-proxy.workspace = true
+wd-wordlist.workspace = true
+wd-ai.workspace = true
+
+# Tauri and plugins
 tauri = { version = "2.0.0", features = ["test"] }
 tauri-plugin-fs = "2.0.0"
 tauri-plugin-shell = "2.0.0"
 tauri-plugin-dialog = "2.0.0"
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-rusqlite = { version = "0.32", features = ["bundled"] }
-chrono = { version = "0.4", features = ["serde"] }
-tokio = { version = "1", features = ["full"] }
-whois-rust = "1.5.1"
+
+# Serialization
+serde.workspace = true
+serde_json.workspace = true
+
+# Database (re-used directly by binaries for merge/clear operations)
+rusqlite.workspace = true
+chrono.workspace = true
+rand.workspace = true
+
+# Async runtime
+tokio.workspace = true
 futures = "0.3"
-walkdir = "2"
-regex = "1"
-zip = "2"
-html-escape = "0.2"
-trust-dns-resolver = "0.23"
-reqwest = { version = "0.12", features = ["json"] }
+
+# File and archive utilities
+walkdir.workspace = true
+zip.workspace = true
+csv.workspace = true
+
+# CLI-specific
 indicatif = "0.17"
 clap = { version = "4", features = ["derive"] }
-anyhow = "1"
-thiserror = "1"
-log = "0.4"
+anyhow.workspace = true
+thiserror.workspace = true
+log.workspace = true
 env_logger = "0.11"
-csv = "1"

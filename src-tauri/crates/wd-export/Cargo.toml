@@ -1,0 +1,13 @@
+[package]
+name = "wd-export"
+version = "0.1.0"
+edition = "2021"
+description = "CSV and ZIP export logic for WHOIS lookup results"
+
+[dependencies]
+serde.workspace = true
+zip.workspace = true
+wd-availability.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

@@ -1,0 +1,14 @@
+[package]
+name = "wd-availability"
+version = "0.1.0"
+edition = "2021"
+description = "Domain availability detection and WHOIS parameter extraction"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+wd-parser.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

@@ -1,0 +1,15 @@
+[package]
+name = "wd-lookup"
+version = "0.1.0"
+edition = "2021"
+description = "WHOIS, DNS, and RDAP network lookup operations"
+
+[dependencies]
+whois-rust.workspace = true
+hickory-resolver.workspace = true
+reqwest.workspace = true
+tokio.workspace = true
+serde.workspace = true
+idna.workspace = true
+publicsuffix.workspace = true
+rand.workspace = true

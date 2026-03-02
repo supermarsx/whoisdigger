@@ -1,0 +1,9 @@
+[package]
+name = "wd-parser"
+version = "0.1.0"
+edition = "2021"
+description = "WHOIS raw text parsing utilities"
+
+[dependencies]
+regex.workspace = true
+html-escape.workspace = true

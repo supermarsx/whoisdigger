@@ -21,3 +21,6 @@ app/compiled-templates/
 /src-tauri/target
 /ui/.next
 /ui/out
+
+# Test artifacts in crates
+src-tauri/crates/**/*.sqlite

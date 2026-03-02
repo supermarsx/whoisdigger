@@ -1,0 +1,9 @@
+[package]
+name = "wd-proxy"
+version = "0.1.0"
+edition = "2021"
+description = "Proxy selection, rotation, and failure tracking for WHOIS lookups"
+
+[dependencies]
+serde.workspace = true
+rand.workspace = true

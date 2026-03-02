@@ -1,0 +1,10 @@
+[package]
+name = "wd-wordlist"
+version = "0.1.0"
+edition = "2021"
+description = "Wordlist transformation and text processing utilities"
+
+[dependencies]
+serde.workspace = true
+rand.workspace = true
+regex.workspace = true
