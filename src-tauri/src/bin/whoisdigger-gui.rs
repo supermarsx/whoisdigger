@@ -4,7 +4,11 @@
 use whoisdigger::{
     perform_lookup, perform_lookup_with_settings, dns_lookup, rdap_lookup,
     db_history_add, db_history_get, db_cache_get, db_cache_set,
-    availability::{is_domain_available, get_domain_parameters, DomainStatus, WhoisParams},
+    availability::{
+        is_domain_available, is_domain_available_with_settings,
+        get_domain_parameters,
+        DomainStatus, WhoisParams, AvailabilitySettings,
+    },
     export::{BulkResult, ExportOpts, export_results},
     ai::{self as wd_ai_mod, OpenAiSettings},
     wordlist::{self as wd_wordlist_mod},
@@ -12,6 +16,7 @@ use whoisdigger::{
     lookup::LookupSettings,
     HistoryEntry,
 };
+use wd_parser::parse_raw_data;
 
 use tauri::{Emitter, State, Runtime, Manager};
 use std::sync::Arc;
@@ -285,15 +290,9 @@ async fn app_get_user_data_path<R: Runtime>(app_handle: tauri::AppHandle<R>) -> 
 
 // ─── WHOIS Lookup Commands ───────────────────────────────────────────────────
 
-/// Convert DomainStatus to its serde string representation without unwrap.
+/// Convert DomainStatus to its serde string representation.
 fn domain_status_to_string(status: &DomainStatus) -> String {
-    match status {
-        DomainStatus::Available => "available".to_string(),
-        DomainStatus::Unavailable => "unavailable".to_string(),
-        DomainStatus::Error => "error".to_string(),
-        DomainStatus::ErrorUnparsable => "error:unparsable".to_string(),
-        DomainStatus::ErrorRateLimiting => "error:ratelimiting".to_string(),
-    }
+    status.as_str().to_string()
 }
 
 #[tauri::command]
@@ -357,8 +356,23 @@ async fn availability_check(text: String) -> String {
 }
 
 #[tauri::command]
+async fn availability_check_with_settings(
+    text: String,
+    settings: AvailabilitySettings,
+) -> String {
+    let status = is_domain_available_with_settings(&text, &settings);
+    domain_status_to_string(&status)
+}
+
+#[tauri::command]
 async fn availability_params(domain: Option<String>, status: Option<DomainStatus>, text: String) -> WhoisParams {
     get_domain_parameters(domain, status, text)
+}
+
+/// Parse raw WHOIS text into a key-value JSON map (renderer replacement for parser.ts toJSON).
+#[tauri::command]
+async fn whois_parse(text: String) -> HashMap<String, String> {
+    parse_raw_data(&text)
 }
 
 // ─── History Commands (spawn_blocking for sync SQLite) ───────────────────────
@@ -1190,7 +1204,9 @@ fn main() {
             dns_lookup_cmd,
             rdap_lookup_cmd,
             availability_check,
+            availability_check_with_settings,
             availability_params,
+            whois_parse,
             // FS operations
             fs_read_file,
             fs_exists,
@@ -1786,8 +1802,8 @@ mod tests {
     #[tokio::test]
     async fn test_availability_check_empty() {
         let result = availability_check("".into()).await;
-        // Empty defaults to unavailable in Rust backend
-        assert_eq!(result, "unavailable");
+        // Empty text is now correctly identified as "error:nocontent"
+        assert_eq!(result, "error:nocontent");
     }
 
     #[tokio::test]

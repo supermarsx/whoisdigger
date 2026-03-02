@@ -35,9 +35,12 @@ describe('tauriBridge export exhaustiveness', () => {
   const expectedExports = [
     // WHOIS
     'whoisLookup',
+    'whoisLookupWithSettings',
+    'whoisParse',
     'dnsLookup',
     'rdapLookup',
     'availabilityCheck',
+    'availabilityCheckWithSettings',
     'domainParameters',
 
     // Bulk WHOIS
@@ -53,6 +56,7 @@ describe('tauriBridge export exhaustiveness', () => {
     // Text / CSV
     'toProcess',
     'parseCsv',
+    'wordlistTransform',
 
     // Dialogs
     'openFileDialog',
@@ -74,6 +78,7 @@ describe('tauriBridge export exhaustiveness', () => {
     'profilesRename',
     'profilesDelete',
     'profilesSetCurrent',
+    'profilesGetCurrent',
     'profilesExport',
     'profilesImport',
 
@@ -104,7 +109,15 @@ describe('tauriBridge export exhaustiveness', () => {
 
     // AI
     'aiSuggest',
+    'aiSuggestWithSettings',
+    'aiPredict',
     'aiDownloadModel',
+
+    // Lookup / Proxy settings
+    'lookupGetSettings',
+    'lookupSetSettings',
+    'proxyGetSettings',
+    'proxySetSettings',
 
     // Namespaces
     'fs',

@@ -162,6 +162,7 @@ describe('Profile lifecycle workflow', () => {
 
   test('import profile then set as current', async () => {
     openMock.mockResolvedValue('/downloads/imported.zip');
+    invokeMock.mockResolvedValueOnce({ id: 'imported' });
     const result = await profilesImport();
     expect(result).toEqual({ id: 'imported' });
 

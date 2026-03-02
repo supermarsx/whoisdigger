@@ -252,6 +252,7 @@ describe('Profiles edge cases', () => {
 
   test('profilesImport handles path without .zip extension', async () => {
     openMock.mockResolvedValue('/some/profile-backup');
+    invokeMock.mockResolvedValueOnce({ id: 'profile-backup' });
     const result = await profilesImport();
     // basename = 'profile-backup', .replace('.zip', '') is a no-op
     expect(result).toEqual({ id: 'profile-backup' });
@@ -259,6 +260,7 @@ describe('Profiles edge cases', () => {
 
   test('profilesImport handles array result from dialog', async () => {
     openMock.mockResolvedValue(['/profiles/test.zip']);
+    invokeMock.mockResolvedValueOnce({ id: 'test' });
     const result = await profilesImport();
     expect(result).toEqual({ id: 'test' });
   });

@@ -9,11 +9,28 @@
  */
 
 import type DomainStatus from './status.js';
-import type { WhoisResult } from './availability.js';
 import type { ProcessOptions } from './tools.js';
 import type { BulkWhoisResults } from './bulkwhois/types.js';
 import type { ExportOptions } from './bulkwhois/export-helpers.js';
 import type { FileStats } from './fileStats.js';
+
+// ─── Shared Domain Types ────────────────────────────────────────────────────
+
+/**
+ * Result of a WHOIS domain-parameter extraction.
+ * This is the canonical type — replaces the one previously defined in availability.ts.
+ */
+export interface WhoisResult {
+  domain?: string;
+  status?: DomainStatus;
+  registrar?: string;
+  company?: string;
+  creationDate?: string;
+  updateDate?: string;
+  expiryDate?: string;
+  whoisreply?: string;
+  whoisJson?: Record<string, string>;
+}
 
 // ─── Tauri Runtime Type Declarations ────────────────────────────────────────
 
@@ -148,6 +165,21 @@ export function availabilityCheck(text: string): Promise<DomainStatus> {
   return tauriInvoke<DomainStatus>('availability_check', { text });
 }
 
+export interface AvailabilitySettings {
+  uniregistry?: boolean;
+  ratelimit?: boolean;
+  unparsable?: boolean;
+  expired?: boolean;
+  dnsFailureUnavailable?: boolean;
+}
+
+export function availabilityCheckWithSettings(
+  text: string,
+  settings: AvailabilitySettings
+): Promise<DomainStatus> {
+  return tauriInvoke<DomainStatus>('availability_check_with_settings', { text, settings });
+}
+
 export function domainParameters(
   domain: string | null,
   status: DomainStatus | null,
@@ -160,6 +192,14 @@ export function domainParameters(
     text,
     ...(extra ? { extra } : {}),
   });
+}
+
+/**
+ * Parse raw WHOIS text into a key-value JSON map.
+ * Backend replacement for the local parser.ts toJSON() function.
+ */
+export function whoisParse(text: string): Promise<Record<string, string>> {
+  return tauriInvoke<Record<string, string>>('whois_parse', { text });
 }
 
 // ─── Bulk WHOIS Commands ────────────────────────────────────────────────────

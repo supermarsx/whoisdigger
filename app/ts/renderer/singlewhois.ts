@@ -1,10 +1,10 @@
-import type { WhoisResult } from '../common/availability.js';
-import { preStringStrip, toJSON } from '../common/parser.js';
+import type { WhoisResult } from '../common/tauriBridge.js';
 
 import {
   whoisLookup,
   availabilityCheck,
   domainParameters,
+  whoisParse,
   listen,
   app,
 } from '../common/tauriBridge.js';
@@ -50,10 +50,12 @@ async function handleResults(domainResults: string) {
   let domainResultsJSON: Record<string, unknown>;
   let resultFilter: WhoisResult;
   let errorReason: string | undefined;
-  //electron.send('app:debug', "Whois domain reply:\n {0}".format(domainResults));
 
-  domainResults = preStringStrip(domainResults);
-  domainResultsJSON = toJSON(domainResults) as Record<string, unknown>;
+  // Strip tab/colon formatting (trivial inline replacement for preStringStrip)
+  domainResults = domainResults.replace(/:\t{1,2}/g, ': ');
+
+  // Parse via backend instead of local parser.ts
+  domainResultsJSON = await whoisParse(domainResults) as Record<string, unknown>;
 
   // Check domain status
   domainName =
@@ -65,8 +67,7 @@ async function handleResults(domainResults: string) {
   resultFilter = await domainParameters(
     domainName,
     domainStatus as DomainStatus,
-    domainResults,
-    domainResultsJSON
+    domainResults
   );
 
   const { domain, updateDate, registrar, creationDate, company, expiryDate } = resultFilter;

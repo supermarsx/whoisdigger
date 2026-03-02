@@ -438,6 +438,7 @@ describe('Profiles commands', () => {
 
   test('profilesImport opens dialog and extracts id', async () => {
     openMock.mockResolvedValue('/profiles/work.zip');
+    invokeMock.mockResolvedValueOnce({ id: 'work' });
     const result = await profilesImport();
     expect(openMock).toHaveBeenCalledWith(
       expect.objectContaining({ filters: [{ name: 'ZIP', extensions: ['zip'] }] })

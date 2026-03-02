@@ -130,6 +130,7 @@ mod tests {
                 update_date: None,
                 expiry_date: Some("2030-01-01".into()),
                 whoisreply: None,
+                whois_json: None,
             }),
         }];
         let csv = build_csv(&results);

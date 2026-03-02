@@ -1,10 +1,9 @@
-import fs from 'fs';
-import path from 'path';
-import { parseArgs } from 'util';
-import { settings, getUserDataPath } from '../app/ts/common/settings.js';
-import { lookup } from '../app/ts/common/lookup.js';
-import { toJSON } from '../app/ts/common/parser.js';
-import { isDomainAvailable } from '../app/ts/common/availability.js';
+/**
+ * @deprecated AI model training is now handled by the Rust wd-ai crate.
+ * WHOIS lookups, parsing, and availability checks all run in the Rust backend.
+ * This file retains only the pure ML helper functions for reference/testing.
+ * To train a model, use the Tauri `ai_train` command from the application UI.
+ */
 
 type Label = 'available' | 'unavailable';
 
@@ -67,55 +66,4 @@ export function predict(model: Model, text: string): Label {
     return s;
   }
   return score('available') > score('unavailable') ? 'available' : 'unavailable';
-}
-
-async function trainDomains(domains: string[]): Promise<Model> {
-  const samples: TrainingSample[] = [];
-  for (const domain of domains) {
-    try {
-      const text = await lookup(domain);
-      const json = toJSON(text) as Record<string, unknown>;
-      const result = isDomainAvailable(text, json);
-      if (result === 'available' || result === 'unavailable') {
-        samples.push({ text, label: result });
-      }
-    } catch {
-      // Ignore lookup errors
-    }
-  }
-  if (!samples.length) throw new Error('no training data');
-  return trainFromSamples(samples);
-}
-
-export async function main(): Promise<void> {
-  const { values } = parseArgs({
-    options: { lists: { type: 'string', multiple: true } }
-  });
-  let files: string[] = values.lists as string[];
-  const useDefaults = !files || files.length === 0;
-  if (useDefaults) {
-    files = fs.readdirSync('sample_lists').filter((f) => f.endsWith('.list'));
-  }
-  const domains: string[] = [];
-  for (const f of files) {
-    const listPath = useDefaults ? path.join('sample_lists', f) : f;
-    const lines = fs.readFileSync(listPath, 'utf8').split(/\r?\n/).filter(Boolean);
-    domains.push(...lines);
-  }
-  const model = await trainDomains(domains);
-  const baseDir = path.resolve(getUserDataPath(), settings.ai.dataPath);
-  const dest = path.resolve(baseDir, settings.ai.modelPath);
-  if (dest !== baseDir && !dest.startsWith(baseDir + path.sep)) {
-    throw new Error('Invalid model path');
-  }
-  await fs.promises.mkdir(path.dirname(dest), { recursive: true });
-  await fs.promises.writeFile(dest, JSON.stringify(model));
-  console.log(`Model written to ${dest}`);
-}
-
-if (require.main === module) {
-  main().catch((e) => {
-    console.error(e);
-    process.exitCode = 1;
-  });
 }
