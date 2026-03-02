@@ -26,6 +26,11 @@ pub struct ExportOpts {
     pub information: String,
 }
 
+/// Escape a CSV field value: double any internal `"` characters per RFC 4180.
+fn csv_escape(s: &str) -> String {
+    s.replace('"', "\"\"")
+}
+
 /// Build a CSV string from bulk lookup results.
 pub fn build_csv(results: &[BulkResult]) -> String {
     let mut csv = String::from(
@@ -54,7 +59,12 @@ pub fn build_csv(results: &[BulkResult]) -> String {
             .unwrap_or("");
         csv.push_str(&format!(
             "\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\"\n",
-            r.domain, r.status, reg, co, cr, ex
+            csv_escape(&r.domain),
+            csv_escape(&r.status),
+            csv_escape(reg),
+            csv_escape(co),
+            csv_escape(cr),
+            csv_escape(ex)
         ));
     }
     csv
@@ -193,6 +203,38 @@ mod tests {
         }];
         let csv = build_csv(&results);
         assert!(csv.contains("éxàmple.com"));
+    }
+
+    #[test]
+    fn test_build_csv_escapes_double_quotes() {
+        let results = vec![BulkResult {
+            domain: "test.com".into(),
+            data: None,
+            error: None,
+            status: "unavailable".into(),
+            params: Some(WhoisParams {
+                domain: Some("test.com".into()),
+                status: None,
+                registrar: Some("GoDaddy \"LLC\"".into()),
+                company: Some("ACME \"Corp\"".into()),
+                creation_date: None,
+                update_date: None,
+                expiry_date: None,
+                whoisreply: None,
+                whois_json: None,
+            }),
+        }];
+        let csv = build_csv(&results);
+        // Internal quotes must be doubled per RFC 4180
+        assert!(csv.contains("\"GoDaddy \"\"LLC\"\"\""));
+        assert!(csv.contains("\"ACME \"\"Corp\"\"\""));
+    }
+
+    #[test]
+    fn test_csv_escape() {
+        assert_eq!(csv_escape("hello"), "hello");
+        assert_eq!(csv_escape("say \"hi\""), "say \"\"hi\"\"");
+        assert_eq!(csv_escape(""), "");
     }
 
     // ── Export results ───────────────────────────────────────────────────

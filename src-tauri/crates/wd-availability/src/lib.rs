@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::sync::LazyLock;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use wd_parser::parse_raw_data;
@@ -461,22 +462,37 @@ fn build_patterns(settings: &AvailabilitySettings) -> PatternCollections {
     });
 
     // ── Error: replyerror (catch-all error patterns) ─────────────────────
-    let reply_error_strings: &[&str] = &[
-        "error ",
-        "error",
-        "Error",
+    // NOTE: Specific patterns first; broad patterns like "error" are matched
+    // only against the first line to avoid false-positives on legitimate
+    // WHOIS replies that happen to contain the word "error" in registrar
+    // descriptions or policy text.
+    let specific_error_strings: &[&str] = &[
         "ERROR:101:",
         "Whois lookup error",
         "can temporarily not be answered",
         "Invalid input",
     ];
-    for &s in reply_error_strings {
+    for &s in specific_error_strings {
         let owned = s.to_string();
         error.push(CompiledPattern {
             check: Box::new(move |ctx| ctx.results_text.contains(&*owned)),
             result: DomainStatus::ErrorReplyError,
         });
     }
+    // Broad "error" / "Error" patterns — only match if the FIRST non-empty
+    // line of the WHOIS reply starts with or equals an error-like string.
+    error.push(CompiledPattern {
+        check: Box::new(|ctx| {
+            let first_line = ctx.results_text.lines()
+                .find(|l| !l.trim().is_empty())
+                .unwrap_or("")
+                .trim();
+            first_line.starts_with("error") ||
+            first_line.starts_with("Error") ||
+            first_line.starts_with("ERROR")
+        }),
+        result: DomainStatus::ErrorReplyError,
+    });
     // resultsJSON has "error" or "errno" key
     error.push(CompiledPattern {
         check: Box::new(|ctx| {
@@ -492,6 +508,13 @@ fn build_patterns(settings: &AvailabilitySettings) -> PatternCollections {
         error,
     }
 }
+
+// ─── Cached Default Patterns ─────────────────────────────────────────────────
+
+/// Pre-built patterns for the default `AvailabilitySettings` (all flags false).
+/// This avoids rebuilding patterns on every call during bulk operations.
+static DEFAULT_PATTERNS: LazyLock<PatternCollections> =
+    LazyLock::new(|| build_patterns(&AvailabilitySettings::default()));
 
 // ─── Date Parsing Helper ─────────────────────────────────────────────────────
 
@@ -540,7 +563,21 @@ pub fn is_domain_available_full(
     results_json: &HashMap<String, String>,
     settings: &AvailabilitySettings,
 ) -> DomainStatus {
-    let patterns = build_patterns(settings);
+    // Use cached default patterns when settings are all defaults to avoid
+    // rebuilding pattern closures on every call (critical for bulk lookups).
+    let is_default = !settings.uniregistry
+        && !settings.ratelimit
+        && !settings.unparsable
+        && settings.expired.is_none()
+        && !settings.dns_failure_unavailable;
+
+    let owned_patterns;
+    let patterns = if is_default {
+        &*DEFAULT_PATTERNS
+    } else {
+        owned_patterns = build_patterns(settings);
+        &owned_patterns
+    };
 
     let domain_params = get_domain_parameters_from_json(None, None, results_text, results_json);
     let control_date = Utc::now().format("%Y-%m-%d").to_string();

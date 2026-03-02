@@ -99,15 +99,62 @@ struct AppData {
 
 /// Validate that a resolved path stays within the given base directory.
 /// Prevents path traversal attacks on filesystem commands.
+/// Works reliably for both existing and non-existent destination paths
+/// by manually resolving `..` components instead of relying on
+/// `canonicalize()` (which requires the path to exist).
 fn safe_path(base: &Path, sub: &str) -> Result<PathBuf, String> {
     let dest = base.join(sub);
+
+    // Resolve the base (must exist)
     let canonical_base = base.canonicalize().unwrap_or_else(|_| base.to_path_buf());
-    let canonical_dest = dest.canonicalize().unwrap_or_else(|_| dest.clone());
+
+    // For the destination, resolve what exists and append the rest
+    let canonical_dest = resolve_path_safe(&dest);
 
     if canonical_dest != canonical_base && !canonical_dest.starts_with(&canonical_base) {
         return Err("Invalid path: traversal detected".into());
     }
     Ok(dest)
+}
+
+/// Resolve a path without requiring it to exist. Walks up from the full path
+/// until we find an ancestor that exists (and can be canonicalized), then
+/// re-appends the remaining components with `..` eliminated.
+fn resolve_path_safe(path: &Path) -> PathBuf {
+    // First try direct canonicalize (works if path exists)
+    if let Ok(canon) = path.canonicalize() {
+        return canon;
+    }
+
+    // Collect all components and manually resolve
+    let mut resolved = PathBuf::new();
+    for component in path.components() {
+        match component {
+            std::path::Component::ParentDir => {
+                resolved.pop();
+            }
+            std::path::Component::CurDir => {}
+            other => resolved.push(other),
+        }
+    }
+
+    // Try to canonicalize the closest existing ancestor
+    let mut ancestor = resolved.clone();
+    let mut tail_parts = Vec::new();
+    while !ancestor.exists() {
+        if let Some(file_name) = ancestor.file_name() {
+            tail_parts.push(file_name.to_os_string());
+        }
+        if !ancestor.pop() {
+            break;
+        }
+    }
+
+    let mut result = ancestor.canonicalize().unwrap_or(ancestor);
+    for part in tail_parts.into_iter().rev() {
+        result.push(part);
+    }
+    result
 }
 
 /// Validate that a profile or settings filename is safe (no path separators or traversal).
@@ -144,6 +191,27 @@ fn get_profile_dir<R: Runtime>(app_handle: &tauri::AppHandle<R>, profile: &str) 
     Ok(path)
 }
 
+/// Read the current profile ID from disk, falling back to "default".
+fn get_current_profile<R: Runtime>(app_handle: &tauri::AppHandle<R>) -> Result<String, String> {
+    let path = get_user_data_dir(app_handle)?.join("current-profile");
+    if path.exists() {
+        std::fs::read_to_string(&path)
+            .map(|s| { let t = s.trim().to_string(); if t.is_empty() { "default".into() } else { t } })
+            .unwrap_or_else(|_| "default".into())
+    } else {
+        "default".into()
+    }
+    .pipe_ref(|id| sanitize_name(id).map(|s| s.to_string()))
+}
+
+/// Helper trait for piping a value through a closure.
+trait PipeRef {
+    fn pipe_ref<F, R2>(&self, f: F) -> R2 where F: FnOnce(&Self) -> R2;
+}
+impl<T> PipeRef for T {
+    fn pipe_ref<F, R2>(&self, f: F) -> R2 where F: FnOnce(&Self) -> R2 { f(self) }
+}
+
 fn epoch_ms_from_metadata(metadata: &std::fs::Metadata) -> Option<u64> {
     metadata.modified().ok()
         .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
@@ -170,19 +238,19 @@ fn validate_fs_path<R: Runtime>(app_handle: &tauri::AppHandle<R>, path: &str) ->
 
 #[tauri::command]
 async fn fs_read_file<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String) -> Result<String, String> {
-    let validated = validate_fs_path(&app_handle, &path).unwrap_or_else(|_| PathBuf::from(&path));
+    let validated = validate_fs_path(&app_handle, &path)?;
     tokio::fs::read_to_string(&validated).await.map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-async fn fs_exists<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String) -> bool {
-    let validated = validate_fs_path(&app_handle, &path).unwrap_or_else(|_| PathBuf::from(&path));
-    tokio::fs::try_exists(&validated).await.unwrap_or(false)
+async fn fs_exists<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String) -> Result<bool, String> {
+    let validated = validate_fs_path(&app_handle, &path)?;
+    Ok(tokio::fs::try_exists(&validated).await.unwrap_or(false))
 }
 
 #[tauri::command]
 async fn fs_stat<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String) -> Result<FileStat, String> {
-    let validated = validate_fs_path(&app_handle, &path).unwrap_or_else(|_| PathBuf::from(&path));
+    let validated = validate_fs_path(&app_handle, &path)?;
     let metadata = tokio::fs::metadata(&validated).await.map_err(|e| e.to_string())?;
     let mtime_ms = epoch_ms_from_metadata(&metadata).unwrap_or(0);
     let mtime_str = metadata.modified().ok().map(iso_from_system_time);
@@ -200,7 +268,7 @@ async fn fs_stat<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String) -> R
 
 #[tauri::command]
 async fn fs_readdir<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String) -> Result<Vec<String>, String> {
-    let validated = validate_fs_path(&app_handle, &path).unwrap_or_else(|_| PathBuf::from(&path));
+    let validated = validate_fs_path(&app_handle, &path)?;
     let mut entries = tokio::fs::read_dir(&validated).await.map_err(|e| e.to_string())?;
     let mut names = Vec::new();
     while let Some(entry) = entries.next_entry().await.map_err(|e| e.to_string())? {
@@ -213,19 +281,19 @@ async fn fs_readdir<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String) -
 
 #[tauri::command]
 async fn fs_unlink<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String) -> Result<(), String> {
-    let validated = validate_fs_path(&app_handle, &path).unwrap_or_else(|_| PathBuf::from(&path));
+    let validated = validate_fs_path(&app_handle, &path)?;
     tokio::fs::remove_file(&validated).await.map_err(|e| e.to_string())
 }
 
 #[tauri::command]
 async fn fs_access<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String) -> Result<(), String> {
-    let validated = validate_fs_path(&app_handle, &path).unwrap_or_else(|_| PathBuf::from(&path));
+    let validated = validate_fs_path(&app_handle, &path)?;
     tokio::fs::metadata(&validated).await.map(|_| ()).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
 async fn fs_write_file<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String, content: String) -> Result<(), String> {
-    let validated = validate_fs_path(&app_handle, &path).unwrap_or_else(|_| PathBuf::from(&path));
+    let validated = validate_fs_path(&app_handle, &path)?;
     if let Some(parent) = validated.parent() {
         let _ = tokio::fs::create_dir_all(parent).await;
     }
@@ -234,7 +302,7 @@ async fn fs_write_file<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String
 
 #[tauri::command]
 async fn fs_mkdir<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String) -> Result<(), String> {
-    let validated = validate_fs_path(&app_handle, &path).unwrap_or_else(|_| PathBuf::from(&path));
+    let validated = validate_fs_path(&app_handle, &path)?;
     tokio::fs::create_dir_all(&validated).await.map_err(|e| e.to_string())
 }
 
@@ -305,7 +373,8 @@ async fn whois_lookup<R: Runtime>(
     let result = perform_lookup_with_settings(&domain, &settings).await?;
 
     // Log to history (in a blocking task since rusqlite is sync)
-    let path = get_profile_dir(&app_handle, "default")?.join("history-default.sqlite");
+    let profile = get_current_profile(&app_handle)?;
+    let path = get_profile_dir(&app_handle, &profile)?.join(format!("history-{}.sqlite", profile));
     let status = is_domain_available(&result);
     let status_str = domain_status_to_string(&status);
     let path_str = path.to_string_lossy().to_string();
@@ -325,7 +394,8 @@ async fn whois_lookup_with_settings<R: Runtime>(
 ) -> Result<String, String> {
     let result = perform_lookup_with_settings(&domain, &settings).await?;
 
-    let path = get_profile_dir(&app_handle, "default")?.join("history-default.sqlite");
+    let profile = get_current_profile(&app_handle)?;
+    let path = get_profile_dir(&app_handle, &profile)?.join(format!("history-{}.sqlite", profile));
     let status = is_domain_available(&result);
     let status_str = domain_status_to_string(&status);
     let path_str = path.to_string_lossy().to_string();
@@ -379,7 +449,8 @@ async fn whois_parse(text: String) -> HashMap<String, String> {
 
 #[tauri::command]
 async fn db_gui_history_get<R: Runtime>(app_handle: tauri::AppHandle<R>, limit: u32) -> Result<Vec<HistoryEntry>, String> {
-    let path = get_profile_dir(&app_handle, "default")?.join("history-default.sqlite");
+    let profile = get_current_profile(&app_handle)?;
+    let path = get_profile_dir(&app_handle, &profile)?.join(format!("history-{}.sqlite", profile));
     if !path.exists() { return Ok(Vec::new()); }
     let path_str = path.to_string_lossy().to_string();
     tokio::task::spawn_blocking(move || db_history_get(&path_str, limit))
@@ -389,7 +460,8 @@ async fn db_gui_history_get<R: Runtime>(app_handle: tauri::AppHandle<R>, limit: 
 
 #[tauri::command]
 async fn db_gui_history_clear<R: Runtime>(app_handle: tauri::AppHandle<R>) -> Result<(), String> {
-    let path = get_profile_dir(&app_handle, "default")?.join("history-default.sqlite");
+    let profile = get_current_profile(&app_handle)?;
+    let path = get_profile_dir(&app_handle, &profile)?.join(format!("history-{}.sqlite", profile));
     if !path.exists() { return Ok(()); }
     tokio::task::spawn_blocking(move || {
         let conn = Connection::open(&path).map_err(|e| e.to_string())?;
@@ -400,7 +472,8 @@ async fn db_gui_history_clear<R: Runtime>(app_handle: tauri::AppHandle<R>) -> Re
 
 #[tauri::command]
 async fn history_merge<R: Runtime>(app_handle: tauri::AppHandle<R>, paths: Vec<String>) -> Result<(), String> {
-    let dest_path = get_profile_dir(&app_handle, "default")?.join("history-default.sqlite");
+    let profile = get_current_profile(&app_handle)?;
+    let dest_path = get_profile_dir(&app_handle, &profile)?.join(format!("history-{}.sqlite", profile));
 
     tokio::task::spawn_blocking(move || {
         let dest_conn = Connection::open(&dest_path).map_err(|e| e.to_string())?;
@@ -434,7 +507,8 @@ async fn history_merge<R: Runtime>(app_handle: tauri::AppHandle<R>, paths: Vec<S
 
 #[tauri::command]
 async fn db_gui_cache_get<R: Runtime>(app_handle: tauri::AppHandle<R>, key: String, ttl_ms: Option<u64>) -> Result<Option<String>, String> {
-    let path = get_profile_dir(&app_handle, "default")?.join("request-cache.sqlite");
+    let profile = get_current_profile(&app_handle)?;
+    let path = get_profile_dir(&app_handle, &profile)?.join("request-cache.sqlite");
     let path_str = path.to_string_lossy().to_string();
     tokio::task::spawn_blocking(move || db_cache_get(&path_str, &key, ttl_ms))
         .await
@@ -443,7 +517,8 @@ async fn db_gui_cache_get<R: Runtime>(app_handle: tauri::AppHandle<R>, key: Stri
 
 #[tauri::command]
 async fn db_gui_cache_set<R: Runtime>(app_handle: tauri::AppHandle<R>, key: String, response: String, max_entries: Option<u32>) -> Result<(), String> {
-    let path = get_profile_dir(&app_handle, "default")?.join("request-cache.sqlite");
+    let profile = get_current_profile(&app_handle)?;
+    let path = get_profile_dir(&app_handle, &profile)?.join("request-cache.sqlite");
     let path_str = path.to_string_lossy().to_string();
     tokio::task::spawn_blocking(move || db_cache_set(&path_str, &key, &response, max_entries))
         .await
@@ -452,7 +527,8 @@ async fn db_gui_cache_set<R: Runtime>(app_handle: tauri::AppHandle<R>, key: Stri
 
 #[tauri::command]
 async fn db_gui_cache_clear<R: Runtime>(app_handle: tauri::AppHandle<R>) -> Result<(), String> {
-    let path = get_profile_dir(&app_handle, "default")?.join("request-cache.sqlite");
+    let profile = get_current_profile(&app_handle)?;
+    let path = get_profile_dir(&app_handle, &profile)?.join("request-cache.sqlite");
     if !path.exists() { return Ok(()); }
     tokio::task::spawn_blocking(move || {
         let conn = Connection::open(&path).map_err(|e| e.to_string())?;
@@ -463,7 +539,8 @@ async fn db_gui_cache_clear<R: Runtime>(app_handle: tauri::AppHandle<R>) -> Resu
 
 #[tauri::command]
 async fn cache_merge<R: Runtime>(app_handle: tauri::AppHandle<R>, paths: Vec<String>) -> Result<(), String> {
-    let dest_path = get_profile_dir(&app_handle, "default")?.join("request-cache.sqlite");
+    let profile = get_current_profile(&app_handle)?;
+    let dest_path = get_profile_dir(&app_handle, &profile)?.join("request-cache.sqlite");
 
     tokio::task::spawn_blocking(move || {
         let dest_conn = Connection::open(&dest_path).map_err(|e| e.to_string())?;
@@ -508,7 +585,7 @@ async fn bulk_whois_lookup<R: Runtime>(
     domains: Vec<String>,
     tlds: Option<Vec<String>>,
     concurrency: usize,
-    _timeout_ms: u64,
+    timeout_ms: u64,
 ) -> Result<Vec<BulkResult>, String> {
     {
         let mut state = data.bulk_state.lock().await;
@@ -541,6 +618,11 @@ async fn bulk_whois_lookup<R: Runtime>(
     let semaphore = Arc::new(Semaphore::new(concurrency));
     let mut tasks = Vec::new();
     let sent_counter = Arc::new(tokio::sync::Mutex::new(0u32));
+    let per_domain_timeout = if timeout_ms > 0 {
+        Some(tokio::time::Duration::from_millis(timeout_ms))
+    } else {
+        None
+    };
 
     for domain in expanded_domains {
         let sem = Arc::clone(&semaphore);
@@ -548,6 +630,7 @@ async fn bulk_whois_lookup<R: Runtime>(
         let sent = Arc::clone(&sent_counter);
         let bulk_state = Arc::clone(&data.bulk_state);
         let settings = lookup_settings.clone();
+        let domain_timeout = per_domain_timeout;
 
         tasks.push(tokio::spawn(async move {
             // Check stopped
@@ -573,7 +656,17 @@ async fn bulk_whois_lookup<R: Runtime>(
                 Err(_) => return BulkResult { domain, data: None, error: Some("Semaphore closed".into()), status: "error".into(), params: None },
             };
 
-            let (data_val, err, status, params) = match perform_lookup_with_settings(&domain, &settings).await {
+            let lookup_future = perform_lookup_with_settings(&domain, &settings);
+            let lookup_result = if let Some(timeout_dur) = domain_timeout {
+                match tokio::time::timeout(timeout_dur, lookup_future).await {
+                    Ok(res) => res,
+                    Err(_) => Err(format!("Timeout after {}ms", timeout_dur.as_millis())),
+                }
+            } else {
+                lookup_future.await
+            };
+
+            let (data_val, err, status, params) = match lookup_result {
                 Ok(res) => {
                     let s = is_domain_available(&res);
                     let p = get_domain_parameters(Some(domain.clone()), Some(s.clone()), res.clone());
@@ -911,6 +1004,11 @@ async fn csv_parse(content: String) -> Result<serde_json::Value, String> {
 
 // ─── BWA Analyser Commands ──────────────────────────────────────────────────
 
+/// Extract TLD from a domain string (e.g., "example.com" → "com").
+fn extract_tld(domain: &str) -> String {
+    domain.rsplit('.').next().unwrap_or("unknown").to_lowercase()
+}
+
 #[tauri::command]
 async fn bwa_analyser_start(data: serde_json::Value) -> Result<serde_json::Value, String> {
     let results = data.as_object().ok_or("Invalid data")?;
@@ -925,17 +1023,107 @@ async fn bwa_analyser_start(data: serde_json::Value) -> Result<serde_json::Value
         .map(|arr| arr.iter().filter_map(|v| v.as_str().map(String::from)).collect::<Vec<_>>())
         .unwrap_or_default();
 
+    let registrars = results.get("registrar")
+        .and_then(|v| v.as_array())
+        .map(|arr| arr.iter().map(|v| v.as_str().unwrap_or("").to_string()).collect::<Vec<_>>())
+        .unwrap_or_default();
+
+    let expiry_dates = results.get("expirydate")
+        .and_then(|v| v.as_array())
+        .map(|arr| arr.iter().map(|v| v.as_str().unwrap_or("").to_string()).collect::<Vec<_>>())
+        .unwrap_or_default();
+
     let total = domains.len();
     let available = statuses.iter().filter(|s| s.as_str() == "available").count();
     let unavailable = statuses.iter().filter(|s| s.as_str() == "unavailable").count();
+    let expired = statuses.iter().filter(|s| s.as_str() == "expired").count();
     let errors = statuses.iter().filter(|s| s.starts_with("error")).count();
+
+    // ── Status breakdown (count each distinct status) ────────────────────
+    let mut status_breakdown: HashMap<String, usize> = HashMap::new();
+    for s in &statuses {
+        *status_breakdown.entry(s.clone()).or_insert(0) += 1;
+    }
+    let status_breakdown_json: serde_json::Map<String, serde_json::Value> = status_breakdown
+        .into_iter()
+        .map(|(k, v)| (k, serde_json::Value::Number(serde_json::Number::from(v))))
+        .collect();
+
+    // ── TLD distribution ─────────────────────────────────────────────────
+    let mut tld_distribution: HashMap<String, usize> = HashMap::new();
+    for domain in &domains {
+        let tld = extract_tld(domain);
+        *tld_distribution.entry(tld).or_insert(0) += 1;
+    }
+    let tld_json: serde_json::Map<String, serde_json::Value> = tld_distribution
+        .into_iter()
+        .map(|(k, v)| (k, serde_json::Value::Number(serde_json::Number::from(v))))
+        .collect();
+
+    // ── TLD × Status (available per TLD) ─────────────────────────────────
+    let mut tld_available: HashMap<String, usize> = HashMap::new();
+    let mut tld_unavailable: HashMap<String, usize> = HashMap::new();
+    for (i, domain) in domains.iter().enumerate() {
+        let tld = extract_tld(domain);
+        let status = statuses.get(i).map(|s| s.as_str()).unwrap_or("");
+        if status == "available" {
+            *tld_available.entry(tld).or_insert(0) += 1;
+        } else if status == "unavailable" {
+            *tld_unavailable.entry(tld).or_insert(0) += 1;
+        }
+    }
+    let tld_available_json: serde_json::Map<String, serde_json::Value> = tld_available
+        .into_iter()
+        .map(|(k, v)| (k, serde_json::Value::Number(serde_json::Number::from(v))))
+        .collect();
+    let tld_unavailable_json: serde_json::Map<String, serde_json::Value> = tld_unavailable
+        .into_iter()
+        .map(|(k, v)| (k, serde_json::Value::Number(serde_json::Number::from(v))))
+        .collect();
+
+    // ── Registrar distribution ───────────────────────────────────────────
+    let mut registrar_dist: HashMap<String, usize> = HashMap::new();
+    for reg in &registrars {
+        if !reg.is_empty() {
+            *registrar_dist.entry(reg.clone()).or_insert(0) += 1;
+        }
+    }
+    // Sort by count descending, take top 20
+    let mut registrar_vec: Vec<(String, usize)> = registrar_dist.into_iter().collect();
+    registrar_vec.sort_by(|a, b| b.1.cmp(&a.1));
+    registrar_vec.truncate(20);
+    let registrar_json: serde_json::Map<String, serde_json::Value> = registrar_vec
+        .into_iter()
+        .map(|(k, v)| (k, serde_json::Value::Number(serde_json::Number::from(v))))
+        .collect();
+
+    // ── Build per-row data table for the frontend ────────────────────────
+    let mut table_data = Vec::new();
+    for i in 0..total {
+        let mut row = serde_json::Map::new();
+        row.insert("domain".into(), serde_json::Value::String(domains.get(i).cloned().unwrap_or_default()));
+        row.insert("status".into(), serde_json::Value::String(statuses.get(i).cloned().unwrap_or_default()));
+        row.insert("registrar".into(), serde_json::Value::String(registrars.get(i).cloned().unwrap_or_default()));
+        row.insert("expiryDate".into(), serde_json::Value::String(expiry_dates.get(i).cloned().unwrap_or_default()));
+        row.insert("tld".into(), serde_json::Value::String(extract_tld(domains.get(i).map(|d| d.as_str()).unwrap_or(""))));
+        table_data.push(serde_json::Value::Object(row));
+    }
 
     Ok(serde_json::json!({
         "total": total,
         "available": available,
         "unavailable": unavailable,
+        "expired": expired,
         "errors": errors,
         "availablePercent": if total > 0 { (available as f64 / total as f64) * 100.0 } else { 0.0 },
+        "unavailablePercent": if total > 0 { (unavailable as f64 / total as f64) * 100.0 } else { 0.0 },
+        "errorPercent": if total > 0 { (errors as f64 / total as f64) * 100.0 } else { 0.0 },
+        "statusBreakdown": serde_json::Value::Object(status_breakdown_json),
+        "tldDistribution": serde_json::Value::Object(tld_json),
+        "tldAvailable": serde_json::Value::Object(tld_available_json),
+        "tldUnavailable": serde_json::Value::Object(tld_unavailable_json),
+        "topRegistrars": serde_json::Value::Object(registrar_json),
+        "data": table_data,
         "domains": domains,
         "statuses": statuses,
     }))
@@ -1090,13 +1278,31 @@ async fn path_basename(path: String) -> String {
 // ─── AI Commands ─────────────────────────────────────────────────────────────
 
 #[tauri::command]
-async fn ai_suggest(prompt: String, count: usize) -> Result<Vec<String>, String> {
-    // Read OpenAI settings from the per-call arguments.
-    // The frontend passes prompt and count; OpenAI config comes from settings
-    // loaded in the frontend and passed here when available.
-    // For now, return empty if no settings are embedded.
-    let settings = OpenAiSettings::default();
+async fn ai_suggest<R: Runtime>(
+    app_handle: tauri::AppHandle<R>,
+    prompt: String,
+    count: usize,
+) -> Result<Vec<String>, String> {
+    // Try to load OpenAI settings from the user's settings.json
+    let settings = match load_openai_settings_from_profile(&app_handle) {
+        Some(s) => s,
+        None => OpenAiSettings::default(),
+    };
     wd_ai_mod::suggest_words(&settings, &prompt, count).await
+}
+
+/// Load OpenAI settings from the active profile's settings.json.
+fn load_openai_settings_from_profile<R: Runtime>(app_handle: &tauri::AppHandle<R>) -> Option<OpenAiSettings> {
+    let base = get_user_data_dir(app_handle).ok()?;
+    let settings_path = base.join("settings.json");
+    let content = std::fs::read_to_string(settings_path).ok()?;
+    let json: serde_json::Value = serde_json::from_str(&content).ok()?;
+    let ai = json.get("ai")?;
+    Some(OpenAiSettings {
+        url: ai.get("url").and_then(|v| v.as_str()).map(String::from),
+        api_key: ai.get("apiKey").and_then(|v| v.as_str()).map(String::from),
+        model: ai.get("model").and_then(|v| v.as_str()).map(String::from),
+    })
 }
 
 #[tauri::command]
@@ -1739,8 +1945,10 @@ mod tests {
     #[tokio::test]
     async fn test_bwa_analyser_basic() {
         let data = serde_json::json!({
-            "domain": ["a.com", "b.com", "c.com", "d.com"],
-            "status": ["available", "unavailable", "available", "error:timeout"]
+            "domain": ["a.com", "b.net", "c.com", "d.org"],
+            "status": ["available", "unavailable", "available", "error:timeout"],
+            "registrar": ["", "GoDaddy", "", "Namecheap"],
+            "expirydate": ["", "2030-01-01", "", "2028-06-15"]
         });
         let result = bwa_analyser_start(data).await;
         assert!(result.is_ok());
@@ -1748,8 +1956,44 @@ mod tests {
         assert_eq!(res["total"], 4);
         assert_eq!(res["available"], 2);
         assert_eq!(res["unavailable"], 1);
+        assert_eq!(res["expired"], 0);
         assert_eq!(res["errors"], 1);
         assert!((res["availablePercent"].as_f64().unwrap() - 50.0).abs() < 0.1);
+        assert!((res["unavailablePercent"].as_f64().unwrap() - 25.0).abs() < 0.1);
+        assert!((res["errorPercent"].as_f64().unwrap() - 25.0).abs() < 0.1);
+
+        // Status breakdown
+        let sb = res["statusBreakdown"].as_object().unwrap();
+        assert_eq!(sb["available"], 2);
+        assert_eq!(sb["unavailable"], 1);
+        assert_eq!(sb["error:timeout"], 1);
+
+        // TLD distribution
+        let tld = res["tldDistribution"].as_object().unwrap();
+        assert_eq!(tld["com"], 2);
+        assert_eq!(tld["net"], 1);
+        assert_eq!(tld["org"], 1);
+
+        // TLD × status
+        let tld_a = res["tldAvailable"].as_object().unwrap();
+        assert_eq!(tld_a["com"], 2);
+        assert!(tld_a.get("net").is_none());
+
+        let tld_u = res["tldUnavailable"].as_object().unwrap();
+        assert_eq!(tld_u["net"], 1);
+
+        // Top registrars
+        let reg = res["topRegistrars"].as_object().unwrap();
+        assert_eq!(reg["GoDaddy"], 1);
+        assert_eq!(reg["Namecheap"], 1);
+        assert!(reg.get("").is_none()); // empty registrars excluded
+
+        // Data table
+        let table = res["data"].as_array().unwrap();
+        assert_eq!(table.len(), 4);
+        assert_eq!(table[0]["domain"], "a.com");
+        assert_eq!(table[0]["tld"], "com");
+        assert_eq!(table[1]["registrar"], "GoDaddy");
     }
 
     #[tokio::test]
@@ -1763,7 +2007,13 @@ mod tests {
         let res = result.unwrap();
         assert_eq!(res["total"], 0);
         assert_eq!(res["available"], 0);
+        assert_eq!(res["expired"], 0);
         assert_eq!(res["availablePercent"], 0.0);
+        assert_eq!(res["unavailablePercent"], 0.0);
+        assert_eq!(res["errorPercent"], 0.0);
+        assert!(res["statusBreakdown"].as_object().unwrap().is_empty());
+        assert!(res["tldDistribution"].as_object().unwrap().is_empty());
+        assert!(res["data"].as_array().unwrap().is_empty());
     }
 
     #[tokio::test]
@@ -1776,6 +2026,8 @@ mod tests {
         assert_eq!(result["total"], 2);
         assert_eq!(result["available"], 2);
         assert!((result["availablePercent"].as_f64().unwrap() - 100.0).abs() < 0.1);
+        assert_eq!(result["tldDistribution"]["com"], 2);
+        assert_eq!(result["tldAvailable"]["com"], 2);
     }
 
     #[tokio::test]
@@ -1783,6 +2035,36 @@ mod tests {
         let data = serde_json::json!("not an object");
         let result = bwa_analyser_start(data).await;
         assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_bwa_analyser_expired_domains() {
+        let data = serde_json::json!({
+            "domain": ["old.com", "new.net"],
+            "status": ["expired", "unavailable"],
+            "registrar": ["RegA", "RegA"],
+            "expirydate": ["2020-01-01", "2030-01-01"]
+        });
+        let res = bwa_analyser_start(data).await.unwrap();
+        assert_eq!(res["expired"], 1);
+        assert_eq!(res["unavailable"], 1);
+        assert_eq!(res["statusBreakdown"]["expired"], 1);
+        assert_eq!(res["topRegistrars"]["RegA"], 2);
+    }
+
+    #[tokio::test]
+    async fn test_bwa_analyser_multi_tld() {
+        let data = serde_json::json!({
+            "domain": ["a.io", "b.io", "c.io", "d.ai", "e.ai"],
+            "status": ["available", "unavailable", "available", "unavailable", "unavailable"]
+        });
+        let res = bwa_analyser_start(data).await.unwrap();
+        assert_eq!(res["tldDistribution"]["io"], 3);
+        assert_eq!(res["tldDistribution"]["ai"], 2);
+        assert_eq!(res["tldAvailable"]["io"], 2);
+        assert!(res["tldAvailable"].get("ai").is_none());
+        assert_eq!(res["tldUnavailable"]["io"], 1);
+        assert_eq!(res["tldUnavailable"]["ai"], 2);
     }
 
     // ── Availability check ───────────────────────────────────────────────
