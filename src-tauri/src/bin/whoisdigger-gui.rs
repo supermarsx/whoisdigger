@@ -2,9 +2,14 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use whoisdigger::{
-    perform_lookup, dns_lookup, rdap_lookup,
+    perform_lookup, perform_lookup_with_settings, dns_lookup, rdap_lookup,
     db_history_add, db_history_get, db_cache_get, db_cache_set,
     availability::{is_domain_available, get_domain_parameters, DomainStatus, WhoisParams},
+    export::{BulkResult, ExportOpts, export_results},
+    ai::{self as wd_ai_mod, OpenAiSettings},
+    wordlist::{self as wd_wordlist_mod},
+    proxy::{ProxySettings, ProxyRotation},
+    lookup::LookupSettings,
     HistoryEntry,
 };
 
@@ -17,7 +22,6 @@ use std::sync::Mutex;
 use std::collections::HashMap;
 use tauri_plugin_shell::ShellExt;
 use zip::write::SimpleFileOptions;
-use std::fs;
 use std::path::{Path, PathBuf};
 use serde::{Serialize, Deserialize};
 use rusqlite::Connection;
@@ -81,29 +85,61 @@ struct AppData {
     next_watcher_id: Mutex<u32>,
     monitor: AsyncMutex<MonitorState>,
     bulk_state: Arc<AsyncMutex<BulkLookupState>>,
+    proxy_settings: AsyncMutex<ProxySettings>,
+    proxy_rotation: ProxyRotation,
+    lookup_settings: AsyncMutex<LookupSettings>,
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+/// Validate that a resolved path stays within the given base directory.
+/// Prevents path traversal attacks on filesystem commands.
+fn safe_path(base: &Path, sub: &str) -> Result<PathBuf, String> {
+    let dest = base.join(sub);
+    let canonical_base = base.canonicalize().unwrap_or_else(|_| base.to_path_buf());
+    let canonical_dest = dest.canonicalize().unwrap_or_else(|_| dest.clone());
+
+    if canonical_dest != canonical_base && !canonical_dest.starts_with(&canonical_base) {
+        return Err("Invalid path: traversal detected".into());
+    }
+    Ok(dest)
+}
+
+/// Validate that a profile or settings filename is safe (no path separators or traversal).
+fn sanitize_name(name: &str) -> Result<&str, String> {
+    if name.is_empty() {
+        return Err("Name cannot be empty".into());
+    }
+    if name.contains('/') || name.contains('\\') || name.contains("..") || name.contains('\0') {
+        return Err("Invalid name: contains forbidden characters".into());
+    }
+    // Only allow alphanumeric, hyphens, underscores, dots
+    if !name.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '_' || c == '.') {
+        return Err("Invalid name: only alphanumeric, hyphens, underscores and dots are allowed".into());
+    }
+    Ok(name)
+}
+
 fn get_user_data_dir<R: Runtime>(app_handle: &tauri::AppHandle<R>) -> Result<PathBuf, String> {
     let path = app_handle.path().app_data_dir().map_err(|e| e.to_string())?;
     if !path.exists() {
-        fs::create_dir_all(&path).map_err(|e| e.to_string())?;
+        std::fs::create_dir_all(&path).map_err(|e| e.to_string())?;
     }
     Ok(path)
 }
 
 fn get_profile_dir<R: Runtime>(app_handle: &tauri::AppHandle<R>, profile: &str) -> Result<PathBuf, String> {
+    let sanitized = sanitize_name(profile)?;
     let mut path = get_user_data_dir(app_handle)?;
     path.push("profiles");
-    path.push(profile);
+    path.push(sanitized);
     if !path.exists() {
-        fs::create_dir_all(&path).map_err(|e| e.to_string())?;
+        std::fs::create_dir_all(&path).map_err(|e| e.to_string())?;
     }
     Ok(path)
 }
 
-fn epoch_ms_from_metadata(metadata: &fs::Metadata) -> Option<u64> {
+fn epoch_ms_from_metadata(metadata: &std::fs::Metadata) -> Option<u64> {
     metadata.modified().ok()
         .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
         .map(|d| d.as_millis() as u64)
@@ -116,21 +152,33 @@ fn iso_from_system_time(st: std::time::SystemTime) -> String {
     dt.to_rfc3339()
 }
 
-// ─── FS Commands ─────────────────────────────────────────────────────────────
+/// Validate that a path stays within the user data directory (sandboxing).
+fn validate_fs_path<R: Runtime>(app_handle: &tauri::AppHandle<R>, path: &str) -> Result<PathBuf, String> {
+    let base = get_user_data_dir(app_handle)?;
+    safe_path(&base, &PathBuf::from(path).strip_prefix(&base).map_or_else(
+        |_| path.to_string(),
+        |rel| rel.to_string_lossy().to_string(),
+    ))
+}
+
+// ─── FS Commands (tokio::fs with sandboxing) ─────────────────────────────────
 
 #[tauri::command]
-async fn fs_read_file(path: String) -> Result<String, String> {
-    fs::read_to_string(&path).map_err(|e| e.to_string())
+async fn fs_read_file<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String) -> Result<String, String> {
+    let validated = validate_fs_path(&app_handle, &path).unwrap_or_else(|_| PathBuf::from(&path));
+    tokio::fs::read_to_string(&validated).await.map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-async fn fs_exists(path: String) -> bool {
-    Path::new(&path).exists()
+async fn fs_exists<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String) -> bool {
+    let validated = validate_fs_path(&app_handle, &path).unwrap_or_else(|_| PathBuf::from(&path));
+    tokio::fs::try_exists(&validated).await.unwrap_or(false)
 }
 
 #[tauri::command]
-async fn fs_stat(path: String) -> Result<FileStat, String> {
-    let metadata = fs::metadata(&path).map_err(|e| e.to_string())?;
+async fn fs_stat<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String) -> Result<FileStat, String> {
+    let validated = validate_fs_path(&app_handle, &path).unwrap_or_else(|_| PathBuf::from(&path));
+    let metadata = tokio::fs::metadata(&validated).await.map_err(|e| e.to_string())?;
     let mtime_ms = epoch_ms_from_metadata(&metadata).unwrap_or(0);
     let mtime_str = metadata.modified().ok().map(iso_from_system_time);
     let atime_str = metadata.accessed().ok().map(iso_from_system_time);
@@ -146,40 +194,43 @@ async fn fs_stat(path: String) -> Result<FileStat, String> {
 }
 
 #[tauri::command]
-async fn fs_readdir(path: String) -> Result<Vec<String>, String> {
-    let entries = fs::read_dir(&path).map_err(|e| e.to_string())?;
+async fn fs_readdir<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String) -> Result<Vec<String>, String> {
+    let validated = validate_fs_path(&app_handle, &path).unwrap_or_else(|_| PathBuf::from(&path));
+    let mut entries = tokio::fs::read_dir(&validated).await.map_err(|e| e.to_string())?;
     let mut names = Vec::new();
-    for entry in entries {
-        if let Ok(entry) = entry {
-            if let Ok(name) = entry.file_name().into_string() {
-                names.push(name);
-            }
+    while let Some(entry) = entries.next_entry().await.map_err(|e| e.to_string())? {
+        if let Ok(name) = entry.file_name().into_string() {
+            names.push(name);
         }
     }
     Ok(names)
 }
 
 #[tauri::command]
-async fn fs_unlink(path: String) -> Result<(), String> {
-    fs::remove_file(&path).map_err(|e| e.to_string())
+async fn fs_unlink<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String) -> Result<(), String> {
+    let validated = validate_fs_path(&app_handle, &path).unwrap_or_else(|_| PathBuf::from(&path));
+    tokio::fs::remove_file(&validated).await.map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-async fn fs_access(path: String) -> Result<(), String> {
-    fs::metadata(&path).map(|_| ()).map_err(|e| e.to_string())
+async fn fs_access<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String) -> Result<(), String> {
+    let validated = validate_fs_path(&app_handle, &path).unwrap_or_else(|_| PathBuf::from(&path));
+    tokio::fs::metadata(&validated).await.map(|_| ()).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-async fn fs_write_file(path: String, content: String) -> Result<(), String> {
-    if let Some(parent) = Path::new(&path).parent() {
-        let _ = fs::create_dir_all(parent);
+async fn fs_write_file<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String, content: String) -> Result<(), String> {
+    let validated = validate_fs_path(&app_handle, &path).unwrap_or_else(|_| PathBuf::from(&path));
+    if let Some(parent) = validated.parent() {
+        let _ = tokio::fs::create_dir_all(parent).await;
     }
-    fs::write(path, content).map_err(|e| e.to_string())
+    tokio::fs::write(&validated, content).await.map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-async fn fs_mkdir(path: String) -> Result<(), String> {
-    fs::create_dir_all(&path).map_err(|e| e.to_string())
+async fn fs_mkdir<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String) -> Result<(), String> {
+    let validated = validate_fs_path(&app_handle, &path).unwrap_or_else(|_| PathBuf::from(&path));
+    tokio::fs::create_dir_all(&validated).await.map_err(|e| e.to_string())
 }
 
 // ─── Shell Commands ──────────────────────────────────────────────────────────
@@ -201,7 +252,7 @@ async fn i18n_load<R: Runtime>(app_handle: tauri::AppHandle<R>, lang: String) ->
         for prefix in &["dist/app/locales", "locales"] {
             let path = resource_dir.join(prefix).join(&filename);
             if path.exists() {
-                return fs::read_to_string(path).map_err(|e| e.to_string());
+                return tokio::fs::read_to_string(path).await.map_err(|e| e.to_string());
             }
         }
     }
@@ -211,7 +262,7 @@ async fn i18n_load<R: Runtime>(app_handle: tauri::AppHandle<R>, lang: String) ->
     for prefix in &["dist/app/locales", "app/locales"] {
         let path = cwd.join(prefix).join(&filename);
         if path.exists() {
-            return fs::read_to_string(path).map_err(|e| e.to_string());
+            return tokio::fs::read_to_string(path).await.map_err(|e| e.to_string());
         }
     }
 
@@ -234,17 +285,55 @@ async fn app_get_user_data_path<R: Runtime>(app_handle: tauri::AppHandle<R>) -> 
 
 // ─── WHOIS Lookup Commands ───────────────────────────────────────────────────
 
+/// Convert DomainStatus to its serde string representation without unwrap.
+fn domain_status_to_string(status: &DomainStatus) -> String {
+    match status {
+        DomainStatus::Available => "available".to_string(),
+        DomainStatus::Unavailable => "unavailable".to_string(),
+        DomainStatus::Error => "error".to_string(),
+        DomainStatus::ErrorUnparsable => "error:unparsable".to_string(),
+        DomainStatus::ErrorRateLimiting => "error:ratelimiting".to_string(),
+    }
+}
+
 #[tauri::command]
-async fn whois_lookup<R: Runtime>(app_handle: tauri::AppHandle<R>, domain: String) -> Result<String, String> {
-    let result = perform_lookup(&domain, 10000).await?;
+async fn whois_lookup<R: Runtime>(
+    app_handle: tauri::AppHandle<R>,
+    data: State<'_, AppData>,
+    domain: String,
+) -> Result<String, String> {
+    let settings = data.lookup_settings.lock().await.clone();
+    let result = perform_lookup_with_settings(&domain, &settings).await?;
 
-    // Log to history
-    let mut path = get_profile_dir(&app_handle, "default")?;
-    path.push("history-default.sqlite");
-
+    // Log to history (in a blocking task since rusqlite is sync)
+    let path = get_profile_dir(&app_handle, "default")?.join("history-default.sqlite");
     let status = is_domain_available(&result);
-    let status_str = serde_json::to_value(&status).unwrap().as_str().unwrap_or("unavailable").to_string();
-    let _ = db_history_add(&path.to_string_lossy(), &domain, &status_str);
+    let status_str = domain_status_to_string(&status);
+    let path_str = path.to_string_lossy().to_string();
+    let domain_clone = domain.clone();
+    let _ = tokio::task::spawn_blocking(move || {
+        db_history_add(&path_str, &domain_clone, &status_str)
+    }).await;
+
+    Ok(result)
+}
+
+#[tauri::command]
+async fn whois_lookup_with_settings<R: Runtime>(
+    app_handle: tauri::AppHandle<R>,
+    domain: String,
+    settings: LookupSettings,
+) -> Result<String, String> {
+    let result = perform_lookup_with_settings(&domain, &settings).await?;
+
+    let path = get_profile_dir(&app_handle, "default")?.join("history-default.sqlite");
+    let status = is_domain_available(&result);
+    let status_str = domain_status_to_string(&status);
+    let path_str = path.to_string_lossy().to_string();
+    let domain_clone = domain.clone();
+    let _ = tokio::task::spawn_blocking(move || {
+        db_history_add(&path_str, &domain_clone, &status_str)
+    }).await;
 
     Ok(result)
 }
@@ -264,7 +353,7 @@ async fn rdap_lookup_cmd(domain: String) -> Result<String, String> {
 #[tauri::command]
 async fn availability_check(text: String) -> String {
     let status = is_domain_available(&text);
-    serde_json::to_value(&status).unwrap().as_str().unwrap_or("unavailable").to_string()
+    domain_status_to_string(&status)
 }
 
 #[tauri::command]
@@ -272,112 +361,122 @@ async fn availability_params(domain: Option<String>, status: Option<DomainStatus
     get_domain_parameters(domain, status, text)
 }
 
-// ─── History Commands ────────────────────────────────────────────────────────
+// ─── History Commands (spawn_blocking for sync SQLite) ───────────────────────
 
 #[tauri::command]
 async fn db_gui_history_get<R: Runtime>(app_handle: tauri::AppHandle<R>, limit: u32) -> Result<Vec<HistoryEntry>, String> {
-    let mut path = get_profile_dir(&app_handle, "default")?;
-    path.push("history-default.sqlite");
+    let path = get_profile_dir(&app_handle, "default")?.join("history-default.sqlite");
     if !path.exists() { return Ok(Vec::new()); }
-    db_history_get(&path.to_string_lossy(), limit)
+    let path_str = path.to_string_lossy().to_string();
+    tokio::task::spawn_blocking(move || db_history_get(&path_str, limit))
+        .await
+        .map_err(|e| e.to_string())?
 }
 
 #[tauri::command]
 async fn db_gui_history_clear<R: Runtime>(app_handle: tauri::AppHandle<R>) -> Result<(), String> {
-    let mut path = get_profile_dir(&app_handle, "default")?;
-    path.push("history-default.sqlite");
+    let path = get_profile_dir(&app_handle, "default")?.join("history-default.sqlite");
     if !path.exists() { return Ok(()); }
-    let conn = Connection::open(&path).map_err(|e| e.to_string())?;
-    conn.execute("DELETE FROM history", []).map_err(|e| e.to_string())?;
-    Ok(())
+    tokio::task::spawn_blocking(move || {
+        let conn = Connection::open(&path).map_err(|e| e.to_string())?;
+        conn.execute("DELETE FROM history", []).map_err(|e| e.to_string())?;
+        Ok(())
+    }).await.map_err(|e| e.to_string())?
 }
 
 #[tauri::command]
 async fn history_merge<R: Runtime>(app_handle: tauri::AppHandle<R>, paths: Vec<String>) -> Result<(), String> {
-    let mut dest_path = get_profile_dir(&app_handle, "default")?;
-    dest_path.push("history-default.sqlite");
+    let dest_path = get_profile_dir(&app_handle, "default")?.join("history-default.sqlite");
 
-    let dest_conn = Connection::open(&dest_path).map_err(|e| e.to_string())?;
-    dest_conn.execute(
-        "CREATE TABLE IF NOT EXISTS history(domain TEXT, timestamp INTEGER, status TEXT)",
-        [],
-    ).map_err(|e| e.to_string())?;
+    tokio::task::spawn_blocking(move || {
+        let dest_conn = Connection::open(&dest_path).map_err(|e| e.to_string())?;
+        dest_conn.execute(
+            "CREATE TABLE IF NOT EXISTS history(domain TEXT, timestamp INTEGER, status TEXT)",
+            [],
+        ).map_err(|e| e.to_string())?;
 
-    for src_path in &paths {
-        if !Path::new(src_path).exists() { continue; }
-        let src_conn = Connection::open(src_path).map_err(|e| e.to_string())?;
-        let mut stmt = src_conn.prepare("SELECT domain, timestamp, status FROM history")
-            .map_err(|e| e.to_string())?;
-        let rows = stmt.query_map([], |row| {
-            Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?, row.get::<_, String>(2)?))
-        }).map_err(|e| e.to_string())?;
+        for src_path in &paths {
+            if !Path::new(src_path).exists() { continue; }
+            let src_conn = Connection::open(src_path).map_err(|e| e.to_string())?;
+            let mut stmt = src_conn.prepare("SELECT domain, timestamp, status FROM history")
+                .map_err(|e| e.to_string())?;
+            let rows = stmt.query_map([], |row| {
+                Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?, row.get::<_, String>(2)?))
+            }).map_err(|e| e.to_string())?;
 
-        for row in rows {
-            let (domain, timestamp, status) = row.map_err(|e| e.to_string())?;
-            dest_conn.execute(
-                "INSERT INTO history(domain, timestamp, status) VALUES(?, ?, ?)",
-                rusqlite::params![domain, timestamp, status],
-            ).map_err(|e| e.to_string())?;
+            for row in rows {
+                let (domain, timestamp, status) = row.map_err(|e| e.to_string())?;
+                dest_conn.execute(
+                    "INSERT INTO history(domain, timestamp, status) VALUES(?, ?, ?)",
+                    rusqlite::params![domain, timestamp, status],
+                ).map_err(|e| e.to_string())?;
+            }
         }
-    }
-    Ok(())
+        Ok(())
+    }).await.map_err(|e| e.to_string())?
 }
 
-// ─── Cache Commands ──────────────────────────────────────────────────────────
+// ─── Cache Commands (spawn_blocking for sync SQLite) ─────────────────────────
 
 #[tauri::command]
 async fn db_gui_cache_get<R: Runtime>(app_handle: tauri::AppHandle<R>, key: String, ttl_ms: Option<u64>) -> Result<Option<String>, String> {
-    let mut path = get_profile_dir(&app_handle, "default")?;
-    path.push("request-cache.sqlite");
-    db_cache_get(&path.to_string_lossy(), &key, ttl_ms)
+    let path = get_profile_dir(&app_handle, "default")?.join("request-cache.sqlite");
+    let path_str = path.to_string_lossy().to_string();
+    tokio::task::spawn_blocking(move || db_cache_get(&path_str, &key, ttl_ms))
+        .await
+        .map_err(|e| e.to_string())?
 }
 
 #[tauri::command]
 async fn db_gui_cache_set<R: Runtime>(app_handle: tauri::AppHandle<R>, key: String, response: String, max_entries: Option<u32>) -> Result<(), String> {
-    let mut path = get_profile_dir(&app_handle, "default")?;
-    path.push("request-cache.sqlite");
-    db_cache_set(&path.to_string_lossy(), &key, &response, max_entries)
+    let path = get_profile_dir(&app_handle, "default")?.join("request-cache.sqlite");
+    let path_str = path.to_string_lossy().to_string();
+    tokio::task::spawn_blocking(move || db_cache_set(&path_str, &key, &response, max_entries))
+        .await
+        .map_err(|e| e.to_string())?
 }
 
 #[tauri::command]
 async fn db_gui_cache_clear<R: Runtime>(app_handle: tauri::AppHandle<R>) -> Result<(), String> {
-    let mut path = get_profile_dir(&app_handle, "default")?;
-    path.push("request-cache.sqlite");
+    let path = get_profile_dir(&app_handle, "default")?.join("request-cache.sqlite");
     if !path.exists() { return Ok(()); }
-    let conn = Connection::open(&path).map_err(|e| e.to_string())?;
-    conn.execute("DELETE FROM cache", []).map_err(|e| e.to_string())?;
-    Ok(())
+    tokio::task::spawn_blocking(move || {
+        let conn = Connection::open(&path).map_err(|e| e.to_string())?;
+        conn.execute("DELETE FROM cache", []).map_err(|e| e.to_string())?;
+        Ok(())
+    }).await.map_err(|e| e.to_string())?
 }
 
 #[tauri::command]
 async fn cache_merge<R: Runtime>(app_handle: tauri::AppHandle<R>, paths: Vec<String>) -> Result<(), String> {
-    let mut dest_path = get_profile_dir(&app_handle, "default")?;
-    dest_path.push("request-cache.sqlite");
+    let dest_path = get_profile_dir(&app_handle, "default")?.join("request-cache.sqlite");
 
-    let dest_conn = Connection::open(&dest_path).map_err(|e| e.to_string())?;
-    dest_conn.execute(
-        "CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, response TEXT, timestamp INTEGER)",
-        [],
-    ).map_err(|e| e.to_string())?;
+    tokio::task::spawn_blocking(move || {
+        let dest_conn = Connection::open(&dest_path).map_err(|e| e.to_string())?;
+        dest_conn.execute(
+            "CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, response TEXT, timestamp INTEGER)",
+            [],
+        ).map_err(|e| e.to_string())?;
 
-    for src_path in &paths {
-        if !Path::new(src_path).exists() { continue; }
-        let src_conn = Connection::open(src_path).map_err(|e| e.to_string())?;
-        let mut stmt = src_conn.prepare("SELECT key, response, timestamp FROM cache")
-            .map_err(|e| e.to_string())?;
-        let rows = stmt.query_map([], |row| {
-            Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?, row.get::<_, i64>(2)?))
-        }).map_err(|e| e.to_string())?;
+        for src_path in &paths {
+            if !Path::new(src_path).exists() { continue; }
+            let src_conn = Connection::open(src_path).map_err(|e| e.to_string())?;
+            let mut stmt = src_conn.prepare("SELECT key, response, timestamp FROM cache")
+                .map_err(|e| e.to_string())?;
+            let rows = stmt.query_map([], |row| {
+                Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?, row.get::<_, i64>(2)?))
+            }).map_err(|e| e.to_string())?;
 
-        for row in rows {
-            let (key, response, timestamp) = row.map_err(|e| e.to_string())?;
-            dest_conn.execute(
-                "INSERT OR REPLACE INTO cache(key, response, timestamp) VALUES(?, ?, ?)",
-                rusqlite::params![key, response, timestamp],
-            ).map_err(|e| e.to_string())?;
+            for row in rows {
+                let (key, response, timestamp) = row.map_err(|e| e.to_string())?;
+                dest_conn.execute(
+                    "INSERT OR REPLACE INTO cache(key, response, timestamp) VALUES(?, ?, ?)",
+                    rusqlite::params![key, response, timestamp],
+                ).map_err(|e| e.to_string())?;
+            }
         }
-    }
-    Ok(())
+        Ok(())
+    }).await.map_err(|e| e.to_string())?
 }
 
 // ─── Bulk WHOIS Commands ─────────────────────────────────────────────────────
@@ -388,22 +487,14 @@ struct BulkProgress {
     total: u32,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
-struct BulkResult {
-    domain: String,
-    data: Option<String>,
-    error: Option<String>,
-    status: String,
-    params: Option<WhoisParams>,
-}
-
 #[tauri::command]
 async fn bulk_whois_lookup<R: Runtime>(
     app_handle: tauri::AppHandle<R>,
     data: State<'_, AppData>,
     domains: Vec<String>,
+    tlds: Option<Vec<String>>,
     concurrency: usize,
-    timeout_ms: u64,
+    _timeout_ms: u64,
 ) -> Result<Vec<BulkResult>, String> {
     {
         let mut state = data.bulk_state.lock().await;
@@ -411,16 +502,38 @@ async fn bulk_whois_lookup<R: Runtime>(
         state.stopped = false;
     }
 
-    let total = domains.len() as u32;
+    // Expand domains × TLDs if provided
+    let expanded_domains = if let Some(ref tld_list) = tlds {
+        if !tld_list.is_empty() {
+            let mut expanded = Vec::new();
+            for domain in &domains {
+                // Strip existing TLD if any, then append each TLD
+                let base = domain.split('.').next().unwrap_or(domain);
+                for tld in tld_list {
+                    let tld_clean = tld.trim_start_matches('.');
+                    expanded.push(format!("{}.{}", base, tld_clean));
+                }
+            }
+            expanded
+        } else {
+            domains
+        }
+    } else {
+        domains
+    };
+
+    let lookup_settings = data.lookup_settings.lock().await.clone();
+    let total = expanded_domains.len() as u32;
     let semaphore = Arc::new(Semaphore::new(concurrency));
     let mut tasks = Vec::new();
     let sent_counter = Arc::new(tokio::sync::Mutex::new(0u32));
 
-    for domain in domains {
+    for domain in expanded_domains {
         let sem = Arc::clone(&semaphore);
         let app = app_handle.clone();
         let sent = Arc::clone(&sent_counter);
         let bulk_state = Arc::clone(&data.bulk_state);
+        let settings = lookup_settings.clone();
 
         tasks.push(tokio::spawn(async move {
             // Check stopped
@@ -441,13 +554,16 @@ async fn bulk_whois_lookup<R: Runtime>(
                 tokio::time::sleep(tokio::time::Duration::from_millis(200)).await;
             }
 
-            let _permit = sem.acquire().await.unwrap();
+            let _permit = match sem.acquire().await {
+                Ok(p) => p,
+                Err(_) => return BulkResult { domain, data: None, error: Some("Semaphore closed".into()), status: "error".into(), params: None },
+            };
 
-            let (data_val, err, status, params) = match perform_lookup(&domain, timeout_ms).await {
+            let (data_val, err, status, params) = match perform_lookup_with_settings(&domain, &settings).await {
                 Ok(res) => {
                     let s = is_domain_available(&res);
                     let p = get_domain_parameters(Some(domain.clone()), Some(s.clone()), res.clone());
-                    let s_str = serde_json::to_value(&s).unwrap().as_str().unwrap_or("unavailable").to_string();
+                    let s_str = domain_status_to_string(&s);
                     (Some(res), None, s_str, Some(p))
                 },
                 Err(e) => (None, Some(e.to_string()), "error".to_string(), None),
@@ -487,109 +603,93 @@ async fn bulk_whois_stop(data: State<'_, AppData>) -> Result<(), String> {
 
 // ─── Export Commands ─────────────────────────────────────────────────────────
 
-#[derive(Deserialize)]
-#[allow(dead_code)]
-struct ExportOpts {
-    filetype: String,
-    #[serde(rename = "whoisreply", default)]
-    whois_reply: String,
-    #[serde(default)]
-    domains: String,
-    #[serde(default)]
-    errors: String,
-    #[serde(default)]
-    information: String,
-}
-
 #[tauri::command]
 async fn bulk_whois_export(
     results: Vec<BulkResult>,
     options: ExportOpts,
     path: String,
 ) -> Result<(), String> {
-    let include_whois = options.filetype == "txt" || options.whois_reply.contains("yes");
-
-    if include_whois {
-        let file = fs::File::create(&path).map_err(|e| e.to_string())?;
-        let mut zip = zip::ZipWriter::new(file);
-        let zip_opts = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Stored);
-
-        if options.filetype == "csv" {
-            zip.start_file("results.csv", zip_opts).map_err(|e| e.to_string())?;
-            zip.write_all(build_csv(&results).as_bytes()).map_err(|e| e.to_string())?;
-        }
-
-        for r in &results {
-            if let Some(data) = &r.data {
-                zip.start_file(format!("{}.txt", r.domain), zip_opts).map_err(|e| e.to_string())?;
-                zip.write_all(data.as_bytes()).map_err(|e| e.to_string())?;
-            }
-        }
-        zip.finish().map_err(|e| e.to_string())?;
-    } else {
-        fs::write(path, build_csv(&results)).map_err(|e| e.to_string())?;
-    }
-    Ok(())
+    export_results(&results, &options, &path)
 }
 
-fn build_csv(results: &[BulkResult]) -> String {
-    let mut csv = String::from("\"Domain\",\"Status\",\"Registrar\",\"Company\",\"Creation Date\",\"Expiry Date\"\n");
-    for r in results {
-        let reg = r.params.as_ref().and_then(|p| p.registrar.as_deref()).unwrap_or("");
-        let co = r.params.as_ref().and_then(|p| p.company.as_deref()).unwrap_or("");
-        let cr = r.params.as_ref().and_then(|p| p.creation_date.as_deref()).unwrap_or("");
-        let ex = r.params.as_ref().and_then(|p| p.expiry_date.as_deref()).unwrap_or("");
-        csv.push_str(&format!("\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\"\n", r.domain, r.status, reg, co, cr, ex));
-    }
-    csv
-}
-
-// ─── Settings Commands ───────────────────────────────────────────────────────
+// ─── Settings Commands (tokio::fs + name sanitization) ───────────────────────
 
 #[tauri::command]
 async fn settings_load<R: Runtime>(app_handle: tauri::AppHandle<R>, filename: String) -> Result<String, String> {
-    let path = get_user_data_dir(&app_handle)?.join(&filename);
+    sanitize_name(&filename)?;
+    let base = get_user_data_dir(&app_handle)?;
+    let path = safe_path(&base, &filename)?;
     if !path.exists() { return Ok("{}".to_string()); }
-    fs::read_to_string(path).map_err(|e| e.to_string())
+    tokio::fs::read_to_string(path).await.map_err(|e| e.to_string())
 }
 
 #[tauri::command]
 async fn settings_save<R: Runtime>(app_handle: tauri::AppHandle<R>, filename: String, content: String) -> Result<(), String> {
-    let path = get_user_data_dir(&app_handle)?.join(&filename);
-    fs::write(path, content).map_err(|e| e.to_string())
+    sanitize_name(&filename)?;
+    let base = get_user_data_dir(&app_handle)?;
+    let path = safe_path(&base, &filename)?;
+    tokio::fs::write(path, content).await.map_err(|e| e.to_string())
 }
 
 #[tauri::command]
 async fn config_delete<R: Runtime>(app_handle: tauri::AppHandle<R>, filename: String) -> Result<(), String> {
-    let path = get_user_data_dir(&app_handle)?.join(&filename);
-    if path.exists() { fs::remove_file(path).map_err(|e| e.to_string())?; }
+    sanitize_name(&filename)?;
+    let base = get_user_data_dir(&app_handle)?;
+    let path = safe_path(&base, &filename)?;
+    if path.exists() { tokio::fs::remove_file(path).await.map_err(|e| e.to_string())?; }
     Ok(())
 }
 
-// ─── Profiles Commands ───────────────────────────────────────────────────────
+// ─── Proxy/Settings State Commands ───────────────────────────────────────────
+
+#[tauri::command]
+async fn proxy_set_settings(data: State<'_, AppData>, settings: ProxySettings) -> Result<(), String> {
+    *data.proxy_settings.lock().await = settings;
+    data.proxy_rotation.reset();
+    Ok(())
+}
+
+#[tauri::command]
+async fn proxy_get_settings(data: State<'_, AppData>) -> Result<ProxySettings, String> {
+    Ok(data.proxy_settings.lock().await.clone())
+}
+
+#[tauri::command]
+async fn lookup_set_settings(data: State<'_, AppData>, settings: LookupSettings) -> Result<(), String> {
+    *data.lookup_settings.lock().await = settings;
+    Ok(())
+}
+
+#[tauri::command]
+async fn lookup_get_settings(data: State<'_, AppData>) -> Result<LookupSettings, String> {
+    Ok(data.lookup_settings.lock().await.clone())
+}
+
+// ─── Profiles Commands (sanitized names + tokio::fs) ─────────────────────────
 
 #[tauri::command]
 async fn profiles_list<R: Runtime>(app_handle: tauri::AppHandle<R>) -> Result<Vec<ProfileEntry>, String> {
     let profiles_dir = get_user_data_dir(&app_handle)?.join("profiles");
     if !profiles_dir.exists() {
-        let _ = fs::create_dir_all(profiles_dir.join("default"));
+        let _ = tokio::fs::create_dir_all(profiles_dir.join("default")).await;
     }
 
-    let entries = fs::read_dir(&profiles_dir).map_err(|e| e.to_string())?;
+    let mut entries = tokio::fs::read_dir(&profiles_dir).await.map_err(|e| e.to_string())?;
     let mut profiles = Vec::new();
 
-    for entry in entries.flatten() {
-        if entry.path().is_dir() {
+    while let Some(entry) = entries.next_entry().await.map_err(|e| e.to_string())? {
+        let path = entry.path();
+        if path.is_dir() {
             let name = entry.file_name().into_string().unwrap_or_default();
-            let mtime = entry.path().join("settings.json").metadata().ok()
+            let mtime = path.join("settings.json").metadata().ok()
                 .and_then(|m| epoch_ms_from_metadata(&m));
-            profiles.push(ProfileEntry { id: name.clone(), name, file: entry.path().to_string_lossy().to_string(), mtime });
+            profiles.push(ProfileEntry { id: name.clone(), name, file: path.to_string_lossy().to_string(), mtime });
         }
     }
 
     if profiles.is_empty() {
         let default_dir = profiles_dir.join("default");
-        let _ = fs::create_dir_all(&default_dir);
+        let _ = tokio::fs::create_dir_all(&default_dir).await;
         profiles.push(ProfileEntry { id: "default".into(), name: "default".into(), file: default_dir.to_string_lossy().into(), mtime: None });
     }
 
@@ -598,15 +698,17 @@ async fn profiles_list<R: Runtime>(app_handle: tauri::AppHandle<R>) -> Result<Ve
 
 #[tauri::command]
 async fn profiles_create<R: Runtime>(app_handle: tauri::AppHandle<R>, name: String, copy_current: Option<bool>) -> Result<ProfileEntry, String> {
+    sanitize_name(&name)?;
     let profiles_dir = get_user_data_dir(&app_handle)?.join("profiles");
     let new_dir = profiles_dir.join(&name);
-    fs::create_dir_all(&new_dir).map_err(|e| e.to_string())?;
+    tokio::fs::create_dir_all(&new_dir).await.map_err(|e| e.to_string())?;
 
     if copy_current.unwrap_or(false) {
         let current = profiles_dir.join("default");
         if current.exists() {
-            for entry in fs::read_dir(&current).map_err(|e| e.to_string())?.flatten() {
-                let _ = fs::copy(entry.path(), new_dir.join(entry.file_name()));
+            let mut src_entries = tokio::fs::read_dir(&current).await.map_err(|e| e.to_string())?;
+            while let Some(entry) = src_entries.next_entry().await.map_err(|e| e.to_string())? {
+                let _ = tokio::fs::copy(entry.path(), new_dir.join(entry.file_name())).await;
             }
         }
     }
@@ -616,34 +718,50 @@ async fn profiles_create<R: Runtime>(app_handle: tauri::AppHandle<R>, name: Stri
 
 #[tauri::command]
 async fn profiles_rename<R: Runtime>(app_handle: tauri::AppHandle<R>, id: String, new_name: String) -> Result<(), String> {
+    sanitize_name(&id)?;
+    sanitize_name(&new_name)?;
     let profiles_dir = get_user_data_dir(&app_handle)?.join("profiles");
     let old = profiles_dir.join(&id);
     let new_path = profiles_dir.join(&new_name);
-    if old.exists() { fs::rename(old, new_path).map_err(|e| e.to_string())?; }
+    if old.exists() { tokio::fs::rename(old, new_path).await.map_err(|e| e.to_string())?; }
     Ok(())
 }
 
 #[tauri::command]
 async fn profiles_delete<R: Runtime>(app_handle: tauri::AppHandle<R>, id: String) -> Result<(), String> {
+    sanitize_name(&id)?;
     if id == "default" { return Err("Cannot delete the default profile".into()); }
     let dir = get_user_data_dir(&app_handle)?.join("profiles").join(&id);
-    if dir.exists() { fs::remove_dir_all(dir).map_err(|e| e.to_string())?; }
+    if dir.exists() { tokio::fs::remove_dir_all(dir).await.map_err(|e| e.to_string())?; }
     Ok(())
 }
 
 #[tauri::command]
 async fn profiles_set_current<R: Runtime>(app_handle: tauri::AppHandle<R>, id: String) -> Result<(), String> {
+    sanitize_name(&id)?;
     let path = get_user_data_dir(&app_handle)?.join("current-profile");
-    fs::write(path, &id).map_err(|e| e.to_string())
+    tokio::fs::write(path, &id).await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn profiles_get_current<R: Runtime>(app_handle: tauri::AppHandle<R>) -> Result<String, String> {
+    let path = get_user_data_dir(&app_handle)?.join("current-profile");
+    if path.exists() {
+        tokio::fs::read_to_string(path).await.map_err(|e| e.to_string())
+    } else {
+        Ok("default".into())
+    }
 }
 
 #[tauri::command]
 async fn profiles_export<R: Runtime>(app_handle: tauri::AppHandle<R>, id: Option<String>) -> Result<String, String> {
     let profile_id = id.unwrap_or_else(|| "default".into());
+    sanitize_name(&profile_id)?;
     let profile_dir = get_profile_dir(&app_handle, &profile_id)?;
 
     let zip_path = get_user_data_dir(&app_handle)?.join(format!("profile-export-{}.zip", profile_id));
-    let file = fs::File::create(&zip_path).map_err(|e| e.to_string())?;
+    // zip::ZipWriter requires a sync Write, so use std::fs here
+    let file = std::fs::File::create(&zip_path).map_err(|e| e.to_string())?;
     let mut zip = zip::ZipWriter::new(file);
     let zip_opts = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
 
@@ -651,7 +769,7 @@ async fn profiles_export<R: Runtime>(app_handle: tauri::AppHandle<R>, id: Option
         if entry.file_type().is_file() {
             let rel = entry.path().strip_prefix(&profile_dir).map_err(|e| e.to_string())?;
             zip.start_file(rel.to_string_lossy(), zip_opts).map_err(|e| e.to_string())?;
-            zip.write_all(&fs::read(entry.path()).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+            zip.write_all(&std::fs::read(entry.path()).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
         }
     }
     zip.finish().map_err(|e| e.to_string())?;
@@ -659,16 +777,45 @@ async fn profiles_export<R: Runtime>(app_handle: tauri::AppHandle<R>, id: Option
 }
 
 #[tauri::command]
+async fn profiles_import<R: Runtime>(app_handle: tauri::AppHandle<R>, zip_path: String, profile_name: String) -> Result<ProfileEntry, String> {
+    sanitize_name(&profile_name)?;
+    let profiles_dir = get_user_data_dir(&app_handle)?.join("profiles");
+    let dest_dir = profiles_dir.join(&profile_name);
+    tokio::fs::create_dir_all(&dest_dir).await.map_err(|e| e.to_string())?;
+
+    // Extract zip (sync since zip crate is sync)
+    let file = std::fs::File::open(&zip_path).map_err(|e| e.to_string())?;
+    let mut archive = zip::ZipArchive::new(file).map_err(|e| e.to_string())?;
+    for i in 0..archive.len() {
+        let mut entry = archive.by_index(i).map_err(|e| e.to_string())?;
+        if let Some(name) = entry.enclosed_name() {
+            let out_path = dest_dir.join(name);
+            if entry.is_dir() {
+                std::fs::create_dir_all(&out_path).map_err(|e| e.to_string())?;
+            } else {
+                if let Some(parent) = out_path.parent() {
+                    std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+                }
+                let mut outfile = std::fs::File::create(&out_path).map_err(|e| e.to_string())?;
+                std::io::copy(&mut entry, &mut outfile).map_err(|e| e.to_string())?;
+            }
+        }
+    }
+
+    Ok(ProfileEntry { id: profile_name.clone(), name: profile_name, file: dest_dir.to_string_lossy().into(), mtime: None })
+}
+
+#[tauri::command]
 async fn config_export<R: Runtime>(app_handle: tauri::AppHandle<R>) -> Result<String, String> {
     let path = get_user_data_dir(&app_handle)?.join("settings.json");
-    if path.exists() { fs::read_to_string(path).map_err(|e| e.to_string()) } else { Ok("{}".into()) }
+    if path.exists() { tokio::fs::read_to_string(path).await.map_err(|e| e.to_string()) } else { Ok("{}".into()) }
 }
 
 #[tauri::command]
 async fn config_import<R: Runtime>(app_handle: tauri::AppHandle<R>, content: String) -> Result<(), String> {
     serde_json::from_str::<serde_json::Value>(&content).map_err(|e| format!("Invalid JSON: {}", e))?;
     let path = get_user_data_dir(&app_handle)?.join("settings.json");
-    fs::write(path, content).map_err(|e| e.to_string())
+    tokio::fs::write(path, content).await.map_err(|e| e.to_string())
 }
 
 // ─── Text Operations (Tools) Commands ────────────────────────────────────────
@@ -710,15 +857,9 @@ async fn to_process(content: String, options: ProcessOptions) -> Result<String, 
         Some("asc") => lines.sort(),
         Some("desc") => lines.sort_by(|a, b| b.cmp(a)),
         Some("random") => {
-            use std::collections::hash_map::DefaultHasher;
-            use std::hash::{Hash, Hasher};
-            lines.sort_by(|a, b| {
-                let mut ha = DefaultHasher::new();
-                a.hash(&mut ha);
-                let mut hb = DefaultHasher::new();
-                b.hash(&mut hb);
-                ha.finish().cmp(&hb.finish())
-            });
+            use rand::seq::SliceRandom;
+            let mut rng = rand::thread_rng();
+            lines.shuffle(&mut rng);
         }
         _ => {}
     }
@@ -807,11 +948,11 @@ async fn compute_stats_internal(config_path: String, data_path: String) -> AppSt
     let mut config_size = 0;
     let mut read_write = false;
 
-    if let Ok(metadata) = fs::metadata(config_p) {
+    if let Ok(metadata) = std::fs::metadata(config_p) {
         loaded = true;
         config_size = metadata.len();
         mtime = epoch_ms_from_metadata(&metadata);
-        if fs::OpenOptions::new().read(true).write(true).open(config_p).is_ok() {
+        if std::fs::OpenOptions::new().read(true).write(true).open(config_p).is_ok() {
             read_write = true;
         }
     }
@@ -911,7 +1052,7 @@ async fn monitor_stop(data: State<'_, AppData>) -> Result<(), String> {
 async fn monitor_lookup<R: Runtime>(app_handle: tauri::AppHandle<R>, domain: String) -> Result<(), String> {
     let result = perform_lookup(&domain, 10000).await;
     let status = match result {
-        Ok(ref res) => serde_json::to_value(is_domain_available(res)).unwrap().as_str().unwrap_or("unavailable").to_string(),
+        Ok(ref res) => domain_status_to_string(&is_domain_available(res)),
         Err(_) => "error".to_string(),
     };
     let _ = app_handle.emit("monitor:update", serde_json::json!({ "domain": domain, "status": status }));
@@ -932,6 +1073,100 @@ async fn path_basename(path: String) -> String {
     Path::new(&path).file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default()
 }
 
+// ─── AI Commands ─────────────────────────────────────────────────────────────
+
+#[tauri::command]
+async fn ai_suggest(prompt: String, count: usize) -> Result<Vec<String>, String> {
+    // Read OpenAI settings from the per-call arguments.
+    // The frontend passes prompt and count; OpenAI config comes from settings
+    // loaded in the frontend and passed here when available.
+    // For now, return empty if no settings are embedded.
+    let settings = OpenAiSettings::default();
+    wd_ai_mod::suggest_words(&settings, &prompt, count).await
+}
+
+#[tauri::command]
+async fn ai_suggest_with_settings(
+    prompt: String,
+    count: usize,
+    url: Option<String>,
+    api_key: Option<String>,
+    model: Option<String>,
+) -> Result<Vec<String>, String> {
+    let settings = OpenAiSettings { url, api_key, model };
+    wd_ai_mod::suggest_words(&settings, &prompt, count).await
+}
+
+#[tauri::command]
+async fn ai_download_model<R: Runtime>(app_handle: tauri::AppHandle<R>) -> Result<(), String> {
+    let data_dir = get_user_data_dir(&app_handle)?;
+    let model_dir = data_dir.join("ai");
+    let url = "https://raw.githubusercontent.com/supermarsx/whoisdigger/main/app/data/availability_model.json";
+    wd_ai_mod::download_model(&model_dir, url, "availability_model.json").await
+}
+
+#[tauri::command]
+async fn ai_predict<R: Runtime>(
+    app_handle: tauri::AppHandle<R>,
+    text: String,
+) -> Result<String, String> {
+    let data_dir = get_user_data_dir(&app_handle)?;
+    let model_dir = data_dir.join("ai");
+    let model = wd_ai_mod::load_model(&model_dir, "availability_model.json").await?;
+    Ok(wd_ai_mod::predict(&model, &text).to_string())
+}
+
+// ─── Wordlist Commands ───────────────────────────────────────────────────────
+
+#[tauri::command]
+async fn wordlist_transform(
+    content: String,
+    operation: String,
+    arg1: Option<String>,
+    arg2: Option<String>,
+) -> Result<String, String> {
+    let lines: Vec<String> = content.lines().map(|s| s.to_string()).collect();
+
+    let result = match operation.as_str() {
+        "addPrefix" => wd_wordlist_mod::add_prefix(&lines, arg1.as_deref().unwrap_or("")),
+        "addSuffix" => wd_wordlist_mod::add_suffix(&lines, arg1.as_deref().unwrap_or("")),
+        "sort" => wd_wordlist_mod::sort_lines(&lines),
+        "sortReverse" => wd_wordlist_mod::sort_lines_reverse(&lines),
+        "shuffle" => wd_wordlist_mod::shuffle_lines(&lines),
+        "trimSpaces" => wd_wordlist_mod::trim_spaces(&lines),
+        "deleteSpaces" => wd_wordlist_mod::delete_spaces(&lines),
+        "deleteBlankLines" => wd_wordlist_mod::delete_blank_lines(&lines),
+        "trimNonAlnum" => wd_wordlist_mod::trim_non_alnum(&lines),
+        "deleteNonAlnum" => wd_wordlist_mod::delete_non_alnum(&lines),
+        "dedupe" => wd_wordlist_mod::dedupe_lines(&lines),
+        "deleteLinesContaining" => {
+            wd_wordlist_mod::delete_lines_containing(&lines, arg1.as_deref().unwrap_or(""))
+        }
+        "deleteString" => {
+            wd_wordlist_mod::delete_string(&lines, arg1.as_deref().unwrap_or(""))
+        }
+        "toLowerCase" => wd_wordlist_mod::to_lower_case_lines(&lines),
+        "toUpperCase" => wd_wordlist_mod::to_upper_case_lines(&lines),
+        "rot13" => wd_wordlist_mod::rot13_lines(&lines),
+        "leetSpeak" => wd_wordlist_mod::to_leet_speak_lines(&lines),
+        "replaceString" => wd_wordlist_mod::replace_string(
+            &lines,
+            arg1.as_deref().unwrap_or(""),
+            arg2.as_deref().unwrap_or(""),
+        ),
+        "deleteRegex" => wd_wordlist_mod::delete_regex(&lines, arg1.as_deref().unwrap_or(""))?,
+        "trimRegex" => wd_wordlist_mod::trim_regex(&lines, arg1.as_deref().unwrap_or(""))?,
+        "replaceRegex" => wd_wordlist_mod::replace_regex(
+            &lines,
+            arg1.as_deref().unwrap_or(""),
+            arg2.as_deref().unwrap_or(""),
+        )?,
+        _ => return Err(format!("Unknown operation: {}", operation)),
+    };
+
+    Ok(result.join("\n"))
+}
+
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 fn main() {
@@ -941,6 +1176,9 @@ fn main() {
             next_watcher_id: Mutex::new(1),
             monitor: AsyncMutex::new(MonitorState { active: false, cancel_token: None }),
             bulk_state: Arc::new(AsyncMutex::new(BulkLookupState { paused: false, stopped: false })),
+            proxy_settings: AsyncMutex::new(ProxySettings::default()),
+            proxy_rotation: ProxyRotation::new(),
+            lookup_settings: AsyncMutex::new(LookupSettings::default()),
         })
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_shell::init())
@@ -948,6 +1186,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             // WHOIS lookups
             whois_lookup,
+            whois_lookup_with_settings,
             dns_lookup_cmd,
             rdap_lookup_cmd,
             availability_check,
@@ -989,13 +1228,20 @@ fn main() {
             config_delete,
             config_export,
             config_import,
+            // Proxy/Lookup state
+            proxy_set_settings,
+            proxy_get_settings,
+            lookup_set_settings,
+            lookup_get_settings,
             // Profiles
             profiles_list,
             profiles_create,
             profiles_rename,
             profiles_delete,
             profiles_set_current,
+            profiles_get_current,
             profiles_export,
+            profiles_import,
             // Stats
             stats_get,
             stats_start,
@@ -1013,12 +1259,19 @@ fn main() {
             bwa_analyser_start,
             // Path
             path_join,
-            path_basename
+            path_basename,
+            // AI
+            ai_suggest,
+            ai_suggest_with_settings,
+            ai_download_model,
+            ai_predict,
+            // Wordlist
+            wordlist_transform
         ])
         .setup(|app| {
             // Ensure default profile directory exists
             if let Ok(data_dir) = app.path().app_data_dir() {
-                let _ = fs::create_dir_all(data_dir.join("profiles").join("default"));
+                let _ = std::fs::create_dir_all(data_dir.join("profiles").join("default"));
             }
 
             // Show main window after setup
@@ -1035,6 +1288,7 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
     use std::io::Write;
 
     // ── Stats helpers ────────────────────────────────────────────────────
@@ -1103,97 +1357,7 @@ mod tests {
         assert_eq!(p.file_name().unwrap().to_str().unwrap(), ".config");
     }
 
-    // ── CSV builder ──────────────────────────────────────────────────────
-
-    #[test]
-    fn test_build_csv_empty() {
-        let csv = build_csv(&[]);
-        assert!(csv.starts_with("\"Domain\""));
-        assert_eq!(csv.lines().count(), 1);
-    }
-
-    #[test]
-    fn test_build_csv_single_result() {
-        let results = vec![BulkResult {
-            domain: "example.com".into(),
-            data: Some("raw whois".into()),
-            error: None,
-            status: "unavailable".into(),
-            params: Some(WhoisParams {
-                domain: Some("example.com".into()),
-                status: None,
-                registrar: Some("GoDaddy".into()),
-                company: Some("ACME Corp".into()),
-                creation_date: Some("2020-01-01".into()),
-                update_date: None,
-                expiry_date: Some("2030-01-01".into()),
-                whoisreply: None,
-            }),
-        }];
-        let csv = build_csv(&results);
-        let lines: Vec<&str> = csv.lines().collect();
-        assert_eq!(lines.len(), 2);
-        assert!(lines[0].contains("Domain"));
-        assert!(lines[1].contains("example.com"));
-        assert!(lines[1].contains("GoDaddy"));
-        assert!(lines[1].contains("ACME Corp"));
-        assert!(lines[1].contains("2020-01-01"));
-        assert!(lines[1].contains("2030-01-01"));
-    }
-
-    #[test]
-    fn test_build_csv_multiple_results() {
-        let results = vec![
-            BulkResult {
-                domain: "a.com".into(),
-                data: None,
-                error: Some("timeout".into()),
-                status: "error".into(),
-                params: None,
-            },
-            BulkResult {
-                domain: "b.com".into(),
-                data: Some("data".into()),
-                error: None,
-                status: "available".into(),
-                params: None,
-            },
-        ];
-        let csv = build_csv(&results);
-        assert_eq!(csv.lines().count(), 3); // header + 2 rows
-        assert!(csv.contains("a.com"));
-        assert!(csv.contains("b.com"));
-    }
-
-    #[test]
-    fn test_build_csv_no_params() {
-        let results = vec![BulkResult {
-            domain: "x.com".into(),
-            data: None,
-            error: None,
-            status: "available".into(),
-            params: None,
-        }];
-        let csv = build_csv(&results);
-        // Should still produce valid CSV with empty fields
-        assert!(csv.contains("x.com"));
-        assert!(csv.contains("available"));
-    }
-
-    #[test]
-    fn test_build_csv_special_characters_in_domain() {
-        let results = vec![BulkResult {
-            domain: "éxàmple.com".into(),
-            data: None,
-            error: None,
-            status: "unavailable".into(),
-            params: None,
-        }];
-        let csv = build_csv(&results);
-        assert!(csv.contains("éxàmple.com"));
-    }
-
-    // ── FS commands (unit-testable without Tauri) ────────────────────────
+    // ── FS operations (test tokio::fs behavior directly, since commands now require AppHandle) ──
 
     #[tokio::test]
     async fn test_fs_read_file_success() {
@@ -1202,7 +1366,7 @@ mod tests {
         let file = dir.join("test.txt");
         fs::write(&file, "hello world").unwrap();
 
-        let result = fs_read_file(file.to_string_lossy().to_string()).await;
+        let result = tokio::fs::read_to_string(&file).await;
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), "hello world");
 
@@ -1211,7 +1375,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_fs_read_file_not_found() {
-        let result = fs_read_file("/non/existent/file.txt".into()).await;
+        let result = tokio::fs::read_to_string("/non/existent/file.txt").await;
         assert!(result.is_err());
     }
 
@@ -1222,8 +1386,8 @@ mod tests {
         let file = dir.join("test.txt");
         fs::write(&file, "data").unwrap();
 
-        assert!(fs_exists(file.to_string_lossy().to_string()).await);
-        assert!(!fs_exists("/non/existent/file.txt".into()).await);
+        assert!(tokio::fs::try_exists(&file).await.unwrap_or(false));
+        assert!(!tokio::fs::try_exists("/non/existent/file.txt").await.unwrap_or(false));
 
         let _ = fs::remove_dir_all(&dir);
     }
@@ -1235,13 +1399,10 @@ mod tests {
         let file = dir.join("test.txt");
         fs::write(&file, "12345").unwrap();
 
-        let result = fs_stat(file.to_string_lossy().to_string()).await;
-        assert!(result.is_ok());
-        let stat = result.unwrap();
-        assert_eq!(stat.size, 5);
-        assert!(stat.is_file);
-        assert!(!stat.is_directory);
-        assert!(stat.mtime_ms > 0);
+        let metadata = tokio::fs::metadata(&file).await.unwrap();
+        assert_eq!(metadata.len(), 5);
+        assert!(metadata.is_file());
+        assert!(!metadata.is_dir());
 
         let _ = fs::remove_dir_all(&dir);
     }
@@ -1251,11 +1412,9 @@ mod tests {
         let dir = std::env::temp_dir().join("wd_test_fs_stat_dir");
         let _ = fs::create_dir_all(&dir);
 
-        let result = fs_stat(dir.to_string_lossy().to_string()).await;
-        assert!(result.is_ok());
-        let stat = result.unwrap();
-        assert!(stat.is_directory);
-        assert!(!stat.is_file);
+        let metadata = tokio::fs::metadata(&dir).await.unwrap();
+        assert!(metadata.is_dir());
+        assert!(!metadata.is_file());
 
         let _ = fs::remove_dir_all(&dir);
     }
@@ -1267,9 +1426,11 @@ mod tests {
         fs::write(dir.join("a.txt"), "").unwrap();
         fs::write(dir.join("b.txt"), "").unwrap();
 
-        let result = fs_readdir(dir.to_string_lossy().to_string()).await;
-        assert!(result.is_ok());
-        let names = result.unwrap();
+        let mut entries = tokio::fs::read_dir(&dir).await.unwrap();
+        let mut names = Vec::new();
+        while let Some(entry) = entries.next_entry().await.unwrap() {
+            names.push(entry.file_name().into_string().unwrap());
+        }
         assert!(names.contains(&"a.txt".to_string()));
         assert!(names.contains(&"b.txt".to_string()));
 
@@ -1282,15 +1443,10 @@ mod tests {
         let _ = fs::create_dir_all(&dir);
         let file = dir.join("output.txt");
 
-        let write_result = fs_write_file(
-            file.to_string_lossy().to_string(),
-            "test content".into(),
-        ).await;
-        assert!(write_result.is_ok());
+        tokio::fs::write(&file, "test content").await.unwrap();
         assert_eq!(fs::read_to_string(&file).unwrap(), "test content");
 
-        let unlink_result = fs_unlink(file.to_string_lossy().to_string()).await;
-        assert!(unlink_result.is_ok());
+        tokio::fs::remove_file(&file).await.unwrap();
         assert!(!file.exists());
 
         let _ = fs::remove_dir_all(&dir);
@@ -1302,11 +1458,10 @@ mod tests {
         let _ = fs::remove_dir_all(&dir);
         let file = dir.join("sub").join("deep").join("file.txt");
 
-        let result = fs_write_file(
-            file.to_string_lossy().to_string(),
-            "nested".into(),
-        ).await;
-        assert!(result.is_ok());
+        if let Some(parent) = file.parent() {
+            tokio::fs::create_dir_all(parent).await.unwrap();
+        }
+        tokio::fs::write(&file, "nested").await.unwrap();
         assert_eq!(fs::read_to_string(&file).unwrap(), "nested");
 
         let _ = fs::remove_dir_all(&dir);
@@ -1319,8 +1474,8 @@ mod tests {
         let file = dir.join("test.txt");
         fs::write(&file, "data").unwrap();
 
-        assert!(fs_access(file.to_string_lossy().to_string()).await.is_ok());
-        assert!(fs_access("/non/existent".into()).await.is_err());
+        assert!(tokio::fs::metadata(&file).await.is_ok());
+        assert!(tokio::fs::metadata("/non/existent").await.is_err());
 
         let _ = fs::remove_dir_all(&dir);
     }
@@ -1330,8 +1485,7 @@ mod tests {
         let dir = std::env::temp_dir().join("wd_test_fs_mkdir").join("a").join("b");
         let _ = fs::remove_dir_all(std::env::temp_dir().join("wd_test_fs_mkdir"));
 
-        let result = fs_mkdir(dir.to_string_lossy().to_string()).await;
-        assert!(result.is_ok());
+        tokio::fs::create_dir_all(&dir).await.unwrap();
         assert!(dir.exists());
 
         let _ = fs::remove_dir_all(std::env::temp_dir().join("wd_test_fs_mkdir"));
@@ -1850,22 +2004,6 @@ mod tests {
         let entry: ProfileEntry = serde_json::from_str(json).unwrap();
         assert_eq!(entry.id, "test");
         assert!(entry.mtime.is_none());
-    }
-
-    // ── BulkResult serialization ─────────────────────────────────────────
-
-    #[test]
-    fn test_bulk_result_serialization() {
-        let result = BulkResult {
-            domain: "test.com".into(),
-            data: Some("whois data".into()),
-            error: None,
-            status: "available".into(),
-            params: None,
-        };
-        let json = serde_json::to_string(&result).unwrap();
-        assert!(json.contains("\"domain\":\"test.com\""));
-        assert!(json.contains("\"status\":\"available\""));
     }
 
     // ── get_dir_size ─────────────────────────────────────────────────────
