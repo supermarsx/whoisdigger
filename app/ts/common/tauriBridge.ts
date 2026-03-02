@@ -113,6 +113,29 @@ export function whoisLookup(domain: string): Promise<string> {
   return tauriInvoke<string>('whois_lookup', { domain });
 }
 
+export interface LookupSettings {
+  general?: {
+    timeout?: number;
+    follow?: number;
+    verbose?: boolean;
+    psl?: boolean;
+    timeBetween?: number;
+  };
+  conversion?: {
+    algorithm?: string;
+    enablePunycode?: boolean;
+    enablePsl?: boolean;
+    enableCapitalisation?: boolean;
+  };
+  randomizeFollow?: { randomize: boolean; minimumDepth?: number; maximumDepth?: number };
+  randomizeTimeout?: { randomize: boolean; minimum?: number; maximum?: number };
+  randomizeTimeBetween?: { randomize: boolean; minimum?: number; maximum?: number };
+}
+
+export function whoisLookupWithSettings(domain: string, settings: LookupSettings): Promise<string> {
+  return tauriInvoke<string>('whois_lookup_with_settings', { domain, settings });
+}
+
 export function dnsLookup(domain: string): Promise<boolean> {
   return tauriInvoke<boolean>('dns_lookup_cmd', { domain });
 }
@@ -309,14 +332,48 @@ export function profilesExport(id?: string): Promise<string> {
   return tauriInvoke<string>('profiles_export', { id: id ?? null });
 }
 
-export async function profilesImport(): Promise<{ id: string } | undefined> {
+export function profilesGetCurrent(): Promise<string> {
+  return tauriInvoke<string>('profiles_get_current');
+}
+
+export async function profilesImport(): Promise<ProfileEntry | undefined> {
   const zipFiles = await tauriDialog().open({
     multiple: false,
     filters: [{ name: 'ZIP', extensions: ['zip'] }],
   });
   if (!zipFiles) return undefined;
   const chosen = Array.isArray(zipFiles) ? zipFiles[0] : zipFiles;
-  return { id: path.basename(chosen).replace('.zip', '') };
+  const profileName = path.basename(chosen).replace(/\.zip$/i, '');
+  return tauriInvoke<ProfileEntry>('profiles_import', { zipPath: chosen, profileName });
+}
+
+// ─── Proxy / Lookup Settings State ──────────────────────────────────────────
+
+export interface ProxySettings {
+  enable: boolean;
+  mode?: 'single' | 'multi';
+  multimode?: 'roundrobin' | 'random' | 'failover';
+  single?: string;
+  list?: Array<{ host: string; port: number; username?: string; password?: string; protocol?: string }>;
+  username?: string;
+  password?: string;
+  retries?: number;
+}
+
+export function proxySetSettings(settings: ProxySettings): Promise<void> {
+  return tauriInvoke('proxy_set_settings', { settings });
+}
+
+export function proxyGetSettings(): Promise<ProxySettings> {
+  return tauriInvoke<ProxySettings>('proxy_get_settings');
+}
+
+export function lookupSetSettings(settings: LookupSettings): Promise<void> {
+  return tauriInvoke('lookup_set_settings', { settings });
+}
+
+export function lookupGetSettings(): Promise<LookupSettings> {
+  return tauriInvoke<LookupSettings>('lookup_get_settings');
 }
 
 // ─── History ────────────────────────────────────────────────────────────────
@@ -502,8 +559,44 @@ export function aiSuggest(prompt: string, count: number): Promise<string[]> {
   return tauriInvoke<string[]>('ai_suggest', { prompt, count });
 }
 
+export function aiSuggestWithSettings(
+  prompt: string,
+  count: number,
+  url?: string,
+  apiKey?: string,
+  model?: string
+): Promise<string[]> {
+  return tauriInvoke<string[]>('ai_suggest_with_settings', {
+    prompt,
+    count,
+    url: url ?? null,
+    apiKey: apiKey ?? null,
+    model: model ?? null,
+  });
+}
+
 export function aiDownloadModel(): Promise<void> {
   return tauriInvoke('ai_download_model');
+}
+
+export function aiPredict(text: string): Promise<string> {
+  return tauriInvoke<string>('ai_predict', { text });
+}
+
+// ─── Wordlist ───────────────────────────────────────────────────────────────
+
+export function wordlistTransform(
+  content: string,
+  operation: string,
+  arg1?: string,
+  arg2?: string
+): Promise<string> {
+  return tauriInvoke<string>('wordlist_transform', {
+    content,
+    operation,
+    arg1: arg1 ?? null,
+    arg2: arg2 ?? null,
+  });
 }
 
 // ─── File Watcher Stub ──────────────────────────────────────────────────────
