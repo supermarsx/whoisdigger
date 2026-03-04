@@ -49,6 +49,7 @@ describe('tauriBridge export exhaustiveness', () => {
     'bulkWhoisContinue',
     'bulkWhoisStop',
     'bulkWhoisExport',
+    'bulkEstimateTime',
 
     // BWA
     'bwaAnalyserStart',
@@ -123,6 +124,11 @@ describe('tauriBridge export exhaustiveness', () => {
     'fs',
     'path',
     'app',
+
+    // Utility
+    'fileInfo',
+    'convertFileSize',
+    'convertDuration',
 
     // Events
     'listen',

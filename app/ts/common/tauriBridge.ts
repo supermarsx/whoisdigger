@@ -532,6 +532,81 @@ export namespace fs {
   }
 }
 
+// ─── File Info & Conversions ────────────────────────────────────────────────
+
+/** Enriched file metadata returned by the `file_info` backend command. */
+export interface FileInfoResult {
+  filename: string;
+  size: number;
+  humanSize: string;
+  mtimeMs: number;
+  mtimeFormatted: string | null;
+  atimeFormatted: string | null;
+  lineCount: number;
+  filePreview: string;
+  minEstimate: string;
+  maxEstimate: string | null;
+}
+
+/** Time estimates returned by `bulk_estimate_time`. */
+export interface TimeEstimateResult {
+  min: string;
+  max: string | null;
+}
+
+/**
+ * Retrieve enriched file information including human-readable size,
+ * line count, preview, formatted dates, and bulk lookup time estimates.
+ */
+export function fileInfo(
+  filePath: string,
+  options?: {
+    si?: boolean;
+    timeBetween?: number;
+    timeBetweenMin?: number;
+    timeBetweenMax?: number;
+    randomize?: boolean;
+  }
+): Promise<FileInfoResult> {
+  return tauriInvoke<FileInfoResult>('file_info', {
+    path: filePath,
+    si: options?.si ?? true,
+    timeBetween: options?.timeBetween ?? null,
+    timeBetweenMin: options?.timeBetweenMin ?? null,
+    timeBetweenMax: options?.timeBetweenMax ?? null,
+    randomize: options?.randomize ?? null,
+  });
+}
+
+/** Get time estimates for a given line count and lookup timing settings. */
+export function bulkEstimateTime(
+  lineCount: number,
+  options?: {
+    timeBetween?: number;
+    timeBetweenMin?: number;
+    timeBetweenMax?: number;
+    randomize?: boolean;
+  }
+): Promise<TimeEstimateResult> {
+  return tauriInvoke<TimeEstimateResult>('bulk_estimate_time', {
+    lineCount,
+    timeBetween: options?.timeBetween ?? null,
+    timeBetweenMin: options?.timeBetweenMin ?? null,
+    timeBetweenMax: options?.timeBetweenMax ?? null,
+    randomize: options?.randomize ?? null,
+  });
+}
+
+/** Convert bytes to a human-readable file size string. */
+export function convertFileSize(bytes: number, si = true): Promise<string> {
+  return tauriInvoke<string>('convert_file_size', { bytes, si });
+}
+
+/** Convert milliseconds to a human-readable duration string. */
+export function convertDuration(durationMs: number): Promise<string> {
+  return tauriInvoke<string>('convert_duration', { durationMs });
+}
+
 // ─── Path Helpers ───────────────────────────────────────────────────────────
 
 export namespace path {
