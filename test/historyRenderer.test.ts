@@ -7,10 +7,10 @@ jest.mock('../app/ts/common/logger.js', () => ({
   errorFactory: () => () => {},
 }));
 
-const mockHistoryGet = jest.fn();
+const mockHistoryGetFiltered = jest.fn();
 
 jest.mock('../app/ts/common/tauriBridge.js', () => ({
-  historyGet: mockHistoryGet,
+  historyGetFiltered: mockHistoryGetFiltered,
   historyClear: jest.fn(),
   monitorStart: jest.fn(),
   monitorStop: jest.fn(),
@@ -23,7 +23,7 @@ beforeEach(() => {
     <table id="historyTable"><tbody></tbody></table>
     <div id="historyEmpty" class="is-hidden"></div>
   `;
-  mockHistoryGet.mockReset();
+  mockHistoryGetFiltered.mockReset();
   (window as any).$ = (window as any).jQuery = jQuery;
 });
 
@@ -33,20 +33,30 @@ afterEach(() => {
 });
 
 test('loadHistory displays entries in table', async () => {
-  mockHistoryGet.mockResolvedValue([
-    { domain: 'a.com', status: 'ok', timestamp: 1 },
-    { domain: 'b.com', status: 'error', timestamp: 2 }
-  ]);
+  mockHistoryGetFiltered.mockResolvedValue({
+    entries: [
+      { domain: 'a.com', status: 'ok', timestamp: 1 },
+      { domain: 'b.com', status: 'error', timestamp: 2 }
+    ],
+    total: 2,
+    page: 0,
+    pageSize: 50,
+  });
   const { _test } = require('../app/ts/renderer/history');
   await _test.loadHistory();
   await Promise.resolve();
-  expect(mockHistoryGet).toHaveBeenCalled();
+  expect(mockHistoryGetFiltered).toHaveBeenCalled();
   expect(jQuery('#historyEmpty').hasClass('is-hidden')).toBe(true);
   expect(jQuery('#historyTable tbody tr').length).toBe(2);
 });
 
 test('loadHistory shows empty message when no entries', async () => {
-  mockHistoryGet.mockResolvedValue([]);
+  mockHistoryGetFiltered.mockResolvedValue({
+    entries: [],
+    total: 0,
+    page: 0,
+    pageSize: 50,
+  });
   const { _test } = require('../app/ts/renderer/history');
   await _test.loadHistory();
   await Promise.resolve();

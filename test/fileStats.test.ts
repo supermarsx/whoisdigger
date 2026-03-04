@@ -1,17 +1,17 @@
 /**
- * Tests for app/ts/common/fileStats.ts — BaseStats and FileStats interfaces
+ * Tests for FileStats interface (now inlined in tauriBridge.ts)
  */
-import type { BaseStats, FileStats } from '../app/ts/common/fileStats.js';
+import type { FileStats } from '../app/ts/common/tauriBridge.js';
 
 describe('FileStats interface', () => {
-  test('BaseStats can be constructed with minimal fields', () => {
-    const stat: BaseStats = { size: 1024 };
+  test('FileStats can be constructed with minimal fields', () => {
+    const stat: FileStats = { size: 1024 };
     expect(stat.size).toBe(1024);
     expect(stat.mtimeMs).toBeUndefined();
   });
 
-  test('BaseStats can include all optional fields', () => {
-    const stat: BaseStats = {
+  test('FileStats can include all optional fields', () => {
+    const stat: FileStats = {
       size: 2048,
       mtimeMs: Date.now(),
       mtime: '2025-01-01T00:00:00Z',
@@ -23,7 +23,7 @@ describe('FileStats interface', () => {
     expect(stat.isFile).toBe(true);
   });
 
-  test('FileStats extends BaseStats with metadata fields', () => {
+  test('FileStats extends with metadata fields', () => {
     const stat: FileStats = {
       size: 500,
       filename: 'test.txt',
