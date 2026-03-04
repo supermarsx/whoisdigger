@@ -32,6 +32,66 @@ use serde::{Serialize, Deserialize};
 use rusqlite::Connection;
 use std::io::Write;
 
+// ─── Utility Functions ────────────────────────────────────────────────────────
+
+/// Convert bytes to a human-readable file size string.
+/// When `si` is true, uses metric units (kB = 1000); otherwise IEC (KiB = 1024).
+fn byte_to_human_file_size(bytes: u64, si: bool) -> String {
+    let thresh: f64 = if si { 1000.0 } else { 1024.0 };
+    let b = bytes as f64;
+    if b.abs() < thresh {
+        return format!("{} B", bytes);
+    }
+    let units: &[&str] = if si {
+        &["kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+    } else {
+        &["KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"]
+    };
+    let mut val = b;
+    let mut u = 0usize;
+    loop {
+        val /= thresh;
+        if val.abs() < thresh || u >= units.len() - 1 {
+            break;
+        }
+        u += 1;
+    }
+    format!("{:.1} {}", val, units[u])
+}
+
+/// Convert milliseconds to a human-readable duration string (e.g. "2 h 5 m 30 s").
+fn ms_to_human_time(duration_ms: u64) -> String {
+    if duration_ms == 0 {
+        return "-".to_string();
+    }
+    let ms = duration_ms % 1000;
+    let total_s = duration_ms / 1000;
+    let s = total_s % 60;
+    let total_m = total_s / 60;
+    let m = total_m % 60;
+    let total_h = total_m / 60;
+    let h = total_h % 24;
+    let total_d = total_h / 24;
+    let d = total_d % 7;
+    let total_w = total_d / 7;
+    let w = total_w % 4;
+    let total_mo = total_w / 4;
+    let mo = total_mo % 12;
+    let y = total_mo / 12;
+
+    let mut parts: Vec<String> = Vec::new();
+    if y > 0  { parts.push(format!("{} Y", y)); }
+    if mo > 0 { parts.push(format!("{} M", mo)); }
+    if w > 0  { parts.push(format!("{} w", w)); }
+    if d > 0  { parts.push(format!("{} d", d)); }
+    if h > 0  { parts.push(format!("{} h", h)); }
+    if m > 0  { parts.push(format!("{} m", m)); }
+    if s > 0  { parts.push(format!("{} s", s)); }
+    if ms > 0 { parts.push(format!("{} ms", ms)); }
+
+    if parts.is_empty() { "-".to_string() } else { parts.join(" ") }
+}
+
 // ─── Structs ─────────────────────────────────────────────────────────────────
 
 #[derive(Serialize, Clone)]
@@ -45,6 +105,38 @@ struct FileStat {
     is_directory: bool,
     #[serde(rename = "isFile")]
     is_file: bool,
+}
+
+/// Enriched file information returned by the `file_info` command.
+/// Combines stat metadata with line count, preview, human-readable size,
+/// and bulk lookup time estimates.
+#[derive(Serialize, Clone)]
+struct FileInfo {
+    filename: String,
+    size: u64,
+    #[serde(rename = "humanSize")]
+    human_size: String,
+    #[serde(rename = "mtimeMs")]
+    mtime_ms: u64,
+    #[serde(rename = "mtimeFormatted")]
+    mtime_formatted: Option<String>,
+    #[serde(rename = "atimeFormatted")]
+    atime_formatted: Option<String>,
+    #[serde(rename = "lineCount")]
+    line_count: usize,
+    #[serde(rename = "filePreview")]
+    file_preview: String,
+    #[serde(rename = "minEstimate")]
+    min_estimate: String,
+    #[serde(rename = "maxEstimate")]
+    max_estimate: Option<String>,
+}
+
+/// Time estimate result returned by `bulk_estimate_time` command.
+#[derive(Serialize, Clone)]
+struct TimeEstimate {
+    min: String,
+    max: Option<String>,
 }
 
 #[derive(Serialize, Clone)]
@@ -304,6 +396,110 @@ async fn fs_write_file<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String
 async fn fs_mkdir<R: Runtime>(app_handle: tauri::AppHandle<R>, path: String) -> Result<(), String> {
     let validated = validate_fs_path(&app_handle, &path)?;
     tokio::fs::create_dir_all(&validated).await.map_err(|e| e.to_string())
+}
+
+// ─── File Info Command ───────────────────────────────────────────────────────
+
+/// Returns enriched file metadata: filename, human-readable size, line count,
+/// preview, formatted dates, and time estimates for bulk lookups.
+/// `si`: use metric (true) or IEC (false) units.
+/// `time_between_min` / `time_between_max` / `randomize`: lookup timing settings
+/// used to compute estimates.
+#[tauri::command]
+async fn file_info<R: Runtime>(
+    app_handle: tauri::AppHandle<R>,
+    path: String,
+    si: Option<bool>,
+    time_between: Option<u64>,
+    time_between_min: Option<u64>,
+    time_between_max: Option<u64>,
+    randomize: Option<bool>,
+) -> Result<FileInfo, String> {
+    let validated = validate_fs_path(&app_handle, &path)?;
+    let metadata = tokio::fs::metadata(&validated).await.map_err(|e| e.to_string())?;
+    let content = tokio::fs::read_to_string(&validated).await.map_err(|e| e.to_string())?;
+
+    let use_si = si.unwrap_or(true);
+    let line_count = content.lines().count();
+    let file_preview = if content.len() > 50 { content[..50].to_string() } else { content.clone() };
+
+    let mtime_ms = epoch_ms_from_metadata(&metadata).unwrap_or(0);
+    let mtime_formatted = metadata.modified().ok().map(iso_from_system_time);
+    let atime_formatted = metadata.accessed().ok().map(iso_from_system_time);
+
+    let filename = validated.file_name()
+        .map(|n| n.to_string_lossy().to_string())
+        .unwrap_or_default();
+
+    let (min_estimate, max_estimate) = compute_estimates(
+        line_count,
+        time_between.unwrap_or(1500),
+        time_between_min.unwrap_or(1000),
+        time_between_max.unwrap_or(1500),
+        randomize.unwrap_or(false),
+    );
+
+    Ok(FileInfo {
+        filename,
+        size: metadata.len(),
+        human_size: byte_to_human_file_size(metadata.len(), use_si),
+        mtime_ms,
+        mtime_formatted,
+        atime_formatted,
+        line_count,
+        file_preview,
+        min_estimate,
+        max_estimate,
+    })
+}
+
+/// Returns time estimates for a bulk lookup given a line count and timing settings.
+#[tauri::command]
+async fn bulk_estimate_time(
+    line_count: usize,
+    time_between: Option<u64>,
+    time_between_min: Option<u64>,
+    time_between_max: Option<u64>,
+    randomize: Option<bool>,
+) -> Result<TimeEstimate, String> {
+    let (min, max) = compute_estimates(
+        line_count,
+        time_between.unwrap_or(1500),
+        time_between_min.unwrap_or(1000),
+        time_between_max.unwrap_or(1500),
+        randomize.unwrap_or(false),
+    );
+    Ok(TimeEstimate { min, max })
+}
+
+/// Shared logic for computing min/max time estimates.
+fn compute_estimates(
+    line_count: usize,
+    time_between: u64,
+    time_between_min: u64,
+    time_between_max: u64,
+    randomize: bool,
+) -> (String, Option<String>) {
+    if randomize {
+        let min_ms = line_count as u64 * time_between_min;
+        let max_ms = line_count as u64 * time_between_max;
+        (ms_to_human_time(min_ms), Some(ms_to_human_time(max_ms)))
+    } else {
+        let ms = line_count as u64 * time_between;
+        (ms_to_human_time(ms), None)
+    }
+}
+
+/// Convert bytes to human-readable file size (exposed as a Tauri command).
+#[tauri::command]
+async fn convert_file_size(bytes: u64, si: Option<bool>) -> String {
+    byte_to_human_file_size(bytes, si.unwrap_or(true))
+}
+
+/// Convert milliseconds to human-readable duration (exposed as a Tauri command).
+#[tauri::command]
+async fn convert_duration(duration_ms: u64) -> String {
+    ms_to_human_time(duration_ms)
 }
 
 // ─── Shell Commands ──────────────────────────────────────────────────────────
@@ -576,6 +772,8 @@ async fn cache_merge<R: Runtime>(app_handle: tauri::AppHandle<R>, paths: Vec<Str
 struct BulkProgress {
     sent: u32,
     total: u32,
+    #[serde(rename = "sentPercent")]
+    sent_percent: f64,
 }
 
 #[tauri::command]
@@ -678,7 +876,12 @@ async fn bulk_whois_lookup<R: Runtime>(
 
             let mut s = sent.lock().await;
             *s += 1;
-            let _ = app.emit("bulk:status", BulkProgress { sent: *s, total });
+            let pct = if total > 0 {
+                ((*s as f64 / total as f64) * 1000.0).round() / 10.0
+            } else {
+                0.0
+            };
+            let _ = app.emit("bulk:status", BulkProgress { sent: *s, total, sent_percent: pct });
 
             BulkResult { domain, data: data_val, error: err, status, params }
         }));
@@ -1422,6 +1625,11 @@ fn main() {
             fs_access,
             fs_write_file,
             fs_mkdir,
+            // File info + conversions
+            file_info,
+            bulk_estimate_time,
+            convert_file_size,
+            convert_duration,
             // Shell
             shell_open_path,
             // I18n
@@ -2334,5 +2542,100 @@ mod tests {
     fn test_get_dir_size_non_existent() {
         let size = get_dir_size(Path::new("/non/existent/dir"));
         assert_eq!(size, 0);
+    }
+
+    // ── byte_to_human_file_size ──────────────────────────────────────────
+
+    #[test]
+    fn test_byte_to_human_file_size_zero() {
+        assert_eq!(byte_to_human_file_size(0, true), "0 B");
+        assert_eq!(byte_to_human_file_size(0, false), "0 B");
+    }
+
+    #[test]
+    fn test_byte_to_human_file_size_bytes() {
+        assert_eq!(byte_to_human_file_size(500, true), "500 B");
+        assert_eq!(byte_to_human_file_size(999, true), "999 B");
+        assert_eq!(byte_to_human_file_size(1023, false), "1023 B");
+    }
+
+    #[test]
+    fn test_byte_to_human_file_size_si() {
+        assert_eq!(byte_to_human_file_size(1000, true), "1.0 kB");
+        assert_eq!(byte_to_human_file_size(1_000_000, true), "1.0 MB");
+        assert_eq!(byte_to_human_file_size(1_500_000, true), "1.5 MB");
+        assert_eq!(byte_to_human_file_size(1_000_000_000, true), "1.0 GB");
+    }
+
+    #[test]
+    fn test_byte_to_human_file_size_iec() {
+        assert_eq!(byte_to_human_file_size(1024, false), "1.0 KiB");
+        assert_eq!(byte_to_human_file_size(1_048_576, false), "1.0 MiB");
+        assert_eq!(byte_to_human_file_size(1_073_741_824, false), "1.0 GiB");
+    }
+
+    // ── ms_to_human_time ─────────────────────────────────────────────────
+
+    #[test]
+    fn test_ms_to_human_time_zero() {
+        assert_eq!(ms_to_human_time(0), "-");
+    }
+
+    #[test]
+    fn test_ms_to_human_time_millis_only() {
+        assert_eq!(ms_to_human_time(500), "500 ms");
+    }
+
+    #[test]
+    fn test_ms_to_human_time_seconds() {
+        assert_eq!(ms_to_human_time(5000), "5 s");
+        assert_eq!(ms_to_human_time(5500), "5 s 500 ms");
+    }
+
+    #[test]
+    fn test_ms_to_human_time_minutes() {
+        assert_eq!(ms_to_human_time(60_000), "1 m");
+        assert_eq!(ms_to_human_time(90_000), "1 m 30 s");
+    }
+
+    #[test]
+    fn test_ms_to_human_time_hours() {
+        assert_eq!(ms_to_human_time(3_600_000), "1 h");
+        assert_eq!(ms_to_human_time(7_530_000), "2 h 5 m 30 s");
+    }
+
+    #[test]
+    fn test_ms_to_human_time_complex() {
+        // 1 day, 2 hours, 3 minutes, 4 seconds, 5 ms
+        let ms = 24 * 3_600_000 + 2 * 3_600_000 + 3 * 60_000 + 4 * 1_000 + 5;
+        let result = ms_to_human_time(ms);
+        assert!(result.contains("1 d"));
+        assert!(result.contains("2 h"));
+        assert!(result.contains("3 m"));
+        assert!(result.contains("4 s"));
+        assert!(result.contains("5 ms"));
+    }
+
+    // ── compute_estimates ────────────────────────────────────────────────
+
+    #[test]
+    fn test_compute_estimates_fixed() {
+        let (min, max) = compute_estimates(10, 1000, 0, 0, false);
+        assert_eq!(min, "10 s");
+        assert!(max.is_none());
+    }
+
+    #[test]
+    fn test_compute_estimates_randomized() {
+        let (min, max) = compute_estimates(10, 1000, 500, 2000, true);
+        assert_eq!(min, "5 s");
+        assert_eq!(max.unwrap(), "20 s");
+    }
+
+    #[test]
+    fn test_compute_estimates_zero_lines() {
+        let (min, max) = compute_estimates(0, 1000, 500, 2000, true);
+        assert_eq!(min, "-");
+        assert_eq!(max.unwrap(), "-");
     }
 }
