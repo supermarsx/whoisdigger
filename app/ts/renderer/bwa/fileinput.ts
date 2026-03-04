@@ -1,16 +1,14 @@
-import * as conversions from '../../common/conversions.js';
-import type { FileStats } from '../../common/fileStats.js';
+import type { FileInfoResult } from '../../common/tauriBridge.js';
 import { qs, on } from '../../utils/dom.js';
 import { settings } from '../settings-renderer.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
 import {
   fs,
-  path,
   watch,
   parseCsv,
   openCsvJsonDialog,
   bwaAnalyserStart,
-  bulkWhoisLookup,
+  fileInfo,
   listen,
 } from '../../common/tauriBridge.js';
 
@@ -25,58 +23,27 @@ import { FileWatcherManager } from '../../utils/fileWatcher.js';
 let bwaFileContents: any;
 const watcher = new FileWatcherManager(watch);
 
-async function loadFileStats(filePath: string, _isDragDrop: boolean): Promise<FileStats> {
-  const stats = (await fs.stat(filePath)) as FileStats;
-  stats.filename = path.basename(filePath);
-  stats.humansize = conversions.byteToHumanFileSize(stats.size, settings.lookupMisc.useStandardSize);
-  return stats;
-}
-
-async function readFileContents(filePath: string): Promise<any> {
-  return parseCsv((await fs.readFile(filePath)).toString());
-}
-
-function updateFileInfoUI(stats: FileStats): void {
-  qs('#bwaFileTdFilename')!.textContent = String(stats.filename);
-  qs('#bwaFileTdLastmodified')!.textContent = conversions.getDate(stats.mtime) ?? '';
-  qs('#bwaFileTdLastaccessed')!.textContent = conversions.getDate(stats.atime) ?? '';
+function renderBwaFileInfo(info: FileInfoResult, lineCount: number, preview: string, errors: string): void {
+  qs('#bwaFileTdFilename')!.textContent = info.filename;
+  qs('#bwaFileTdLastmodified')!.textContent = info.mtimeFormatted ?? '';
+  qs('#bwaFileTdLastaccessed')!.textContent = info.atimeFormatted ?? '';
   qs('#bwaFileTdFilesize')!.textContent =
-    String(stats.humansize) + formatString(' ({0} record(s))', String(stats.linecount));
-  qs('#bwaFileTdFilepreview')!.textContent = String(stats.filepreview) + '...';
-  qs('#bwaFileTextareaErrors')!.textContent = String(stats.errors || 'No errors');
+    info.humanSize + formatString(' ({0} record(s))', String(lineCount));
+  qs('#bwaFileTdFilepreview')!.textContent = preview + '...';
+  qs('#bwaFileTextareaErrors')!.textContent = errors || 'No errors';
 }
 
 async function refreshBwaFile(pathToFile: string): Promise<void> {
   try {
-    const bwaFileStats = (await fs.stat(pathToFile)) as FileStats;
-    bwaFileStats.filename = path.basename(pathToFile);
-    bwaFileStats.humansize = conversions.byteToHumanFileSize(
-      bwaFileStats.size,
-      settings.lookupMisc.useStandardSize
-    );
-    bwaFileContents = await parseCsv(
-      (await fs.readFile(pathToFile)).toString()
-    );
-    bwaFileStats.linecount = bwaFileContents.data.length;
+    const info = await fileInfo(pathToFile, { si: settings.lookupMisc.useStandardSize });
+    bwaFileContents = await parseCsv((await fs.readFile(pathToFile)).toString());
+    const lineCount = bwaFileContents.data.length;
+    let preview = '';
     try {
-      bwaFileStats.filepreview = JSON.stringify(bwaFileContents.data[0], null, '\t').substring(
-        0,
-        50
-      );
-    } catch {
-      bwaFileStats.filepreview = '';
-    }
-    bwaFileStats.errors = JSON.stringify(bwaFileContents.errors).slice(1, -1);
-    qs('#bwaFileTdFilename')!.textContent = String(bwaFileStats.filename);
-    qs('#bwaFileTdLastmodified')!.textContent =
-      conversions.getDate(bwaFileStats.mtime) ?? '';
-    qs('#bwaFileTdLastaccessed')!.textContent =
-      conversions.getDate(bwaFileStats.atime) ?? '';
-    qs('#bwaFileTdFilesize')!.textContent =
-      String(bwaFileStats.humansize) +
-      formatString(' ({0} record(s))', String(bwaFileStats.linecount));
-    qs('#bwaFileTdFilepreview')!.textContent = String(bwaFileStats.filepreview) + '...';
-    qs('#bwaFileTextareaErrors')!.textContent = String(bwaFileStats.errors || 'No errors');
+      preview = JSON.stringify(bwaFileContents.data[0], null, '\t').substring(0, 50);
+    } catch { /* empty */ }
+    const errors = JSON.stringify(bwaFileContents.errors).slice(1, -1);
+    renderBwaFileInfo(info, lineCount, preview, errors);
   } catch (e) {
     error(`Failed to reload file: ${e}`);
   }
@@ -84,14 +51,11 @@ async function refreshBwaFile(pathToFile: string): Promise<void> {
 
 /*
   File input, path and information confirmation container
-  (formerly electron.on('bwa:fileinput.confirmation', ...))
  */
 async function handleFileConfirmation(
   filePath: string | string[] | null = null,
   isDragDrop = false
 ) {
-  let bwaFileStats: FileStats;
-
   watcher.close();
 
   const chosenPath = Array.isArray(filePath)
@@ -108,43 +72,42 @@ async function handleFileConfirmation(
     return;
   }
 
-  qs('#bwaFileSpanInfo')!.textContent = 'Loading file stats...';
+  qs('#bwaFileSpanInfo')!.textContent = 'Loading file info...';
   if (isDragDrop === true) {
     qs('#bwaEntry')!.classList.add('is-hidden');
     qs('#bwaFileinputloading')!.classList.remove('is-hidden');
   }
 
+  const targetPath = Array.isArray(filePath) ? (filePath as string[])[0] : (filePath as string);
+
+  let info: FileInfoResult;
   try {
-    const targetPath = Array.isArray(filePath) ? (filePath as string[])[0] : (filePath as string);
-    bwaFileStats = await loadFileStats(targetPath, isDragDrop);
+    info = await fileInfo(targetPath, { si: settings.lookupMisc.useStandardSize });
     qs('#bwaFileSpanInfo')!.textContent = 'Loading file contents...';
-    bwaFileContents = await readFileContents(targetPath);
+    bwaFileContents = await parseCsv((await fs.readFile(targetPath)).toString());
   } catch (e) {
     error(`Failed to read file: ${e}`);
     qs('#bwaFileSpanInfo')!.textContent = 'Failed to load file';
     return;
   }
 
-  qs('#bwaFileSpanInfo')!.textContent = 'Getting line count...';
-  bwaFileStats.linecount = bwaFileContents.data.length;
+  const lineCount = bwaFileContents.data.length;
+  let preview = '';
   try {
-    bwaFileStats.filepreview = JSON.stringify(bwaFileContents.data[0], null, '\t').substring(0, 50);
-  } catch {
-    bwaFileStats.filepreview = '';
-  }
-  bwaFileStats.errors = JSON.stringify(bwaFileContents.errors).slice(1, -1);
+    preview = JSON.stringify(bwaFileContents.data[0], null, '\t').substring(0, 50);
+  } catch { /* empty */ }
+  const errors = JSON.stringify(bwaFileContents.errors).slice(1, -1);
+
   qs('#bwaFileinputloading')!.classList.add('is-hidden');
   qs('#bwaFileinputconfirm')!.classList.remove('is-hidden');
 
-  updateFileInfoUI(bwaFileStats);
+  renderBwaFileInfo(info, lineCount, preview, errors);
 
   if (chosenPath) {
     await watcher.watch('bwa', chosenPath, { persistent: false }, (evt) => {
       if (evt.event === 'change') void refreshBwaFile(chosenPath);
     });
   }
-
-  return;
 }
 
 void listen<{ filePath: string | string[] | null; isDragDrop?: boolean }>('bwa:fileinput.confirmation', ({ filePath, isDragDrop }) => {

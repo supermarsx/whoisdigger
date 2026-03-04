@@ -1,5 +1,4 @@
-import * as conversions from '../../common/conversions.js';
-import type { FileStats } from '../../common/fileStats.js';
+import type { FileInfoResult } from '../../common/tauriBridge.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
 import {
   fs,
@@ -7,6 +6,7 @@ import {
   watch,
   openTextFileDialog,
   bulkWhoisLookup,
+  fileInfo,
   listen,
 } from '../../common/tauriBridge.js';
 const debug = debugFactory('bulkwhois.fileinput');
@@ -20,57 +20,53 @@ import { formatString } from '../../common/stringformat.js';
 import { settings } from '../settings-renderer.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
 import { FileWatcherManager } from '../../utils/fileWatcher.js';
-import { getTimeEstimates } from './estimate.js';
 
 let bwFileContents: Buffer;
 const watcher = new FileWatcherManager(watch);
 
+function getTimingOptions() {
+  return {
+    si: settings.lookupMisc.useStandardSize,
+    timeBetween: settings.lookupGeneral.timeBetween,
+    timeBetweenMin: settings.lookupRandomizeTimeBetween.minimum,
+    timeBetweenMax: settings.lookupRandomizeTimeBetween.maximum,
+    randomize: settings.lookupRandomizeTimeBetween.randomize,
+  };
+}
+
+function renderFileInfo(info: FileInfoResult): void {
+  qs('#bwFileTdName')!.textContent = info.filename;
+  qs('#bwFileTdLastmodified')!.textContent = info.mtimeFormatted ?? '';
+  qs('#bwFileTdLastaccess')!.textContent = info.atimeFormatted ?? '';
+  qs('#bwFileTdFilesize')!.textContent =
+    info.humanSize + formatString(' ({0} line(s))', String(info.lineCount));
+  qs('#bwFileTdFilepreview')!.textContent = info.filePreview + '...';
+
+  if (info.maxEstimate) {
+    qs('#bwFileSpanTimebetweenmin')!.textContent = formatString(
+      '{0}ms ',
+      settings.lookupRandomizeTimeBetween.minimum
+    );
+    qs('#bwFileSpanTimebetweenmax')!.textContent = formatString(
+      '/ {0}ms',
+      settings.lookupRandomizeTimeBetween.maximum
+    );
+    qs('#bwFileTdEstimate')!.textContent = formatString(
+      '{0} to {1}',
+      info.minEstimate,
+      info.maxEstimate
+    );
+  } else {
+    qs('#bwFileSpanTimebetweenminmax')!.classList.add('is-hidden');
+    qs('#bwFileSpanTimebetweenmin')!.textContent = settings.lookupGeneral.timeBetween + 'ms';
+    qs('#bwFileTdEstimate')!.textContent = formatString('> {0}', info.minEstimate);
+  }
+}
+
 async function refreshBwFile(pathToFile: string): Promise<void> {
   try {
-    const misc = settings.lookupMisc;
-    const lookup = {
-      randomize: {
-        timeBetween: settings.lookupRandomizeTimeBetween
-      }
-    };
-    const bwFileStats = (await fs.stat(pathToFile)) as FileStats;
-    bwFileStats.filename = path.basename(pathToFile);
-    bwFileStats.humansize = conversions.byteToHumanFileSize(bwFileStats.size, misc.useStandardSize);
-    bwFileContents = await fs.readFile(pathToFile) as unknown as Buffer;
-    bwFileStats.linecount = bwFileContents.toString().split('\n').length;
-
-    const estimate = getTimeEstimates(bwFileStats.linecount!, settings);
-    bwFileStats.minestimate = estimate.min;
-    bwFileStats.maxestimate = estimate.max;
-
-    if (estimate.max) {
-      qs('#bwFileSpanTimebetweenmin')!.textContent = formatString(
-        '{0}ms ',
-        lookup.randomize.timeBetween.minimum
-      );
-      qs('#bwFileSpanTimebetweenmax')!.textContent = formatString(
-        '/ {0}ms',
-        lookup.randomize.timeBetween.maximum
-      );
-      qs('#bwFileTdEstimate')!.textContent = formatString(
-        '{0} to {1}',
-        bwFileStats.minestimate,
-        bwFileStats.maxestimate
-      );
-    } else {
-      qs('#bwFileSpanTimebetweenminmax')!.classList.add('is-hidden');
-      qs('#bwFileSpanTimebetweenmin')!.textContent = settings.lookupGeneral.timeBetween + 'ms';
-      qs('#bwFileTdEstimate')!.textContent = formatString('> {0}', bwFileStats.minestimate);
-    }
-
-    bwFileStats.filepreview = bwFileContents.toString().substring(0, 50);
-
-    qs('#bwFileTdName')!.textContent = String(bwFileStats.filename);
-    qs('#bwFileTdLastmodified')!.textContent = conversions.getDate(bwFileStats.mtime) ?? '';
-    qs('#bwFileTdLastaccess')!.textContent = conversions.getDate(bwFileStats.atime) ?? '';
-    qs('#bwFileTdFilesize')!.textContent =
-      String(bwFileStats.humansize) + formatString(' ({0} line(s))', String(bwFileStats.linecount));
-    qs('#bwFileTdFilepreview')!.textContent = String(bwFileStats.filepreview) + '...';
+    const info = await fileInfo(pathToFile, getTimingOptions());
+    renderFileInfo(info);
   } catch (e) {
     error(`Failed to reload file: ${e}`);
   }
@@ -80,14 +76,6 @@ async function handleFileConfirmation(
   filePath: string | string[] | null = null,
   isDragDrop = false
 ): Promise<void> {
-  let bwFileStats: FileStats; // File stats, size, last changed, etc
-  const misc = settings.lookupMisc;
-  const lookup = {
-    randomize: {
-      timeBetween: settings.lookupRandomizeTimeBetween
-    }
-  };
-
   watcher.close();
 
   const chosenPath = Array.isArray(filePath)
@@ -102,83 +90,37 @@ async function handleFileConfirmation(
     qs('#bwFileinputloading')!.classList.add('is-hidden');
     qs('#bwEntry')!.classList.remove('is-hidden');
   } else {
-    qs('#bwLoadingInfo')!.textContent = 'Loading file stats...';
+    qs('#bwLoadingInfo')!.textContent = 'Loading file info...';
     if (isDragDrop === true) {
       qs('#bwEntry')!.classList.add('is-hidden');
       qs('#bwFileinputloading')!.classList.remove('is-hidden');
-      try {
-        bwFileStats = (await fs.stat(filePath as string)) as FileStats;
-        bwFileStats.filename = path.basename(filePath as string);
-        bwFileStats.humansize = conversions.byteToHumanFileSize(
-          bwFileStats.size,
-          misc.useStandardSize
-        );
-        qs('#bwFileSpanInfo')!.textContent = 'Loading file contents...';
-        bwFileContents = await fs.readFile(filePath as string) as unknown as Buffer;
-      } catch (e) {
-        error(`Failed to read file: ${e}`);
-        qs('#bwFileSpanInfo')!.textContent = 'Failed to load file';
-        return;
-      }
-    } else {
-      try {
-        bwFileStats = (await fs.stat((filePath as string[])[0])) as FileStats;
-        bwFileStats.filename = path.basename((filePath as string[])[0]);
-        bwFileStats.humansize = conversions.byteToHumanFileSize(
-          bwFileStats.size,
-          misc.useStandardSize
-        );
-        qs('#bwFileSpanInfo')!.textContent = 'Loading file contents...';
-        bwFileContents = await fs.readFile((filePath as string[])[0]) as unknown as Buffer;
-      } catch (e) {
-        error(`Failed to read file: ${e}`);
-        qs('#bwFileSpanInfo')!.textContent = 'Failed to load file';
-        return;
-      }
-    }
-    qs('#bwFileSpanInfo')!.textContent = 'Getting line count...';
-    bwFileStats.linecount = bwFileContents.toString().split('\n').length;
-
-    const estimate = getTimeEstimates(bwFileStats.linecount!, settings);
-    bwFileStats.minestimate = estimate.min;
-    bwFileStats.maxestimate = estimate.max;
-
-    if (estimate.max) {
-      qs('#bwFileSpanTimebetweenmin')!.textContent = formatString(
-        '{0}ms ',
-        lookup.randomize.timeBetween.minimum
-      );
-      qs('#bwFileSpanTimebetweenmax')!.textContent = formatString(
-        '/ {0}ms',
-        lookup.randomize.timeBetween.maximum
-      );
-      qs('#bwFileTdEstimate')!.textContent = formatString(
-        '{0} to {1}',
-        bwFileStats.minestimate,
-        bwFileStats.maxestimate
-      );
-    } else {
-      qs('#bwFileSpanTimebetweenminmax')!.classList.add('is-hidden');
-      qs('#bwFileSpanTimebetweenmin')!.textContent = settings.lookupGeneral.timeBetween + 'ms';
-      qs('#bwFileTdEstimate')!.textContent = formatString('> {0}', bwFileStats.minestimate);
     }
 
-    bwFileStats.filepreview = bwFileContents.toString().substring(0, 50);
-    debug(bwFileStats.filepreview);
+    const targetPath = Array.isArray(filePath) ? (filePath as string[])[0] : (filePath as string);
+
+    let info: FileInfoResult;
+    try {
+      info = await fileInfo(targetPath, getTimingOptions());
+    } catch (e) {
+      error(`Failed to read file: ${e}`);
+      qs('#bwFileSpanInfo')!.textContent = 'Failed to load file';
+      return;
+    }
+
+    // Keep local copy of file content for later split into domain array
+    try {
+      bwFileContents = await fs.readFile(targetPath) as unknown as Buffer;
+    } catch (e) {
+      error(`Failed to read file contents: ${e}`);
+      return;
+    }
+
     qs('#bwFileinputloading')!.classList.add('is-hidden');
     qs('#bwFileinputconfirm')!.classList.remove('is-hidden');
 
-    // stats
-    qs('#bwFileTdName')!.textContent = String(bwFileStats.filename);
-    qs('#bwFileTdLastmodified')!.textContent = conversions.getDate(bwFileStats.mtime) ?? '';
-    qs('#bwFileTdLastaccess')!.textContent = conversions.getDate(bwFileStats.atime) ?? '';
-    qs('#bwFileTdFilesize')!.textContent =
-      String(bwFileStats.humansize) + formatString(' ({0} line(s))', String(bwFileStats.linecount));
-    qs('#bwFileTdFilepreview')!.textContent = String(bwFileStats.filepreview) + '...';
-    //$('#bwTableMaxEstimate').text(bwFileStats['maxestimate']); // show estimated bulk lookup time
-    debug('cont:' + bwFileContents);
-
-    debug(bwFileStats.linecount);
+    renderFileInfo(info);
+    debug(info.filePreview);
+    debug(info.lineCount);
 
     if (chosenPath) {
       await watcher.watch('bw', chosenPath, { persistent: false }, (evt) => {

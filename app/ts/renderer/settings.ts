@@ -35,7 +35,7 @@ import {
   customSettingsLoaded,
   getUserDataPath
 } from './settings-renderer.js';
-import { byteToHumanFileSize } from '../common/conversions.js';
+import { convertFileSize } from '../common/tauriBridge.js';
 import appDefaults, { appSettingsDescriptions } from '../appsettings.js';
 
 function getValue(path: string): any {
@@ -120,7 +120,7 @@ function refreshStats(): void {
   }
 }
 
-function updateStats(data: {
+async function updateStats(data: {
   mtime: number | null;
   loaded: boolean;
   size: number;
@@ -128,20 +128,19 @@ function updateStats(data: {
   configSize: number;
   readWrite: boolean;
   dataPath: string;
-}): void {
+}): Promise<void> {
+  const si = settings.lookupMisc.useStandardSize;
+  const [configHuman, dataHuman] = await Promise.all([
+    convertFileSize(data.configSize, si),
+    convertFileSize(data.size, si),
+  ]);
   qs('#stat-config-path')!.textContent = data.configPath;
-  qs('#stat-config-size')!.textContent = byteToHumanFileSize(
-    data.configSize,
-    settings.lookupMisc.useStandardSize
-  );
+  qs('#stat-config-size')!.textContent = configHuman;
   qs('#stat-config-loaded')!.textContent = data.loaded ? 'Loaded' : 'Not loaded';
   qs('#stat-config-mtime')!.textContent = data.mtime ? new Date(data.mtime).toUTCString() : 'N/A';
   qs('#stat-config-perms')!.textContent = data.readWrite ? 'Read/Write' : 'Read only';
   qs('#stat-data-path')!.textContent = data.dataPath;
-  qs('#stat-data-size')!.textContent = byteToHumanFileSize(
-    data.size,
-    settings.lookupMisc.useStandardSize
-  );
+  qs('#stat-data-size')!.textContent = dataHuman;
 }
 
 const enumOptions: Record<string, string[]> = {

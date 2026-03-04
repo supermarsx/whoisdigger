@@ -7,13 +7,13 @@ const debug = debugFactory('bulkwhois.status');
 const base = 10;
 
 export function registerStatusUpdates(): void {
-  void listen<{ sent: number; total: number }>('bulk:status', (payload) => {
-    handleStatus('domains.sent', payload.sent);
+  void listen<{ sent: number; total: number; sentPercent: number }>('bulk:status', (payload) => {
+    handleStatus('domains.sent', payload.sent, payload.sentPercent);
     handleStatus('domains.total', payload.total);
   });
 }
 
-function handleStatus(stat: string, value: any): void {
+function handleStatus(stat: string, value: any, precomputedPercent?: number): void {
     debug(formatString('{0}, value update to {1}', stat, value));
     let percent;
     switch (stat) {
@@ -45,13 +45,14 @@ function handleStatus(stat: string, value: any): void {
         qs('#bwProcessingSpanWaiting')!.textContent = formatString('{0} ({1}%)', value, percent);
         break;
       case 'domains.sent':
-        percent =
-          parseFloat(
-            (
-              (value / parseInt(qs('#bwProcessingSpanTotal')!.textContent || '0', base)) *
-              100
-            ).toFixed(1)
-          ) || 0;
+        percent = precomputedPercent != null
+          ? parseFloat(precomputedPercent.toFixed(1))
+          : parseFloat(
+              (
+                (value / parseInt(qs('#bwProcessingSpanTotal')!.textContent || '0', base)) *
+                100
+              ).toFixed(1)
+            ) || 0;
         qs('#bwProcessingSpanSent')!.textContent = formatString('{0} ({1}%)', value, percent);
         break;
       case 'domains.total':

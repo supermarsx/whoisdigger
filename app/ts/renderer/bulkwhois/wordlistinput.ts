@@ -1,9 +1,8 @@
 import { settings } from '../settings-renderer.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
-import { aiSuggest, bulkWhoisLookup, listen } from '../../common/tauriBridge.js';
+import { aiSuggest, bulkWhoisLookup, bulkEstimateTime, listen } from '../../common/tauriBridge.js';
 
 import { tableReset } from './auxiliary.js';
-import { getTimeEstimates } from './estimate.js';
 
 const debug = debugFactory('bulkwhois.wordlistinput');
 const error = errorFactory('bulkwhois.wordlistinput');
@@ -41,9 +40,7 @@ document.getElementById('bwSuggestButton')?.addEventListener('click', async () =
   electron.on('bulkwhois:wordlistinput.confirmation', function() {...});
     Wordlist input, contents confirmation container
  */
-function handleWordlistConfirmation(): void {
-  const bwFileStats: Record<string, any> = {};
-
+async function handleWordlistConfirmation(): Promise<void> {
   const textarea = document.getElementById(
     'bwWordlistTextareaDomains'
   ) as HTMLTextAreaElement | null;
@@ -57,12 +54,14 @@ function handleWordlistConfirmation(): void {
   } else {
     const infoSpan = document.getElementById('bwWordlistSpanInfo');
     infoSpan && (infoSpan.textContent = 'Loading wordlist stats...');
-    infoSpan && (infoSpan.textContent = 'Getting line count...');
-    bwFileStats['linecount'] = bwWordlistContents.toString().split('\n').length;
+    const lineCount = bwWordlistContents.toString().split('\n').length;
 
-    const estimate = getTimeEstimates(bwFileStats['linecount'], settings);
-    bwFileStats['minestimate'] = estimate.min;
-    bwFileStats['maxestimate'] = estimate.max;
+    const estimate = await bulkEstimateTime(lineCount, {
+      timeBetween: settings.lookupGeneral.timeBetween,
+      randomize: settings.lookupRandomizeTimeBetween.randomize,
+      timeBetweenMin: settings.lookupRandomizeTimeBetween.minimum,
+      timeBetweenMax: settings.lookupRandomizeTimeBetween.maximum,
+    });
 
     if (estimate.max) {
       const minSpan = document.getElementById('bwWordlistSpanTimebetweenmin');
@@ -78,33 +77,31 @@ function handleWordlistConfirmation(): void {
       estTd &&
         (estTd.textContent = formatString(
           '{0} to {1}',
-          bwFileStats['minestimate'],
-          bwFileStats['maxestimate']
+          estimate.min,
+          estimate.max
         ));
     } else {
       document.getElementById('bwWordlistSpanTimebetweenminmax')?.classList.add('is-hidden');
       const minSpan = document.getElementById('bwWordlistSpanTimebetweenmin');
       minSpan && (minSpan.textContent = `${settings.lookupGeneral.timeBetween}ms`);
       const estTd = document.getElementById('bwWordlistTdEstimate');
-      estTd && (estTd.textContent = formatString('> {0}', bwFileStats['minestimate']));
+      estTd && (estTd.textContent = formatString('> {0}', estimate.min));
     }
 
-    bwFileStats['filepreview'] = bwWordlistContents.toString().substring(0, 50);
+    const filepreview = bwWordlistContents.toString().substring(0, 50);
     document.getElementById('bwWordlistloading')?.classList.add('is-hidden');
     confirmEl?.classList.remove('is-hidden');
 
     // stats
     const domainsTd = document.getElementById('bwWordlistTdDomains');
-    domainsTd && (domainsTd.textContent = formatString('{0} line(s)', bwFileStats['linecount']));
+    domainsTd && (domainsTd.textContent = formatString('{0} line(s)', lineCount));
     const previewTd = document.getElementById('bwWordlistTdFilepreview');
-    previewTd && (previewTd.textContent = bwFileStats['filepreview'] + '...');
+    previewTd && (previewTd.textContent = filepreview + '...');
   }
-
-  return;
 }
 
 void listen(IpcChannel.BulkwhoisWordlistInputConfirmation, () => {
-  handleWordlistConfirmation();
+  void handleWordlistConfirmation();
 });
 
 /*
@@ -132,7 +129,7 @@ document.getElementById('bwWordlistinputButtonCancel')?.addEventListener('click'
 document.getElementById('bwWordlistinputButtonConfirm')?.addEventListener('click', () => {
   document.getElementById('bwWordlistinput')?.classList.add('is-hidden');
   // BulkwhoisInputWordlist is a client-side noop in Tauri
-  handleWordlistConfirmation();
+  void handleWordlistConfirmation();
 });
 
 /*
