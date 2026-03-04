@@ -999,6 +999,34 @@ async fn bulk_whois_lookup_from_file<R: Runtime>(
     bulk_whois_lookup(app_handle, data, domains, tlds, concurrency, timeout_ms).await
 }
 
+/// Bulk WHOIS lookup from raw text content — avoids JS-side `.split('\n')`
+/// and array serialisation over IPC. Splits & trims lines server-side via
+/// rayon `par_lines()`, then delegates to the existing
+/// `bulk_whois_lookup` pipeline.
+#[tauri::command]
+async fn bulk_whois_lookup_from_content<R: Runtime>(
+    app_handle: tauri::AppHandle<R>,
+    data: State<'_, AppData>,
+    content: String,
+    tlds: Option<Vec<String>>,
+    concurrency: usize,
+    timeout_ms: u64,
+) -> Result<Vec<BulkResult>, String> {
+    // Parse lines in parallel using rayon
+    let domains: Vec<String> = tokio::task::spawn_blocking(move || {
+        content
+            .par_lines()
+            .map(|l| l.trim().to_string())
+            .filter(|l| !l.is_empty())
+            .collect()
+    })
+    .await
+    .map_err(|e| e.to_string())?;
+
+    // Delegate to the existing bulk_whois_lookup logic
+    bulk_whois_lookup(app_handle, data, domains, tlds, concurrency, timeout_ms).await
+}
+
 // ─── Export Commands ─────────────────────────────────────────────────────────
 
 #[tauri::command]
@@ -1429,6 +1457,102 @@ async fn bwa_analyser_start(data: serde_json::Value) -> Result<serde_json::Value
     }))
 }
 
+/// Pre-generate BWA table HTML server-side — avoids N×M `createElement` calls
+/// in the renderer. Builds `<thead>` and `<tbody>` HTML from the analysis
+/// records. Column headers are abbreviated to initials (matching the
+/// client-side `getInitials` logic). Row generation uses rayon `par_iter()`
+/// for large datasets.
+#[tauri::command]
+async fn bwa_render_table_html(records: Vec<serde_json::Value>) -> Result<serde_json::Value, String> {
+    if records.is_empty() {
+        return Ok(serde_json::json!({ "thead": "", "tbody": "" }));
+    }
+
+    // Extract column keys from the first record
+    let columns: Vec<String> = records[0]
+        .as_object()
+        .map(|m| m.keys().cloned().collect())
+        .unwrap_or_default();
+
+    // Build thead: single <tr> with <th><abbr title="col">initials</abbr></th>
+    let thead = {
+        let mut html = String::from("<tr>");
+        for col in &columns {
+            let initials = get_initials(col, 1);
+            html.push_str(&format!(
+                "<th><abbr title=\"{}\">{}</abbr></th>",
+                html_escape(col),
+                html_escape(&initials)
+            ));
+        }
+        html.push_str("</tr>");
+        html
+    };
+
+    // Build tbody rows in parallel with rayon
+    let cols = columns.clone();
+    let tbody = tokio::task::spawn_blocking(move || {
+        let rows: Vec<String> = records
+            .par_iter()
+            .map(|record| {
+                let mut row = String::from("<tr>");
+                for col in &cols {
+                    let val = record
+                        .get(col)
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("");
+                    row.push_str("<td>");
+                    row.push_str(&html_escape(val));
+                    row.push_str("</td>");
+                }
+                row.push_str("</tr>");
+                row
+            })
+            .collect();
+        rows.join("")
+    })
+    .await
+    .map_err(|e| e.to_string())?;
+
+    Ok(serde_json::json!({ "thead": thead, "tbody": tbody }))
+}
+
+/// Minimal HTML escaping for text content injected into table cells.
+fn html_escape(s: &str) -> String {
+    s.replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+}
+
+/// Mirrors the frontend `getInitials` logic: extract the first letter of each
+/// word boundary. Falls back to a prefix substring when initials are too short.
+fn get_initials(s: &str, threshold: usize) -> String {
+    let initials: Vec<char> = s
+        .split(|c: char| !c.is_alphanumeric())
+        .filter(|w| !w.is_empty())
+        .filter_map(|w| w.chars().next())
+        .collect();
+
+    if initials.len() > threshold {
+        initials.into_iter().collect()
+    } else {
+        s.chars().take(threshold + 1).collect()
+    }
+}
+
+/// Count lines in a text blob — runs server-side so the frontend doesn't have
+/// to materialise a full `.split('\n')` array just to get the count.
+#[tauri::command]
+fn count_lines(text: String) -> usize {
+    if text.is_empty() {
+        0
+    } else {
+        // Count newlines + 1 (matching JS `str.split('\n').length` semantics)
+        text.as_bytes().iter().filter(|&&b| b == b'\n').count() + 1
+    }
+}
+
 // ─── Stats Commands ──────────────────────────────────────────────────────────
 
 fn get_dir_size(path: &Path) -> u64 {
@@ -1760,6 +1884,7 @@ fn main() {
             // Bulk WHOIS
             bulk_whois_lookup,
             bulk_whois_lookup_from_file,
+            bulk_whois_lookup_from_content,
             bulk_whois_pause,
             bulk_whois_continue,
             bulk_whois_stop,
@@ -1800,6 +1925,9 @@ fn main() {
             csv_parse_file,
             // BWA
             bwa_analyser_start,
+            bwa_render_table_html,
+            // Text
+            count_lines,
             // Path
             path_join,
             path_basename,
@@ -2754,5 +2882,95 @@ mod tests {
         let (min, max) = compute_estimates(0, 1000, 500, 2000, true);
         assert_eq!(min, "-");
         assert_eq!(max.unwrap(), "-");
+    }
+
+    // ── count_lines ─────────────────────────────────────────────────────
+
+    #[test]
+    fn test_count_lines_empty() {
+        assert_eq!(count_lines(String::new()), 0);
+    }
+
+    #[test]
+    fn test_count_lines_single_line() {
+        assert_eq!(count_lines("hello".into()), 1);
+    }
+
+    #[test]
+    fn test_count_lines_multiple() {
+        assert_eq!(count_lines("a\nb\nc".into()), 3);
+    }
+
+    #[test]
+    fn test_count_lines_trailing_newline() {
+        // "a\nb\n" → split('\n') in JS produces ["a","b",""] → length 3
+        assert_eq!(count_lines("a\nb\n".into()), 3);
+    }
+
+    // ── html_escape ─────────────────────────────────────────────────────
+
+    #[test]
+    fn test_html_escape_plain() {
+        assert_eq!(html_escape("hello"), "hello");
+    }
+
+    #[test]
+    fn test_html_escape_special_chars() {
+        assert_eq!(html_escape("<b>bold & \"fine\"</b>"), "&lt;b&gt;bold &amp; &quot;fine&quot;&lt;/b&gt;");
+    }
+
+    // ── get_initials ────────────────────────────────────────────────────
+
+    #[test]
+    fn test_get_initials_multi_word() {
+        assert_eq!(get_initials("expiry date", 1), "ed");
+    }
+
+    #[test]
+    fn test_get_initials_single_word() {
+        assert_eq!(get_initials("domain", 1), "do");
+    }
+
+    #[test]
+    fn test_get_initials_camel_case() {
+        // "expiryDate" has no word boundary split, so it's a single word
+        assert_eq!(get_initials("expiryDate", 1), "ex");
+    }
+
+    // ── bwa_render_table_html ───────────────────────────────────────────
+
+    #[tokio::test]
+    async fn test_bwa_render_table_html_empty() {
+        let result = bwa_render_table_html(vec![]).await.unwrap();
+        assert_eq!(result["thead"], "");
+        assert_eq!(result["tbody"], "");
+    }
+
+    #[tokio::test]
+    async fn test_bwa_render_table_html_basic() {
+        let records = vec![
+            serde_json::json!({"domain": "example.com", "status": "available"}),
+            serde_json::json!({"domain": "test.org", "status": "unavailable"}),
+        ];
+        let result = bwa_render_table_html(records).await.unwrap();
+        let thead = result["thead"].as_str().unwrap();
+        let tbody = result["tbody"].as_str().unwrap();
+        assert!(thead.contains("<th>"));
+        assert!(thead.contains("domain"));
+        assert!(tbody.contains("example.com"));
+        assert!(tbody.contains("test.org"));
+        assert!(tbody.contains("available"));
+        assert!(tbody.contains("unavailable"));
+    }
+
+    #[tokio::test]
+    async fn test_bwa_render_table_html_escapes() {
+        let records = vec![
+            serde_json::json!({"name": "<script>alert(1)</script>"}),
+        ];
+        let result = bwa_render_table_html(records).await.unwrap();
+        let tbody = result["tbody"].as_str().unwrap();
+        assert!(!tbody.contains("<script>"));
+        assert!(tbody.contains("&lt;script&gt;"));
     }
 }

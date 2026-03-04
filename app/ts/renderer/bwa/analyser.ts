@@ -1,4 +1,5 @@
 import { qs, on } from '../../utils/dom.js';
+import { bwaRenderTableHtml } from '../../common/tauriBridge.js';
 // jQuery and DataTables are loaded globally via renderer/index.ts
 
 import { debugFactory } from '../../common/logger.js';
@@ -65,27 +66,10 @@ async function showTable() {
   tbody.textContent = '';
 
   if (records.length > 0) {
-    const columns = Object.keys(records[0]);
-    const headerRow = document.createElement('tr');
-    for (const column of columns) {
-      const th = document.createElement('th');
-      const abbr = document.createElement('abbr');
-      abbr.setAttribute('title', String(column));
-      abbr.textContent = getInitials(column);
-      th.appendChild(abbr);
-      headerRow.appendChild(th);
-    }
-    thead.appendChild(headerRow);
-
-    for (const record of records) {
-      const row = document.createElement('tr');
-      for (const value of Object.values(record)) {
-        const td = document.createElement('td');
-        td.textContent = value == null ? '' : String(value);
-        row.appendChild(td);
-      }
-      tbody.appendChild(row);
-    }
+    // Render table HTML server-side via rayon — avoids N×M createElement calls
+    const html = await bwaRenderTableHtml(records);
+    thead.innerHTML = html.thead;
+    tbody.innerHTML = html.tbody;
   }
 
   qs('#bwaFileinputconfirm')!.classList.add('is-hidden');
@@ -93,20 +77,4 @@ async function showTable() {
   if (typeof DT === 'function' && records.length > 0) {
     new DT('#bwaAnalyserTable');
   }
-}
-
-/*
-  getInitials
-    ipsum
-  parameters
-    string
-    threshold
- */
-function getInitials(str: string, threshold = 1): string {
-  let initials = str.match(/\b\w/g) || [];
-
-  const result =
-    initials.length > threshold ? initials.join('').toString() : str.substring(0, threshold + 1);
-
-  return result;
 }

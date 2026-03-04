@@ -273,10 +273,40 @@ export async function bulkWhoisExport(
   return tauriInvoke('bulk_whois_export', { results, options, path: filePath });
 }
 
+/**
+ * Bulk WHOIS lookup from raw text content — avoids JS-side .split('\n')
+ * and array serialisation. Splits & trims lines server-side via rayon.
+ */
+export function bulkWhoisLookupFromContent(
+  content: string,
+  tlds?: string[],
+  concurrency = 4,
+  timeoutMs = 5000
+): Promise<void> {
+  return tauriInvoke('bulk_whois_lookup_from_content', {
+    content,
+    tlds: tlds ?? null,
+    concurrency,
+    timeoutMs,
+  });
+}
+
 // ─── BWA (Bulk Whois Analyser) ─────────────────────────────────────────────
 
 export function bwaAnalyserStart(data: unknown): Promise<unknown> {
   return tauriInvoke('bwa_analyser_start', { data });
+}
+
+/**
+ * Pre-render BWA table HTML server-side — avoids N×M createElement calls.
+ * Returns { thead: string, tbody: string }
+ */
+export function bwaRenderTableHtml(
+  records: Record<string, unknown>[]
+): Promise<{ thead: string; tbody: string }> {
+  return tauriInvoke<{ thead: string; tbody: string }>('bwa_render_table_html', {
+    records,
+  });
 }
 
 // ─── Text Operations ────────────────────────────────────────────────────────
@@ -729,6 +759,14 @@ export namespace app {
 
 export function i18nLoad(lang: string): Promise<string> {
   return tauriInvoke<string>('i18n_load', { lang });
+}
+
+/**
+ * Count lines in a text blob server-side — avoids materialising a full
+ * .split('\n') array in JS just for a length check.
+ */
+export function countLines(text: string): Promise<number> {
+  return tauriInvoke<number>('count_lines', { text });
 }
 
 // ─── AI ─────────────────────────────────────────────────────────────────────

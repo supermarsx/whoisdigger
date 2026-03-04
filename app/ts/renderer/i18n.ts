@@ -1,4 +1,4 @@
-import { app, fs, path } from '../common/tauriBridge.js';
+import { i18nLoad } from '../common/tauriBridge.js';
 import Handlebars from '../../vendor/handlebars.runtime.js';
 import { debugFactory } from '../common/logger.js';
 
@@ -9,15 +9,12 @@ let translations: Record<string, string> = {};
 export async function loadTranslations(lang?: string): Promise<void> {
   const detected = (lang ?? navigator.language ?? 'en').split('-')[0];
   try {
-    const base = await app.getBaseDir();
-    const p = path.join(base || '', '..', 'locales', `${detected}.json`);
-    const raw = await fs.readFile(p);
+    const raw = await i18nLoad(detected);
     translations = JSON.parse(raw) as Record<string, string>;
   } catch {
+    // Fallback to English
     try {
-      const base = await app.getBaseDir();
-      const p = path.join(base || '', '..', 'locales', `en.json`);
-      const raw = await fs.readFile(p);
+      const raw = await i18nLoad('en');
       translations = JSON.parse(raw) as Record<string, string>;
     } catch {
       translations = {};

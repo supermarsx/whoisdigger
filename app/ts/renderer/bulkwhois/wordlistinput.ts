@@ -1,6 +1,6 @@
 import { settings } from '../settings-renderer.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
-import { aiSuggest, bulkWhoisLookup, bulkEstimateTime, listen } from '../../common/tauriBridge.js';
+import { aiSuggest, bulkWhoisLookupFromContent, bulkEstimateTime, countLines, listen } from '../../common/tauriBridge.js';
 
 import { tableReset } from './auxiliary.js';
 
@@ -54,7 +54,7 @@ async function handleWordlistConfirmation(): Promise<void> {
   } else {
     const infoSpan = document.getElementById('bwWordlistSpanInfo');
     infoSpan && (infoSpan.textContent = 'Loading wordlist stats...');
-    const lineCount = bwWordlistContents.toString().split('\n').length;
+    const lineCount = await countLines(bwWordlistContents);
 
     const estimate = await bulkEstimateTime(lineCount, {
       timeBetween: settings.lookupGeneral.timeBetween,
@@ -146,18 +146,18 @@ document.getElementById('bwWordlistconfirmButtonCancel')?.addEventListener('clic
     Wordlist input, proceed to bulk whois
  */
 document.getElementById('bwWordlistconfirmButtonStart')?.addEventListener('click', () => {
-  const bwDomainArray = bwWordlistContents
-    .toString()
-    .split('\n')
-    .map(Function.prototype.call, String.prototype.trim);
   const tldsInput = document.getElementById('bwWordlistInputTlds') as HTMLInputElement | null;
   const bwTldsArray = (tldsInput?.value ?? '').toString().split(',');
 
-  tableReset(bwDomainArray.length, bwTldsArray.length);
-  document.getElementById('bwWordlistconfirm')?.classList.add('is-hidden');
-  document.getElementById('bwProcessing')?.classList.remove('is-hidden');
+  // Count lines server-side for tableReset dimension
+  void countLines(bwWordlistContents).then((lineCount) => {
+    tableReset(lineCount, bwTldsArray.length);
+    document.getElementById('bwWordlistconfirm')?.classList.add('is-hidden');
+    document.getElementById('bwProcessing')?.classList.remove('is-hidden');
 
-  void bulkWhoisLookup(bwDomainArray, bwTldsArray);
+    // Splitting, trimming & lookup all happen server-side via rayon
+    void bulkWhoisLookupFromContent(bwWordlistContents, bwTldsArray);
+  });
 });
 
 /*

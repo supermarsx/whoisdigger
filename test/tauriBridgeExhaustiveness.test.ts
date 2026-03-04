@@ -46,6 +46,7 @@ describe('tauriBridge export exhaustiveness', () => {
     // Bulk WHOIS
     'bulkWhoisLookup',
     'bulkWhoisLookupFromFile',
+    'bulkWhoisLookupFromContent',
     'bulkWhoisPause',
     'bulkWhoisContinue',
     'bulkWhoisStop',
@@ -54,12 +55,14 @@ describe('tauriBridge export exhaustiveness', () => {
 
     // BWA
     'bwaAnalyserStart',
+    'bwaRenderTableHtml',
 
     // Text / CSV
     'toProcess',
     'parseCsv',
     'csvParseFile',
     'wordlistTransform',
+    'countLines',
 
     // Dialogs
     'openFileDialog',
