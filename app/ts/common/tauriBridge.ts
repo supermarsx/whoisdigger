@@ -757,8 +757,8 @@ export namespace app {
 
 // ─── I18n ───────────────────────────────────────────────────────────────────
 
-export function i18nLoad(lang: string): Promise<string> {
-  return tauriInvoke<string>('i18n_load', { lang });
+export function i18nLoad(lang: string): Promise<Record<string, string>> {
+  return tauriInvoke<Record<string, string>>('i18n_load', { lang });
 }
 
 /**

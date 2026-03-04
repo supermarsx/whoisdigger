@@ -1,5 +1,4 @@
 import { qs, on } from '../../utils/dom.js';
-import { IpcChannel } from '../../common/ipcChannels.js';
 import { debugFactory } from '../../common/logger.js';
 import { bulkWhoisContinue, bulkWhoisPause, bulkWhoisStop } from '../../common/tauriBridge.js';
 

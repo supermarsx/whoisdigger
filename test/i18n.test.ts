@@ -18,7 +18,7 @@ describe('i18n loader', () => {
   });
 
   test('loads translations and registers helper', async () => {
-    mockI18nLoad.mockResolvedValue('{"hello":"world"}');
+    mockI18nLoad.mockResolvedValue({ hello: 'world' });
     const {
       loadTranslations,
       registerTranslationHelpers,
@@ -33,7 +33,7 @@ describe('i18n loader', () => {
   });
 
   test('falls back to navigator language when setting missing', async () => {
-    mockI18nLoad.mockResolvedValue('{"hello":"bonjour"}');
+    mockI18nLoad.mockResolvedValue({ hello: 'bonjour' });
     Object.defineProperty(window.navigator, 'language', {
       value: 'fr-FR',
       configurable: true

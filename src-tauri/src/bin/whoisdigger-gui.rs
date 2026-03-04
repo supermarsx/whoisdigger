@@ -520,7 +520,7 @@ async fn shell_open_path<R: Runtime>(app_handle: tauri::AppHandle<R>, path: Stri
 // ─── I18n Commands ───────────────────────────────────────────────────────────
 
 #[tauri::command]
-async fn i18n_load<R: Runtime>(app_handle: tauri::AppHandle<R>, lang: String) -> Result<String, String> {
+async fn i18n_load<R: Runtime>(app_handle: tauri::AppHandle<R>, lang: String) -> Result<serde_json::Value, String> {
     let filename = format!("{}.json", lang);
 
     // Try resource dir first (production)
@@ -528,7 +528,8 @@ async fn i18n_load<R: Runtime>(app_handle: tauri::AppHandle<R>, lang: String) ->
         for prefix in &["dist/app/locales", "locales"] {
             let path = resource_dir.join(prefix).join(&filename);
             if path.exists() {
-                return tokio::fs::read_to_string(path).await.map_err(|e| e.to_string());
+                let raw = tokio::fs::read_to_string(path).await.map_err(|e| e.to_string())?;
+                return serde_json::from_str(&raw).map_err(|e| e.to_string());
             }
         }
     }
@@ -538,11 +539,12 @@ async fn i18n_load<R: Runtime>(app_handle: tauri::AppHandle<R>, lang: String) ->
     for prefix in &["dist/app/locales", "app/locales"] {
         let path = cwd.join(prefix).join(&filename);
         if path.exists() {
-            return tokio::fs::read_to_string(path).await.map_err(|e| e.to_string());
+            let raw = tokio::fs::read_to_string(path).await.map_err(|e| e.to_string())?;
+            return serde_json::from_str(&raw).map_err(|e| e.to_string());
         }
     }
 
-    Ok("{}".to_string())
+    Ok(serde_json::json!({}))
 }
 
 // ─── App Path Commands ───────────────────────────────────────────────────────

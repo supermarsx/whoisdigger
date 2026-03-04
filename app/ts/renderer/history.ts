@@ -117,19 +117,13 @@ async function fetchAndRender(): Promise<void> {
   qs('#historyEmpty')!.classList.add('is-hidden');
   const start = result.page * result.pageSize;
   const end = start + result.entries.length;
-  for (const e of result.entries) {
-    const row = document.createElement('tr');
-    const tdDomain = document.createElement('td');
-    tdDomain.textContent = e.domain;
-    row.appendChild(tdDomain);
-    const tdStatus = document.createElement('td');
-    tdStatus.textContent = e.status;
-    row.appendChild(tdStatus);
-    const tdDate = document.createElement('td');
-    tdDate.textContent = formatDate(e.timestamp);
-    row.appendChild(tdDate);
-    tbody.appendChild(row);
-  }
+
+  // Build all rows as a single HTML string to minimise DOM thrashing
+  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const html = result.entries
+    .map(e => `<tr><td>${esc(e.domain)}</td><td>${esc(e.status)}</td><td>${esc(formatDate(e.timestamp))}</td></tr>`)
+    .join('');
+  tbody.innerHTML = html;
   (qs('#historyStatus') as HTMLElement | null)!.textContent =
     `${start + 1}-${end} of ${result.total}`;
 }

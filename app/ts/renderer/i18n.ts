@@ -9,13 +9,11 @@ let translations: Record<string, string> = {};
 export async function loadTranslations(lang?: string): Promise<void> {
   const detected = (lang ?? navigator.language ?? 'en').split('-')[0];
   try {
-    const raw = await i18nLoad(detected);
-    translations = JSON.parse(raw) as Record<string, string>;
+    translations = await i18nLoad(detected);
   } catch {
     // Fallback to English
     try {
-      const raw = await i18nLoad('en');
-      translations = JSON.parse(raw) as Record<string, string>;
+      translations = await i18nLoad('en');
     } catch {
       translations = {};
     }
