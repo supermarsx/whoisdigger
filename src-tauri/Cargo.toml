@@ -33,6 +33,7 @@ whois-rust = "1.5.1"
 thiserror = "1"
 anyhow = "1"
 log = "0.4"
+tokio-postgres = "0.7"
 
 # Internal crates (workspace path references)
 wd-parser = { path = "crates/wd-parser" }

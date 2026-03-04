@@ -1,9 +1,28 @@
 [package]
 name = "wd-proxy"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
-description = "Proxy selection, rotation, and failure tracking for WHOIS lookups"
+description = "Proxy management with RBAC, adaptive caching (in-memory/JSON/SQLite/PostgreSQL), and WHOIS rotation"
+
+[features]
+default = ["sqlite"]
+sqlite = ["rusqlite"]
+postgres = ["tokio-postgres", "tokio"]
 
 [dependencies]
 serde.workspace = true
+serde_json.workspace = true
 rand.workspace = true
+chrono.workspace = true
+log.workspace = true
+thiserror.workspace = true
+
+# Optional: SQLite backend
+rusqlite = { workspace = true, optional = true }
+
+# Optional: PostgreSQL backend
+tokio-postgres = { version = "0.7", optional = true }
+tokio = { workspace = true, optional = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt", "macros"] }
