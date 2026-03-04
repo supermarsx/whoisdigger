@@ -3,7 +3,7 @@
 
 use whoisdigger::{
     perform_lookup, perform_lookup_with_settings, dns_lookup, rdap_lookup,
-    db_history_add, db_history_get, db_cache_get, db_cache_set,
+    db_history_add, db_history_get, db_history_get_filtered, db_cache_get, db_cache_set,
     availability::{
         is_domain_available, is_domain_available_with_settings,
         get_domain_parameters,
@@ -31,6 +31,7 @@ use std::path::{Path, PathBuf};
 use serde::{Serialize, Deserialize};
 use rusqlite::Connection;
 use std::io::Write;
+use rayon::prelude::*;
 
 // ─── Utility Functions ────────────────────────────────────────────────────────
 
@@ -152,6 +153,12 @@ struct AppStats {
     read_write: bool,
     #[serde(rename = "dataPath")]
     data_path: String,
+    /// Pre-formatted human-readable config file size (SI units).
+    #[serde(rename = "configSizeHuman")]
+    config_size_human: String,
+    /// Pre-formatted human-readable data directory size (SI units).
+    #[serde(rename = "dataSizeHuman")]
+    data_size_human: String,
 }
 
 struct StatsWatcher {
@@ -654,6 +661,58 @@ async fn db_gui_history_get<R: Runtime>(app_handle: tauri::AppHandle<R>, limit: 
         .map_err(|e| e.to_string())?
 }
 
+/// Filtered history query result with entries and total count.
+#[derive(Serialize, Clone)]
+struct HistoryPage {
+    entries: Vec<HistoryEntry>,
+    total: u32,
+    page: u32,
+    #[serde(rename = "pageSize")]
+    page_size: u32,
+}
+
+/// Filtered, paginated history query. Performs domain search, status filter,
+/// and date-range restriction entirely in SQL for O(log n) performance on large
+/// history databases. All params are optional — omit for unfiltered.
+#[tauri::command]
+async fn db_gui_history_get_filtered<R: Runtime>(
+    app_handle: tauri::AppHandle<R>,
+    query: Option<String>,
+    status: Option<String>,
+    days: Option<u32>,
+    page: Option<u32>,
+    page_size: Option<u32>,
+) -> Result<HistoryPage, String> {
+    let profile = get_current_profile(&app_handle)?;
+    let path = get_profile_dir(&app_handle, &profile)?.join(format!("history-{}.sqlite", profile));
+    if !path.exists() {
+        return Ok(HistoryPage { entries: Vec::new(), total: 0, page: 0, page_size: page_size.unwrap_or(50) });
+    }
+    let path_str = path.to_string_lossy().to_string();
+    let pg = page.unwrap_or(0);
+    let ps = page_size.unwrap_or(50);
+    let since_ms = days.map(|d| {
+        chrono::Utc::now().timestamp_millis() - (d as i64 * 86_400_000)
+    });
+    let q = query.clone();
+    let s = status.clone();
+
+    let (entries, total) = tokio::task::spawn_blocking(move || {
+        db_history_get_filtered(
+            &path_str,
+            q.as_deref(),
+            s.as_deref(),
+            since_ms,
+            pg,
+            ps,
+        )
+    })
+    .await
+    .map_err(|e| e.to_string())??;
+
+    Ok(HistoryPage { entries, total, page: pg, page_size: ps })
+}
+
 #[tauri::command]
 async fn db_gui_history_clear<R: Runtime>(app_handle: tauri::AppHandle<R>) -> Result<(), String> {
     let profile = get_current_profile(&app_handle)?;
@@ -909,6 +968,35 @@ async fn bulk_whois_stop(data: State<'_, AppData>) -> Result<(), String> {
     state.stopped = true;
     state.paused = false;
     Ok(())
+}
+
+/// Bulk WHOIS lookup directly from a file path — avoids sending the full file
+/// content over IPC. Reads, splits lines, trims, and launches the lookup
+/// pipeline entirely server-side via `tokio::fs` + `rayon`.
+#[tauri::command]
+async fn bulk_whois_lookup_from_file<R: Runtime>(
+    app_handle: tauri::AppHandle<R>,
+    data: State<'_, AppData>,
+    path: String,
+    tlds: Option<Vec<String>>,
+    concurrency: usize,
+    timeout_ms: u64,
+) -> Result<Vec<BulkResult>, String> {
+    let raw = tokio::fs::read_to_string(&path)
+        .await
+        .map_err(|e| format!("Failed to read {}: {}", path, e))?;
+    // Parse lines in parallel using rayon (faster for large files)
+    let domains: Vec<String> = tokio::task::spawn_blocking(move || {
+        raw.par_lines()
+            .map(|l| l.trim().to_string())
+            .filter(|l| !l.is_empty())
+            .collect()
+    })
+    .await
+    .map_err(|e| e.to_string())?;
+
+    // Delegate to the existing bulk_whois_lookup logic
+    bulk_whois_lookup(app_handle, data, domains, tlds, concurrency, timeout_ms).await
 }
 
 // ─── Export Commands ─────────────────────────────────────────────────────────
@@ -1205,6 +1293,15 @@ async fn csv_parse(content: String) -> Result<serde_json::Value, String> {
     Ok(serde_json::Value::Array(records))
 }
 
+/// Parse a CSV file directly from a file path (avoids file content crossing IPC).
+#[tauri::command]
+async fn csv_parse_file(path: String) -> Result<serde_json::Value, String> {
+    let content = tokio::fs::read_to_string(&path)
+        .await
+        .map_err(|e| format!("Failed to read {}: {}", path, e))?;
+    csv_parse(content).await
+}
+
 // ─── BWA Analyser Commands ──────────────────────────────────────────────────
 
 /// Extract TLD from a domain string (e.g., "example.com" → "com").
@@ -1335,12 +1432,14 @@ async fn bwa_analyser_start(data: serde_json::Value) -> Result<serde_json::Value
 // ─── Stats Commands ──────────────────────────────────────────────────────────
 
 fn get_dir_size(path: &Path) -> u64 {
-    WalkDir::new(path)
+    let entries: Vec<_> = WalkDir::new(path)
         .into_iter()
-        .filter_map(|entry| entry.ok())
+        .filter_map(|e| e.ok())
+        .collect();
+    entries.par_iter()
         .filter_map(|entry| entry.metadata().ok())
-        .filter(|metadata| metadata.is_file())
-        .map(|metadata| metadata.len())
+        .filter(|m| m.is_file())
+        .map(|m| m.len())
         .sum()
 }
 
@@ -1362,9 +1461,20 @@ async fn compute_stats_internal(config_path: String, data_path: String) -> AppSt
         }
     }
 
-    let size = if data_p.exists() { get_dir_size(data_p) } else { 0 };
+    // Use spawn_blocking for rayon-powered directory size calculation
+    let dp = data_p.to_path_buf();
+    let size = if dp.exists() {
+        tokio::task::spawn_blocking(move || get_dir_size(&dp))
+            .await
+            .unwrap_or(0)
+    } else {
+        0
+    };
 
-    AppStats { mtime, loaded, size, config_path, config_size, read_write, data_path }
+    let config_size_human = byte_to_human_file_size(config_size, true);
+    let data_size_human = byte_to_human_file_size(size, true);
+
+    AppStats { mtime, loaded, size, config_path, config_size, read_write, data_path, config_size_human, data_size_human }
 }
 
 #[tauri::command]
@@ -1639,6 +1749,7 @@ fn main() {
             app_get_user_data_path,
             // History
             db_gui_history_get,
+            db_gui_history_get_filtered,
             db_gui_history_clear,
             history_merge,
             // Cache
@@ -1648,6 +1759,7 @@ fn main() {
             cache_merge,
             // Bulk WHOIS
             bulk_whois_lookup,
+            bulk_whois_lookup_from_file,
             bulk_whois_pause,
             bulk_whois_continue,
             bulk_whois_stop,
@@ -1685,6 +1797,7 @@ fn main() {
             to_process,
             // CSV
             csv_parse,
+            csv_parse_file,
             // BWA
             bwa_analyser_start,
             // Path
@@ -2479,12 +2592,16 @@ mod tests {
             config_size: 512,
             read_write: true,
             data_path: "/path/data".into(),
+            config_size_human: "512 B".into(),
+            data_size_human: "2.0 kB".into(),
         };
         let json = serde_json::to_string(&stats).unwrap();
         assert!(json.contains("\"configPath\""));
         assert!(json.contains("\"configSize\""));
         assert!(json.contains("\"readWrite\""));
         assert!(json.contains("\"dataPath\""));
+        assert!(json.contains("\"configSizeHuman\""));
+        assert!(json.contains("\"dataSizeHuman\""));
     }
 
     // ── ProfileEntry serialization ───────────────────────────────────────

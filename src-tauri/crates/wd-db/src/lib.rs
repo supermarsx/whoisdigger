@@ -57,6 +57,105 @@ pub fn db_history_get(path: &str, limit: u32) -> Result<Vec<HistoryEntry>, Strin
     Ok(entries)
 }
 
+/// Filtered history query with optional domain search, status filter, date range,
+/// and pagination. Uses indexed SQL queries for performance with large histories.
+pub fn db_history_get_filtered(
+    path: &str,
+    query: Option<&str>,
+    status: Option<&str>,
+    since_ms: Option<i64>,
+    page: u32,
+    page_size: u32,
+) -> Result<(Vec<HistoryEntry>, u32), String> {
+    let conn = Connection::open(path).map_err(|e| e.to_string())?;
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS history(domain TEXT, timestamp INTEGER, status TEXT)",
+        [],
+    )
+    .map_err(|e| e.to_string())?;
+
+    // Create index on timestamp + domain for fast filtered queries
+    let _ = conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_history_ts ON history(timestamp DESC)",
+        [],
+    );
+    let _ = conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_history_domain ON history(domain)",
+        [],
+    );
+
+    // Build dynamic WHERE clause
+    let mut conditions: Vec<String> = Vec::new();
+    let mut params_vec: Vec<Box<dyn rusqlite::types::ToSql>> = Vec::new();
+
+    if let Some(q) = query {
+        if !q.is_empty() {
+            conditions.push("domain LIKE ?".into());
+            params_vec.push(Box::new(format!("%{}%", q)));
+        }
+    }
+    if let Some(s) = status {
+        if !s.is_empty() {
+            conditions.push("status = ?".into());
+            params_vec.push(Box::new(s.to_string()));
+        }
+    }
+    if let Some(since) = since_ms {
+        conditions.push("timestamp >= ?".into());
+        params_vec.push(Box::new(since));
+    }
+
+    let where_clause = if conditions.is_empty() {
+        String::new()
+    } else {
+        format!("WHERE {}", conditions.join(" AND "))
+    };
+
+    // Count total matching entries
+    let count_sql = format!("SELECT COUNT(*) FROM history {}", where_clause);
+    let params_refs: Vec<&dyn rusqlite::types::ToSql> = params_vec.iter().map(|p| p.as_ref()).collect();
+    let total: u32 = conn
+        .query_row(&count_sql, params_refs.as_slice(), |row| row.get(0))
+        .map_err(|e| e.to_string())?;
+
+    // Fetch page
+    let offset = page * page_size;
+    let data_sql = format!(
+        "SELECT domain, timestamp, status FROM history {} ORDER BY timestamp DESC LIMIT ? OFFSET ?",
+        where_clause
+    );
+    let mut data_params: Vec<Box<dyn rusqlite::types::ToSql>> = Vec::new();
+    if let Some(q) = query {
+        if !q.is_empty() { data_params.push(Box::new(format!("%{}%", q))); }
+    }
+    if let Some(s) = status {
+        if !s.is_empty() { data_params.push(Box::new(s.to_string())); }
+    }
+    if let Some(since) = since_ms {
+        data_params.push(Box::new(since));
+    }
+    data_params.push(Box::new(page_size));
+    data_params.push(Box::new(offset));
+
+    let data_refs: Vec<&dyn rusqlite::types::ToSql> = data_params.iter().map(|p| p.as_ref()).collect();
+    let mut stmt = conn.prepare(&data_sql).map_err(|e| e.to_string())?;
+    let rows = stmt
+        .query_map(data_refs.as_slice(), |row| {
+            Ok(HistoryEntry {
+                domain: row.get(0)?,
+                timestamp: row.get(1)?,
+                status: row.get(2)?,
+            })
+        })
+        .map_err(|e| e.to_string())?;
+
+    let mut entries = Vec::new();
+    for row in rows {
+        entries.push(row.map_err(|e| e.to_string())?);
+    }
+    Ok((entries, total))
+}
+
 /// Get a cached response by key, optionally checking TTL expiration.
 pub fn db_cache_get(path: &str, key: &str, ttl_ms: Option<u64>) -> Result<Option<String>, String> {
     if !Path::new(path).exists() {

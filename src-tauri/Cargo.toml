@@ -23,6 +23,7 @@ html-escape = "0.2"
 
 # Utilities
 rand = "0.8"
+rayon = "1.10"
 zip = "2"
 walkdir = "2"
 csv = "1"
@@ -92,6 +93,7 @@ futures = "0.3"
 walkdir.workspace = true
 zip.workspace = true
 csv.workspace = true
+rayon.workspace = true
 
 # CLI-specific
 indicatif = "0.17"
