@@ -35,7 +35,6 @@ import {
   customSettingsLoaded,
   getUserDataPath
 } from './settings-renderer.js';
-import { convertFileSize } from '../common/tauriBridge.js';
 import appDefaults, { appSettingsDescriptions } from '../appsettings.js';
 
 function getValue(path: string): any {
@@ -128,19 +127,16 @@ async function updateStats(data: {
   configSize: number;
   readWrite: boolean;
   dataPath: string;
+  configSizeHuman: string;
+  dataSizeHuman: string;
 }): Promise<void> {
-  const si = settings.lookupMisc.useStandardSize;
-  const [configHuman, dataHuman] = await Promise.all([
-    convertFileSize(data.configSize, si),
-    convertFileSize(data.size, si),
-  ]);
   qs('#stat-config-path')!.textContent = data.configPath;
-  qs('#stat-config-size')!.textContent = configHuman;
+  qs('#stat-config-size')!.textContent = data.configSizeHuman;
   qs('#stat-config-loaded')!.textContent = data.loaded ? 'Loaded' : 'Not loaded';
   qs('#stat-config-mtime')!.textContent = data.mtime ? new Date(data.mtime).toUTCString() : 'N/A';
   qs('#stat-config-perms')!.textContent = data.readWrite ? 'Read/Write' : 'Read only';
   qs('#stat-data-path')!.textContent = data.dataPath;
-  qs('#stat-data-size')!.textContent = dataHuman;
+  qs('#stat-data-size')!.textContent = data.dataSizeHuman;
 }
 
 const enumOptions: Record<string, string[]> = {

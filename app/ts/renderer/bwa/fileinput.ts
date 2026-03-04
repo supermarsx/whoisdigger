@@ -3,9 +3,8 @@ import { qs, on } from '../../utils/dom.js';
 import { settings } from '../settings-renderer.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
 import {
-  fs,
   watch,
-  parseCsv,
+  csvParseFile,
   openCsvJsonDialog,
   bwaAnalyserStart,
   fileInfo,
@@ -36,7 +35,7 @@ function renderBwaFileInfo(info: FileInfoResult, lineCount: number, preview: str
 async function refreshBwaFile(pathToFile: string): Promise<void> {
   try {
     const info = await fileInfo(pathToFile, { si: settings.lookupMisc.useStandardSize });
-    bwaFileContents = await parseCsv((await fs.readFile(pathToFile)).toString());
+    bwaFileContents = await csvParseFile(pathToFile);
     const lineCount = bwaFileContents.data.length;
     let preview = '';
     try {
@@ -84,7 +83,7 @@ async function handleFileConfirmation(
   try {
     info = await fileInfo(targetPath, { si: settings.lookupMisc.useStandardSize });
     qs('#bwaFileSpanInfo')!.textContent = 'Loading file contents...';
-    bwaFileContents = await parseCsv((await fs.readFile(targetPath)).toString());
+    bwaFileContents = await csvParseFile(targetPath);
   } catch (e) {
     error(`Failed to read file: ${e}`);
     qs('#bwaFileSpanInfo')!.textContent = 'Failed to load file';

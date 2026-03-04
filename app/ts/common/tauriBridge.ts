@@ -12,7 +12,22 @@ import type DomainStatus from './status.js';
 import type { ProcessOptions } from './tools.js';
 import type { BulkWhoisResults } from './bulkwhois/types.js';
 import type { ExportOptions } from './bulkwhois/export-helpers.js';
-import type { FileStats } from './fileStats.js';
+/** Base stat information mirroring Node's fs.Stats / Tauri's fs_stat */
+export interface FileStats {
+  size: number;
+  mtimeMs?: number;
+  mtime?: string | Date;
+  atime?: string | Date;
+  isDirectory?: boolean | (() => boolean);
+  isFile?: boolean | (() => boolean);
+  filename?: string;
+  humansize?: string;
+  linecount?: number;
+  minestimate?: string;
+  maxestimate?: string;
+  filepreview?: string;
+  errors?: string;
+}
 
 // ─── Shared Domain Types ────────────────────────────────────────────────────
 
@@ -225,6 +240,24 @@ export function bulkWhoisStop(): Promise<void> {
   return tauriInvoke('bulk_whois_stop');
 }
 
+/**
+ * Bulk WHOIS lookup from a file path — avoids sending multi-MB file content
+ * over IPC. Reads, trims, and splits lines server-side via rayon.
+ */
+export function bulkWhoisLookupFromFile(
+  path: string,
+  tlds?: string[],
+  concurrency = 4,
+  timeoutMs = 5000
+): Promise<void> {
+  return tauriInvoke('bulk_whois_lookup_from_file', {
+    path,
+    tlds: tlds ?? null,
+    concurrency,
+    timeoutMs,
+  });
+}
+
 export async function bulkWhoisExport(
   results: BulkWhoisResults,
   options: ExportOptions
@@ -256,6 +289,11 @@ export function toProcess(content: string, options: ProcessOptions): Promise<str
 
 export function parseCsv(content: string): Promise<unknown> {
   return tauriInvoke('csv_parse', { content });
+}
+
+/** Parse a CSV file directly from path (avoids file content crossing IPC). */
+export function csvParseFile(path: string): Promise<unknown> {
+  return tauriInvoke('csv_parse_file', { path });
 }
 
 // ─── Availability / Domain Parameters ───────────────────────────────────────
@@ -420,6 +458,31 @@ export function lookupGetSettings(): Promise<LookupSettings> {
 
 export function historyGet(limit = 50): Promise<unknown[]> {
   return tauriInvoke<unknown[]>('db_gui_history_get', { limit });
+}
+
+/** Paginated, filtered history result from the backend. */
+export interface HistoryPageResult {
+  entries: { domain: string; status: string; timestamp: number }[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+/** Server-side filtered + paginated history query (SQL-level). */
+export function historyGetFiltered(opts?: {
+  query?: string;
+  status?: string;
+  days?: number;
+  page?: number;
+  pageSize?: number;
+}): Promise<HistoryPageResult> {
+  return tauriInvoke<HistoryPageResult>('db_gui_history_get_filtered', {
+    query: opts?.query ?? null,
+    status: opts?.status ?? null,
+    days: opts?.days ?? null,
+    page: opts?.page ?? 0,
+    pageSize: opts?.pageSize ?? 50,
+  });
 }
 
 export function historyClear(): Promise<void> {

@@ -1,11 +1,12 @@
 import { qs, qsa, on } from '../utils/dom.js';
 import {
-  historyGet,
+  historyGetFiltered,
   historyClear,
   monitorStart,
   monitorStop,
   listen,
 } from '../common/tauriBridge.js';
+import type { HistoryPageResult } from '../common/tauriBridge.js';
 import { debugFactory } from '../common/logger.js';
 import { IpcChannel } from '../common/ipcChannels.js';
 import DomainStatus from '../common/status.js';
@@ -17,9 +18,9 @@ function formatDate(ts: number): string {
   return new Date(ts).toLocaleString();
 }
 
-let allEntries: any[] = [];
 let page = 0;
 const pageSize = 50;
+let lastResult: HistoryPageResult | null = null;
 
 function ensureControls(): void {
   const table = qs('#historyTable');
@@ -38,18 +39,18 @@ function ensureControls(): void {
     (qs('#historyPrev') as HTMLButtonElement | null)?.addEventListener('click', () => {
       if (page > 0) {
         page--;
-        renderPage();
+        void fetchAndRender();
       }
     });
     (qs('#historyNext') as HTMLButtonElement | null)?.addEventListener('click', () => {
-      if ((page + 1) * pageSize < allEntries.length) {
+      if (lastResult && (page + 1) * pageSize < lastResult.total) {
         page++;
-        renderPage();
+        void fetchAndRender();
       }
     });
     (qs('#historySearch') as HTMLInputElement | null)?.addEventListener('input', () => {
       page = 0;
-      renderPage();
+      void fetchAndRender();
     });
 
     // Add status and timeframe filters
@@ -67,7 +68,7 @@ function ensureControls(): void {
     controls.appendChild(statusCtrl);
     (qs('#historyStatusFilter') as HTMLSelectElement | null)?.addEventListener('change', () => {
       page = 0;
-      renderPage();
+      void fetchAndRender();
     });
 
     const timeCtrl = document.createElement('div');
@@ -76,7 +77,7 @@ function ensureControls(): void {
     controls.appendChild(timeCtrl);
     (qs('#historyDays') as HTMLInputElement | null)?.addEventListener('input', () => {
       page = 0;
-      renderPage();
+      void fetchAndRender();
     });
 
     // Show backend mode (SQLite/JSON) as a subtle hint
@@ -90,39 +91,33 @@ function ensureControls(): void {
   }
 }
 
-function getFiltered(): any[] {
-  const q = (qs('#historySearch') as HTMLInputElement | null)?.value?.toLowerCase() ?? '';
-  if (!q) return allEntries;
-  return allEntries.filter((e) =>
-    String(e.domain || '')
-      .toLowerCase()
-      .includes(q)
-  );
-}
+/** Build filter parameters from DOM controls and fetch from backend. */
+async function fetchAndRender(): Promise<void> {
+  const query = (qs('#historySearch') as HTMLInputElement | null)?.value?.trim() || undefined;
+  const statusVal = (qs('#historyStatusFilter') as HTMLSelectElement | null)?.value || undefined;
+  const daysRaw = Number((qs('#historyDays') as HTMLInputElement | null)?.value || '');
+  const days = (!Number.isNaN(daysRaw) && daysRaw > 0) ? daysRaw : undefined;
 
-function renderPage(): void {
-  let entries = getFiltered();
-  const statusVal = (qs('#historyStatusFilter') as HTMLSelectElement | null)?.value ?? '';
-  if (statusVal) {
-    entries = entries.filter((e) => String(e.status || '') === statusVal);
-  }
-  const days = Number((qs('#historyDays') as HTMLInputElement | null)?.value || '');
-  if (!Number.isNaN(days) && days > 0) {
-    const cutoff = Date.now() - days * 86400000;
-    entries = entries.filter((e) => Number(e.timestamp || 0) >= cutoff);
-  }
+  const result = await historyGetFiltered({
+    query,
+    status: statusVal,
+    days,
+    page,
+    pageSize,
+  });
+  lastResult = result;
+
   const tbody = qs('#historyTable tbody')!;
   tbody.innerHTML = '';
-  if (!entries.length) {
+  if (!result.entries.length) {
     qs('#historyEmpty')!.classList.remove('is-hidden');
     (qs('#historyStatus') as HTMLElement | null)!.textContent = '';
     return;
   }
   qs('#historyEmpty')!.classList.add('is-hidden');
-  const start = page * pageSize;
-  const end = Math.min(start + pageSize, entries.length);
-  for (let i = start; i < end; i++) {
-    const e = entries[i];
+  const start = result.page * result.pageSize;
+  const end = start + result.entries.length;
+  for (const e of result.entries) {
     const row = document.createElement('tr');
     const tdDomain = document.createElement('td');
     tdDomain.textContent = e.domain;
@@ -136,16 +131,13 @@ function renderPage(): void {
     tbody.appendChild(row);
   }
   (qs('#historyStatus') as HTMLElement | null)!.textContent =
-    `${start + 1}-${end} of ${entries.length}`;
+    `${start + 1}-${end} of ${result.total}`;
 }
 
 function loadHistory(): void {
   ensureControls();
-  historyGet().then((entries: any[]) => {
-    allEntries = entries || [];
-    page = 0;
-    renderPage();
-  });
+  page = 0;
+  void fetchAndRender();
 }
 
 document.addEventListener('DOMContentLoaded', () => {

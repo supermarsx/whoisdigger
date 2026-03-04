@@ -5,7 +5,7 @@ import {
   path,
   watch,
   openTextFileDialog,
-  bulkWhoisLookup,
+  bulkWhoisLookupFromFile,
   fileInfo,
   listen,
 } from '../../common/tauriBridge.js';
@@ -21,7 +21,8 @@ import { settings } from '../settings-renderer.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
 import { FileWatcherManager } from '../../utils/fileWatcher.js';
 
-let bwFileContents: Buffer;
+let bwFilePath: string | null = null;
+let bwLineCount = 0;
 const watcher = new FileWatcherManager(watch);
 
 function getTimingOptions() {
@@ -107,13 +108,9 @@ async function handleFileConfirmation(
       return;
     }
 
-    // Keep local copy of file content for later split into domain array
-    try {
-      bwFileContents = await fs.readFile(targetPath) as unknown as Buffer;
-    } catch (e) {
-      error(`Failed to read file contents: ${e}`);
-      return;
-    }
+    // Store file path for later use (content stays server-side)
+    bwFilePath = targetPath;
+    bwLineCount = info.lineCount;
 
     qs('#bwFileinputloading')!.classList.add('is-hidden');
     qs('#bwFileinputconfirm')!.classList.remove('is-hidden');
@@ -177,24 +174,22 @@ void on('click', '#bwFileButtonCancel', () => {
  */
 void on('click', '#bwFileButtonConfirm', () => {
   watcher.close();
-  const bwDomainArray = bwFileContents
-    .toString()
-    .split('\n')
-    .map(Function.prototype.call, String.prototype.trim);
+  if (!bwFilePath) return;
   const input = qs<HTMLInputElement>('#bwFileInputTlds');
   const bwTldsArray = (input?.value || '')
     .split(',')
     .map((t) => t.trim())
     .filter(Boolean);
 
-  tableReset(bwDomainArray.length, bwTldsArray.length);
+  tableReset(bwLineCount, bwTldsArray.length);
   qs('#bwFileinputconfirm')!.classList.add('is-hidden');
   qs('#bwProcessing')!.classList.remove('is-hidden');
 
-  debug(bwDomainArray);
+  debug(bwFilePath);
   debug(bwTldsArray);
 
-  void bulkWhoisLookup(bwDomainArray, bwTldsArray);
+  // File content stays server-side — rayon splits lines in parallel
+  void bulkWhoisLookupFromFile(bwFilePath, bwTldsArray);
 });
 
 /*
