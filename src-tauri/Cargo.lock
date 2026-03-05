@@ -5697,6 +5697,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "wd-domgen"
+version = "0.1.0"
+dependencies = [
+ "log",
+ "rand 0.8.5",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+]
+
+[[package]]
+name = "wd-expiry"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "log",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+]
+
+[[package]]
 name = "wd-export"
 version = "0.1.0"
 dependencies = [
@@ -5704,6 +5728,53 @@ dependencies = [
  "serde_json",
  "wd-availability",
  "zip",
+]
+
+[[package]]
+name = "wd-fusion"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "log",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+]
+
+[[package]]
+name = "wd-history"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "log",
+ "reqwest",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+]
+
+[[package]]
+name = "wd-import"
+version = "0.1.0"
+dependencies = [
+ "csv",
+ "log",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+]
+
+[[package]]
+name = "wd-keybind"
+version = "0.1.0"
+dependencies = [
+ "log",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
 ]
 
 [[package]]
@@ -5741,6 +5812,54 @@ dependencies = [
  "thiserror 1.0.69",
  "tokio",
  "tokio-postgres",
+]
+
+[[package]]
+name = "wd-ratelimit"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "log",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+]
+
+[[package]]
+name = "wd-registrar"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "log",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+]
+
+[[package]]
+name = "wd-scheduler"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "log",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+]
+
+[[package]]
+name = "wd-threat"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "log",
+ "regex",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
 ]
 
 [[package]]
@@ -5904,10 +6023,20 @@ dependencies = [
  "wd-ai",
  "wd-availability",
  "wd-db",
+ "wd-domgen",
+ "wd-expiry",
  "wd-export",
+ "wd-fusion",
+ "wd-history",
+ "wd-import",
+ "wd-keybind",
  "wd-lookup",
  "wd-parser",
  "wd-proxy",
+ "wd-ratelimit",
+ "wd-registrar",
+ "wd-scheduler",
+ "wd-threat",
  "wd-wordlist",
  "zip",
 ]

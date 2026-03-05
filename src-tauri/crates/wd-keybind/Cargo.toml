@@ -1,0 +1,11 @@
+[package]
+name = "wd-keybind"
+version = "0.1.0"
+edition = "2021"
+description = "Keyboard shortcut system with configurable bindings, contexts, and conflict detection"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+log = { workspace = true }

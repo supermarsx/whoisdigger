@@ -1,0 +1,12 @@
+[package]
+name = "wd-import"
+version = "0.1.0"
+edition = "2021"
+description = "Bulk import capabilities for domain lists from zone files, CT logs, CSV, JSON, and more"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+csv = { workspace = true }
+thiserror = { workspace = true }
+log = { workspace = true }

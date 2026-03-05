@@ -1,0 +1,17 @@
+[package]
+name = "wd-expiry"
+version = "0.1.0"
+edition = "2021"
+description = "Domain expiry watchdog, grace period tracking, and drop catching"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+rusqlite.workspace = true
+thiserror.workspace = true
+log.workspace = true
+tokio.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt", "macros"] }

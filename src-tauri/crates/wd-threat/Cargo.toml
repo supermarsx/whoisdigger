@@ -1,0 +1,13 @@
+[package]
+name = "wd-threat"
+version = "0.1.0"
+edition = "2021"
+description = "Domain threat intelligence - risk scoring, blocklist cross-referencing, and suspicious pattern detection"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+regex = { workspace = true }
+thiserror = { workspace = true }
+log = { workspace = true }

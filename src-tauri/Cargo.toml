@@ -44,6 +44,16 @@ wd-export = { path = "crates/wd-export" }
 wd-proxy = { path = "crates/wd-proxy" }
 wd-wordlist = { path = "crates/wd-wordlist" }
 wd-ai = { path = "crates/wd-ai" }
+wd-history = { path = "crates/wd-history" }
+wd-expiry = { path = "crates/wd-expiry" }
+wd-domgen = { path = "crates/wd-domgen" }
+wd-ratelimit = { path = "crates/wd-ratelimit" }
+wd-fusion = { path = "crates/wd-fusion" }
+wd-scheduler = { path = "crates/wd-scheduler" }
+wd-import = { path = "crates/wd-import" }
+wd-threat = { path = "crates/wd-threat" }
+wd-keybind = { path = "crates/wd-keybind" }
+wd-registrar = { path = "crates/wd-registrar" }
 
 [package]
 name = "whoisdigger"
@@ -70,6 +80,16 @@ wd-export.workspace = true
 wd-proxy.workspace = true
 wd-wordlist.workspace = true
 wd-ai.workspace = true
+wd-history.workspace = true
+wd-expiry.workspace = true
+wd-domgen.workspace = true
+wd-ratelimit.workspace = true
+wd-fusion.workspace = true
+wd-scheduler.workspace = true
+wd-import.workspace = true
+wd-threat.workspace = true
+wd-keybind.workspace = true
+wd-registrar.workspace = true
 
 # Tauri and plugins
 tauri = { version = "2.0.0", features = ["test"] }
