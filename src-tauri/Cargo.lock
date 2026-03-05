@@ -5667,6 +5667,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "wd-agent"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "log",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "uuid",
+ "wd-chat",
+ "wd-llm",
+]
+
+[[package]]
 name = "wd-ai"
 version = "0.1.0"
 dependencies = [
@@ -5684,6 +5698,21 @@ dependencies = [
  "serde",
  "serde_json",
  "wd-parser",
+]
+
+[[package]]
+name = "wd-chat"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "log",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 1.0.69",
+ "uuid",
+ "wd-llm",
 ]
 
 [[package]]
@@ -5775,6 +5804,21 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 1.0.69",
+]
+
+[[package]]
+name = "wd-llm"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "futures",
+ "log",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+ "uuid",
 ]
 
 [[package]]
@@ -6020,8 +6064,10 @@ dependencies = [
  "thiserror 1.0.69",
  "tokio",
  "walkdir",
+ "wd-agent",
  "wd-ai",
  "wd-availability",
+ "wd-chat",
  "wd-db",
  "wd-domgen",
  "wd-expiry",
@@ -6030,6 +6076,7 @@ dependencies = [
  "wd-history",
  "wd-import",
  "wd-keybind",
+ "wd-llm",
  "wd-lookup",
  "wd-parser",
  "wd-proxy",
