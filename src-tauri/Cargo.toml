@@ -54,6 +54,9 @@ wd-import = { path = "crates/wd-import" }
 wd-threat = { path = "crates/wd-threat" }
 wd-keybind = { path = "crates/wd-keybind" }
 wd-registrar = { path = "crates/wd-registrar" }
+wd-llm = { path = "crates/wd-llm" }
+wd-chat = { path = "crates/wd-chat" }
+wd-agent = { path = "crates/wd-agent" }
 
 [package]
 name = "whoisdigger"
@@ -90,6 +93,9 @@ wd-import.workspace = true
 wd-threat.workspace = true
 wd-keybind.workspace = true
 wd-registrar.workspace = true
+wd-llm.workspace = true
+wd-chat.workspace = true
+wd-agent.workspace = true
 
 # Tauri and plugins
 tauri = { version = "2.0.0", features = ["test"] }

@@ -1,0 +1,16 @@
+[package]
+name = "wd-llm"
+version = "0.1.0"
+edition = "2021"
+description = "LLM provider abstraction layer with streaming, tool calling, and multi-backend support"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+reqwest = { workspace = true, features = ["stream"] }
+tokio.workspace = true
+chrono.workspace = true
+thiserror.workspace = true
+log.workspace = true
+futures = "0.3"
+uuid = { version = "1", features = ["v4"] }

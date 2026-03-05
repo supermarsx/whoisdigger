@@ -1,0 +1,18 @@
+[package]
+name = "wd-chat"
+version = "0.1.0"
+edition = "2021"
+description = "Chat session, history, context and prompt management for whoisdigger"
+
+[dependencies]
+wd-llm = { path = "../wd-llm" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["serde"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+thiserror = "1"
+log = "0.4"
+uuid = { version = "1", features = ["v4"] }
+
+[dev-dependencies]
+tempfile = "3"

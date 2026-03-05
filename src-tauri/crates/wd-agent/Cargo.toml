@@ -1,0 +1,15 @@
+[package]
+name = "wd-agent"
+version = "0.1.0"
+edition = "2021"
+description = "Autonomous AI agent with tool execution, planning, and safety rails for whoisdigger"
+
+[dependencies]
+wd-llm = { path = "../wd-llm" }
+wd-chat = { path = "../wd-chat" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "1"
+log = "0.4"
+uuid = { version = "1", features = ["v4"] }
