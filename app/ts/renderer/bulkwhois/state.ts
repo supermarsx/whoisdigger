@@ -1,4 +1,4 @@
-import { listen } from '../../common/tauriBridge.js';
+import { listen } from '../../common/bridge/core.js';
 import type { BulkWhoisResults } from '../../common/bulkwhois/types.js';
 
 let bulkResults: BulkWhoisResults | null = null;

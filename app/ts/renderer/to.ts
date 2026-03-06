@@ -1,6 +1,7 @@
 // Renderer: Text Operations page
 import type { ProcessOptions } from '../common/tools.js';
-import { openFileDialog, toProcess } from '../common/tauriBridge.js';
+import { openFileDialog } from '../common/bridge/dialogs.js';
+import { toProcess } from '../common/bridge/textops.js';
 import { debugFactory, errorFactory } from '../common/logger.js';
 
 const debug = debugFactory('renderer.to');

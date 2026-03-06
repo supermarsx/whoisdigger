@@ -8,8 +8,11 @@ jest.mock('../app/ts/common/logger.js', () => ({
   errorFactory: () => () => {},
 }));
 
-jest.mock('../app/ts/common/tauriBridge.js', () => ({
+jest.mock('../app/ts/common/bridge/dialogs.js', () => ({
   openFileDialog: jest.fn(),
+}));
+
+jest.mock('../app/ts/common/bridge/textops.js', () => ({
   toProcess: jest.fn(),
 }));
 
@@ -37,9 +40,10 @@ describe('to renderer', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    const bridge = require('../app/ts/common/tauriBridge.js');
-    mockOpenFileDialog = bridge.openFileDialog as jest.Mock;
-    mockToProcess = bridge.toProcess as jest.Mock;
+    const dialogs = require('../app/ts/common/bridge/dialogs.js');
+    const textops = require('../app/ts/common/bridge/textops.js');
+    mockOpenFileDialog = dialogs.openFileDialog as jest.Mock;
+    mockToProcess = textops.toProcess as jest.Mock;
     mockOpenFileDialog.mockReset();
     mockToProcess.mockReset();
     setupDOM();

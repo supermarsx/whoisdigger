@@ -14,13 +14,20 @@ const mockDomainParameters = jest.fn();
 const mockOpenPath = jest.fn();
 const listenHandlers: Record<string, Function> = {};
 
-jest.mock('../app/ts/common/tauriBridge.js', () => ({
+jest.mock('../app/ts/common/bridge/whois.js', () => ({
   whoisLookup: mockWhoisLookup,
   availabilityCheck: mockAvailabilityCheck,
   domainParameters: mockDomainParameters,
+  whoisParse: jest.fn(),
+}));
+
+jest.mock('../app/ts/common/bridge/core.js', () => ({
   listen: jest.fn((event: string, cb: Function) => {
     listenHandlers[event] = cb;
   }),
+}));
+
+jest.mock('../app/ts/common/bridge/app.js', () => ({
   app: {
     openPath: mockOpenPath,
   },

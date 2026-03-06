@@ -1,14 +1,10 @@
-import type { FileInfoResult } from '../../common/tauriBridge.js';
+import type { FileInfoResult } from '../../common/bridge/types.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
-import {
-  fs,
-  path,
-  watch,
-  openTextFileDialog,
-  bulkWhoisLookupFromFile,
-  fileInfo,
-  listen,
-} from '../../common/tauriBridge.js';
+import { fs, path, fileInfo } from '../../common/bridge/filesystem.js';
+import { watch } from '../../common/bridge/filesystem.js';
+import { openTextFileDialog } from '../../common/bridge/dialogs.js';
+import { bulkWhoisLookupFromFile } from '../../common/bridge/bulk.js';
+import { listen } from '../../common/bridge/core.js';
 const debug = debugFactory('bulkwhois.fileinput');
 const error = errorFactory('bulkwhois.fileinput');
 debug('loaded');

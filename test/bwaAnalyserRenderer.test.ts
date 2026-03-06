@@ -3,7 +3,7 @@
 // Mock the tauriBridge module — bwaRenderTableHtml is now called by showTable()
 const mockBwaRenderTableHtml = jest.fn();
 
-jest.mock('../app/ts/common/tauriBridge.js', () => ({
+jest.mock('../app/ts/common/bridge/bwa.js', () => ({
   bwaRenderTableHtml: mockBwaRenderTableHtml,
 }));
 
@@ -31,7 +31,7 @@ beforeEach(() => {
   originalAlert = (window as any).alert;
 
   // Re-apply mocks before each require
-  jest.mock('../app/ts/common/tauriBridge.js', () => ({
+  jest.mock('../app/ts/common/bridge/bwa.js', () => ({
     bwaRenderTableHtml: mockBwaRenderTableHtml,
   }));
 

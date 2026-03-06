@@ -3,7 +3,8 @@ import { populateInputs } from './settings.js';
 import { settings } from './settings-renderer.js';
 
 import { debugFactory } from '../common/logger.js';
-import { app, listen } from '../common/tauriBridge.js';
+import { app } from '../common/bridge/app.js';
+import { listen } from '../common/bridge/core.js';
 
 const debug = debugFactory('renderer.navigation');
 debug('loaded');

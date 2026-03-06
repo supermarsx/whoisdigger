@@ -1,29 +1,14 @@
 import { qs, qsa, on } from '../utils/dom.js';
 import { debugFactory } from '../common/logger.js';
-import {
-  profilesList,
-  profilesCreate,
-  profilesRename,
-  profilesDelete,
-  profilesSetCurrent,
-  profilesExport,
-  profilesImport,
-  statsStart,
-  statsRefresh,
-  statsStop,
-  configExport,
-  configImport,
-  configDelete,
-  openDbFileDialog,
-  historyMerge,
-  cacheMerge,
-  aiDownloadModel,
-  listen,
-  unlisten,
-  fs,
-  path as tauriPath,
-  app,
-} from '../common/tauriBridge.js';
+import { profilesList, profilesCreate, profilesRename, profilesDelete, profilesSetCurrent, profilesExport, profilesImport } from '../common/bridge/profiles.js';
+import { statsStart, statsRefresh, statsStop } from '../common/bridge/stats.js';
+import { configExport, configImport, configDelete } from '../common/bridge/settings.js';
+import { openDbFileDialog } from '../common/bridge/dialogs.js';
+import { historyMerge, cacheMerge } from '../common/bridge/history.js';
+import { aiDownloadModel } from '../common/bridge/ai.js';
+import { listen, unlisten } from '../common/bridge/core.js';
+import { fs, path as tauriPath } from '../common/bridge/filesystem.js';
+import { app } from '../common/bridge/app.js';
 
 const debug = debugFactory('renderer.options');
 debug('loaded');

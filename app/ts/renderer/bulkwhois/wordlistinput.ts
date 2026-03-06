@@ -1,6 +1,10 @@
 import { settings } from '../settings-renderer.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
-import { aiSuggest, bulkWhoisLookupFromContent, bulkEstimateTime, countLines, listen } from '../../common/tauriBridge.js';
+import { aiSuggest } from '../../common/bridge/ai.js';
+import { bulkWhoisLookupFromContent } from '../../common/bridge/bulk.js';
+import { bulkEstimateTime } from '../../common/bridge/filesystem.js';
+import { countLines } from '../../common/bridge/app.js';
+import { listen } from '../../common/bridge/core.js';
 
 import { tableReset } from './auxiliary.js';
 

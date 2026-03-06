@@ -1,7 +1,7 @@
 import { qs } from '../../utils/dom.js';
 import { debugFactory } from '../../common/logger.js';
 import { formatString } from '../../common/stringformat.js';
-import { listen } from '../../common/tauriBridge.js';
+import { listen } from '../../common/bridge/core.js';
 
 const debug = debugFactory('bulkwhois.status');
 const base = 10;

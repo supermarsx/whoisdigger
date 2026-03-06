@@ -1,13 +1,8 @@
-import type { WhoisResult } from '../common/tauriBridge.js';
+import type { WhoisResult } from '../common/bridge/types.js';
 
-import {
-  whoisLookup,
-  availabilityCheck,
-  domainParameters,
-  whoisParse,
-  listen,
-  app,
-} from '../common/tauriBridge.js';
+import { whoisLookup, availabilityCheck, domainParameters, whoisParse } from '../common/bridge/whois.js';
+import { listen } from '../common/bridge/core.js';
+import { app } from '../common/bridge/app.js';
 import { formatString } from '../common/stringformat.js';
 
 function qs<T extends Element = HTMLElement>(sel: string): T | null {

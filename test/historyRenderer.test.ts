@@ -9,11 +9,17 @@ jest.mock('../app/ts/common/logger.js', () => ({
 
 const mockHistoryGetFiltered = jest.fn();
 
-jest.mock('../app/ts/common/tauriBridge.js', () => ({
+jest.mock('../app/ts/common/bridge/history.js', () => ({
   historyGetFiltered: mockHistoryGetFiltered,
   historyClear: jest.fn(),
+}));
+
+jest.mock('../app/ts/common/bridge/monitor.js', () => ({
   monitorStart: jest.fn(),
   monitorStop: jest.fn(),
+}));
+
+jest.mock('../app/ts/common/bridge/core.js', () => ({
   listen: jest.fn(),
 }));
 

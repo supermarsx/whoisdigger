@@ -6,14 +6,14 @@ jest.mock('../app/ts/common/logger.js', () => ({
   errorFactory: () => () => {},
 }));
 
-jest.mock('../app/ts/common/tauriBridge.js', () => ({
+jest.mock('../app/ts/common/bridge/bulk.js', () => ({
   bulkWhoisPause: jest.fn(),
   bulkWhoisContinue: jest.fn(),
   bulkWhoisStop: jest.fn(),
 }));
 
 import { bindProcessingEvents } from '../app/ts/renderer/bulkwhois/event-bindings';
-import { bulkWhoisPause, bulkWhoisContinue } from '../app/ts/common/tauriBridge.js';
+import { bulkWhoisPause, bulkWhoisContinue } from '../app/ts/common/bridge/bulk.js';
 
 describe('event bindings', () => {
   test('pause button toggles state', () => {

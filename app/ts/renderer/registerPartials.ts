@@ -1,6 +1,6 @@
 import Handlebars from '../../vendor/handlebars.runtime.js';
 import { debugFactory } from '../common/logger.js';
-import { fs } from '../common/tauriBridge.js';
+import { fs } from '../common/bridge/filesystem.js';
 
 const debug = debugFactory('renderer.registerPartials');
 debug('loaded');

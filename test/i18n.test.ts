@@ -8,7 +8,7 @@ jest.mock('../app/ts/common/logger.js', () => ({
   debugFactory: () => () => {},
 }));
 
-jest.mock('../app/ts/common/tauriBridge.js', () => ({
+jest.mock('../app/ts/common/bridge/app.js', () => ({
   i18nLoad: mockI18nLoad,
 }));
 

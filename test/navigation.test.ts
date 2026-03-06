@@ -12,13 +12,16 @@ const mockListen = jest.fn();
 const mockMinimize = jest.fn();
 const mockClose = jest.fn();
 
-jest.mock('../app/ts/common/tauriBridge.js', () => ({
+jest.mock('../app/ts/common/bridge/app.js', () => ({
   app: {
     toggleDevtools: mockToggleDevtools,
     minimize: mockMinimize,
     close: mockClose,
     getBaseDir: jest.fn().mockResolvedValue('/tmp'),
   },
+}));
+
+jest.mock('../app/ts/common/bridge/core.js', () => ({
   listen: mockListen,
 }));
 

@@ -1,6 +1,7 @@
 import defaultExportOptions from './export.defaults.js';
 import { debugFactory } from '../../common/logger.js';
-import { bulkWhoisExport, listen } from '../../common/tauriBridge.js';
+import { bulkWhoisExport } from '../../common/bridge/bulk.js';
+import { listen } from '../../common/bridge/core.js';
 import type { BulkWhoisResults } from '../../common/bulkwhois/types.js';
 import type { ExportOptions } from '../../common/bulkwhois/export-helpers.js';
 

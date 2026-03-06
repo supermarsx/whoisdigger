@@ -1,5 +1,5 @@
 import { qs, on } from '../../utils/dom.js';
-import { bwaRenderTableHtml } from '../../common/tauriBridge.js';
+import { bwaRenderTableHtml } from '../../common/bridge/bwa.js';
 // jQuery and DataTables are loaded globally via renderer/index.ts
 
 import { debugFactory } from '../../common/logger.js';

@@ -1,12 +1,8 @@
 import { qs, qsa, on } from '../utils/dom.js';
-import {
-  historyGetFiltered,
-  historyClear,
-  monitorStart,
-  monitorStop,
-  listen,
-} from '../common/tauriBridge.js';
-import type { HistoryPageResult } from '../common/tauriBridge.js';
+import { historyGetFiltered, historyClear } from '../common/bridge/history.js';
+import { monitorStart, monitorStop } from '../common/bridge/monitor.js';
+import { listen } from '../common/bridge/core.js';
+import type { HistoryPageResult } from '../common/bridge/types.js';
 import { debugFactory } from '../common/logger.js';
 import { IpcChannel } from '../common/ipcChannels.js';
 import DomainStatus from '../common/status.js';

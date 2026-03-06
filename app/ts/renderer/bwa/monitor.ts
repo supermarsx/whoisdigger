@@ -1,7 +1,8 @@
 import { qs, qsa, on } from '../../utils/dom.js';
 import { debugFactory } from '../../common/logger.js';
 import { settings, saveSettings } from '../settings-renderer.js';
-import { monitorStart, monitorStop, listen } from '../../common/tauriBridge.js';
+import { monitorStart, monitorStop } from '../../common/bridge/monitor.js';
+import { listen } from '../../common/bridge/core.js';
 import type DomainStatus from '../../common/status.js';
 
 const debug = debugFactory('renderer.bwa.monitor');

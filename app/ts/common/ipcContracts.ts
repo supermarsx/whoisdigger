@@ -1,6 +1,6 @@
 import type { IpcChannel } from './ipcChannels.js';
 import type DomainStatus from './status.js';
-import type { WhoisResult } from './tauriBridge.js';
+import type { WhoisResult } from './bridge/types.js';
 import type { ProcessOptions } from './tools.js';
 import type { BulkWhoisResults } from './bulkwhois/types.js';
 import type { ExportOptions } from './bulkwhois/export-helpers.js';

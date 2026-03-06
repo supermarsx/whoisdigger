@@ -1,4 +1,5 @@
-import { settingsLoad as tauriSettingsLoad, settingsSave as tauriSettingsSave, listen } from '../common/tauriBridge.js';
+import { settingsLoad as tauriSettingsLoad, settingsSave as tauriSettingsSave } from '../common/bridge/settings.js';
+import { listen } from '../common/bridge/core.js';
 import { debugFactory } from '../common/logger.js';
 import {
   settings,

@@ -3,7 +3,7 @@ import jQuery from 'jquery';
 
 const listenHandlers: Record<string, Function> = {};
 
-jest.mock('../app/ts/common/tauriBridge.js', () => ({
+jest.mock('../app/ts/common/bridge/core.js', () => ({
   listen: jest.fn((event: string, cb: Function) => {
     listenHandlers[event] = cb;
   }),

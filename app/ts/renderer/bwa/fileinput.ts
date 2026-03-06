@@ -1,15 +1,12 @@
-import type { FileInfoResult } from '../../common/tauriBridge.js';
+import type { FileInfoResult } from '../../common/bridge/types.js';
 import { qs, on } from '../../utils/dom.js';
 import { settings } from '../settings-renderer.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
-import {
-  watch,
-  csvParseFile,
-  openCsvJsonDialog,
-  bwaAnalyserStart,
-  fileInfo,
-  listen,
-} from '../../common/tauriBridge.js';
+import { watch, fileInfo } from '../../common/bridge/filesystem.js';
+import { csvParseFile } from '../../common/bridge/textops.js';
+import { openCsvJsonDialog } from '../../common/bridge/dialogs.js';
+import { bwaAnalyserStart } from '../../common/bridge/bwa.js';
+import { listen } from '../../common/bridge/core.js';
 
 const debug = debugFactory('renderer.bwa.fileinput');
 const error = errorFactory('renderer.bwa.fileinput');

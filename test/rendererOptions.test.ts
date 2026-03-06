@@ -18,7 +18,7 @@ const mockOpenDataDir = jest.fn();
 const mockReload = jest.fn();
 const listenHandlers: Record<string, Function> = {};
 
-jest.mock('../app/ts/common/tauriBridge.js', () => ({
+jest.mock('../app/ts/common/bridge/profiles.js', () => ({
   profilesList: jest.fn().mockResolvedValue([]),
   profilesCreate: jest.fn(),
   profilesRename: jest.fn(),
@@ -26,20 +26,41 @@ jest.mock('../app/ts/common/tauriBridge.js', () => ({
   profilesSetCurrent: jest.fn(),
   profilesExport: jest.fn(),
   profilesImport: jest.fn(),
+}));
+
+jest.mock('../app/ts/common/bridge/stats.js', () => ({
   statsStart: mockStatsStart,
   statsRefresh: mockStatsRefresh,
   statsStop: mockStatsStop,
+}));
+
+jest.mock('../app/ts/common/bridge/settings.js', () => ({
   configExport: jest.fn(),
   configImport: jest.fn(),
   configDelete: jest.fn(),
+}));
+
+jest.mock('../app/ts/common/bridge/dialogs.js', () => ({
   openDbFileDialog: jest.fn(),
+}));
+
+jest.mock('../app/ts/common/bridge/history.js', () => ({
   historyMerge: jest.fn(),
   cacheMerge: jest.fn(),
+}));
+
+jest.mock('../app/ts/common/bridge/ai.js', () => ({
   aiDownloadModel: jest.fn(),
+}));
+
+jest.mock('../app/ts/common/bridge/core.js', () => ({
   listen: jest.fn((event: string, cb: Function) => {
     listenHandlers[event] = cb;
   }),
   unlisten: jest.fn(),
+}));
+
+jest.mock('../app/ts/common/bridge/filesystem.js', () => ({
   fs: {
     readFile: jest.fn(),
     writeFile: jest.fn(),
@@ -54,6 +75,10 @@ jest.mock('../app/ts/common/tauriBridge.js', () => ({
     join: (...args: string[]) => require('path').join(...args),
     basename: (p: string) => require('path').basename(p),
   },
+  watch: jest.fn().mockResolvedValue({ close: () => {} }),
+}));
+
+jest.mock('../app/ts/common/bridge/app.js', () => ({
   app: {
     getBaseDir: jest.fn().mockResolvedValue(__dirname),
     getUserDataPath: jest.fn().mockResolvedValue(__dirname),
@@ -65,7 +90,6 @@ jest.mock('../app/ts/common/tauriBridge.js', () => ({
     reload: mockReload,
     toggleDevtools: jest.fn(),
   },
-  watch: jest.fn().mockResolvedValue({ close: () => {} }),
 }));
 
 jest.mock('../app/ts/common/logger.js', () => ({

@@ -1,4 +1,4 @@
-import { i18nLoad } from '../common/tauriBridge.js';
+import { i18nLoad } from '../common/bridge/app.js';
 import Handlebars from '../../vendor/handlebars.runtime.js';
 import { debugFactory } from '../common/logger.js';
 
