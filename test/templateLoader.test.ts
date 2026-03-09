@@ -30,7 +30,7 @@ const handlebars = require('../app/vendor/handlebars.runtime.js').default;
 
 beforeAll(() => {
   // Defer requiring module under test until after mocks are set up
-  ({ loadTemplate } = require('../app/ts/renderer/templateLoader'));
+  ({ loadTemplate } = require('../app/ts/renderer/services/template-loader'));
 });
 
 beforeEach(() => {

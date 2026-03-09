@@ -1,4 +1,4 @@
-import { debugFactory, errorFactory } from '../common/logger.js';
+import { debugFactory, errorFactory } from '../../common/logger.js';
 
 const debug = debugFactory('renderer');
 const error = errorFactory('renderer');

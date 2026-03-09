@@ -1,5 +1,5 @@
 /**
- * Tests for "to" (text operations) renderer (app/ts/renderer/to.ts)
+ * Tests for text operations renderer
  * @jest-environment jsdom
  */
 
@@ -54,7 +54,7 @@ describe('to renderer', () => {
   });
 
   function loadModule(): void {
-    require('../app/ts/renderer/to.js');
+    require('../app/ts/renderer/features/textops/index.js');
   }
 
   it('loads without errors', () => {

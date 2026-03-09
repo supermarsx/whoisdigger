@@ -1,13 +1,13 @@
-import { qs, qsa, on } from '../utils/dom.js';
-import { historyGetFiltered, historyClear } from '../common/bridge/history.js';
-import { monitorStart, monitorStop } from '../common/bridge/monitor.js';
-import { listen } from '../common/bridge/core.js';
-import type { HistoryPageResult } from '../common/bridge/types.js';
-import { debugFactory } from '../common/logger.js';
-import { IpcChannel } from '../common/ipcChannels.js';
-import DomainStatus from '../common/status.js';
+import { qs, on } from '../../../utils/dom.js';
+import { historyGetFiltered, historyClear } from '../../../common/bridge/history.js';
+import { monitorStart, monitorStop } from '../../../common/bridge/monitor.js';
+import { listen } from '../../../common/bridge/core.js';
+import type { HistoryPageResult } from '../../../common/bridge/types.js';
+import { debugFactory } from '../../../common/logger.js';
+import { IpcChannel } from '../../../common/ipcChannels.js';
+import DomainStatus from '../../../common/status.js';
 
-const debug = debugFactory('renderer.history');
+const debug = debugFactory('renderer.features.history');
 debug('loaded');
 
 function formatDate(ts: number): string {
@@ -21,6 +21,7 @@ let lastResult: HistoryPageResult | null = null;
 function ensureControls(): void {
   const table = qs('#historyTable');
   if (!table) return;
+
   let controls = qs('#historyControls');
   if (!controls) {
     controls = document.createElement('div');
@@ -49,7 +50,6 @@ function ensureControls(): void {
       void fetchAndRender();
     });
 
-    // Add status and timeframe filters
     const statusCtrl = document.createElement('div');
     statusCtrl.className = 'control';
     statusCtrl.innerHTML = `
@@ -69,59 +69,65 @@ function ensureControls(): void {
 
     const timeCtrl = document.createElement('div');
     timeCtrl.className = 'control';
-    timeCtrl.innerHTML = `<input id="historyDays" class="input is-small" type="number" min="0" placeholder="Last N days">`;
+    timeCtrl.innerHTML =
+      '<input id="historyDays" class="input is-small" type="number" min="0" placeholder="Last N days">';
     controls.appendChild(timeCtrl);
     (qs('#historyDays') as HTMLInputElement | null)?.addEventListener('input', () => {
       page = 0;
       void fetchAndRender();
     });
 
-    // Show backend mode (SQLite/JSON) as a subtle hint
     const hint = document.createElement('span');
     hint.className = 'tag is-light is-rounded is-size-7';
     hint.textContent = 'history: SQLite';
     const wrap = document.createElement('div');
     wrap.className = 'control';
     wrap.appendChild(hint);
-    controls!.appendChild(wrap);
+    controls.appendChild(wrap);
   }
 }
 
-/** Build filter parameters from DOM controls and fetch from backend. */
 async function fetchAndRender(): Promise<void> {
   const query = (qs('#historySearch') as HTMLInputElement | null)?.value?.trim() || undefined;
   const statusVal = (qs('#historyStatusFilter') as HTMLSelectElement | null)?.value || undefined;
   const daysRaw = Number((qs('#historyDays') as HTMLInputElement | null)?.value || '');
-  const days = (!Number.isNaN(daysRaw) && daysRaw > 0) ? daysRaw : undefined;
+  const days = !Number.isNaN(daysRaw) && daysRaw > 0 ? daysRaw : undefined;
 
   const result = await historyGetFiltered({
     query,
     status: statusVal,
     days,
     page,
-    pageSize,
+    pageSize
   });
   lastResult = result;
 
-  const tbody = qs('#historyTable tbody')!;
+  const tbody = qs('#historyTable tbody');
+  if (!tbody) return;
+
   tbody.innerHTML = '';
   if (!result.entries.length) {
-    qs('#historyEmpty')!.classList.remove('is-hidden');
-    (qs('#historyStatus') as HTMLElement | null)!.textContent = '';
+    qs('#historyEmpty')?.classList.remove('is-hidden');
+    const statusEl = qs('#historyStatus') as HTMLElement | null;
+    if (statusEl) statusEl.textContent = '';
     return;
   }
-  qs('#historyEmpty')!.classList.add('is-hidden');
+
+  qs('#historyEmpty')?.classList.add('is-hidden');
   const start = result.page * result.pageSize;
   const end = start + result.entries.length;
-
-  // Build all rows as a single HTML string to minimise DOM thrashing
   const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const html = result.entries
-    .map(e => `<tr><td>${esc(e.domain)}</td><td>${esc(e.status)}</td><td>${esc(formatDate(e.timestamp))}</td></tr>`)
+  tbody.innerHTML = result.entries
+    .map(
+      (entry) =>
+        `<tr><td>${esc(entry.domain)}</td><td>${esc(entry.status)}</td><td>${esc(formatDate(
+          entry.timestamp
+        ))}</td></tr>`
+    )
     .join('');
-  tbody.innerHTML = html;
-  (qs('#historyStatus') as HTMLElement | null)!.textContent =
-    `${start + 1}-${end} of ${result.total}`;
+
+  const statusEl = qs('#historyStatus') as HTMLElement | null;
+  if (statusEl) statusEl.textContent = `${start + 1}-${end} of ${result.total}`;
 }
 
 function loadHistory(): void {
@@ -145,13 +151,9 @@ document.addEventListener('DOMContentLoaded', () => {
   void listen<{ domain: string; status: DomainStatus }>('monitor:update', ({ domain, status }) => {
     debug(`Monitor update for ${domain}: ${status}`);
   });
-
-  // Refresh history when bulk results/status update
   void listen('bulk:result', () => loadHistory());
   void listen(IpcChannel.BulkwhoisExportCancel, () => loadHistory());
   void listen('bulk:status', () => loadHistory());
-
-  // Refresh after single lookup completes (best effort)
   void on('click', '#singlewhoisButtonOk', () => setTimeout(loadHistory, 300));
   void listen('history:updated', () => loadHistory());
 });

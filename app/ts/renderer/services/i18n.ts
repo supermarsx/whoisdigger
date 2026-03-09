@@ -1,6 +1,6 @@
-import { i18nLoad } from '../common/bridge/app.js';
-import Handlebars from '../../vendor/handlebars.runtime.js';
-import { debugFactory } from '../common/logger.js';
+import { i18nLoad } from '../../common/bridge/app.js';
+import Handlebars from '../../../vendor/handlebars.runtime.js';
+import { debugFactory } from '../../common/logger.js';
 
 const debug = debugFactory('renderer.i18n');
 debug('loaded');

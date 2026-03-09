@@ -1,6 +1,5 @@
-import Handlebars from '../../vendor/handlebars.runtime.js';
-import { debugFactory } from '../common/logger.js';
-import { fs } from '../common/bridge/filesystem.js';
+import Handlebars from '../../../vendor/handlebars.runtime.js';
+import { debugFactory } from '../../common/logger.js';
 
 const debug = debugFactory('renderer.registerPartials');
 debug('loaded');
@@ -10,7 +9,7 @@ export async function registerPartials(): Promise<void> {
 
   const glob = (import.meta as any).glob || (globalThis as any).__glob;
   if (glob) {
-    const modules = glob('../../compiled-templates/*.js', { eager: true });
+    const modules = glob('../../../compiled-templates/*.js', { eager: true });
     for (const [filePath, mod] of Object.entries(modules)) {
       const file = filePath.split('/').pop() as string;
       if (file === 'mainPanel.js') continue;
@@ -21,7 +20,8 @@ export async function registerPartials(): Promise<void> {
     // In production builds the templates are emitted to disk. When the Vite
     // glob helper isn't available, load them using the filesystem helpers
     // exposed via the preload script.
-    const dirUrl = new URL('../../compiled-templates/', import.meta.url);
+    const { fs } = await import('../../common/bridge/filesystem.js');
+    const dirUrl = new URL('../../../compiled-templates/', import.meta.url);
     // Pass a file URL to main; fs IPC will normalize file: URLs cross‑platform
     const files = (await fs.readdir(dirUrl.href)) as string[];
     for (const file of files) {

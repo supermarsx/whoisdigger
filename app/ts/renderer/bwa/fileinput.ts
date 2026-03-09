@@ -1,6 +1,6 @@
 import type { FileInfoResult } from '../../common/bridge/types.js';
 import { qs, on } from '../../utils/dom.js';
-import { settings } from '../settings-renderer.js';
+import { settings } from '../state/settings-store.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
 import { watch, fileInfo } from '../../common/bridge/filesystem.js';
 import { csvParseFile } from '../../common/bridge/textops.js';

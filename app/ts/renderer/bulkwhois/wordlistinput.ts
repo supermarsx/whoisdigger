@@ -1,4 +1,4 @@
-import { settings } from '../settings-renderer.js';
+import { settings } from '../state/settings-store.js';
 import { debugFactory, errorFactory } from '../../common/logger.js';
 import { aiSuggest } from '../../common/bridge/ai.js';
 import { bulkWhoisLookupFromContent } from '../../common/bridge/bulk.js';

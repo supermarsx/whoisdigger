@@ -2,8 +2,8 @@
 
 (window as any).electron = { getBaseDir: () => Promise.resolve(__dirname) };
 
-import { _test } from '../app/ts/renderer/settings';
-import { settings } from '../app/ts/renderer/settings-renderer';
+import { _test } from '../app/ts/renderer/features/settings';
+import { settings } from '../app/ts/renderer/state/settings-store';
 import appDefaults from '../app/ts/appsettings';
 
 const { getValue, setValue, parseValue, getDefault } = _test;

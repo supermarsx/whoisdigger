@@ -6,8 +6,8 @@ jest.setTimeout(10000);
 
 const mockSaveSettings = jest.fn().mockResolvedValue('SAVED');
 
-jest.mock('../app/ts/renderer/settings-renderer', () => {
-  const actual = jest.requireActual('../app/ts/renderer/settings-renderer');
+jest.mock('../app/ts/renderer/state/settings-store', () => {
+  const actual = jest.requireActual('../app/ts/renderer/state/settings-store');
   return { ...actual, saveSettings: mockSaveSettings };
 });
 
@@ -132,8 +132,8 @@ beforeEach(() => {
 test('changing setting updates configuration', async () => {
   jQuery = require('jquery');
   (window as any).$ = (window as any).jQuery = jQuery;
-  settingsModule = require('../app/ts/renderer/settings-renderer');
-  require('../app/ts/renderer/settings');
+  settingsModule = require('../app/ts/renderer/state/settings-store');
+  require('../app/ts/renderer/features/settings');
   document.dispatchEvent(new Event('DOMContentLoaded'));
   const { settings } = settingsModule;
 
@@ -151,7 +151,7 @@ test('changing setting updates configuration', async () => {
 test('reloadApp calls app.reload', async () => {
   jQuery = require('jquery');
   (window as any).$ = (window as any).jQuery = jQuery;
-  require('../app/ts/renderer/settings');
+  require('../app/ts/renderer/features/settings');
   document.dispatchEvent(new Event('DOMContentLoaded'));
 
   await new Promise((r) => setTimeout(r, 0));
@@ -171,7 +171,7 @@ test('reloadApp calls app.reload', async () => {
 test('openDataFolder calls app.openDataDir', async () => {
   jQuery = require('jquery');
   (window as any).$ = (window as any).jQuery = jQuery;
-  require('../app/ts/renderer/settings');
+  require('../app/ts/renderer/features/settings');
   document.dispatchEvent(new Event('DOMContentLoaded'));
 
   await new Promise((r) => setTimeout(r, 0));

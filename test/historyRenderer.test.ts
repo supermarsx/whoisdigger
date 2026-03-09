@@ -48,7 +48,7 @@ test('loadHistory displays entries in table', async () => {
     page: 0,
     pageSize: 50,
   });
-  const { _test } = require('../app/ts/renderer/history');
+  const { _test } = require('../app/ts/renderer/features/history');
   await _test.loadHistory();
   await Promise.resolve();
   expect(mockHistoryGetFiltered).toHaveBeenCalled();
@@ -63,7 +63,7 @@ test('loadHistory shows empty message when no entries', async () => {
     page: 0,
     pageSize: 50,
   });
-  const { _test } = require('../app/ts/renderer/history');
+  const { _test } = require('../app/ts/renderer/features/history');
   await _test.loadHistory();
   await Promise.resolve();
   expect(jQuery('#historyEmpty').hasClass('is-hidden')).toBe(false);

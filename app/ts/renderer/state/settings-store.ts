@@ -1,6 +1,9 @@
-import { settingsLoad as tauriSettingsLoad, settingsSave as tauriSettingsSave } from '../common/bridge/settings.js';
-import { listen } from '../common/bridge/core.js';
-import { debugFactory } from '../common/logger.js';
+import {
+  settingsLoad as tauriSettingsLoad,
+  settingsSave as tauriSettingsSave
+} from '../../common/bridge/settings.js';
+import { listen } from '../../common/bridge/core.js';
+import { debugFactory } from '../../common/logger.js';
 import {
   settings,
   customSettingsLoaded,
@@ -9,7 +12,7 @@ import {
   validateSettings,
   setSettings,
   type Settings
-} from '../common/settings-base.js';
+} from '../../common/settings-base.js';
 
 const debug = debugFactory('renderer.settings');
 debug('loaded');

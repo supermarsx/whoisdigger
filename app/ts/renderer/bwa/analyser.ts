@@ -1,6 +1,6 @@
 import { qs, on } from '../../utils/dom.js';
 import { bwaRenderTableHtml } from '../../common/bridge/bwa.js';
-// jQuery and DataTables are loaded globally via renderer/index.ts
+// jQuery and DataTables are loaded globally via the renderer core runtime.
 
 import { debugFactory } from '../../common/logger.js';
 

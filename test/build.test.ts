@@ -51,16 +51,21 @@ describe('Build verification', () => {
     'app/ts/utils/fetchCompat.js',
     'app/ts/utils/random.js',
     'app/ts/utils/regex.js',
-    'app/ts/renderer/settings-renderer.js',
-    'app/ts/renderer/settings.js',
-    'app/ts/renderer/i18n.js',
-    'app/ts/renderer/navigation.js',
-    'app/ts/renderer/history.js',
+    'app/ts/renderer/state/settings-store.js',
+    'app/ts/renderer/features/settings/index.js',
+    'app/ts/renderer/services/i18n.js',
+    'app/ts/renderer/features/navigation/index.js',
+    'app/ts/renderer/features/history/index.js',
     'app/ts/renderer/bulkwhois/auxiliary.js',
     'app/ts/renderer/bulkwhois/export.js',
     'app/ts/renderer/bulkwhois/status-handler.js',
     'app/ts/renderer/bulkwhois/event-bindings.js',
-    'app/ts/renderer/bwa/analyser.js'
+    'app/ts/renderer/bwa/analyser.js',
+    'app/ts/renderer/services/register-partials.js',
+    'app/ts/renderer/services/template-loader.js',
+    'app/ts/renderer/features/singlewhois/index.js',
+    'app/ts/renderer/features/textops/index.js',
+    'app/ts/renderer/features/theme/index.js'
   ];
 
   test.each(expectedJsFiles)(

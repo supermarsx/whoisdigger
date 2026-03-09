@@ -1,26 +1,23 @@
 // Renderer: Text Operations page
-import type { ProcessOptions } from '../common/tools.js';
-import { openFileDialog } from '../common/bridge/dialogs.js';
-import { toProcess } from '../common/bridge/textops.js';
-import { debugFactory, errorFactory } from '../common/logger.js';
+import type { ProcessOptions } from '../../../common/tools.js';
+import { openFileDialog } from '../../../common/bridge/dialogs.js';
+import { toProcess } from '../../../common/bridge/textops.js';
+import { debugFactory, errorFactory } from '../../../common/logger.js';
 
-const debug = debugFactory('renderer.to');
-const error = errorFactory('renderer.to');
+const debug = debugFactory('renderer.features.textops');
+const error = errorFactory('renderer.features.textops');
 debug('loaded');
 
 let filePath: string | null = null;
 
-/*
-  $('#toButtonSelect').click(function() {...});
-    Open file selection dialog
-*/
 document.addEventListener('click', async (event) => {
   const target = event.target as HTMLElement | null;
   if (!target) return;
+
   if (target.matches('#toButtonSelect')) {
     const result = await openFileDialog({
       multiple: false,
-      filters: [{ name: 'Text', extensions: ['txt', 'list', 'csv'] }],
+      filters: [{ name: 'Text', extensions: ['txt', 'list', 'csv'] }]
     });
     filePath = Array.isArray(result) ? result[0] : result;
     const fileLabel = document.querySelector<HTMLElement>('#toFileSelected');
@@ -48,8 +45,9 @@ function collectOptions(): ProcessOptions {
   if (suffix) opts.suffix = suffix;
 
   if (document.querySelector<HTMLInputElement>('#toTrimSpaces')?.checked) opts.trimSpaces = true;
-  if (document.querySelector<HTMLInputElement>('#toDeleteBlank')?.checked)
+  if (document.querySelector<HTMLInputElement>('#toDeleteBlank')?.checked) {
     opts.deleteBlankLines = true;
+  }
   if (document.querySelector<HTMLInputElement>('#toDedupe')?.checked) opts.dedupe = true;
 
   const sortRadio = document.querySelector<HTMLInputElement>('input[name=toSort]:checked');

@@ -46,7 +46,7 @@ const handlebars = require('../app/vendor/handlebars.runtime.js').default;
 let registerPartials: () => Promise<void>;
 
 beforeAll(async () => {
-  ({ registerPartials } = await import('../dist/app/ts/renderer/registerPartials.js'));
+  ({ registerPartials } = await import('../dist/app/ts/renderer/services/register-partials.js'));
 });
 
 describe('registerPartials', () => {

@@ -13,7 +13,7 @@ import { tableReset } from './auxiliary.js';
 import { qs, on } from '../../utils/dom.js';
 
 import { formatString } from '../../common/stringformat.js';
-import { settings } from '../settings-renderer.js';
+import { settings } from '../state/settings-store.js';
 import { IpcChannel } from '../../common/ipcChannels.js';
 import { FileWatcherManager } from '../../utils/fileWatcher.js';
 

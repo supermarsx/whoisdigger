@@ -1,5 +1,5 @@
 /**
- * Tests for darkmode renderer (app/ts/renderer/darkmode.ts)
+ * Tests for theme renderer
  * @jest-environment jsdom
  */
 
@@ -11,7 +11,7 @@ jest.mock('../app/ts/common/logger.js', () => ({
 let mockSettings: Record<string, any> = {};
 let mockSaveSettings: jest.Mock;
 
-jest.mock('../app/ts/renderer/settings-renderer.js', () => ({
+jest.mock('../app/ts/renderer/state/settings-store.js', () => ({
   get settings() {
     return mockSettings;
   },
@@ -55,7 +55,7 @@ describe('darkmode', () => {
   });
 
   function loadModule(): void {
-    require('../app/ts/renderer/darkmode.js');
+    require('../app/ts/renderer/features/theme/index.js');
     document.dispatchEvent(new Event('DOMContentLoaded'));
   }
 

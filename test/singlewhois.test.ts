@@ -1,5 +1,5 @@
 /**
- * Tests for singlewhois renderer (app/ts/renderer/singlewhois.ts)
+ * Tests for singlewhois renderer
  * @jest-environment jsdom
  */
 
@@ -72,7 +72,7 @@ describe('singlewhois renderer', () => {
   });
 
   function loadModule(): void {
-    require('../app/ts/renderer/singlewhois.js');
+    require('../app/ts/renderer/features/singlewhois/index.js');
   }
 
   it('loads without errors', () => {

@@ -1,9 +1,14 @@
-import type { WhoisResult } from '../common/bridge/types.js';
+import type { WhoisResult } from '../../../common/bridge/types.js';
 
-import { whoisLookup, availabilityCheck, domainParameters, whoisParse } from '../common/bridge/whois.js';
-import { listen } from '../common/bridge/core.js';
-import { app } from '../common/bridge/app.js';
-import { formatString } from '../common/stringformat.js';
+import {
+  whoisLookup,
+  availabilityCheck,
+  domainParameters,
+  whoisParse
+} from '../../../common/bridge/whois.js';
+import { listen } from '../../../common/bridge/core.js';
+import { app } from '../../../common/bridge/app.js';
+import { formatString } from '../../../common/stringformat.js';
 
 function qs<T extends Element = HTMLElement>(sel: string): T | null {
   return document.querySelector(sel) as T | null;
@@ -12,8 +17,8 @@ function qs<T extends Element = HTMLElement>(sel: string): T | null {
 function qsa<T extends Element = HTMLElement>(sel: string): T[] {
   return Array.from(document.querySelectorAll(sel)) as T[];
 }
-import { debugFactory, errorFactory } from '../common/logger.js';
-import DomainStatus from '../common/status.js';
+import { debugFactory, errorFactory } from '../../../common/logger.js';
+import DomainStatus from '../../../common/status.js';
 
 const debug = debugFactory('renderer.singlewhois');
 const error = errorFactory('renderer.singlewhois');

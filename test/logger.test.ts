@@ -31,7 +31,7 @@ describe('logger utilities', () => {
   });
 
   test('renderer logger functions call debug functions', () => {
-    const { sendDebug, sendError } = require('../app/ts/renderer/logger.ts');
+    const { sendDebug, sendError } = require('../app/ts/renderer/services/logger.ts');
     expect(mockDebug).toHaveBeenCalledWith('renderer');
     expect(mockDebug).toHaveBeenCalledWith('renderer:error');
     const debugFn = mockDebug.mock.results[0].value;

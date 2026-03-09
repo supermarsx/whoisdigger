@@ -25,7 +25,7 @@ jest.mock('../app/ts/common/bridge/core.js', () => ({
   listen: mockListen,
 }));
 
-jest.mock('../app/ts/renderer/settings-renderer.js', () => ({
+jest.mock('../app/ts/renderer/state/settings-store.js', () => ({
   settings: {},
   saveSettings: jest.fn(),
   loadSettings: jest.fn(),
@@ -33,7 +33,7 @@ jest.mock('../app/ts/renderer/settings-renderer.js', () => ({
   getUserDataPath: () => '/tmp',
 }));
 
-jest.mock('../app/ts/renderer/settings.js', () => ({
+jest.mock('../app/ts/renderer/features/settings/index.js', () => ({
   populateInputs: jest.fn(),
 }));
 
@@ -53,7 +53,7 @@ afterEach(() => {
 });
 
 function loadModule(): void {
-  require('../app/ts/renderer/navigation');
+  require('../app/ts/renderer/features/navigation');
 }
 
 test('drop event prevents default and logs debug', () => {

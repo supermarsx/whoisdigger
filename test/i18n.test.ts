@@ -23,7 +23,7 @@ describe('i18n loader', () => {
       loadTranslations,
       registerTranslationHelpers,
       _getTranslations
-    } = require('../app/ts/renderer/i18n');
+    } = require('../app/ts/renderer/services/i18n');
 
     await loadTranslations('en');
     registerTranslationHelpers();
@@ -38,7 +38,7 @@ describe('i18n loader', () => {
       value: 'fr-FR',
       configurable: true
     });
-    const { loadTranslations, _getTranslations } = require('../app/ts/renderer/i18n');
+    const { loadTranslations, _getTranslations } = require('../app/ts/renderer/services/i18n');
 
     await loadTranslations();
 
