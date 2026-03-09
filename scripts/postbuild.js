@@ -13,6 +13,7 @@ const baseDir = dirnameCompat();
 const debug = debugFactory('postbuild');
 
 const folders = [
+  'css',
   'html',
   'html/templates',
   'fonts',

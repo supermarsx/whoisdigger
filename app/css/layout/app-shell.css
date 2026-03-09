@@ -1,0 +1,19 @@
+.tab-content {
+  display: none;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.tab-content.current {
+  display: inherit;
+}
+
+#contents-container.hero-body {
+  display: block;
+  overflow-y: auto;
+  height: calc(100vh - var(--bulma-navbar-height));
+}
+
+.hero-head {
+  z-index: 1;
+}

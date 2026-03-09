@@ -1,0 +1,18 @@
+.toast {
+  position: fixed;
+  right: var(--wd-toast-offset);
+  bottom: var(--wd-toast-offset);
+  z-index: 1000;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  color: #fff;
+  opacity: 0.95;
+}
+
+.toast.is-success {
+  background-color: #48c774;
+}
+
+.toast.is-danger {
+  background-color: #f14668;
+}

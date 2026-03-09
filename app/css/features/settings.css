@@ -1,0 +1,20 @@
+#settingsBackToTop,
+#settingsGoToBottom {
+  position: fixed;
+  bottom: var(--wd-floating-offset);
+  display: none;
+  z-index: 900;
+}
+
+#settingsBackToTop {
+  right: var(--wd-floating-offset);
+}
+
+#settingsGoToBottom {
+  right: calc(var(--wd-floating-offset) + var(--wd-floating-gap));
+}
+
+#settingsBackToTop.is-visible,
+#settingsGoToBottom.is-visible {
+  display: inline-flex;
+}

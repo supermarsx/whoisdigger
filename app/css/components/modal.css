@@ -1,0 +1,48 @@
+.modal-card,
+.modal-content {
+  box-shadow: var(--wd-shadow-modal);
+  border-radius: var(--wd-radius-md);
+}
+
+.modal-card-head,
+.modal-card-foot {
+  box-shadow: none;
+  border: none;
+  background-color: var(--wd-surface-muted);
+}
+
+.modal-card-head {
+  border-bottom: none;
+  border-top-left-radius: var(--wd-radius-md);
+  border-top-right-radius: var(--wd-radius-md);
+}
+
+.modal-card-foot {
+  border-top: none;
+  border-bottom-left-radius: var(--wd-radius-md);
+  border-bottom-right-radius: var(--wd-radius-md);
+}
+
+.modal.is-active:focus,
+.modal .modal-content:focus,
+.modal .modal-card:focus,
+.modal .modal-card *:focus {
+  outline: none !important;
+  box-shadow: none;
+}
+
+.modal .button:focus,
+.modal .input:focus,
+.modal .select select:focus {
+  outline: none;
+  box-shadow: var(--wd-focus-ring);
+}
+
+.modal .modal-close:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.modal .modal-background {
+  backdrop-filter: blur(0.25px);
+}

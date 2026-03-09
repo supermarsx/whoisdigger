@@ -1,0 +1,10 @@
+:root {
+  --wd-radius-md: 8px;
+  --wd-shadow-modal: 0 10px 30px rgba(0, 0, 0, 0.25);
+  --wd-surface-muted: rgba(0, 0, 0, 0.04);
+  --wd-focus-ring: 0 0 0 2px rgba(50, 115, 220, 0.35);
+  --wd-toast-offset: 1rem;
+  --wd-floating-offset: 1.5rem;
+  --wd-floating-gap: 2.5rem;
+  scrollbar-width: thin;
+}

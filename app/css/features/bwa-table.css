@@ -1,0 +1,40 @@
+#bwaAnalyserTable_length {
+  display: inline-block;
+  padding: 15px 15px;
+}
+
+#bwaAnalyserTable_filter {
+  display: inline;
+  padding: 0 5px;
+}
+
+#bwaAnalyserTable_filter input {
+  display: inline;
+  margin: 0 5px;
+}
+
+#bwaAnalyserTable_paginate {
+  padding: 5px 5px;
+}
+
+#bwaAnalyserTable_previous {
+  padding: 0 5px;
+}
+
+#bwaAnalyserTable_next {
+  padding: 0 5px;
+}
+
+.paginate_button {
+  font-size: 1.5rem;
+}
+
+.paginate_button.current {
+  color: #000000;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.paginate_button.disabled {
+  color: #000000;
+}

@@ -1,0 +1,37 @@
+@media screen and (min-width: 1088px) {
+  .navbar-burger {
+    display: block;
+  }
+
+  .navbar-item,
+  .navbar-brand {
+    display: flex;
+    align-items: center;
+  }
+
+  .navbar,
+  .navbar-end,
+  .navbar-menu,
+  .navbar-start {
+    display: block;
+    align-items: normal;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .navbar-burger {
+    display: block;
+  }
+
+  .navbar-brand {
+    width: 100%;
+  }
+
+  #navTop {
+    width: 100%;
+  }
+}
+
+.tabs li.is-active a:hover {
+  color: #3273dc;
+}

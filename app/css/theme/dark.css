@@ -1,0 +1,7 @@
+html[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+html[data-theme='dark'] #toTable .button {
+  color: #363636;
+}
