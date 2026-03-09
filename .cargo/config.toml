@@ -1,0 +1,7 @@
+[build]
+incremental = true
+
+[env]
+CARGO_INCREMENTAL = { value = "1", force = false }
+SCCACHE_DIR = { value = ".cargo/sccache", relative = true, force = false }
+SCCACHE_CACHE_SIZE = { value = "10G", force = false }

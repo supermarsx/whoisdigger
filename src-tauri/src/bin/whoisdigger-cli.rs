@@ -1,15 +1,13 @@
 use clap::{Parser, Subcommand, ValueEnum};
-use whoisdigger::{
-    perform_lookup, dns_lookup, rdap_lookup, 
-    availability::is_domain_available, 
-    db_history_get
-};
-use indicatif::{ProgressBar, ProgressStyle};
-use tokio::sync::Semaphore;
-use std::sync::Arc;
 use futures::future::join_all;
+use indicatif::{ProgressBar, ProgressStyle};
+use serde::{Deserialize, Serialize};
 use std::fs;
-use serde::{Serialize, Deserialize};
+use std::sync::Arc;
+use tokio::sync::Semaphore;
+use whoisdigger::{
+    availability::is_domain_available, db_history_get, dns_lookup, perform_lookup, rdap_lookup,
+};
 
 #[derive(ValueEnum, Clone, Debug)]
 enum LookupType {
@@ -91,7 +89,7 @@ enum Commands {
         /// Get a value
         #[arg(short, long)]
         get: Option<String>,
-    }
+    },
 }
 
 #[derive(Serialize, Deserialize)]
@@ -105,13 +103,20 @@ async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Lookup { domain, wordlist, tlds, concurrency, timeout, lookup_type } => {
+        Commands::Lookup {
+            domain,
+            wordlist,
+            tlds,
+            concurrency,
+            timeout,
+            lookup_type,
+        } => {
             if let Some(dom) = domain {
                 process_single(&dom, timeout, &lookup_type).await?;
             } else if let Some(path) = wordlist {
                 process_bulk(&path, &tlds, concurrency, timeout, &lookup_type).await?;
             }
-        },
+        }
         Commands::History { path, limit } => {
             let entries = db_history_get(&path, limit).map_err(|e| anyhow::anyhow!(e))?;
             println!("{:<30} | {:<15} | {:<20}", "Domain", "Status", "Timestamp");
@@ -119,14 +124,14 @@ async fn main() -> anyhow::Result<()> {
             for e in entries {
                 println!("{:<30} | {:<15} | {:<20}", e.domain, e.status, e.timestamp);
             }
-        },
+        }
         Commands::Cache { path, clear } => {
             if clear {
                 let conn = rusqlite::Connection::open(path)?;
                 conn.execute("DELETE FROM cache", [])?;
                 println!("Cache cleared.");
             }
-        },
+        }
         Commands::Export { input, output } => {
             let content = fs::read_to_string(input)?;
             let results: Vec<ResultItem> = serde_json::from_str(&content)?;
@@ -136,11 +141,11 @@ async fn main() -> anyhow::Result<()> {
             }
             fs::write(output, csv)?;
             println!("Exported successfully.");
-        },
+        }
         Commands::Config { path, set, get } => {
             let content = fs::read_to_string(&path).unwrap_or_else(|_| "{}".to_string());
             let mut settings: serde_json::Value = serde_json::from_str(&content)?;
-            
+
             if let Some(key) = get {
                 let ptr = format!("/{}", key.replace('.', "/"));
                 let val = settings.pointer(&ptr).unwrap_or(&serde_json::Value::Null);
@@ -160,39 +165,47 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn process_single(domain: &str, timeout: u64, lookup_type: &LookupType) -> anyhow::Result<()> {
+async fn process_single(
+    domain: &str,
+    timeout: u64,
+    lookup_type: &LookupType,
+) -> anyhow::Result<()> {
     println!("Looking up {} using {:?}...", domain, lookup_type);
     match lookup_type {
-        LookupType::Whois => {
-            match perform_lookup(domain, timeout).await {
-                Ok(res) => {
-                    println!("Status: {:?}", is_domain_available(&res));
-                    println!("---\n{}\n---", res);
-                }
-                Err(e) => eprintln!("Error: {}", e),
+        LookupType::Whois => match perform_lookup(domain, timeout).await {
+            Ok(res) => {
+                println!("Status: {:?}", is_domain_available(&res));
+                println!("---\n{}\n---", res);
             }
-        }
-        LookupType::Dns => {
-            match dns_lookup(domain).await {
-                Ok(exists) => println!("NS Records found: {}", exists),
-                Err(e) => eprintln!("Error: {}", e),
-            }
-        }
-        LookupType::Rdap => {
-            match rdap_lookup(domain).await {
-                Ok(res) => println!("---\n{}\n---", res),
-                Err(e) => eprintln!("Error: {}", e),
-            }
-        }
+            Err(e) => eprintln!("Error: {}", e),
+        },
+        LookupType::Dns => match dns_lookup(domain).await {
+            Ok(exists) => println!("NS Records found: {}", exists),
+            Err(e) => eprintln!("Error: {}", e),
+        },
+        LookupType::Rdap => match rdap_lookup(domain).await {
+            Ok(res) => println!("---\n{}\n---", res),
+            Err(e) => eprintln!("Error: {}", e),
+        },
     }
     Ok(())
 }
 
-async fn process_bulk(path: &str, tlds_str: &str, concurrency: usize, timeout: u64, lookup_type: &LookupType) -> anyhow::Result<()> {
+async fn process_bulk(
+    path: &str,
+    tlds_str: &str,
+    concurrency: usize,
+    timeout: u64,
+    lookup_type: &LookupType,
+) -> anyhow::Result<()> {
     let content = fs::read_to_string(path)?;
-    let lines: Vec<String> = content.lines().map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).collect();
+    let lines: Vec<String> = content
+        .lines()
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .collect();
     let tlds: Vec<&str> = tlds_str.split(',').collect();
-    
+
     let mut domains = Vec::new();
     for line in lines {
         for tld in &tlds {
@@ -200,13 +213,21 @@ async fn process_bulk(path: &str, tlds_str: &str, concurrency: usize, timeout: u
         }
     }
 
-    println!("Starting bulk lookup for {} domains (concurrency: {}, type: {:?})...", 
-        domains.len(), concurrency, lookup_type);
-    
+    println!(
+        "Starting bulk lookup for {} domains (concurrency: {}, type: {:?})...",
+        domains.len(),
+        concurrency,
+        lookup_type
+    );
+
     let pb = ProgressBar::new(domains.len() as u64);
-    pb.set_style(ProgressStyle::default_bar()
-        .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} ({eta})")?
-        .progress_chars("#>- "));
+    pb.set_style(
+        ProgressStyle::default_bar()
+            .template(
+                "{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} ({eta})",
+            )?
+            .progress_chars("#>- "),
+    );
 
     let semaphore = Arc::new(Semaphore::new(concurrency));
     let mut tasks = Vec::new();
@@ -216,13 +237,23 @@ async fn process_bulk(path: &str, tlds_str: &str, concurrency: usize, timeout: u
         let t = timeout;
         let lt = lookup_type.clone();
         let pb_clone = pb.clone();
-        
+
         tasks.push(tokio::spawn(async move {
             let _permit = sem.acquire().await.unwrap();
             let res = match lt {
-                LookupType::Whois => perform_lookup(&domain, t).await.map(|_| "Whois success".to_string()),
-                LookupType::Dns => dns_lookup(&domain).await.map(|b| if b { "NS found".to_string() } else { "No NS".to_string() }),
-                LookupType::Rdap => rdap_lookup(&domain).await.map(|_| "Rdap success".to_string()),
+                LookupType::Whois => perform_lookup(&domain, t)
+                    .await
+                    .map(|_| "Whois success".to_string()),
+                LookupType::Dns => dns_lookup(&domain).await.map(|b| {
+                    if b {
+                        "NS found".to_string()
+                    } else {
+                        "No NS".to_string()
+                    }
+                }),
+                LookupType::Rdap => rdap_lookup(&domain)
+                    .await
+                    .map(|_| "Rdap success".to_string()),
             };
             pb_clone.inc(1);
             (domain, res)

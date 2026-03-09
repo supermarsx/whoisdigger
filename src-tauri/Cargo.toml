@@ -1,5 +1,6 @@
 [workspace]
 members = ["crates/*"]
+resolver = "2"
 
 [workspace.dependencies]
 # Serialization
@@ -41,7 +42,7 @@ wd-availability = { path = "crates/wd-availability" }
 wd-lookup = { path = "crates/wd-lookup" }
 wd-db = { path = "crates/wd-db" }
 wd-export = { path = "crates/wd-export" }
-wd-proxy = { path = "crates/wd-proxy" }
+wd-proxy = { path = "crates/wd-proxy", default-features = false }
 wd-wordlist = { path = "crates/wd-wordlist" }
 wd-ai = { path = "crates/wd-ai" }
 wd-history = { path = "crates/wd-history" }
@@ -57,6 +58,13 @@ wd-registrar = { path = "crates/wd-registrar" }
 wd-llm = { path = "crates/wd-llm" }
 wd-chat = { path = "crates/wd-chat" }
 wd-agent = { path = "crates/wd-agent" }
+wd-domain-storage = { path = "crates/wd-domain-storage" }
+wd-domain-network = { path = "crates/wd-domain-network" }
+wd-domain-text = { path = "crates/wd-domain-text" }
+wd-domain-core = { path = "crates/wd-domain-core" }
+wd-domain-automation = { path = "crates/wd-domain-automation" }
+wd-domain-intelligence = { path = "crates/wd-domain-intelligence" }
+wd-domain-agentic = { path = "crates/wd-domain-agentic" }
 
 [package]
 name = "whoisdigger"
@@ -73,29 +81,23 @@ default-run = "whoisdigger-gui"
 [build-dependencies]
 tauri-build = { version = "2.0.0", features = [] }
 
+[features]
+default = ["proxy-sqlite"]
+proxy-sqlite = ["wd-domain-core/proxy-sqlite"]
+proxy-postgres = ["wd-domain-core/proxy-postgres"]
+domain-automation = ["dep:wd-domain-automation"]
+domain-intelligence = ["dep:wd-domain-intelligence"]
+domain-agentic = ["dep:wd-domain-agentic"]
+full-domains = ["domain-automation", "domain-intelligence", "domain-agentic"]
+
 [dependencies]
-# Internal crates
-wd-parser.workspace = true
-wd-availability.workspace = true
-wd-lookup.workspace = true
-wd-db.workspace = true
-wd-export.workspace = true
-wd-proxy.workspace = true
-wd-wordlist.workspace = true
-wd-ai.workspace = true
-wd-history.workspace = true
-wd-expiry.workspace = true
-wd-domgen.workspace = true
-wd-ratelimit.workspace = true
-wd-fusion.workspace = true
-wd-scheduler.workspace = true
-wd-import.workspace = true
-wd-threat.workspace = true
-wd-keybind.workspace = true
-wd-registrar.workspace = true
-wd-llm.workspace = true
-wd-chat.workspace = true
-wd-agent.workspace = true
+# Core application-facing facade
+wd-domain-core.workspace = true
+
+# Second-level domain bundles. Keep these out of the default app graph.
+wd-domain-automation = { workspace = true, optional = true }
+wd-domain-intelligence = { workspace = true, optional = true }
+wd-domain-agentic = { workspace = true, optional = true }
 
 # Tauri and plugins
 tauri = { version = "2.0.0", features = ["test"] }

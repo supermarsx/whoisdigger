@@ -5726,6 +5726,72 @@ dependencies = [
 ]
 
 [[package]]
+name = "wd-domain-agentic"
+version = "0.1.0"
+dependencies = [
+ "wd-agent",
+ "wd-chat",
+ "wd-llm",
+]
+
+[[package]]
+name = "wd-domain-automation"
+version = "0.1.0"
+dependencies = [
+ "wd-expiry",
+ "wd-export",
+ "wd-history",
+ "wd-import",
+ "wd-scheduler",
+]
+
+[[package]]
+name = "wd-domain-core"
+version = "0.1.0"
+dependencies = [
+ "wd-ai",
+ "wd-availability",
+ "wd-domain-network",
+ "wd-domain-storage",
+ "wd-domain-text",
+ "wd-export",
+]
+
+[[package]]
+name = "wd-domain-intelligence"
+version = "0.1.0"
+dependencies = [
+ "wd-domgen",
+ "wd-fusion",
+ "wd-ratelimit",
+ "wd-registrar",
+ "wd-threat",
+]
+
+[[package]]
+name = "wd-domain-network"
+version = "0.1.0"
+dependencies = [
+ "wd-lookup",
+ "wd-proxy",
+]
+
+[[package]]
+name = "wd-domain-storage"
+version = "0.1.0"
+dependencies = [
+ "wd-db",
+]
+
+[[package]]
+name = "wd-domain-text"
+version = "0.1.0"
+dependencies = [
+ "wd-parser",
+ "wd-wordlist",
+]
+
+[[package]]
 name = "wd-domgen"
 version = "0.1.0"
 dependencies = [
@@ -6064,27 +6130,10 @@ dependencies = [
  "thiserror 1.0.69",
  "tokio",
  "walkdir",
- "wd-agent",
- "wd-ai",
- "wd-availability",
- "wd-chat",
- "wd-db",
- "wd-domgen",
- "wd-expiry",
- "wd-export",
- "wd-fusion",
- "wd-history",
- "wd-import",
- "wd-keybind",
- "wd-llm",
- "wd-lookup",
- "wd-parser",
- "wd-proxy",
- "wd-ratelimit",
- "wd-registrar",
- "wd-scheduler",
- "wd-threat",
- "wd-wordlist",
+ "wd-domain-agentic",
+ "wd-domain-automation",
+ "wd-domain-core",
+ "wd-domain-intelligence",
  "zip",
 ]
 
