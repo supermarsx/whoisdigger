@@ -14,7 +14,7 @@ pub mod filter;
 pub mod generator;
 pub mod mutator;
 
-pub use combinator::{CombinatorConfig, expand_combinations};
+pub use combinator::{expand_combinations, CombinatorConfig};
 pub use filter::{DomainFilter, FilterConfig};
 pub use generator::{GeneratedDomain, GeneratorConfig, GeneratorEngine};
-pub use mutator::{MutationKind, MutatorConfig, mutate_domain};
+pub use mutator::{mutate_domain, MutationKind, MutatorConfig};

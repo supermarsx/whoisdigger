@@ -11,7 +11,9 @@ impl HistoryStore {
     /// Open or create a history database at the given path.
     pub fn open(path: &str) -> SqlResult<Self> {
         let conn = Connection::open(path)?;
-        let store = Self { conn: Mutex::new(conn) };
+        let store = Self {
+            conn: Mutex::new(conn),
+        };
         store.init_tables()?;
         Ok(store)
     }
@@ -19,14 +21,17 @@ impl HistoryStore {
     /// Open an in-memory store (for tests).
     pub fn open_in_memory() -> SqlResult<Self> {
         let conn = Connection::open_in_memory()?;
-        let store = Self { conn: Mutex::new(conn) };
+        let store = Self {
+            conn: Mutex::new(conn),
+        };
         store.init_tables()?;
         Ok(store)
     }
 
     fn init_tables(&self) -> SqlResult<()> {
         let conn = self.conn.lock().unwrap();
-        conn.execute_batch("
+        conn.execute_batch(
+            "
             PRAGMA journal_mode = WAL;
             CREATE TABLE IF NOT EXISTS snapshots (
                 id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,7 +50,8 @@ impl HistoryStore {
             );
             CREATE INDEX IF NOT EXISTS idx_snap_domain ON snapshots(domain);
             CREATE INDEX IF NOT EXISTS idx_snap_captured ON snapshots(captured_at);
-        ")?;
+        ",
+        )?;
         Ok(())
     }
 
@@ -82,11 +88,9 @@ impl HistoryStore {
             "SELECT id, domain, protocol, captured_at, raw_response, fields_json,
                     registrar, nameservers, status_codes, created_date, expiry_date,
                     updated_date, tags_json
-             FROM snapshots WHERE domain = ?1 ORDER BY captured_at ASC"
+             FROM snapshots WHERE domain = ?1 ORDER BY captured_at ASC",
         )?;
-        let rows = stmt.query_map(params![domain], |row| {
-            Ok(row_to_snapshot(row))
-        })?;
+        let rows = stmt.query_map(params![domain], |row| Ok(row_to_snapshot(row)))?;
         let mut out = Vec::new();
         for r in rows {
             out.push(r?);
@@ -159,9 +163,21 @@ fn row_to_snapshot(row: &rusqlite::Row) -> Snapshot {
         registrar,
         nameservers: serde_json::from_str(&ns_json).unwrap_or_default(),
         status_codes: serde_json::from_str(&sc_json).unwrap_or_default(),
-        created_date: created_str.and_then(|s| chrono::DateTime::parse_from_rfc3339(&s).ok().map(|d| d.with_timezone(&chrono::Utc))),
-        expiry_date: expiry_str.and_then(|s| chrono::DateTime::parse_from_rfc3339(&s).ok().map(|d| d.with_timezone(&chrono::Utc))),
-        updated_date: updated_str.and_then(|s| chrono::DateTime::parse_from_rfc3339(&s).ok().map(|d| d.with_timezone(&chrono::Utc))),
+        created_date: created_str.and_then(|s| {
+            chrono::DateTime::parse_from_rfc3339(&s)
+                .ok()
+                .map(|d| d.with_timezone(&chrono::Utc))
+        }),
+        expiry_date: expiry_str.and_then(|s| {
+            chrono::DateTime::parse_from_rfc3339(&s)
+                .ok()
+                .map(|d| d.with_timezone(&chrono::Utc))
+        }),
+        updated_date: updated_str.and_then(|s| {
+            chrono::DateTime::parse_from_rfc3339(&s)
+                .ok()
+                .map(|d| d.with_timezone(&chrono::Utc))
+        }),
         tags: serde_json::from_str(&tags_json).unwrap_or_default(),
     }
 }
@@ -175,8 +191,7 @@ mod tests {
     #[test]
     fn test_store_insert_and_retrieve() {
         let store = HistoryStore::open_in_memory().unwrap();
-        let snap = Snapshot::new("t.com", LookupProtocol::Whois, "raw")
-            .with_registrar("TestCo");
+        let snap = Snapshot::new("t.com", LookupProtocol::Whois, "raw").with_registrar("TestCo");
         let id = store.insert(&snap).unwrap();
         assert!(id > 0);
         let list = store.get_domain_snapshots("t.com").unwrap();
@@ -187,9 +202,15 @@ mod tests {
     #[test]
     fn test_store_list_domains() {
         let store = HistoryStore::open_in_memory().unwrap();
-        store.insert(&Snapshot::new("a.com", LookupProtocol::Whois, "")).unwrap();
-        store.insert(&Snapshot::new("b.com", LookupProtocol::Rdap, "")).unwrap();
-        store.insert(&Snapshot::new("a.com", LookupProtocol::Whois, "")).unwrap();
+        store
+            .insert(&Snapshot::new("a.com", LookupProtocol::Whois, ""))
+            .unwrap();
+        store
+            .insert(&Snapshot::new("b.com", LookupProtocol::Rdap, ""))
+            .unwrap();
+        store
+            .insert(&Snapshot::new("a.com", LookupProtocol::Whois, ""))
+            .unwrap();
         let domains = store.list_domains().unwrap();
         assert_eq!(domains, vec!["a.com", "b.com"]);
     }
@@ -197,8 +218,12 @@ mod tests {
     #[test]
     fn test_store_count_and_clear() {
         let store = HistoryStore::open_in_memory().unwrap();
-        store.insert(&Snapshot::new("x.com", LookupProtocol::Whois, "")).unwrap();
-        store.insert(&Snapshot::new("y.com", LookupProtocol::Whois, "")).unwrap();
+        store
+            .insert(&Snapshot::new("x.com", LookupProtocol::Whois, ""))
+            .unwrap();
+        store
+            .insert(&Snapshot::new("y.com", LookupProtocol::Whois, ""))
+            .unwrap();
         assert_eq!(store.count().unwrap(), 2);
         store.clear().unwrap();
         assert_eq!(store.count().unwrap(), 0);
@@ -207,9 +232,15 @@ mod tests {
     #[test]
     fn test_store_delete_domain() {
         let store = HistoryStore::open_in_memory().unwrap();
-        store.insert(&Snapshot::new("x.com", LookupProtocol::Whois, "")).unwrap();
-        store.insert(&Snapshot::new("x.com", LookupProtocol::Whois, "")).unwrap();
-        store.insert(&Snapshot::new("y.com", LookupProtocol::Whois, "")).unwrap();
+        store
+            .insert(&Snapshot::new("x.com", LookupProtocol::Whois, ""))
+            .unwrap();
+        store
+            .insert(&Snapshot::new("x.com", LookupProtocol::Whois, ""))
+            .unwrap();
+        store
+            .insert(&Snapshot::new("y.com", LookupProtocol::Whois, ""))
+            .unwrap();
         let deleted = store.delete_domain("x.com").unwrap();
         assert_eq!(deleted, 2);
         assert_eq!(store.count().unwrap(), 1);

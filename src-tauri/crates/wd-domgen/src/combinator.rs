@@ -25,8 +25,12 @@ pub struct CombinatorConfig {
     pub max_label_length: usize,
 }
 
-fn default_true() -> bool { true }
-fn default_max_len() -> usize { 63 }
+fn default_true() -> bool {
+    true
+}
+fn default_max_len() -> usize {
+    63
+}
 
 impl Default for CombinatorConfig {
     fn default() -> Self {
@@ -60,7 +64,11 @@ pub fn expand_combinations(config: &CombinatorConfig) -> Vec<String> {
         for word in &config.words {
             // Bare word
             if config.include_bare {
-                push_if_valid(&mut results, format!("{word}{tld}"), config.max_label_length);
+                push_if_valid(
+                    &mut results,
+                    format!("{word}{tld}"),
+                    config.max_label_length,
+                );
             }
 
             // Prefix + word
@@ -117,7 +125,11 @@ pub fn expand_combinations(config: &CombinatorConfig) -> Vec<String> {
 }
 
 fn normalize_tld(tld: &str) -> String {
-    if tld.starts_with('.') { tld.to_string() } else { format!(".{tld}") }
+    if tld.starts_with('.') {
+        tld.to_string()
+    } else {
+        format!(".{tld}")
+    }
 }
 
 fn push_if_valid(out: &mut Vec<String>, domain: String, max_label: usize) {

@@ -104,19 +104,9 @@ impl ToolBuilder {
     }
 
     /// Add a parameter.
-    pub fn param(
-        mut self,
-        name: &str,
-        typ: ParamType,
-        description: &str,
-        required: bool,
-    ) -> Self {
-        self.params.push((
-            name.to_string(),
-            typ,
-            description.to_string(),
-            required,
-        ));
+    pub fn param(mut self, name: &str, typ: ParamType, description: &str, required: bool) -> Self {
+        self.params
+            .push((name.to_string(), typ, description.to_string(), required));
         self
     }
 
@@ -181,8 +171,7 @@ mod tests {
 
     #[test]
     fn test_param_type_enum() {
-        let schema =
-            ParamType::Enum(vec!["a".into(), "b".into()]).to_json_schema();
+        let schema = ParamType::Enum(vec!["a".into(), "b".into()]).to_json_schema();
         assert_eq!(schema["enum"][0], "a");
         assert_eq!(schema["enum"][1], "b");
     }

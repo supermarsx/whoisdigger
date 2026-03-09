@@ -52,7 +52,11 @@ impl DropEstimate {
     }
 
     /// Compute a drop estimate from expiry data at a specific reference time.
-    pub fn from_expiry_at(expiry: &DomainExpiry, strategy: DropStrategy, now: DateTime<Utc>) -> Option<Self> {
+    pub fn from_expiry_at(
+        expiry: &DomainExpiry,
+        strategy: DropStrategy,
+        now: DateTime<Utc>,
+    ) -> Option<Self> {
         let estimated_drop = expiry.estimated_drop?;
         let earliest = estimated_drop;
         let latest = estimated_drop + Duration::days(2);
@@ -73,8 +77,15 @@ impl DropEstimate {
     pub fn current_interval_secs(&self) -> u64 {
         match &self.strategy {
             DropStrategy::Polling { interval_secs } => *interval_secs,
-            DropStrategy::Escalating { normal_interval_secs, hot_interval_secs } => {
-                if self.is_hot { *hot_interval_secs } else { *normal_interval_secs }
+            DropStrategy::Escalating {
+                normal_interval_secs,
+                hot_interval_secs,
+            } => {
+                if self.is_hot {
+                    *hot_interval_secs
+                } else {
+                    *normal_interval_secs
+                }
             }
             DropStrategy::PassiveAlert => 86400, // once a day
         }
@@ -91,7 +102,8 @@ pub fn batch_drop_estimates(
     expiries: &[DomainExpiry],
     strategy: DropStrategy,
 ) -> Vec<DropEstimate> {
-    expiries.iter()
+    expiries
+        .iter()
         .filter_map(|e| DropEstimate::from_expiry(e, strategy.clone()))
         .collect()
 }
@@ -125,7 +137,8 @@ mod tests {
     #[test]
     fn test_drop_estimate_hot_zone() {
         let exp = DomainExpiry::compute("hot.com", Some(utc(2026, 1, 1)), None, utc(2026, 3, 6));
-        let est = DropEstimate::from_expiry_at(&exp, DropStrategy::default(), utc(2026, 3, 6)).unwrap();
+        let est =
+            DropEstimate::from_expiry_at(&exp, DropStrategy::default(), utc(2026, 3, 6)).unwrap();
         assert!(est.is_hot);
     }
 

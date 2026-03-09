@@ -86,7 +86,9 @@ impl SessionExporter {
         let mut out = String::new();
         out.push_str("<!DOCTYPE html>\n<html><head><meta charset=\"utf-8\">");
         out.push_str(&format!("<title>{}</title>", html_escape(&session.title)));
-        out.push_str("<style>body{font-family:sans-serif;max-width:800px;margin:auto;padding:20px}");
+        out.push_str(
+            "<style>body{font-family:sans-serif;max-width:800px;margin:auto;padding:20px}",
+        );
         out.push_str(".msg{margin-bottom:16px;padding:12px;border-radius:8px}");
         out.push_str(".user{background:#e3f2fd}.assistant{background:#f5f5f5}");
         out.push_str(".system{background:#fff3e0;font-style:italic}");
@@ -131,7 +133,13 @@ impl SessionExporter {
         let slug: String = session
             .title
             .chars()
-            .map(|c| if c.is_alphanumeric() || c == '-' { c } else { '_' })
+            .map(|c| {
+                if c.is_alphanumeric() || c == '-' {
+                    c
+                } else {
+                    '_'
+                }
+            })
             .take(40)
             .collect();
         let date = Utc::now().format("%Y%m%d");
@@ -209,7 +217,10 @@ mod tests {
 
     #[test]
     fn test_html_escapes() {
-        let mut s = ChatSession::new(PersonaKind::GeneralAssistant, Some("<script>alert</script>"));
+        let mut s = ChatSession::new(
+            PersonaKind::GeneralAssistant,
+            Some("<script>alert</script>"),
+        );
         s.add_user_message("x < y & z > w");
         let html = SessionExporter::to_html(&s);
         assert!(html.contains("&lt;script&gt;"));

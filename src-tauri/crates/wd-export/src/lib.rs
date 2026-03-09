@@ -100,8 +100,7 @@ pub fn export_results(
             if let Some(data) = &r.data {
                 zip.start_file(format!("{}.txt", r.domain), zip_opts)
                     .map_err(|e| e.to_string())?;
-                zip.write_all(data.as_bytes())
-                    .map_err(|e| e.to_string())?;
+                zip.write_all(data.as_bytes()).map_err(|e| e.to_string())?;
             }
         }
         zip.finish().map_err(|e| e.to_string())?;

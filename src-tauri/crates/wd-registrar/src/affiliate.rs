@@ -17,7 +17,10 @@ pub fn build_affiliate_url(
 ) -> Option<AffiliateLink> {
     let url = match registrar_id {
         "namecheap" => {
-            let base = format!("https://www.namecheap.com/domains/registration/results/?domain={}", domain);
+            let base = format!(
+                "https://www.namecheap.com/domains/registration/results/?domain={}",
+                domain
+            );
             match affiliate_tag {
                 Some(tag) => format!("{}&aff={}", base, tag),
                 None => base,
@@ -27,7 +30,10 @@ pub fn build_affiliate_url(
             format!("https://www.cloudflare.com/products/registrar/")
         }
         "godaddy" => {
-            let base = format!("https://www.godaddy.com/domainsearch/find?domainToCheck={}", domain);
+            let base = format!(
+                "https://www.godaddy.com/domainsearch/find?domainToCheck={}",
+                domain
+            );
             match affiliate_tag {
                 Some(tag) => format!("{}&isc={}", base, tag),
                 None => base,
@@ -58,9 +64,20 @@ pub fn build_affiliate_url(
 }
 
 /// Build purchase URLs for all known registrars.
-pub fn build_all_affiliate_urls(domain: &str, affiliate_tags: &std::collections::HashMap<String, String>) -> Vec<AffiliateLink> {
-    let registrar_ids = ["namecheap", "cloudflare", "godaddy", "porkbun", "dynadot", "gandi"];
-    registrar_ids.iter()
+pub fn build_all_affiliate_urls(
+    domain: &str,
+    affiliate_tags: &std::collections::HashMap<String, String>,
+) -> Vec<AffiliateLink> {
+    let registrar_ids = [
+        "namecheap",
+        "cloudflare",
+        "godaddy",
+        "porkbun",
+        "dynadot",
+        "gandi",
+    ];
+    registrar_ids
+        .iter()
         .filter_map(|id| {
             let tag = affiliate_tags.get(*id).map(|s| s.as_str());
             build_affiliate_url(id, domain, tag)

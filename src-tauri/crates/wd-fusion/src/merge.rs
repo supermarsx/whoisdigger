@@ -19,16 +19,23 @@ pub enum MergeStrategy {
 }
 
 impl Default for MergeStrategy {
-    fn default() -> Self { MergeStrategy::HighestWeight }
+    fn default() -> Self {
+        MergeStrategy::HighestWeight
+    }
 }
 
 /// Merge multiple source records into a single fused record.
-pub fn merge_records(domain: &str, sources: Vec<SourceRecord>, strategy: &MergeStrategy) -> FusedRecord {
+pub fn merge_records(
+    domain: &str,
+    sources: Vec<SourceRecord>,
+    strategy: &MergeStrategy,
+) -> FusedRecord {
     let confidence = compute_confidence(&sources);
     let successful: Vec<&SourceRecord> = sources.iter().filter(|s| s.success).collect();
 
     // Collect all field keys
-    let mut all_keys: Vec<String> = successful.iter()
+    let mut all_keys: Vec<String> = successful
+        .iter()
         .flat_map(|s| s.fields.keys().cloned())
         .collect();
     all_keys.sort();
@@ -45,25 +52,37 @@ pub fn merge_records(domain: &str, sources: Vec<SourceRecord>, strategy: &MergeS
             }
         }
 
-        if entries.is_empty() { continue; }
+        if entries.is_empty() {
+            continue;
+        }
 
         let chosen_value = pick_value(&entries, strategy);
         let providers: Vec<LookupSource> = entries.iter().map(|(_, s, _)| (*s).clone()).collect();
 
         // Check consensus
-        let unique_values: std::collections::HashSet<String> = entries.iter().map(|(v, _, _)| v.to_lowercase()).collect();
+        let unique_values: std::collections::HashSet<String> =
+            entries.iter().map(|(v, _, _)| v.to_lowercase()).collect();
         let consensus = unique_values.len() <= 1;
 
-        let field_conf = confidence.field_scores.get(key).cloned().unwrap_or(FieldConfidence {
-            source_count: 0, unanimous: false, score: 0.0,
-        });
+        let field_conf = confidence
+            .field_scores
+            .get(key)
+            .cloned()
+            .unwrap_or(FieldConfidence {
+                source_count: 0,
+                unanimous: false,
+                score: 0.0,
+            });
 
-        fields.insert(key.clone(), FusedField {
-            value: chosen_value.to_string(),
-            provided_by: providers,
-            confidence: field_conf.score,
-            consensus,
-        });
+        fields.insert(
+            key.clone(),
+            FusedField {
+                value: chosen_value.to_string(),
+                provided_by: providers,
+                confidence: field_conf.score,
+                consensus,
+            },
+        );
     }
 
     FusedRecord {
@@ -81,25 +100,31 @@ fn pick_value<'a>(
     strategy: &MergeStrategy,
 ) -> &'a str {
     match strategy {
-        MergeStrategy::HighestWeight => {
-            entries.iter()
-                .max_by(|a, b| source_weight_f(a.1).partial_cmp(&source_weight_f(b.1)).unwrap())
-                .map(|(v, _, _)| *v)
-                .unwrap_or("")
-        }
+        MergeStrategy::HighestWeight => entries
+            .iter()
+            .max_by(|a, b| {
+                source_weight_f(a.1)
+                    .partial_cmp(&source_weight_f(b.1))
+                    .unwrap()
+            })
+            .map(|(v, _, _)| *v)
+            .unwrap_or(""),
         MergeStrategy::Majority => {
             let mut counts: HashMap<&str, usize> = HashMap::new();
             for (val, _, _) in entries {
                 *counts.entry(*val).or_default() += 1;
             }
-            counts.into_iter().max_by_key(|(_, c)| *c).map(|(v, _)| v).unwrap_or("")
-        }
-        MergeStrategy::MostRecent => {
-            entries.iter()
-                .max_by_key(|(_, _, ts)| *ts)
-                .map(|(v, _, _)| *v)
+            counts
+                .into_iter()
+                .max_by_key(|(_, c)| *c)
+                .map(|(v, _)| v)
                 .unwrap_or("")
         }
+        MergeStrategy::MostRecent => entries
+            .iter()
+            .max_by_key(|(_, _, ts)| *ts)
+            .map(|(v, _, _)| *v)
+            .unwrap_or(""),
         MergeStrategy::Priority(order) => {
             for src in order {
                 if let Some(entry) = entries.iter().find(|(_, s, _)| *s == src) {
@@ -128,7 +153,10 @@ mod tests {
     use super::*;
 
     fn rec(source: LookupSource, fields: Vec<(&str, &str)>) -> SourceRecord {
-        let map = fields.into_iter().map(|(k, v)| (k.to_string(), v.to_string())).collect();
+        let map = fields
+            .into_iter()
+            .map(|(k, v)| (k.to_string(), v.to_string()))
+            .collect();
         SourceRecord::ok(source, "example.com", "raw", map, 100)
     }
 

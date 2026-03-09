@@ -122,7 +122,9 @@ fn apply_hyphenation(s: &str) -> Vec<String> {
     for i in 1..chars.len() {
         let mut v = String::with_capacity(s.len() + 1);
         for (j, c) in chars.iter().enumerate() {
-            if j == i { v.push('-'); }
+            if j == i {
+                v.push('-');
+            }
             v.push(*c);
         }
         results.push(v);
@@ -131,18 +133,24 @@ fn apply_hyphenation(s: &str) -> Vec<String> {
 }
 
 fn remove_vowels(s: &str) -> String {
-    s.chars().filter(|c| !matches!(c, 'a'|'e'|'i'|'o'|'u'|'A'|'E'|'I'|'O'|'U')).collect()
+    s.chars()
+        .filter(|c| !matches!(c, 'a' | 'e' | 'i' | 'o' | 'u' | 'A' | 'E' | 'I' | 'O' | 'U'))
+        .collect()
 }
 
 fn apply_consonant_double(s: &str) -> Vec<String> {
     let chars: Vec<char> = s.chars().collect();
     let mut results = Vec::new();
     for (i, c) in chars.iter().enumerate() {
-        if !matches!(c, 'a'|'e'|'i'|'o'|'u'|'A'|'E'|'I'|'O'|'U') && c.is_alphabetic() {
+        if !matches!(c, 'a' | 'e' | 'i' | 'o' | 'u' | 'A' | 'E' | 'I' | 'O' | 'U')
+            && c.is_alphabetic()
+        {
             let mut v = String::with_capacity(s.len() + 1);
             for (j, ch) in chars.iter().enumerate() {
                 v.push(*ch);
-                if j == i { v.push(*ch); }
+                if j == i {
+                    v.push(*ch);
+                }
             }
             results.push(v);
         }
@@ -168,7 +176,9 @@ fn apply_char_drop(s: &str) -> Vec<String> {
     let chars: Vec<char> = s.chars().collect();
     let mut results = Vec::new();
     for i in 0..chars.len() {
-        let v: String = chars.iter().enumerate()
+        let v: String = chars
+            .iter()
+            .enumerate()
             .filter(|(j, _)| *j != i)
             .map(|(_, c)| *c)
             .collect();
@@ -257,7 +267,10 @@ mod tests {
 
     #[test]
     fn test_mutate_domain_limits() {
-        let config = MutatorConfig { max_variants: 5, ..Default::default() };
+        let config = MutatorConfig {
+            max_variants: 5,
+            ..Default::default()
+        };
         let results = mutate_domain("cloudflare", &config);
         assert!(results.len() <= 5);
     }

@@ -43,24 +43,34 @@ pub fn assess_domain(
 
     RiskAssessment {
         domain: domain.to_string(),
-        risk: RiskScore { score, level, indicators, summary },
+        risk: RiskScore {
+            score,
+            level,
+            indicators,
+            summary,
+        },
         assessed_at: chrono::Utc::now(),
     }
 }
 
 fn compute_score(indicators: &[ThreatIndicator]) -> u32 {
-    if indicators.is_empty() { return 0; }
+    if indicators.is_empty() {
+        return 0;
+    }
 
-    let total: f64 = indicators.iter().map(|i| {
-        let base = match i.level {
-            ThreatLevel::None => 0.0,
-            ThreatLevel::Low => 10.0,
-            ThreatLevel::Medium => 25.0,
-            ThreatLevel::High => 45.0,
-            ThreatLevel::Critical => 70.0,
-        };
-        base * i.confidence
-    }).sum();
+    let total: f64 = indicators
+        .iter()
+        .map(|i| {
+            let base = match i.level {
+                ThreatLevel::None => 0.0,
+                ThreatLevel::Low => 10.0,
+                ThreatLevel::Medium => 25.0,
+                ThreatLevel::High => 45.0,
+                ThreatLevel::Critical => 70.0,
+            };
+            base * i.confidence
+        })
+        .sum();
 
     (total as u32).min(100)
 }
@@ -79,11 +89,17 @@ fn build_summary(domain: &str, score: u32, indicators: &[ThreatIndicator]) -> St
     if indicators.is_empty() {
         return format!("{}: No threats detected (score: 0/100)", domain);
     }
-    let top_categories: Vec<String> = indicators.iter()
+    let top_categories: Vec<String> = indicators
+        .iter()
         .take(3)
         .map(|i| format!("{:?}", i.category))
         .collect();
-    format!("{}: Risk score {}/100 — {}", domain, score, top_categories.join(", "))
+    format!(
+        "{}: Risk score {}/100 — {}",
+        domain,
+        score,
+        top_categories.join(", ")
+    )
 }
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
@@ -116,9 +132,11 @@ mod tests {
     #[test]
     fn test_blocklist_hits_increase_score() {
         use crate::indicator::ThreatCategory;
-        let hits = vec![
-            ThreatIndicator::new(ThreatCategory::Malware, ThreatLevel::Critical, "On malware blocklist"),
-        ];
+        let hits = vec![ThreatIndicator::new(
+            ThreatCategory::Malware,
+            ThreatLevel::Critical,
+            "On malware blocklist",
+        )];
         let assessment = assess_domain("evil.com", None, None, &hits);
         assert!(assessment.risk.score > 50);
     }

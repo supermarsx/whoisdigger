@@ -71,7 +71,9 @@ impl Job {
 
     /// Check if the job is due to run.
     pub fn is_due(&self) -> bool {
-        if self.status != JobStatus::Active { return false; }
+        if self.status != JobStatus::Active {
+            return false;
+        }
         match self.next_run {
             Some(next) => Utc::now() >= next,
             None => false,
@@ -101,14 +103,26 @@ impl Job {
         self.next_run = self.schedule.next_occurrence(Utc::now());
     }
 
-    pub fn pause(&mut self) { self.status = JobStatus::Paused; self.next_run = None; }
-    pub fn resume(&mut self) { self.status = JobStatus::Active; self.next_run = self.schedule.next_occurrence(Utc::now()); }
-    pub fn cancel(&mut self) { self.status = JobStatus::Cancelled; self.next_run = None; }
+    pub fn pause(&mut self) {
+        self.status = JobStatus::Paused;
+        self.next_run = None;
+    }
+    pub fn resume(&mut self) {
+        self.status = JobStatus::Active;
+        self.next_run = self.schedule.next_occurrence(Utc::now());
+    }
+    pub fn cancel(&mut self) {
+        self.status = JobStatus::Cancelled;
+        self.next_run = None;
+    }
 }
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let nanos = SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_nanos();
+    let nanos = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_nanos();
     format!("job_{:x}", nanos)
 }
 
@@ -121,7 +135,10 @@ mod tests {
 
     #[test]
     fn test_job_creation() {
-        let sched = Schedule { kind: ScheduleKind::IntervalMinutes(60), enabled: true };
+        let sched = Schedule {
+            kind: ScheduleKind::IntervalMinutes(60),
+            enabled: true,
+        };
         let job = Job::new("My Scan", vec!["example.com".into()], sched);
         assert_eq!(job.status, JobStatus::Active);
         assert_eq!(job.run_count, 0);
@@ -130,7 +147,10 @@ mod tests {
 
     #[test]
     fn test_record_success() {
-        let sched = Schedule { kind: ScheduleKind::IntervalMinutes(60), enabled: true };
+        let sched = Schedule {
+            kind: ScheduleKind::IntervalMinutes(60),
+            enabled: true,
+        };
         let mut job = Job::new("Test", vec!["a.com".into()], sched);
         job.record_success();
         assert_eq!(job.run_count, 1);
@@ -140,7 +160,10 @@ mod tests {
 
     #[test]
     fn test_one_shot_completes_after_success() {
-        let sched = Schedule { kind: ScheduleKind::Once, enabled: true };
+        let sched = Schedule {
+            kind: ScheduleKind::Once,
+            enabled: true,
+        };
         let mut job = Job::new("OneShot", vec!["a.com".into()], sched);
         job.record_success();
         assert_eq!(job.status, JobStatus::Completed);
@@ -149,7 +172,10 @@ mod tests {
 
     #[test]
     fn test_auto_pause_on_failures() {
-        let sched = Schedule { kind: ScheduleKind::IntervalMinutes(60), enabled: true };
+        let sched = Schedule {
+            kind: ScheduleKind::IntervalMinutes(60),
+            enabled: true,
+        };
         let mut job = Job::new("Fragile", vec!["a.com".into()], sched);
         job.max_failures = 3;
         job.record_failure();
@@ -161,7 +187,10 @@ mod tests {
 
     #[test]
     fn test_pause_resume() {
-        let sched = Schedule { kind: ScheduleKind::IntervalMinutes(60), enabled: true };
+        let sched = Schedule {
+            kind: ScheduleKind::IntervalMinutes(60),
+            enabled: true,
+        };
         let mut job = Job::new("PR", vec![], sched);
         job.pause();
         assert_eq!(job.status, JobStatus::Paused);
@@ -173,7 +202,10 @@ mod tests {
 
     #[test]
     fn test_cancel() {
-        let sched = Schedule { kind: ScheduleKind::IntervalMinutes(60), enabled: true };
+        let sched = Schedule {
+            kind: ScheduleKind::IntervalMinutes(60),
+            enabled: true,
+        };
         let mut job = Job::new("Cancel", vec![], sched);
         job.cancel();
         assert_eq!(job.status, JobStatus::Cancelled);

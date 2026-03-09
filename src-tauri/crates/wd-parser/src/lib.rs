@@ -1,7 +1,7 @@
+use html_escape::decode_html_entities;
+use regex::Regex;
 use std::collections::HashMap;
 use std::sync::LazyLock;
-use regex::Regex;
-use html_escape::decode_html_entities;
 
 /// Compiled regex: strip leading non-alphanumeric characters.
 static RE_CAMEL_CASE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[^a-zA-Z0-9]+").unwrap());
@@ -169,7 +169,8 @@ mod tests {
 
     #[test]
     fn test_parse_raw_data() {
-        let raw = "Domain Name: example.com\nRegistrar: ABC &amp; Co\nEmpty: \nMulti: Line 1\nLine 2";
+        let raw =
+            "Domain Name: example.com\nRegistrar: ABC &amp; Co\nEmpty: \nMulti: Line 1\nLine 2";
         let result = parse_raw_data(raw);
         assert_eq!(result.get("domainName").unwrap(), "example.com");
         assert_eq!(result.get("registrar").unwrap(), "ABC & Co");

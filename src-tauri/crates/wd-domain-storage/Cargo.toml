@@ -1,0 +1,8 @@
+[package]
+name = "wd-domain-storage"
+version = "0.1.0"
+edition = "2021"
+description = "Storage domain facade for cache and history persistence concerns"
+
+[dependencies]
+wd-db = { path = "../wd-db" }

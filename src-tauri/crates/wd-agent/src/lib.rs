@@ -16,4 +16,4 @@ pub use memory::{DomainKnowledge, WorkingMemory};
 pub use pipeline::{Pipeline, PipelineKind, PipelineStep};
 pub use planner::{Plan, PlanStep, TaskPlanner};
 pub use sandbox::{Sandbox, SandboxConfig, SandboxViolation};
-pub use toolbox::{Toolbox, ToolCategory};
+pub use toolbox::{ToolCategory, Toolbox};

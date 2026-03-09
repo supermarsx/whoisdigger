@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 /// Priority level for a watched domain.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -12,7 +12,9 @@ pub enum WatchPriority {
 }
 
 impl Default for WatchPriority {
-    fn default() -> Self { Self::Medium }
+    fn default() -> Self {
+        Self::Medium
+    }
 }
 
 /// A domain on the watchlist.
@@ -74,7 +76,11 @@ pub struct Watchlist {
 }
 
 impl Watchlist {
-    pub fn new() -> Self { Self { entries: Vec::new() } }
+    pub fn new() -> Self {
+        Self {
+            entries: Vec::new(),
+        }
+    }
 
     pub fn add(&mut self, entry: WatchEntry) {
         self.entries.push(entry);
@@ -98,7 +104,8 @@ impl Watchlist {
     pub fn sorted_by_urgency(&self) -> Vec<&WatchEntry> {
         let mut sorted: Vec<_> = self.entries.iter().filter(|e| e.active).collect();
         sorted.sort_by(|a, b| {
-            b.priority.cmp(&a.priority)
+            b.priority
+                .cmp(&a.priority)
                 .then_with(|| a.expiry_date.cmp(&b.expiry_date))
         });
         sorted
@@ -106,23 +113,34 @@ impl Watchlist {
 
     /// Filter entries by priority.
     pub fn filter_priority(&self, priority: &WatchPriority) -> Vec<&WatchEntry> {
-        self.entries.iter().filter(|e| &e.priority == priority).collect()
+        self.entries
+            .iter()
+            .filter(|e| &e.priority == priority)
+            .collect()
     }
 
     /// Return entries that are due for checking (last_checked older than `interval_secs`).
     pub fn due_for_check(&self, interval_secs: i64) -> Vec<&WatchEntry> {
         let now = Utc::now();
-        self.entries.iter().filter(|e| {
-            e.active && match e.last_checked {
-                None => true,
-                Some(lc) => (now - lc).num_seconds() >= interval_secs,
-            }
-        }).collect()
+        self.entries
+            .iter()
+            .filter(|e| {
+                e.active
+                    && match e.last_checked {
+                        None => true,
+                        Some(lc) => (now - lc).num_seconds() >= interval_secs,
+                    }
+            })
+            .collect()
     }
 
-    pub fn len(&self) -> usize { self.entries.len() }
+    pub fn len(&self) -> usize {
+        self.entries.len()
+    }
 
-    pub fn is_empty(&self) -> bool { self.entries.is_empty() }
+    pub fn is_empty(&self) -> bool {
+        self.entries.is_empty()
+    }
 
     pub fn active_count(&self) -> usize {
         self.entries.iter().filter(|e| e.active).count()

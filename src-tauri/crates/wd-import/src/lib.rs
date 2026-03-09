@@ -6,10 +6,10 @@
 
 pub mod format;
 pub mod parser;
-pub mod validate;
 pub mod stats;
+pub mod validate;
 
 pub use format::{ImportFormat, ImportSource};
 pub use parser::{parse_import, ImportResult};
-pub use validate::{DomainValidator, ValidationLevel};
 pub use stats::ImportStats;
+pub use validate::{DomainValidator, ValidationLevel};

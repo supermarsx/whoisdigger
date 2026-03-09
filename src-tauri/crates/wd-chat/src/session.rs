@@ -115,7 +115,10 @@ impl ChatSession {
 
     /// Count user messages.
     pub fn user_message_count(&self) -> usize {
-        self.messages.iter().filter(|m| m.role == Role::User).count()
+        self.messages
+            .iter()
+            .filter(|m| m.role == Role::User)
+            .count()
     }
 
     /// Count assistant messages.

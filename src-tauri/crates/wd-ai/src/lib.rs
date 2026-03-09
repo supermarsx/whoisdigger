@@ -67,10 +67,7 @@ pub fn predict(model: &Model, text: &str) -> &'static str {
 
         let mut s = (class_total / total_docs).ln();
         for t in &tokens {
-            let count = token_map
-                .and_then(|m| m.get(t))
-                .copied()
-                .unwrap_or(0) as f64;
+            let count = token_map.and_then(|m| m.get(t)).copied().unwrap_or(0) as f64;
             s += ((count + 1.0) / (token_total + vocab_size)).ln();
         }
         s
@@ -149,10 +146,7 @@ pub async fn suggest_words(
         return Ok(vec![]);
     }
 
-    let url = settings
-        .url
-        .as_deref()
-        .ok_or("OpenAI URL not configured")?;
+    let url = settings.url.as_deref().ok_or("OpenAI URL not configured")?;
     let api_key = settings
         .api_key
         .as_deref()
@@ -162,10 +156,7 @@ pub async fn suggest_words(
         return Err("OpenAI API disabled".into());
     }
 
-    let model_name = settings
-        .model
-        .as_deref()
-        .unwrap_or("gpt-3.5-turbo");
+    let model_name = settings.model.as_deref().unwrap_or("gpt-3.5-turbo");
 
     let body = serde_json::json!({
         "model": model_name,
@@ -217,14 +208,10 @@ pub async fn suggest_words(
 /// `base` to prevent path traversal attacks.
 fn safe_path(base: &Path, sub: &str) -> Result<PathBuf, String> {
     let dest = base.join(sub);
-    let canonical_base = base
-        .canonicalize()
-        .unwrap_or_else(|_| base.to_path_buf());
+    let canonical_base = base.canonicalize().unwrap_or_else(|_| base.to_path_buf());
     let canonical_dest = dest.canonicalize().unwrap_or_else(|_| dest.clone());
 
-    if canonical_dest != canonical_base
-        && !canonical_dest.starts_with(&canonical_base)
-    {
+    if canonical_dest != canonical_base && !canonical_dest.starts_with(&canonical_base) {
         return Err("Invalid path: traversal detected".into());
     }
 
@@ -263,7 +250,13 @@ mod tests {
         token_counts.insert(Label::Unavailable, unavail_counts);
 
         let vocabulary: Vec<String> = vec![
-            "no", "match", "domain", "free", "expiration", "date", "registrar",
+            "no",
+            "match",
+            "domain",
+            "free",
+            "expiration",
+            "date",
+            "registrar",
         ]
         .into_iter()
         .map(String::from)

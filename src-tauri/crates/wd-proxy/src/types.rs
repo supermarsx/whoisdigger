@@ -241,10 +241,18 @@ mod tests {
 
     #[test]
     fn test_proxy_key() {
-        let p = ProxyInfo { ipaddress: "1.2.3.4".into(), port: 80, auth: None };
+        let p = ProxyInfo {
+            ipaddress: "1.2.3.4".into(),
+            port: 80,
+            auth: None,
+        };
         assert_eq!(p.key(), "1.2.3.4:80");
 
-        let p6 = ProxyInfo { ipaddress: "::1".into(), port: 443, auth: None };
+        let p6 = ProxyInfo {
+            ipaddress: "::1".into(),
+            port: 443,
+            auth: None,
+        };
         assert_eq!(p6.key(), "[::1]:443");
     }
 
@@ -253,11 +261,18 @@ mod tests {
         let p = ProxyInfo {
             ipaddress: "1.2.3.4".into(),
             port: 8080,
-            auth: Some(ProxyAuth { username: "u".into(), password: "p".into() }),
+            auth: Some(ProxyAuth {
+                username: "u".into(),
+                password: "p".into(),
+            }),
         };
         assert_eq!(p.to_url("socks5"), "socks5://u:p@1.2.3.4:8080");
 
-        let p2 = ProxyInfo { ipaddress: "1.2.3.4".into(), port: 80, auth: None };
+        let p2 = ProxyInfo {
+            ipaddress: "1.2.3.4".into(),
+            port: 80,
+            auth: None,
+        };
         assert_eq!(p2.to_url("http"), "http://1.2.3.4:80");
     }
 }

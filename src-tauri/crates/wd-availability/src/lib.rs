@@ -1,7 +1,7 @@
-use std::collections::HashMap;
-use std::sync::LazyLock;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::sync::LazyLock;
 use wd_parser::parse_raw_data;
 
 // ─── Domain Status ───────────────────────────────────────────────────────────
@@ -152,9 +152,11 @@ impl<'a> PatternContext<'a> {
                     "whoisreply" => {
                         let next = parts.next();
                         match next {
-                            Some("length") => {
-                                self.domain_params.whoisreply.as_ref().map(|r| r.len().to_string())
-                            }
+                            Some("length") => self
+                                .domain_params
+                                .whoisreply
+                                .as_ref()
+                                .map(|r| r.len().to_string()),
                             _ => self.domain_params.whoisreply.clone(),
                         }
                     }
@@ -292,10 +294,9 @@ fn build_patterns(settings: &AvailabilitySettings) -> PatternCollections {
     };
     available.push(CompiledPattern {
         check: Box::new(|ctx| {
-            if let (Some(expiry_str), control) = (
-                ctx.domain_params.expiry_date.as_deref(),
-                &ctx.control_date,
-            ) {
+            if let (Some(expiry_str), control) =
+                (ctx.domain_params.expiry_date.as_deref(), &ctx.control_date)
+            {
                 if let (Some(exp_ts), Some(ctl_ts)) =
                     (parse_date_ms(expiry_str), parse_date_ms(control))
                 {
@@ -483,13 +484,15 @@ fn build_patterns(settings: &AvailabilitySettings) -> PatternCollections {
     // line of the WHOIS reply starts with or equals an error-like string.
     error.push(CompiledPattern {
         check: Box::new(|ctx| {
-            let first_line = ctx.results_text.lines()
+            let first_line = ctx
+                .results_text
+                .lines()
                 .find(|l| !l.trim().is_empty())
                 .unwrap_or("")
                 .trim();
-            first_line.starts_with("error") ||
-            first_line.starts_with("Error") ||
-            first_line.starts_with("ERROR")
+            first_line.starts_with("error")
+                || first_line.starts_with("Error")
+                || first_line.starts_with("ERROR")
         }),
         result: DomainStatus::ErrorReplyError,
     });
@@ -706,10 +709,7 @@ mod tests {
             is_domain_available("No match for domain example.com"),
             DomainStatus::Available
         );
-        assert_eq!(
-            is_domain_available("Status: free"),
-            DomainStatus::Available
-        );
+        assert_eq!(is_domain_available("Status: free"), DomainStatus::Available);
         assert_eq!(
             is_domain_available("Domain Status:ok"),
             DomainStatus::Unavailable
@@ -869,10 +869,7 @@ mod tests {
         let mut settings = default_settings();
         settings.uniregistry = true;
         assert_eq!(
-            is_domain_available_with_settings(
-                "Uniregistry Query limit exceeded",
-                &settings
-            ),
+            is_domain_available_with_settings("Uniregistry Query limit exceeded", &settings),
             DomainStatus::Unavailable
         );
     }
@@ -1081,9 +1078,18 @@ mod tests {
 
     #[test]
     fn test_domain_status_from_str_loose() {
-        assert_eq!(DomainStatus::from_str_loose("available"), DomainStatus::Available);
-        assert_eq!(DomainStatus::from_str_loose("expired"), DomainStatus::Expired);
-        assert_eq!(DomainStatus::from_str_loose("unknown"), DomainStatus::ErrorUnparsable);
+        assert_eq!(
+            DomainStatus::from_str_loose("available"),
+            DomainStatus::Available
+        );
+        assert_eq!(
+            DomainStatus::from_str_loose("expired"),
+            DomainStatus::Expired
+        );
+        assert_eq!(
+            DomainStatus::from_str_loose("unknown"),
+            DomainStatus::ErrorUnparsable
+        );
     }
 
     #[test]

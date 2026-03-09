@@ -4,12 +4,12 @@
 //! names and WHOIS data, cross-references known blocklists, calculates risk
 //! scores, and flags potential phishing/malware indicators.
 
+pub mod blocklist;
 pub mod indicator;
 pub mod pattern;
 pub mod risk;
-pub mod blocklist;
 
-pub use indicator::{ThreatIndicator, ThreatCategory, ThreatLevel};
-pub use pattern::{PatternDetector, SuspiciousPattern};
-pub use risk::{RiskScore, RiskAssessment, assess_domain};
 pub use blocklist::{Blocklist, BlocklistEntry, BlocklistMatch};
+pub use indicator::{ThreatCategory, ThreatIndicator, ThreatLevel};
+pub use pattern::{PatternDetector, SuspiciousPattern};
+pub use risk::{assess_domain, RiskAssessment, RiskScore};

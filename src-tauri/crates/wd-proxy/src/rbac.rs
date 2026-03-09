@@ -127,7 +127,11 @@ impl Rbac {
             "viewer".into(),
             Role::new(
                 "viewer",
-                vec![Permission::ProxyView, Permission::CacheRead, Permission::RbacView],
+                vec![
+                    Permission::ProxyView,
+                    Permission::CacheRead,
+                    Permission::RbacView,
+                ],
             )
             .with_description("Read-only access to proxy settings and cache"),
         );
@@ -192,10 +196,14 @@ impl Rbac {
 
     /// Get the role bindings for a subject.
     pub fn get_bindings(&self, subject: &str) -> Option<RoleBinding> {
-        self.bindings.read().unwrap().get(subject).map(|roles| RoleBinding {
-            subject: subject.to_string(),
-            roles: roles.clone(),
-        })
+        self.bindings
+            .read()
+            .unwrap()
+            .get(subject)
+            .map(|roles| RoleBinding {
+                subject: subject.to_string(),
+                roles: roles.clone(),
+            })
     }
 
     /// List all subjects with bindings.
@@ -277,7 +285,10 @@ impl Rbac {
         if let Some(bindings_arr) = data.get("bindings").and_then(|v| v.as_array()) {
             let mut bindings = self.bindings.write().unwrap();
             for bv in bindings_arr {
-                let subject = bv.get("subject").and_then(|v| v.as_str()).unwrap_or_default();
+                let subject = bv
+                    .get("subject")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or_default();
                 let role_list: Vec<String> = bv
                     .get("roles")
                     .and_then(|v| v.as_array())
@@ -349,7 +360,10 @@ mod tests {
     #[test]
     fn test_custom_role() {
         let rbac = Rbac::new();
-        let role = Role::new("cache_only", vec![Permission::CacheRead, Permission::CacheWrite]);
+        let role = Role::new(
+            "cache_only",
+            vec![Permission::CacheRead, Permission::CacheWrite],
+        );
         rbac.add_role(role);
         rbac.bind("dave", vec!["cache_only".into()]);
 

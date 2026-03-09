@@ -75,11 +75,7 @@ impl ContextManager {
 
     /// How many tokens are available for the model output after accounting
     /// for the given messages and tools.
-    pub fn available_output_tokens(
-        &self,
-        messages: &[Message],
-        tools: &[ToolDefinition],
-    ) -> usize {
+    pub fn available_output_tokens(&self, messages: &[Message], tools: &[ToolDefinition]) -> usize {
         TE::available_for_output(messages, tools, self.config.max_context_tokens)
     }
 
@@ -107,7 +103,8 @@ impl ContextManager {
         }
 
         // Keep the last `window_size` non-system messages
-        let non_system: Vec<&Message> = messages.iter().filter(|m| m.role != Role::System).collect();
+        let non_system: Vec<&Message> =
+            messages.iter().filter(|m| m.role != Role::System).collect();
         let start = non_system.len().saturating_sub(self.config.window_size);
         for &m in &non_system[start..] {
             result.push(m.clone());
@@ -175,7 +172,11 @@ impl ContextManager {
         }
 
         let tool_tokens = TE::estimate_tools(tools);
-        let mut used: usize = result.iter().map(|m| TE::estimate_message(m)).sum::<usize>() + tool_tokens;
+        let mut used: usize = result
+            .iter()
+            .map(|m| TE::estimate_message(m))
+            .sum::<usize>()
+            + tool_tokens;
 
         // Pin first non-system message
         let first = non_system[0].clone();

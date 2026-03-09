@@ -11,5 +11,5 @@ pub mod record;
 
 pub use confidence::{ConfidenceScore, FieldConfidence};
 pub use fallback::{FallbackChain, FallbackOutcome};
-pub use merge::{MergeStrategy, merge_records};
+pub use merge::{merge_records, MergeStrategy};
 pub use record::{FusedRecord, LookupSource, SourceRecord};

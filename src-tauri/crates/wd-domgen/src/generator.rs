@@ -91,11 +91,18 @@ impl GeneratorEngine {
 
         // 2. Abbreviations from keywords
         if self.config.keywords.len() >= 2 {
-            let abbrev: String = self.config.keywords.iter()
+            let abbrev: String = self
+                .config
+                .keywords
+                .iter()
                 .map(|w| w.chars().next().unwrap_or('x'))
                 .collect();
             for tld in &self.config.tlds {
-                let tld = if tld.starts_with('.') { tld.clone() } else { format!(".{tld}") };
+                let tld = if tld.starts_with('.') {
+                    tld.clone()
+                } else {
+                    format!(".{tld}")
+                };
                 results.push(GeneratedDomain {
                     domain: format!("{abbrev}{tld}").to_lowercase(),
                     source: GenerationSource::Abbreviation,
@@ -113,7 +120,11 @@ impl GeneratorEngine {
             };
             for variant in crate::mutator::mutate_domain(kw, &mut_config) {
                 for tld in &self.config.tlds {
-                    let tld = if tld.starts_with('.') { tld.clone() } else { format!(".{tld}") };
+                    let tld = if tld.starts_with('.') {
+                        tld.clone()
+                    } else {
+                        format!(".{tld}")
+                    };
                     results.push(GeneratedDomain {
                         domain: format!("{variant}{tld}").to_lowercase(),
                         source: GenerationSource::Mutation,
@@ -134,7 +145,10 @@ impl GeneratorEngine {
         if let Some(ref template) = self.config.ai_prompt_template {
             template
                 .replace("{keywords}", &self.config.keywords.join(", "))
-                .replace("{industry}", self.config.industry.as_deref().unwrap_or("general"))
+                .replace(
+                    "{industry}",
+                    self.config.industry.as_deref().unwrap_or("general"),
+                )
                 .replace("{tlds}", &self.config.tlds.join(", "))
         } else {
             format!(
@@ -151,7 +165,11 @@ impl GeneratorEngine {
     /// Parse AI response text into `GeneratedDomain` entries.
     pub fn parse_ai_response(text: &str, _tlds: &[String]) -> Vec<GeneratedDomain> {
         text.lines()
-            .map(|line| line.trim().trim_start_matches(|c: char| c.is_ascii_digit() || c == '.' || c == ')' || c == '-' || c == ' '))
+            .map(|line| {
+                line.trim().trim_start_matches(|c: char| {
+                    c.is_ascii_digit() || c == '.' || c == ')' || c == '-' || c == ' '
+                })
+            })
             .map(|line| line.trim().to_lowercase())
             .filter(|line| !line.is_empty() && line.contains('.'))
             .map(|domain| GeneratedDomain {
@@ -164,11 +182,23 @@ impl GeneratorEngine {
     }
 
     fn default_prefixes() -> Vec<String> {
-        vec!["get".into(), "my".into(), "go".into(), "try".into(), "use".into()]
+        vec![
+            "get".into(),
+            "my".into(),
+            "go".into(),
+            "try".into(),
+            "use".into(),
+        ]
     }
 
     fn default_suffixes() -> Vec<String> {
-        vec!["hub".into(), "lab".into(), "app".into(), "hq".into(), "io".into()]
+        vec![
+            "hub".into(),
+            "lab".into(),
+            "app".into(),
+            "hq".into(),
+            "io".into(),
+        ]
     }
 }
 
@@ -190,7 +220,9 @@ mod tests {
         let results = engine.generate();
         assert!(!results.is_empty());
         assert!(results.iter().any(|d| d.domain == "cloud.com"));
-        assert!(results.iter().any(|d| d.source == GenerationSource::Combinator));
+        assert!(results
+            .iter()
+            .any(|d| d.source == GenerationSource::Combinator));
     }
 
     #[test]
@@ -202,7 +234,9 @@ mod tests {
             ..Default::default()
         };
         let results = GeneratorEngine::new(config).generate();
-        assert!(results.iter().any(|d| d.source == GenerationSource::Mutation));
+        assert!(results
+            .iter()
+            .any(|d| d.source == GenerationSource::Mutation));
     }
 
     #[test]
@@ -255,7 +289,9 @@ mod tests {
     fn test_custom_ai_prompt_template() {
         let config = GeneratorConfig {
             keywords: vec!["x".into()],
-            ai_prompt_template: Some("Generate domains for {keywords} in {industry} using {tlds}".into()),
+            ai_prompt_template: Some(
+                "Generate domains for {keywords} in {industry} using {tlds}".into(),
+            ),
             industry: Some("finance".into()),
             tlds: vec![".com".into()],
             ..Default::default()

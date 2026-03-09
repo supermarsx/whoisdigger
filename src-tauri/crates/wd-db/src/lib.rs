@@ -113,7 +113,8 @@ pub fn db_history_get_filtered(
 
     // Count total matching entries
     let count_sql = format!("SELECT COUNT(*) FROM history {}", where_clause);
-    let params_refs: Vec<&dyn rusqlite::types::ToSql> = params_vec.iter().map(|p| p.as_ref()).collect();
+    let params_refs: Vec<&dyn rusqlite::types::ToSql> =
+        params_vec.iter().map(|p| p.as_ref()).collect();
     let total: u32 = conn
         .query_row(&count_sql, params_refs.as_slice(), |row| row.get(0))
         .map_err(|e| e.to_string())?;
@@ -126,10 +127,14 @@ pub fn db_history_get_filtered(
     );
     let mut data_params: Vec<Box<dyn rusqlite::types::ToSql>> = Vec::new();
     if let Some(q) = query {
-        if !q.is_empty() { data_params.push(Box::new(format!("%{}%", q))); }
+        if !q.is_empty() {
+            data_params.push(Box::new(format!("%{}%", q)));
+        }
     }
     if let Some(s) = status {
-        if !s.is_empty() { data_params.push(Box::new(s.to_string())); }
+        if !s.is_empty() {
+            data_params.push(Box::new(s.to_string()));
+        }
     }
     if let Some(since) = since_ms {
         data_params.push(Box::new(since));
@@ -137,7 +142,8 @@ pub fn db_history_get_filtered(
     data_params.push(Box::new(page_size));
     data_params.push(Box::new(offset));
 
-    let data_refs: Vec<&dyn rusqlite::types::ToSql> = data_params.iter().map(|p| p.as_ref()).collect();
+    let data_refs: Vec<&dyn rusqlite::types::ToSql> =
+        data_params.iter().map(|p| p.as_ref()).collect();
     let mut stmt = conn.prepare(&data_sql).map_err(|e| e.to_string())?;
     let rows = stmt
         .query_map(data_refs.as_slice(), |row| {

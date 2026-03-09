@@ -111,26 +111,43 @@ pub fn trim_spaces(lines: &[String]) -> Vec<String> {
 }
 
 pub fn delete_spaces(lines: &[String]) -> Vec<String> {
-    lines.iter().map(|l| RE_WHITESPACE.replace_all(l, "").to_string()).collect()
+    lines
+        .iter()
+        .map(|l| RE_WHITESPACE.replace_all(l, "").to_string())
+        .collect()
 }
 
 pub fn delete_blank_lines(lines: &[String]) -> Vec<String> {
-    lines.iter().filter(|l| !l.trim().is_empty()).cloned().collect()
+    lines
+        .iter()
+        .filter(|l| !l.trim().is_empty())
+        .cloned()
+        .collect()
 }
 
 pub fn trim_non_alnum(lines: &[String]) -> Vec<String> {
-    lines.iter().map(|l| RE_NON_ALNUM_TRIM.replace_all(l, "").to_string()).collect()
+    lines
+        .iter()
+        .map(|l| RE_NON_ALNUM_TRIM.replace_all(l, "").to_string())
+        .collect()
 }
 
 pub fn delete_non_alnum(lines: &[String]) -> Vec<String> {
-    lines.iter().map(|l| RE_NON_ALNUM_ALL.replace_all(l, "").to_string()).collect()
+    lines
+        .iter()
+        .map(|l| RE_NON_ALNUM_ALL.replace_all(l, "").to_string())
+        .collect()
 }
 
 // ─── Deduplication ───────────────────────────────────────────────────────────
 
 pub fn dedupe_lines(lines: &[String]) -> Vec<String> {
     let mut seen = HashSet::new();
-    lines.iter().filter(|l| seen.insert((*l).clone())).cloned().collect()
+    lines
+        .iter()
+        .filter(|l| seen.insert((*l).clone()))
+        .cloned()
+        .collect()
 }
 
 // ─── Regex Operations ────────────────────────────────────────────────────────
@@ -144,12 +161,19 @@ pub fn delete_regex(lines: &[String], pattern: &str) -> Result<Vec<String>, Stri
 /// Replace regex matches within each line.
 pub fn trim_regex(lines: &[String], pattern: &str) -> Result<Vec<String>, String> {
     let re = Regex::new(pattern).map_err(|e| e.to_string())?;
-    Ok(lines.iter().map(|l| re.replace_all(l, "").to_string()).collect())
+    Ok(lines
+        .iter()
+        .map(|l| re.replace_all(l, "").to_string())
+        .collect())
 }
 
 /// Delete lines containing a specific substring.
 pub fn delete_lines_containing(lines: &[String], substr: &str) -> Vec<String> {
-    lines.iter().filter(|l| !l.contains(substr)).cloned().collect()
+    lines
+        .iter()
+        .filter(|l| !l.contains(substr))
+        .cloned()
+        .collect()
 }
 
 /// Remove all occurrences of a string from each line.
@@ -159,13 +183,23 @@ pub fn delete_string(lines: &[String], target: &str) -> Vec<String> {
 
 /// Replace all occurrences of a string in each line.
 pub fn replace_string(lines: &[String], search: &str, replacement: &str) -> Vec<String> {
-    lines.iter().map(|l| l.replace(search, replacement)).collect()
+    lines
+        .iter()
+        .map(|l| l.replace(search, replacement))
+        .collect()
 }
 
 /// Replace regex matches in each line.
-pub fn replace_regex(lines: &[String], pattern: &str, replacement: &str) -> Result<Vec<String>, String> {
+pub fn replace_regex(
+    lines: &[String],
+    pattern: &str,
+    replacement: &str,
+) -> Result<Vec<String>, String> {
     let re = Regex::new(pattern).map_err(|e| e.to_string())?;
-    Ok(lines.iter().map(|l| re.replace_all(l, replacement).to_string()).collect())
+    Ok(lines
+        .iter()
+        .map(|l| re.replace_all(l, replacement).to_string())
+        .collect())
 }
 
 // ─── Case Conversion ─────────────────────────────────────────────────────────
@@ -244,12 +278,18 @@ mod tests {
 
     #[test]
     fn test_sort_lines() {
-        assert_eq!(sort_lines(&lines(&["b", "a", "c"])), lines(&["a", "b", "c"]));
+        assert_eq!(
+            sort_lines(&lines(&["b", "a", "c"])),
+            lines(&["a", "b", "c"])
+        );
     }
 
     #[test]
     fn test_sort_lines_reverse() {
-        assert_eq!(sort_lines_reverse(&lines(&["b", "a", "c"])), lines(&["c", "b", "a"]));
+        assert_eq!(
+            sort_lines_reverse(&lines(&["b", "a", "c"])),
+            lines(&["c", "b", "a"])
+        );
     }
 
     #[test]
@@ -269,7 +309,10 @@ mod tests {
 
     #[test]
     fn test_delete_spaces() {
-        assert_eq!(delete_spaces(&lines(&["a b c", " d "])), lines(&["abc", "d"]));
+        assert_eq!(
+            delete_spaces(&lines(&["a b c", " d "])),
+            lines(&["abc", "d"])
+        );
     }
 
     #[test]
@@ -371,15 +414,15 @@ mod tests {
     #[test]
     fn test_rot13_lines() {
         assert_eq!(rot13_lines(&lines(&["hello"])), lines(&["uryyb"]));
-        assert_eq!(rot13_lines(&rot13_lines(&lines(&["test"]))), lines(&["test"]));
+        assert_eq!(
+            rot13_lines(&rot13_lines(&lines(&["test"]))),
+            lines(&["test"])
+        );
     }
 
     #[test]
     fn test_to_leet_speak_lines() {
-        assert_eq!(
-            to_leet_speak_lines(&lines(&["aeiost"])),
-            lines(&["431057"])
-        );
+        assert_eq!(to_leet_speak_lines(&lines(&["aeiost"])), lines(&["431057"]));
     }
 
     #[test]
@@ -409,7 +452,10 @@ mod tests {
     fn test_process_lines_affix() {
         let input = lines(&["domain"]);
         let opts = ProcessOptions {
-            affix: Some(AffixOptions { prefix: "www.".into(), suffix: ".com".into() }),
+            affix: Some(AffixOptions {
+                prefix: "www.".into(),
+                suffix: ".com".into(),
+            }),
             ..Default::default()
         };
         assert_eq!(process_lines(&input, &opts), lines(&["www.domain.com"]));

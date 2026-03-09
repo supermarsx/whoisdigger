@@ -51,7 +51,11 @@ pub struct ThreatIndicator {
 }
 
 impl ThreatIndicator {
-    pub fn new(category: ThreatCategory, level: ThreatLevel, description: impl Into<String>) -> Self {
+    pub fn new(
+        category: ThreatCategory,
+        level: ThreatLevel,
+        description: impl Into<String>,
+    ) -> Self {
         Self {
             category,
             level,
@@ -88,7 +92,11 @@ mod tests {
 
     #[test]
     fn test_indicator_creation() {
-        let ind = ThreatIndicator::new(ThreatCategory::Phishing, ThreatLevel::High, "Looks like a phishing domain");
+        let ind = ThreatIndicator::new(
+            ThreatCategory::Phishing,
+            ThreatLevel::High,
+            "Looks like a phishing domain",
+        );
         assert_eq!(ind.level, ThreatLevel::High);
         assert_eq!(ind.confidence, 0.8);
     }
@@ -102,8 +110,8 @@ mod tests {
 
     #[test]
     fn test_confidence_clamping() {
-        let ind = ThreatIndicator::new(ThreatCategory::Spam, ThreatLevel::Low, "x")
-            .with_confidence(1.5);
+        let ind =
+            ThreatIndicator::new(ThreatCategory::Spam, ThreatLevel::Low, "x").with_confidence(1.5);
         assert_eq!(ind.confidence, 1.0);
     }
 }

@@ -281,19 +281,41 @@ mod tests {
     // Minimal test provider
     struct DummyProvider;
     impl LlmProvider for DummyProvider {
-        fn kind(&self) -> ProviderKind { ProviderKind::Custom }
-        fn display_name(&self) -> &str { "Dummy" }
-        fn supported_models(&self) -> Vec<ModelInfo> { vec![] }
-        fn max_context_tokens(&self, _model: &str) -> usize { 4096 }
-        fn supports_tools(&self) -> bool { true }
-        fn supports_streaming(&self) -> bool { false }
-        fn build_request_body(&self, _req: &CompletionRequest) -> Result<serde_json::Value, LlmError> {
+        fn kind(&self) -> ProviderKind {
+            ProviderKind::Custom
+        }
+        fn display_name(&self) -> &str {
+            "Dummy"
+        }
+        fn supported_models(&self) -> Vec<ModelInfo> {
+            vec![]
+        }
+        fn max_context_tokens(&self, _model: &str) -> usize {
+            4096
+        }
+        fn supports_tools(&self) -> bool {
+            true
+        }
+        fn supports_streaming(&self) -> bool {
+            false
+        }
+        fn build_request_body(
+            &self,
+            _req: &CompletionRequest,
+        ) -> Result<serde_json::Value, LlmError> {
             Ok(serde_json::json!({}))
         }
-        fn parse_response(&self, _status: u16, _body: &str, _latency: u64) -> Result<CompletionResponse, LlmError> {
+        fn parse_response(
+            &self,
+            _status: u16,
+            _body: &str,
+            _latency: u64,
+        ) -> Result<CompletionResponse, LlmError> {
             Err(LlmError::Other("not impl".into()))
         }
-        fn api_url(&self) -> &str { "http://localhost" }
+        fn api_url(&self) -> &str {
+            "http://localhost"
+        }
     }
 
     #[test]

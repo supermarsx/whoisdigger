@@ -5,12 +5,12 @@
 //! generation. Designed to work with common registrar APIs and public purchase
 //! flows.
 
-pub mod provider;
-pub mod cart;
-pub mod transfer;
 pub mod affiliate;
+pub mod cart;
+pub mod provider;
+pub mod transfer;
 
+pub use affiliate::{build_affiliate_url, AffiliateLink};
+pub use cart::{CartAction, CartItem, ShoppingCart};
 pub use provider::{Registrar, RegistrarCapability, RegistrarRegistry};
-pub use cart::{CartItem, ShoppingCart, CartAction};
-pub use transfer::{TransferRequest, TransferBatch, TransferStatus};
-pub use affiliate::{AffiliateLink, build_affiliate_url};
+pub use transfer::{TransferBatch, TransferRequest, TransferStatus};

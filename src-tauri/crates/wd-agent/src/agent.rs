@@ -56,9 +56,7 @@ pub enum AgentStep {
     /// LLM requested one or more tool calls.
     ToolCalls { calls: Vec<ToolCall> },
     /// Tool results were fed back to the LLM.
-    ToolResults {
-        results: Vec<(String, String)>,
-    },
+    ToolResults { results: Vec<(String, String)> },
     /// Safety sandbox blocked a tool call.
     SandboxBlock { tool_name: String, reason: String },
     /// Budget limit reached.
@@ -122,7 +120,10 @@ impl Agent {
         mut complete_fn: F,
     ) -> AgentResult
     where
-        F: FnMut(&[Message], &[wd_llm::ToolDefinition]) -> Result<CompletionResponse, wd_llm::LlmError>,
+        F: FnMut(
+            &[Message],
+            &[wd_llm::ToolDefinition],
+        ) -> Result<CompletionResponse, wd_llm::LlmError>,
     {
         let run_id = Uuid::new_v4().to_string();
         let mut steps = Vec::new();
@@ -388,15 +389,14 @@ mod tests {
         let mut agent = Agent::new(config);
         let executor = ToolExecutor::new();
 
-        let result = agent.run(
-            "System",
-            "Loop",
-            &[],
-            &executor,
-            |_msgs, _tools| Ok(tool_call_response()),
-        );
+        let result = agent.run("System", "Loop", &[], &executor, |_msgs, _tools| {
+            Ok(tool_call_response())
+        });
         assert!(!result.completed);
-        assert!(result.steps.iter().any(|s| matches!(s, AgentStep::IterationLimit { .. })));
+        assert!(result
+            .steps
+            .iter()
+            .any(|s| matches!(s, AgentStep::IterationLimit { .. })));
     }
 
     #[test]
@@ -421,8 +421,13 @@ mod tests {
             },
         );
         // After 1st iteration, cost = 0.001 >= limit, so 2nd iteration is blocked
-        assert!(result.steps.iter().any(|s| matches!(s, AgentStep::BudgetExhausted { .. }))
-            || result.iterations <= 2);
+        assert!(
+            result
+                .steps
+                .iter()
+                .any(|s| matches!(s, AgentStep::BudgetExhausted { .. }))
+                || result.iterations <= 2
+        );
     }
 
     #[test]
@@ -469,24 +474,27 @@ mod tests {
                 }
             },
         );
-        assert!(result.steps.iter().any(|s| matches!(s, AgentStep::SandboxBlock { .. })));
+        assert!(result
+            .steps
+            .iter()
+            .any(|s| matches!(s, AgentStep::SandboxBlock { .. })));
     }
 
     #[test]
     fn test_events_emitted() {
         let mut agent = Agent::new(AgentConfig::default());
         let executor = ToolExecutor::new();
-        agent.run(
-            "System",
-            "Hello",
-            &[],
-            &executor,
-            |_msgs, _tools| Ok(simple_response("Hi")),
-        );
+        agent.run("System", "Hello", &[], &executor, |_msgs, _tools| {
+            Ok(simple_response("Hi"))
+        });
         let events = agent.events();
         assert!(!events.is_empty());
-        assert!(events.iter().any(|e| matches!(e.kind, EventKind::RunStarted { .. })));
-        assert!(events.iter().any(|e| matches!(e.kind, EventKind::RunCompleted { .. })));
+        assert!(events
+            .iter()
+            .any(|e| matches!(e.kind, EventKind::RunStarted { .. })));
+        assert!(events
+            .iter()
+            .any(|e| matches!(e.kind, EventKind::RunCompleted { .. })));
     }
 
     #[test]

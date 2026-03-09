@@ -66,7 +66,10 @@ impl RunRecord {
         let finished_at = Utc::now();
         let duration_ms = (finished_at - started_at).num_milliseconds().max(0) as u64;
         let domains_queried = results.len() as u32;
-        let domains_succeeded = results.values().filter(|r| **r == DomainRunResult::Success).count() as u32;
+        let domains_succeeded = results
+            .values()
+            .filter(|r| **r == DomainRunResult::Success)
+            .count() as u32;
         let domains_failed = domains_queried - domains_succeeded;
 
         Self {
@@ -86,7 +89,9 @@ impl RunRecord {
 
     /// Success rate (0.0–1.0).
     pub fn success_rate(&self) -> f64 {
-        if self.domains_queried == 0 { return 0.0; }
+        if self.domains_queried == 0 {
+            return 0.0;
+        }
         self.domains_succeeded as f64 / self.domains_queried as f64
     }
 }
@@ -96,8 +101,14 @@ pub fn diff_runs(a: &RunRecord, b: &RunRecord) -> RunDiff {
     let a_domains: std::collections::HashSet<&String> = a.results.keys().collect();
     let b_domains: std::collections::HashSet<&String> = b.results.keys().collect();
 
-    let new_domains: Vec<String> = b_domains.difference(&a_domains).map(|d| (*d).clone()).collect();
-    let removed_domains: Vec<String> = a_domains.difference(&b_domains).map(|d| (*d).clone()).collect();
+    let new_domains: Vec<String> = b_domains
+        .difference(&a_domains)
+        .map(|d| (*d).clone())
+        .collect();
+    let removed_domains: Vec<String> = a_domains
+        .difference(&b_domains)
+        .map(|d| (*d).clone())
+        .collect();
 
     let mut status_changes = vec![];
     for domain in a_domains.intersection(&b_domains) {
@@ -132,13 +143,18 @@ mod tests {
     use super::*;
 
     fn make_results(entries: Vec<(&str, DomainRunResult)>) -> HashMap<String, DomainRunResult> {
-        entries.into_iter().map(|(d, r)| (d.to_string(), r)).collect()
+        entries
+            .into_iter()
+            .map(|(d, r)| (d.to_string(), r))
+            .collect()
     }
 
     #[test]
     fn test_run_record_success_rate() {
         let rec = RunRecord::completed(
-            "j1", 1, Utc::now(),
+            "j1",
+            1,
+            Utc::now(),
             make_results(vec![
                 ("a.com", DomainRunResult::Success),
                 ("b.com", DomainRunResult::Success),
@@ -150,38 +166,60 @@ mod tests {
 
     #[test]
     fn test_diff_runs_new_domains() {
-        let a = RunRecord::completed("j1", 1, Utc::now(), make_results(vec![
-            ("a.com", DomainRunResult::Success),
-        ]));
-        let b = RunRecord::completed("j1", 2, Utc::now(), make_results(vec![
-            ("a.com", DomainRunResult::Success),
-            ("b.com", DomainRunResult::Success),
-        ]));
+        let a = RunRecord::completed(
+            "j1",
+            1,
+            Utc::now(),
+            make_results(vec![("a.com", DomainRunResult::Success)]),
+        );
+        let b = RunRecord::completed(
+            "j1",
+            2,
+            Utc::now(),
+            make_results(vec![
+                ("a.com", DomainRunResult::Success),
+                ("b.com", DomainRunResult::Success),
+            ]),
+        );
         let diff = diff_runs(&a, &b);
         assert!(diff.new_domains.contains(&"b.com".to_string()));
     }
 
     #[test]
     fn test_diff_runs_removed_domains() {
-        let a = RunRecord::completed("j1", 1, Utc::now(), make_results(vec![
-            ("a.com", DomainRunResult::Success),
-            ("b.com", DomainRunResult::Success),
-        ]));
-        let b = RunRecord::completed("j1", 2, Utc::now(), make_results(vec![
-            ("a.com", DomainRunResult::Success),
-        ]));
+        let a = RunRecord::completed(
+            "j1",
+            1,
+            Utc::now(),
+            make_results(vec![
+                ("a.com", DomainRunResult::Success),
+                ("b.com", DomainRunResult::Success),
+            ]),
+        );
+        let b = RunRecord::completed(
+            "j1",
+            2,
+            Utc::now(),
+            make_results(vec![("a.com", DomainRunResult::Success)]),
+        );
         let diff = diff_runs(&a, &b);
         assert!(diff.removed_domains.contains(&"b.com".to_string()));
     }
 
     #[test]
     fn test_diff_runs_status_changes() {
-        let a = RunRecord::completed("j1", 1, Utc::now(), make_results(vec![
-            ("a.com", DomainRunResult::Success),
-        ]));
-        let b = RunRecord::completed("j1", 2, Utc::now(), make_results(vec![
-            ("a.com", DomainRunResult::Timeout),
-        ]));
+        let a = RunRecord::completed(
+            "j1",
+            1,
+            Utc::now(),
+            make_results(vec![("a.com", DomainRunResult::Success)]),
+        );
+        let b = RunRecord::completed(
+            "j1",
+            2,
+            Utc::now(),
+            make_results(vec![("a.com", DomainRunResult::Timeout)]),
+        );
         let diff = diff_runs(&a, &b);
         assert_eq!(diff.status_changes.len(), 1);
         assert_eq!(diff.status_changes[0].domain, "a.com");

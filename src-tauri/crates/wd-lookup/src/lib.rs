@@ -1,8 +1,8 @@
-use rand::Rng;
-use publicsuffix::Psl;
-use serde::{Deserialize, Serialize};
 use hickory_resolver::config::*;
 use hickory_resolver::TokioAsyncResolver;
+use publicsuffix::Psl;
+use rand::Rng;
+use serde::{Deserialize, Serialize};
 use whois_rust::{WhoIs, WhoIsLookupOptions};
 
 // ─── Domain Conversion ──────────────────────────────────────────────────────
@@ -37,10 +37,7 @@ pub fn convert_domain(domain: &str, algorithm: &ConversionAlgorithm) -> String {
                 Err(_) => domain.to_string(),
             }
         }
-        ConversionAlgorithm::Ascii => domain
-            .chars()
-            .filter(|c| c.is_ascii())
-            .collect(),
+        ConversionAlgorithm::Ascii => domain.chars().filter(|c| c.is_ascii()).collect(),
         ConversionAlgorithm::None => domain.to_string(),
     }
 }
@@ -235,29 +232,46 @@ mod tests {
 
     #[test]
     fn test_convert_domain_ascii() {
-        assert_eq!(convert_domain("héllo.com", &ConversionAlgorithm::Ascii), "hllo.com");
+        assert_eq!(
+            convert_domain("héllo.com", &ConversionAlgorithm::Ascii),
+            "hllo.com"
+        );
     }
 
     #[test]
     fn test_convert_domain_none() {
-        assert_eq!(convert_domain("héllo.com", &ConversionAlgorithm::None), "héllo.com");
+        assert_eq!(
+            convert_domain("héllo.com", &ConversionAlgorithm::None),
+            "héllo.com"
+        );
     }
 
     #[test]
     fn test_convert_domain_punycode() {
         let result = convert_domain("münchen.de", &ConversionAlgorithm::Punycode);
-        assert!(result.contains("xn--"), "Expected punycode output, got: {}", result);
+        assert!(
+            result.contains("xn--"),
+            "Expected punycode output, got: {}",
+            result
+        );
     }
 
     #[test]
     fn test_convert_domain_uts46() {
         let result = convert_domain("münchen.de", &ConversionAlgorithm::Uts46);
-        assert!(result.contains("xn--"), "Expected UTS46 output, got: {}", result);
+        assert!(
+            result.contains("xn--"),
+            "Expected UTS46 output, got: {}",
+            result
+        );
     }
 
     #[test]
     fn test_convert_domain_pure_ascii_passthrough() {
-        assert_eq!(convert_domain("example.com", &ConversionAlgorithm::Punycode), "example.com");
+        assert_eq!(
+            convert_domain("example.com", &ConversionAlgorithm::Punycode),
+            "example.com"
+        );
     }
 
     // ── Lookup settings ──────────────────────────────────────────────────
@@ -271,7 +285,10 @@ mod tests {
     #[test]
     fn test_get_follow_static() {
         let settings = LookupSettings {
-            general: LookupGeneralSettings { follow: Some(5), ..Default::default() },
+            general: LookupGeneralSettings {
+                follow: Some(5),
+                ..Default::default()
+            },
             ..Default::default()
         };
         assert_eq!(get_follow(&settings), 5);

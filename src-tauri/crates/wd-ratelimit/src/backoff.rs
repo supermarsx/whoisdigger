@@ -50,9 +50,7 @@ impl BackoffConfig {
         let delay = match self.strategy {
             BackoffStrategy::Fixed => self.base_delay_ms,
             BackoffStrategy::Linear => self.base_delay_ms * (attempt as u64 + 1),
-            BackoffStrategy::Exponential => {
-                self.base_delay_ms * 2u64.pow(attempt.min(20))
-            }
+            BackoffStrategy::Exponential => self.base_delay_ms * 2u64.pow(attempt.min(20)),
             BackoffStrategy::ExponentialJitter => {
                 let base = self.base_delay_ms * 2u64.pow(attempt.min(20));
                 let jitter = (base as f64 * self.jitter_factor * pseudo_random(attempt)) as u64;
@@ -136,7 +134,10 @@ mod tests {
 
     #[test]
     fn test_should_retry() {
-        let config = BackoffConfig { max_retries: 3, ..Default::default() };
+        let config = BackoffConfig {
+            max_retries: 3,
+            ..Default::default()
+        };
         assert!(config.should_retry(0));
         assert!(config.should_retry(2));
         assert!(!config.should_retry(3));

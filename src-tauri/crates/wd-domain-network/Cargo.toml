@@ -1,0 +1,14 @@
+[package]
+name = "wd-domain-network"
+version = "0.1.0"
+edition = "2021"
+description = "Network-edge domain facade for lookup and proxy concerns"
+
+[features]
+default = []
+proxy-sqlite = ["wd-proxy/sqlite"]
+proxy-postgres = ["wd-proxy/postgres"]
+
+[dependencies]
+wd-lookup = { path = "../wd-lookup" }
+wd-proxy = { path = "../wd-proxy", default-features = false }

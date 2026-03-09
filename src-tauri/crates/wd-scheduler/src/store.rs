@@ -21,7 +21,9 @@ impl SchedulerStore {
             )",
             [],
         )?;
-        Ok(Self { conn: Mutex::new(conn) })
+        Ok(Self {
+            conn: Mutex::new(conn),
+        })
     }
 
     pub fn in_memory() -> Result<Self, rusqlite::Error> {
@@ -35,7 +37,9 @@ impl SchedulerStore {
             )",
             [],
         )?;
-        Ok(Self { conn: Mutex::new(conn) })
+        Ok(Self {
+            conn: Mutex::new(conn),
+        })
     }
 
     /// Upsert a job.
@@ -67,12 +71,14 @@ impl SchedulerStore {
     pub fn get_all(&self) -> Result<Vec<Job>, rusqlite::Error> {
         let conn = self.conn.lock().unwrap();
         let mut stmt = conn.prepare("SELECT data FROM jobs ORDER BY created_at DESC")?;
-        let jobs = stmt.query_map([], |row| {
-            let data: String = row.get(0)?;
-            Ok(data)
-        })?.filter_map(|r| r.ok())
-        .filter_map(|data| serde_json::from_str(&data).ok())
-        .collect();
+        let jobs = stmt
+            .query_map([], |row| {
+                let data: String = row.get(0)?;
+                Ok(data)
+            })?
+            .filter_map(|r| r.ok())
+            .filter_map(|data| serde_json::from_str(&data).ok())
+            .collect();
         Ok(jobs)
     }
 
@@ -81,12 +87,14 @@ impl SchedulerStore {
         let conn = self.conn.lock().unwrap();
         let status = serde_json::to_string(&JobStatus::Active).unwrap_or_default();
         let mut stmt = conn.prepare("SELECT data FROM jobs WHERE status = ?1")?;
-        let jobs = stmt.query_map(params![status], |row| {
-            let data: String = row.get(0)?;
-            Ok(data)
-        })?.filter_map(|r| r.ok())
-        .filter_map(|data| serde_json::from_str(&data).ok())
-        .collect();
+        let jobs = stmt
+            .query_map(params![status], |row| {
+                let data: String = row.get(0)?;
+                Ok(data)
+            })?
+            .filter_map(|r| r.ok())
+            .filter_map(|data| serde_json::from_str(&data).ok())
+            .collect();
         Ok(jobs)
     }
 

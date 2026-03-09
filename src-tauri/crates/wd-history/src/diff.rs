@@ -84,10 +84,20 @@ pub fn diff_snapshots(old: &Snapshot, new: &Snapshot) -> SnapshotDiff {
     diff_option_field("registrar", &old.registrar, &new.registrar, &mut entries);
 
     // ── Nameservers (set comparison) ─────────────────────────────────────
-    diff_vec_field("nameservers", &old.nameservers, &new.nameservers, &mut entries);
+    diff_vec_field(
+        "nameservers",
+        &old.nameservers,
+        &new.nameservers,
+        &mut entries,
+    );
 
     // ── Status codes (set comparison) ────────────────────────────────────
-    diff_vec_field("status_codes", &old.status_codes, &new.status_codes, &mut entries);
+    diff_vec_field(
+        "status_codes",
+        &old.status_codes,
+        &new.status_codes,
+        &mut entries,
+    );
 
     SnapshotDiff {
         domain: new.domain.clone(),
@@ -102,12 +112,20 @@ pub fn diff_snapshots(old: &Snapshot, new: &Snapshot) -> SnapshotDiff {
 /// Batch-diff a chronological list of snapshots for one domain.
 /// Returns N-1 diffs for N snapshots.
 pub fn diff_timeline(snapshots: &[Snapshot]) -> Vec<SnapshotDiff> {
-    snapshots.windows(2).map(|w| diff_snapshots(&w[0], &w[1])).collect()
+    snapshots
+        .windows(2)
+        .map(|w| diff_snapshots(&w[0], &w[1]))
+        .collect()
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-fn diff_option_field(name: &str, old: &Option<String>, new: &Option<String>, out: &mut Vec<DiffEntry>) {
+fn diff_option_field(
+    name: &str,
+    old: &Option<String>,
+    new: &Option<String>,
+    out: &mut Vec<DiffEntry>,
+) {
     match (old, new) {
         (None, Some(v)) => out.push(DiffEntry {
             field: name.to_string(),
@@ -145,8 +163,16 @@ fn diff_vec_field(name: &str, old: &[String], new: &[String], out: &mut Vec<Diff
         out.push(DiffEntry {
             field: name.to_string(),
             kind,
-            old_value: if old.is_empty() { None } else { Some(old_joined) },
-            new_value: if new.is_empty() { None } else { Some(new_joined) },
+            old_value: if old.is_empty() {
+                None
+            } else {
+                Some(old_joined)
+            },
+            new_value: if new.is_empty() {
+                None
+            } else {
+                Some(new_joined)
+            },
         });
     }
 }
@@ -162,8 +188,8 @@ fn sorted_join(v: &[String]) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::HashMap;
     use crate::snapshot::{LookupProtocol, Snapshot};
+    use std::collections::HashMap;
 
     fn snap(fields: HashMap<String, String>) -> Snapshot {
         let mut s = Snapshot::new("example.com", LookupProtocol::Whois, "");

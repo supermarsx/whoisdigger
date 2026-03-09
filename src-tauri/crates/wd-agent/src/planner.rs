@@ -106,9 +106,9 @@ impl Plan {
 
     /// Whether all steps are completed or skipped.
     pub fn is_done(&self) -> bool {
-        self.steps.iter().all(|s| {
-            s.status == PlanStepStatus::Completed || s.status == PlanStepStatus::Skipped
-        })
+        self.steps
+            .iter()
+            .all(|s| s.status == PlanStepStatus::Completed || s.status == PlanStepStatus::Skipped)
     }
 
     /// Count completed steps.
@@ -158,11 +158,7 @@ impl TaskPlanner {
             vec!["threat_scan".into()],
             true,
         );
-        plan.add_step(
-            "Produce summary report",
-            vec![],
-            true,
-        );
+        plan.add_step("Produce summary report", vec![], true);
         plan
     }
 
@@ -215,11 +211,7 @@ impl TaskPlanner {
             vec!["homoglyph_check".into()],
             true,
         );
-        plan.add_step(
-            "Produce threat assessment report",
-            vec![],
-            true,
-        );
+        plan.add_step("Produce threat assessment report", vec![], true);
         plan
     }
 }
@@ -290,7 +282,10 @@ mod tests {
     #[test]
     fn test_security_scan_plan() {
         let plan = TaskPlanner::security_scan("example.com");
-        assert!(plan.steps.iter().any(|s| s.tool_names.contains(&"generate_typosquats".to_string())));
+        assert!(plan
+            .steps
+            .iter()
+            .any(|s| s.tool_names.contains(&"generate_typosquats".to_string())));
     }
 
     #[test]

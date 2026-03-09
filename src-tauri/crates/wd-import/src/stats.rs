@@ -31,13 +31,19 @@ impl ImportStats {
     pub fn summary(&self) -> String {
         format!(
             "Parsed {} domains from {} lines. {} valid, {} duplicates removed, {} invalid removed.",
-            self.total_parsed, self.total_lines, self.valid, self.duplicates_removed, self.invalid_removed
+            self.total_parsed,
+            self.total_lines,
+            self.valid,
+            self.duplicates_removed,
+            self.invalid_removed
         )
     }
 
     /// Success rate.
     pub fn success_rate(&self) -> f64 {
-        if self.total_parsed == 0 { return 0.0; }
+        if self.total_parsed == 0 {
+            return 0.0;
+        }
         self.valid as f64 / self.total_parsed as f64
     }
 }
@@ -78,7 +84,11 @@ mod tests {
 
     #[test]
     fn test_success_rate() {
-        let stats = ImportStats { total_parsed: 100, valid: 75, ..Default::default() };
+        let stats = ImportStats {
+            total_parsed: 100,
+            valid: 75,
+            ..Default::default()
+        };
         assert!((stats.success_rate() - 0.75).abs() < 0.001);
     }
 

@@ -67,10 +67,7 @@ impl WorkingMemory {
         if !self.domain_knowledge.is_empty() {
             content.push_str("<domain_knowledge>\n");
             for dk in &self.domain_knowledge {
-                content.push_str(&format!(
-                    "- {} ({}): {}\n",
-                    dk.domain, dk.kind, dk.summary
-                ));
+                content.push_str(&format!("- {} ({}): {}\n", dk.domain, dk.kind, dk.summary));
             }
             content.push_str("</domain_knowledge>\n");
         }
@@ -160,11 +157,7 @@ mod tests {
             "whois",
             "Registered 1995",
         ));
-        mem.add_domain_knowledge(DomainKnowledge::new(
-            "test.com",
-            "dns",
-            "Has MX records",
-        ));
+        mem.add_domain_knowledge(DomainKnowledge::new("test.com", "dns", "Has MX records"));
         let knowledge = mem.knowledge_for("example.com");
         assert_eq!(knowledge.len(), 1);
         assert_eq!(knowledge[0].summary, "Registered 1995");

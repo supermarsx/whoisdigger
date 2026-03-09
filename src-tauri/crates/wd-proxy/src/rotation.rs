@@ -213,14 +213,21 @@ mod tests {
     #[test]
     fn test_rotation_disabled() {
         let rot = ProxyRotation::new();
-        let settings = ProxySettings { enable: false, ..Default::default() };
+        let settings = ProxySettings {
+            enable: false,
+            ..Default::default()
+        };
         assert!(rot.get_proxy(&settings).is_none());
     }
 
     #[test]
     fn test_failure_tracking() {
         let rot = ProxyRotation::new();
-        let proxy = ProxyInfo { ipaddress: "1.1.1.1".into(), port: 80, auth: None };
+        let proxy = ProxyInfo {
+            ipaddress: "1.1.1.1".into(),
+            port: 80,
+            auth: None,
+        };
         rot.report_failure(&proxy);
         rot.report_failure(&proxy);
         rot.report_failure(&proxy);
@@ -266,7 +273,11 @@ mod tests {
     #[test]
     fn test_custom_expiry() {
         let rot = ProxyRotation::with_expiry(std::time::Duration::from_secs(1));
-        let proxy = ProxyInfo { ipaddress: "1.1.1.1".into(), port: 80, auth: None };
+        let proxy = ProxyInfo {
+            ipaddress: "1.1.1.1".into(),
+            port: 80,
+            auth: None,
+        };
         rot.report_failure(&proxy);
         assert_eq!(rot.failure_count(&proxy), 1);
     }

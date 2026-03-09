@@ -33,10 +33,9 @@ impl PostgresCache {
     ///
     /// The caller must have a running tokio runtime.
     pub async fn connect(conn_str: &str) -> CacheResult<Self> {
-        let (client, connection) =
-            tokio_postgres::connect(conn_str, NoTls)
-                .await
-                .map_err(|e| CacheError::Backend(format!("pg connect: {e}")))?;
+        let (client, connection) = tokio_postgres::connect(conn_str, NoTls)
+            .await
+            .map_err(|e| CacheError::Backend(format!("pg connect: {e}")))?;
 
         // Spawn the connection future so it keeps running
         tokio::spawn(async move {
@@ -80,21 +79,22 @@ impl PostgresCache {
 
 impl CacheBackend for PostgresCache {
     fn get(&self, key: &str) -> CacheResult<Option<CacheEntry>> {
-        let client = self.client.lock().map_err(|e| CacheError::Backend(e.to_string()))?;
-        let rows = self.block_on(
-            client.query(
-                "SELECT key, value, created_at, ttl_ms, hit_count FROM proxy_cache WHERE key = $1",
-                &[&key],
-            ),
-        )?;
+        let client = self
+            .client
+            .lock()
+            .map_err(|e| CacheError::Backend(e.to_string()))?;
+        let rows = self.block_on(client.query(
+            "SELECT key, value, created_at, ttl_ms, hit_count FROM proxy_cache WHERE key = $1",
+            &[&key],
+        ))?;
 
         if let Some(row) = rows.first() {
             let created_ms: i64 = row.get(2);
             let ttl_ms: Option<i64> = row.get(3);
             let hit_count: i64 = row.get(4);
 
-            let created_at = chrono::DateTime::from_timestamp_millis(created_ms)
-                .unwrap_or_else(|| Utc::now());
+            let created_at =
+                chrono::DateTime::from_timestamp_millis(created_ms).unwrap_or_else(|| Utc::now());
 
             let entry = CacheEntry {
                 key: row.get::<_, String>(0),
@@ -105,18 +105,14 @@ impl CacheBackend for PostgresCache {
             };
 
             if entry.is_expired() {
-                self.block_on(
-                    client.execute("DELETE FROM proxy_cache WHERE key = $1", &[&key]),
-                )?;
+                self.block_on(client.execute("DELETE FROM proxy_cache WHERE key = $1", &[&key]))?;
                 return Ok(None);
             }
 
-            self.block_on(
-                client.execute(
-                    "UPDATE proxy_cache SET hit_count = hit_count + 1 WHERE key = $1",
-                    &[&key],
-                ),
-            )?;
+            self.block_on(client.execute(
+                "UPDATE proxy_cache SET hit_count = hit_count + 1 WHERE key = $1",
+                &[&key],
+            ))?;
 
             Ok(Some(CacheEntry {
                 hit_count: entry.hit_count + 1,
@@ -128,7 +124,10 @@ impl CacheBackend for PostgresCache {
     }
 
     fn set(&self, entry: CacheEntry) -> CacheResult<()> {
-        let client = self.client.lock().map_err(|e| CacheError::Backend(e.to_string()))?;
+        let client = self
+            .client
+            .lock()
+            .map_err(|e| CacheError::Backend(e.to_string()))?;
         let created_ms = entry.created_at.timestamp_millis();
         let ttl: Option<i64> = entry.ttl_ms.map(|t| t as i64);
         let hit: i64 = entry.hit_count as i64;
@@ -143,30 +142,38 @@ impl CacheBackend for PostgresCache {
     }
 
     fn remove(&self, key: &str) -> CacheResult<()> {
-        let client = self.client.lock().map_err(|e| CacheError::Backend(e.to_string()))?;
-        self.block_on(
-            client.execute("DELETE FROM proxy_cache WHERE key = $1", &[&key]),
-        )?;
+        let client = self
+            .client
+            .lock()
+            .map_err(|e| CacheError::Backend(e.to_string()))?;
+        self.block_on(client.execute("DELETE FROM proxy_cache WHERE key = $1", &[&key]))?;
         Ok(())
     }
 
     fn clear(&self) -> CacheResult<()> {
-        let client = self.client.lock().map_err(|e| CacheError::Backend(e.to_string()))?;
+        let client = self
+            .client
+            .lock()
+            .map_err(|e| CacheError::Backend(e.to_string()))?;
         self.block_on(client.execute("DELETE FROM proxy_cache", &[]))?;
         Ok(())
     }
 
     fn len(&self) -> CacheResult<usize> {
-        let client = self.client.lock().map_err(|e| CacheError::Backend(e.to_string()))?;
-        let rows = self.block_on(
-            client.query("SELECT COUNT(*) FROM proxy_cache", &[]),
-        )?;
+        let client = self
+            .client
+            .lock()
+            .map_err(|e| CacheError::Backend(e.to_string()))?;
+        let rows = self.block_on(client.query("SELECT COUNT(*) FROM proxy_cache", &[]))?;
         let count: i64 = rows.first().map(|r| r.get(0)).unwrap_or(0);
         Ok(count as usize)
     }
 
     fn evict_expired(&self) -> CacheResult<u64> {
-        let client = self.client.lock().map_err(|e| CacheError::Backend(e.to_string()))?;
+        let client = self
+            .client
+            .lock()
+            .map_err(|e| CacheError::Backend(e.to_string()))?;
         let now = Utc::now().timestamp_millis();
         let deleted = self.block_on(client.execute(
             "DELETE FROM proxy_cache WHERE ttl_ms IS NOT NULL AND (created_at + ttl_ms) < $1",

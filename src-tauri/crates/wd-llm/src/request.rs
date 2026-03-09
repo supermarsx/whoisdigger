@@ -119,10 +119,7 @@ mod tests {
 
     #[test]
     fn test_new_request() {
-        let req = CompletionRequest::new(
-            "gpt-4o",
-            vec![Message::user("hello")],
-        );
+        let req = CompletionRequest::new("gpt-4o", vec![Message::user("hello")]);
         assert_eq!(req.model, "gpt-4o");
         assert_eq!(req.message_count(), 1);
         assert!(!req.stream);

@@ -122,12 +122,18 @@ impl DomainExpiry {
 
     /// True if the domain is in a phase where it can still be renewed by the owner.
     pub fn is_renewable(&self) -> bool {
-        matches!(self.phase, ExpiryPhase::Active | ExpiryPhase::ExpiringAoon | ExpiryPhase::AutoRenewGrace)
+        matches!(
+            self.phase,
+            ExpiryPhase::Active | ExpiryPhase::ExpiringAoon | ExpiryPhase::AutoRenewGrace
+        )
     }
 
     /// True if the domain can potentially be caught (redemption or pending delete).
     pub fn is_catchable(&self) -> bool {
-        matches!(self.phase, ExpiryPhase::RedemptionGrace | ExpiryPhase::PendingDelete)
+        matches!(
+            self.phase,
+            ExpiryPhase::RedemptionGrace | ExpiryPhase::PendingDelete
+        )
     }
 
     /// True if the domain has been fully deleted.

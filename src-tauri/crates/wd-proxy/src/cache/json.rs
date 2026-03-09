@@ -47,7 +47,10 @@ impl JsonFileCache {
 
 impl CacheBackend for JsonFileCache {
     fn get(&self, key: &str) -> CacheResult<Option<CacheEntry>> {
-        let mut store = self.store.lock().map_err(|e| CacheError::Backend(e.to_string()))?;
+        let mut store = self
+            .store
+            .lock()
+            .map_err(|e| CacheError::Backend(e.to_string()))?;
         if let Some(entry) = store.get_mut(key) {
             if entry.is_expired() {
                 let key_owned = key.to_string();
@@ -66,30 +69,45 @@ impl CacheBackend for JsonFileCache {
     }
 
     fn set(&self, entry: CacheEntry) -> CacheResult<()> {
-        let mut store = self.store.lock().map_err(|e| CacheError::Backend(e.to_string()))?;
+        let mut store = self
+            .store
+            .lock()
+            .map_err(|e| CacheError::Backend(e.to_string()))?;
         store.insert(entry.key.clone(), entry);
         self.flush(&store)
     }
 
     fn remove(&self, key: &str) -> CacheResult<()> {
-        let mut store = self.store.lock().map_err(|e| CacheError::Backend(e.to_string()))?;
+        let mut store = self
+            .store
+            .lock()
+            .map_err(|e| CacheError::Backend(e.to_string()))?;
         store.remove(key);
         self.flush(&store)
     }
 
     fn clear(&self) -> CacheResult<()> {
-        let mut store = self.store.lock().map_err(|e| CacheError::Backend(e.to_string()))?;
+        let mut store = self
+            .store
+            .lock()
+            .map_err(|e| CacheError::Backend(e.to_string()))?;
         store.clear();
         self.flush(&store)
     }
 
     fn len(&self) -> CacheResult<usize> {
-        let store = self.store.lock().map_err(|e| CacheError::Backend(e.to_string()))?;
+        let store = self
+            .store
+            .lock()
+            .map_err(|e| CacheError::Backend(e.to_string()))?;
         Ok(store.len())
     }
 
     fn evict_expired(&self) -> CacheResult<u64> {
-        let mut store = self.store.lock().map_err(|e| CacheError::Backend(e.to_string()))?;
+        let mut store = self
+            .store
+            .lock()
+            .map_err(|e| CacheError::Backend(e.to_string()))?;
         let before = store.len();
         store.retain(|_, v| !v.is_expired());
         let evicted = (before - store.len()) as u64;
@@ -123,7 +141,9 @@ mod tests {
         {
             let cache = JsonFileCache::open(&path).unwrap();
             cache.set(CacheEntry::new("a.com", "data-a", None)).unwrap();
-            cache.set(CacheEntry::new("b.com", "data-b", Some(60_000))).unwrap();
+            cache
+                .set(CacheEntry::new("b.com", "data-b", Some(60_000)))
+                .unwrap();
             assert_eq!(cache.len().unwrap(), 2);
         }
 
@@ -165,7 +185,9 @@ mod tests {
         let mut old = CacheEntry::new("stale.com", "old", Some(1));
         old.created_at = chrono::Utc::now() - chrono::Duration::seconds(10);
         cache.set(old).unwrap();
-        cache.set(CacheEntry::new("fresh.com", "new", Some(60_000))).unwrap();
+        cache
+            .set(CacheEntry::new("fresh.com", "new", Some(60_000)))
+            .unwrap();
 
         let evicted = cache.evict_expired().unwrap();
         assert_eq!(evicted, 1);

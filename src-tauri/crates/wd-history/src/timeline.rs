@@ -92,9 +92,12 @@ pub fn build_timeline(snapshots: &[crate::Snapshot]) -> Vec<TimelineEntry> {
                 entry.old_value.as_deref().unwrap_or("(none)"),
                 entry.new_value.as_deref().unwrap_or("(none)")
             );
-            entries.push(
-                TimelineEntry::new(&snap.domain, snap.captured_at, kind, desc)
-            );
+            entries.push(TimelineEntry::new(
+                &snap.domain,
+                snap.captured_at,
+                kind,
+                desc,
+            ));
         }
     }
 
@@ -118,18 +121,23 @@ mod tests {
 
     #[test]
     fn test_build_timeline_with_changes() {
-        let s1 = Snapshot::new("a.com", LookupProtocol::Whois, "raw1")
-            .with_registrar("OldCo");
-        let s2 = Snapshot::new("a.com", LookupProtocol::Whois, "raw2")
-            .with_registrar("NewCo");
+        let s1 = Snapshot::new("a.com", LookupProtocol::Whois, "raw1").with_registrar("OldCo");
+        let s2 = Snapshot::new("a.com", LookupProtocol::Whois, "raw2").with_registrar("NewCo");
         let tl = build_timeline(&[s1, s2]);
-        assert!(tl.iter().any(|e| e.kind == TimelineEventKind::RegistrarChanged));
+        assert!(tl
+            .iter()
+            .any(|e| e.kind == TimelineEventKind::RegistrarChanged));
     }
 
     #[test]
     fn test_timeline_entry_with_snapshot_id() {
-        let e = TimelineEntry::new("x.com", Utc::now(), TimelineEventKind::Renewed, "Renewed for 1yr")
-            .with_snapshot_id(42);
+        let e = TimelineEntry::new(
+            "x.com",
+            Utc::now(),
+            TimelineEventKind::Renewed,
+            "Renewed for 1yr",
+        )
+        .with_snapshot_id(42);
         assert_eq!(e.snapshot_id, Some(42));
     }
 }

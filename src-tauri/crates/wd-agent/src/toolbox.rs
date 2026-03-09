@@ -85,9 +85,17 @@ impl Toolbox {
         );
         self.add(
             ToolCategory::Whois,
-            ToolBuilder::new("bulk_whois", "Look up WHOIS information for multiple domains")
-                .param("domains", ParamType::Array(Box::new(ParamType::String)), "List of domain names", true)
-                .build(),
+            ToolBuilder::new(
+                "bulk_whois",
+                "Look up WHOIS information for multiple domains",
+            )
+            .param(
+                "domains",
+                ParamType::Array(Box::new(ParamType::String)),
+                "List of domain names",
+                true,
+            )
+            .build(),
         );
         self.add(
             ToolCategory::Whois,
@@ -98,7 +106,12 @@ impl Toolbox {
         self.add(
             ToolCategory::Whois,
             ToolBuilder::new("parse_whois", "Parse raw WHOIS text into structured fields")
-                .param("raw_whois", ParamType::String, "Raw WHOIS response text", true)
+                .param(
+                    "raw_whois",
+                    ParamType::String,
+                    "Raw WHOIS response text",
+                    true,
+                )
                 .build(),
         );
     }
@@ -108,10 +121,20 @@ impl Toolbox {
             ToolCategory::Dns,
             ToolBuilder::new("dns_lookup", "Resolve DNS records for a domain")
                 .param("domain", ParamType::String, "Domain name to resolve", true)
-                .param("record_type", ParamType::Enum(vec![
-                    "A".into(), "AAAA".into(), "MX".into(), "NS".into(),
-                    "TXT".into(), "CNAME".into(), "SOA".into(),
-                ]), "DNS record type", false)
+                .param(
+                    "record_type",
+                    ParamType::Enum(vec![
+                        "A".into(),
+                        "AAAA".into(),
+                        "MX".into(),
+                        "NS".into(),
+                        "TXT".into(),
+                        "CNAME".into(),
+                        "SOA".into(),
+                    ]),
+                    "DNS record type",
+                    false,
+                )
                 .build(),
         );
         self.add(
@@ -126,7 +149,12 @@ impl Toolbox {
         self.add(
             ToolCategory::Export,
             ToolBuilder::new("export_csv", "Export results to CSV format")
-                .param("data", ParamType::Array(Box::new(ParamType::String)), "Data rows to export", true)
+                .param(
+                    "data",
+                    ParamType::Array(Box::new(ParamType::String)),
+                    "Data rows to export",
+                    true,
+                )
                 .param("filename", ParamType::String, "Output filename", false)
                 .build(),
         );
@@ -143,19 +171,32 @@ impl Toolbox {
         self.add(
             ToolCategory::Analysis,
             ToolBuilder::new("check_expiry", "Check domain expiry date and urgency")
-                .param("domain", ParamType::String, "Domain to check expiry for", true)
+                .param(
+                    "domain",
+                    ParamType::String,
+                    "Domain to check expiry for",
+                    true,
+                )
                 .build(),
         );
         self.add(
             ToolCategory::Analysis,
-            ToolBuilder::new("check_availability", "Check if a domain is available for registration")
-                .param("domain", ParamType::String, "Domain to check", true)
-                .build(),
+            ToolBuilder::new(
+                "check_availability",
+                "Check if a domain is available for registration",
+            )
+            .param("domain", ParamType::String, "Domain to check", true)
+            .build(),
         );
         self.add(
             ToolCategory::Analysis,
             ToolBuilder::new("domain_stats", "Get statistics for a domain list")
-                .param("domains", ParamType::Array(Box::new(ParamType::String)), "List of domains to analyse", true)
+                .param(
+                    "domains",
+                    ParamType::Array(Box::new(ParamType::String)),
+                    "List of domains to analyse",
+                    true,
+                )
                 .build(),
         );
     }
@@ -169,10 +210,23 @@ impl Toolbox {
         );
         self.add(
             ToolCategory::Security,
-            ToolBuilder::new("generate_typosquats", "Generate typosquat candidates for a domain")
-                .param("domain", ParamType::String, "Domain to generate typosquats for", true)
-                .param("max_results", ParamType::Integer, "Maximum number of results", false)
-                .build(),
+            ToolBuilder::new(
+                "generate_typosquats",
+                "Generate typosquat candidates for a domain",
+            )
+            .param(
+                "domain",
+                ParamType::String,
+                "Domain to generate typosquats for",
+                true,
+            )
+            .param(
+                "max_results",
+                ParamType::Integer,
+                "Maximum number of results",
+                false,
+            )
+            .build(),
         );
         self.add(
             ToolCategory::Security,
@@ -186,9 +240,24 @@ impl Toolbox {
         self.add(
             ToolCategory::DomainGen,
             ToolBuilder::new("generate_domains", "Generate domain name suggestions")
-                .param("keywords", ParamType::Array(Box::new(ParamType::String)), "Keywords to base suggestions on", true)
-                .param("tlds", ParamType::Array(Box::new(ParamType::String)), "TLDs to use", false)
-                .param("max_results", ParamType::Integer, "Maximum suggestions", false)
+                .param(
+                    "keywords",
+                    ParamType::Array(Box::new(ParamType::String)),
+                    "Keywords to base suggestions on",
+                    true,
+                )
+                .param(
+                    "tlds",
+                    ParamType::Array(Box::new(ParamType::String)),
+                    "TLDs to use",
+                    false,
+                )
+                .param(
+                    "max_results",
+                    ParamType::Integer,
+                    "Maximum suggestions",
+                    false,
+                )
                 .build(),
         );
     }
@@ -197,7 +266,12 @@ impl Toolbox {
         self.add(
             ToolCategory::History,
             ToolBuilder::new("get_history", "Get WHOIS lookup history for a domain")
-                .param("domain", ParamType::String, "Domain to get history for", true)
+                .param(
+                    "domain",
+                    ParamType::String,
+                    "Domain to get history for",
+                    true,
+                )
                 .param("limit", ParamType::Integer, "Max records to return", false)
                 .build(),
         );
@@ -214,18 +288,21 @@ impl Toolbox {
     fn register_utility_tools(&mut self) {
         self.add(
             ToolCategory::Utility,
-            ToolBuilder::new("get_settings", "Get current application settings")
-                .build(),
+            ToolBuilder::new("get_settings", "Get current application settings").build(),
         );
         self.add(
             ToolCategory::Utility,
-            ToolBuilder::new("get_cache_stats", "Get cache statistics")
-                .build(),
+            ToolBuilder::new("get_cache_stats", "Get cache statistics").build(),
         );
         self.add(
             ToolCategory::Utility,
             ToolBuilder::new("clear_cache", "Clear the WHOIS cache")
-                .param("domain", ParamType::String, "Specific domain to clear (or all)", false)
+                .param(
+                    "domain",
+                    ParamType::String,
+                    "Specific domain to clear (or all)",
+                    false,
+                )
                 .build(),
         );
     }
@@ -287,7 +364,11 @@ mod tests {
         let tb = Toolbox::full();
         for def in tb.all_definitions() {
             assert!(!def.name.is_empty(), "Tool has empty name");
-            assert!(!def.description.is_empty(), "Tool {} has empty description", def.name);
+            assert!(
+                !def.description.is_empty(),
+                "Tool {} has empty description",
+                def.name
+            );
             // Should serialise to OpenAI format without panicking
             let _json = def.to_openai_json();
         }

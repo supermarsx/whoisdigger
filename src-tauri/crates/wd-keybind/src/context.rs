@@ -27,7 +27,9 @@ pub enum KeyContext {
 impl KeyContext {
     /// Check if this context is active in a given set of active contexts.
     pub fn is_active_in(&self, active: &[KeyContext]) -> bool {
-        if *self == KeyContext::Global { return true; }
+        if *self == KeyContext::Global {
+            return true;
+        }
         active.contains(self)
     }
 
@@ -48,7 +50,9 @@ impl KeyContext {
 }
 
 impl Default for KeyContext {
-    fn default() -> Self { KeyContext::Global }
+    fn default() -> Self {
+        KeyContext::Global
+    }
 }
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
@@ -76,7 +80,10 @@ mod tests {
     #[test]
     fn test_display_name() {
         assert_eq!(KeyContext::Global.display_name(), "Global");
-        assert_eq!(KeyContext::Custom("My Context".into()).display_name(), "My Context");
+        assert_eq!(
+            KeyContext::Custom("My Context".into()).display_name(),
+            "My Context"
+        );
     }
 
     #[test]

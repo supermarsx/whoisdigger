@@ -10,21 +10,26 @@ pub struct ExpiryStore {
 impl ExpiryStore {
     pub fn open(path: &str) -> SqlResult<Self> {
         let conn = Connection::open(path)?;
-        let store = Self { conn: Mutex::new(conn) };
+        let store = Self {
+            conn: Mutex::new(conn),
+        };
         store.init_tables()?;
         Ok(store)
     }
 
     pub fn open_in_memory() -> SqlResult<Self> {
         let conn = Connection::open_in_memory()?;
-        let store = Self { conn: Mutex::new(conn) };
+        let store = Self {
+            conn: Mutex::new(conn),
+        };
         store.init_tables()?;
         Ok(store)
     }
 
     fn init_tables(&self) -> SqlResult<()> {
         let conn = self.conn.lock().unwrap();
-        conn.execute_batch("
+        conn.execute_batch(
+            "
             PRAGMA journal_mode = WAL;
             CREATE TABLE IF NOT EXISTS watchlist (
                 id           INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,7 +44,8 @@ impl ExpiryStore {
                 active       INTEGER NOT NULL DEFAULT 1
             );
             CREATE INDEX IF NOT EXISTS idx_watch_domain ON watchlist(domain);
-        ")?;
+        ",
+        )?;
         Ok(())
     }
 
@@ -75,11 +81,13 @@ impl ExpiryStore {
         let mut stmt = conn.prepare(
             "SELECT id, domain, priority, added_at, last_checked, expiry_date,
                     registrar, notify, notes, active
-             FROM watchlist ORDER BY domain"
+             FROM watchlist ORDER BY domain",
         )?;
         let rows = stmt.query_map([], |row| Ok(row_to_entry(row)))?;
         let mut out = Vec::new();
-        for r in rows { out.push(r?); }
+        for r in rows {
+            out.push(r?);
+        }
         Ok(out)
     }
 
@@ -123,8 +131,16 @@ fn row_to_entry(row: &rusqlite::Row) -> WatchEntry {
         added_at: chrono::DateTime::parse_from_rfc3339(&added_at_str)
             .map(|d| d.with_timezone(&chrono::Utc))
             .unwrap_or_else(|_| chrono::Utc::now()),
-        last_checked: last_checked_str.and_then(|s| chrono::DateTime::parse_from_rfc3339(&s).ok().map(|d| d.with_timezone(&chrono::Utc))),
-        expiry_date: expiry_str.and_then(|s| chrono::DateTime::parse_from_rfc3339(&s).ok().map(|d| d.with_timezone(&chrono::Utc))),
+        last_checked: last_checked_str.and_then(|s| {
+            chrono::DateTime::parse_from_rfc3339(&s)
+                .ok()
+                .map(|d| d.with_timezone(&chrono::Utc))
+        }),
+        expiry_date: expiry_str.and_then(|s| {
+            chrono::DateTime::parse_from_rfc3339(&s)
+                .ok()
+                .map(|d| d.with_timezone(&chrono::Utc))
+        }),
         registrar,
         notify: notify != 0,
         notes,
@@ -152,8 +168,12 @@ mod tests {
     #[test]
     fn test_store_upsert_update() {
         let store = ExpiryStore::open_in_memory().unwrap();
-        store.upsert(&WatchEntry::new("x.com").with_priority(WatchPriority::Low)).unwrap();
-        store.upsert(&WatchEntry::new("x.com").with_priority(WatchPriority::Critical)).unwrap();
+        store
+            .upsert(&WatchEntry::new("x.com").with_priority(WatchPriority::Low))
+            .unwrap();
+        store
+            .upsert(&WatchEntry::new("x.com").with_priority(WatchPriority::Critical))
+            .unwrap();
         assert_eq!(store.count().unwrap(), 1);
         let all = store.get_all().unwrap();
         assert_eq!(all[0].priority, WatchPriority::Critical);

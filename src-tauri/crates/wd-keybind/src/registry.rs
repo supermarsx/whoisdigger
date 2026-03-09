@@ -20,7 +20,9 @@ pub struct KeyRegistry {
 }
 
 impl KeyRegistry {
-    pub fn new() -> Self { Self { bindings: vec![] } }
+    pub fn new() -> Self {
+        Self { bindings: vec![] }
+    }
 
     /// Register a binding, checking for conflicts.
     pub fn register(&mut self, binding: KeyBinding) -> Result<(), ConflictError> {
@@ -28,7 +30,11 @@ impl KeyRegistry {
             return Err(ConflictError::Conflict {
                 combo: binding.combo.display(false),
                 existing_action: format!("{}", conflict.action),
-                context: conflict.context.as_ref().map(|c| c.display_name().to_string()).unwrap_or("Global".into()),
+                context: conflict
+                    .context
+                    .as_ref()
+                    .map(|c| c.display_name().to_string())
+                    .unwrap_or("Global".into()),
             });
         }
         self.bindings.push(binding);
@@ -37,9 +43,8 @@ impl KeyRegistry {
 
     /// Register a binding, replacing any conflict.
     pub fn register_force(&mut self, binding: KeyBinding) {
-        self.bindings.retain(|b| {
-            !(b.combo == binding.combo && b.context == binding.context)
-        });
+        self.bindings
+            .retain(|b| !(b.combo == binding.combo && b.context == binding.context));
         self.bindings.push(binding);
     }
 
@@ -48,15 +53,29 @@ impl KeyRegistry {
         // Prefer more specific contexts over Global
         let mut best: Option<&KeyBinding> = None;
         for binding in &self.bindings {
-            if !binding.enabled { continue; }
-            if binding.combo != *combo { continue; }
+            if !binding.enabled {
+                continue;
+            }
+            if binding.combo != *combo {
+                continue;
+            }
 
-            let ctx = binding.context.as_ref().cloned().unwrap_or(KeyContext::Global);
-            if !ctx.is_active_in(active_contexts) { continue; }
+            let ctx = binding
+                .context
+                .as_ref()
+                .cloned()
+                .unwrap_or(KeyContext::Global);
+            if !ctx.is_active_in(active_contexts) {
+                continue;
+            }
 
             // Prefer non-Global over Global
             if let Some(current_best) = best {
-                let current_ctx = current_best.context.as_ref().cloned().unwrap_or(KeyContext::Global);
+                let current_ctx = current_best
+                    .context
+                    .as_ref()
+                    .cloned()
+                    .unwrap_or(KeyContext::Global);
                 if current_ctx == KeyContext::Global && ctx != KeyContext::Global {
                     best = Some(binding);
                 }
@@ -82,9 +101,15 @@ impl KeyRegistry {
 
     /// Bindings for a specific context.
     pub fn bindings_for_context(&self, ctx: &KeyContext) -> Vec<&KeyBinding> {
-        self.bindings.iter().filter(|b| {
-            b.context.as_ref().map(|c| c == ctx).unwrap_or(*ctx == KeyContext::Global)
-        }).collect()
+        self.bindings
+            .iter()
+            .filter(|b| {
+                b.context
+                    .as_ref()
+                    .map(|c| c == ctx)
+                    .unwrap_or(*ctx == KeyContext::Global)
+            })
+            .collect()
     }
 
     /// Get binding for a specific action.
@@ -94,21 +119,30 @@ impl KeyRegistry {
 
     /// Export all bindings as serializable map.
     pub fn export_bindings(&self) -> Vec<(String, String, String)> {
-        self.bindings.iter().map(|b| {
-            (
-                b.combo.display(false),
-                format!("{}", b.action),
-                b.description.clone(),
-            )
-        }).collect()
+        self.bindings
+            .iter()
+            .map(|b| {
+                (
+                    b.combo.display(false),
+                    format!("{}", b.action),
+                    b.description.clone(),
+                )
+            })
+            .collect()
     }
 
     /// Count bindings.
-    pub fn len(&self) -> usize { self.bindings.len() }
-    pub fn is_empty(&self) -> bool { self.bindings.is_empty() }
+    pub fn len(&self) -> usize {
+        self.bindings.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.bindings.is_empty()
+    }
 
     /// Remove all bindings.
-    pub fn clear(&mut self) { self.bindings.clear(); }
+    pub fn clear(&mut self) {
+        self.bindings.clear();
+    }
 
     /// Remove a binding by action.
     pub fn remove_action(&mut self, action: &Action) {
@@ -130,7 +164,8 @@ mod tests {
     #[test]
     fn test_register_and_resolve() {
         let mut reg = KeyRegistry::new();
-        reg.register(kb("l", vec![Modifier::Ctrl], Action::SingleLookup)).unwrap();
+        reg.register(kb("l", vec![Modifier::Ctrl], Action::SingleLookup))
+            .unwrap();
         let combo = KeyCombo::new("l", vec![Modifier::Ctrl]);
         let resolved = reg.resolve(&combo, &[KeyContext::Global]);
         assert!(resolved.is_some());
@@ -140,7 +175,8 @@ mod tests {
     #[test]
     fn test_conflict_detection() {
         let mut reg = KeyRegistry::new();
-        reg.register(kb("l", vec![Modifier::Ctrl], Action::SingleLookup)).unwrap();
+        reg.register(kb("l", vec![Modifier::Ctrl], Action::SingleLookup))
+            .unwrap();
         let result = reg.register(kb("l", vec![Modifier::Ctrl], Action::BulkStart));
         assert!(result.is_err());
     }
@@ -148,7 +184,8 @@ mod tests {
     #[test]
     fn test_force_register() {
         let mut reg = KeyRegistry::new();
-        reg.register(kb("l", vec![Modifier::Ctrl], Action::SingleLookup)).unwrap();
+        reg.register(kb("l", vec![Modifier::Ctrl], Action::SingleLookup))
+            .unwrap();
         reg.register_force(kb("l", vec![Modifier::Ctrl], Action::BulkStart));
         let combo = KeyCombo::new("l", vec![Modifier::Ctrl]);
         let resolved = reg.resolve(&combo, &[KeyContext::Global]).unwrap();
@@ -158,7 +195,8 @@ mod tests {
     #[test]
     fn test_context_override() {
         let mut reg = KeyRegistry::new();
-        reg.register(kb("s", vec![Modifier::Ctrl], Action::Save)).unwrap();
+        reg.register(kb("s", vec![Modifier::Ctrl], Action::Save))
+            .unwrap();
         let mut bulk_binding = kb("s", vec![Modifier::Ctrl], Action::BulkStart);
         bulk_binding.context = Some(KeyContext::BulkWhois);
         reg.register(bulk_binding).unwrap();
@@ -172,7 +210,8 @@ mod tests {
     #[test]
     fn test_remove_action() {
         let mut reg = KeyRegistry::new();
-        reg.register(kb("l", vec![Modifier::Ctrl], Action::SingleLookup)).unwrap();
+        reg.register(kb("l", vec![Modifier::Ctrl], Action::SingleLookup))
+            .unwrap();
         assert_eq!(reg.len(), 1);
         reg.remove_action(&Action::SingleLookup);
         assert_eq!(reg.len(), 0);
@@ -181,7 +220,8 @@ mod tests {
     #[test]
     fn test_binding_for_action() {
         let mut reg = KeyRegistry::new();
-        reg.register(kb("l", vec![Modifier::Ctrl], Action::SingleLookup)).unwrap();
+        reg.register(kb("l", vec![Modifier::Ctrl], Action::SingleLookup))
+            .unwrap();
         let b = reg.binding_for_action(&Action::SingleLookup);
         assert!(b.is_some());
     }
@@ -189,7 +229,8 @@ mod tests {
     #[test]
     fn test_export() {
         let mut reg = KeyRegistry::new();
-        reg.register(kb("l", vec![Modifier::Ctrl], Action::SingleLookup)).unwrap();
+        reg.register(kb("l", vec![Modifier::Ctrl], Action::SingleLookup))
+            .unwrap();
         let exported = reg.export_bindings();
         assert_eq!(exported.len(), 1);
         assert_eq!(exported[0].0, "Ctrl+L");

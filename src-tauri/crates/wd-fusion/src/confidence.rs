@@ -24,9 +24,9 @@ pub struct FieldConfidence {
 /// Weight assigned to each lookup source for confidence calculation.
 fn source_weight(source: &LookupSource) -> f64 {
     match source {
-        LookupSource::Rdap => 1.0,    // structured data, highest reliability
-        LookupSource::Whois => 0.8,   // text-based, well-established
-        LookupSource::Dns => 0.7,     // authoritative for DNS records
+        LookupSource::Rdap => 1.0,  // structured data, highest reliability
+        LookupSource::Whois => 0.8, // text-based, well-established
+        LookupSource::Dns => 0.7,   // authoritative for DNS records
         LookupSource::ReverseWhois => 0.5,
         LookupSource::Custom(_) => 0.4,
     }
@@ -37,11 +37,15 @@ pub fn compute_confidence(sources: &[SourceRecord]) -> ConfidenceScore {
     let successful: Vec<_> = sources.iter().filter(|s| s.success).collect();
 
     if successful.is_empty() {
-        return ConfidenceScore { overall: 0.0, field_scores: HashMap::new() };
+        return ConfidenceScore {
+            overall: 0.0,
+            field_scores: HashMap::new(),
+        };
     }
 
     // Collect all field keys
-    let mut all_keys: Vec<String> = successful.iter()
+    let mut all_keys: Vec<String> = successful
+        .iter()
         .flat_map(|s| s.fields.keys().cloned())
         .collect();
     all_keys.sort();
@@ -55,7 +59,10 @@ pub fn compute_confidence(sources: &[SourceRecord]) -> ConfidenceScore {
         let mut values: HashMap<String, Vec<&LookupSource>> = HashMap::new();
         for src in &successful {
             if let Some(val) = src.fields.get(key) {
-                values.entry(val.to_lowercase()).or_default().push(&src.source);
+                values
+                    .entry(val.to_lowercase())
+                    .or_default()
+                    .push(&src.source);
             }
         }
 
@@ -69,18 +76,22 @@ pub fn compute_confidence(sources: &[SourceRecord]) -> ConfidenceScore {
             // Find the majority value
             let max_group = values.values().max_by_key(|v| v.len()).unwrap();
             let agreement_ratio = max_group.len() as f64 / source_count.max(1) as f64;
-            let avg_weight: f64 = max_group.iter().map(|s| source_weight(s)).sum::<f64>() / max_group.len() as f64;
+            let avg_weight: f64 =
+                max_group.iter().map(|s| source_weight(s)).sum::<f64>() / max_group.len() as f64;
             agreement_ratio * avg_weight
         };
 
         let score = total_weight.min(1.0);
         total_field_confidence += score;
 
-        field_scores.insert(key.clone(), FieldConfidence {
-            source_count,
-            unanimous,
-            score,
-        });
+        field_scores.insert(
+            key.clone(),
+            FieldConfidence {
+                source_count,
+                unanimous,
+                score,
+            },
+        );
     }
 
     let overall = if all_keys.is_empty() {
@@ -92,7 +103,10 @@ pub fn compute_confidence(sources: &[SourceRecord]) -> ConfidenceScore {
         (field_avg + source_bonus).min(1.0)
     };
 
-    ConfidenceScore { overall, field_scores }
+    ConfidenceScore {
+        overall,
+        field_scores,
+    }
 }
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
@@ -102,15 +116,19 @@ mod tests {
     use super::*;
 
     fn make_record(source: LookupSource, fields: Vec<(&str, &str)>) -> SourceRecord {
-        let map = fields.into_iter().map(|(k, v)| (k.to_string(), v.to_string())).collect();
+        let map = fields
+            .into_iter()
+            .map(|(k, v)| (k.to_string(), v.to_string()))
+            .collect();
         SourceRecord::ok(source, "example.com", "raw", map, 100)
     }
 
     #[test]
     fn test_single_source_confidence() {
-        let records = vec![
-            make_record(LookupSource::Whois, vec![("registrar", "Example Inc")]),
-        ];
+        let records = vec![make_record(
+            LookupSource::Whois,
+            vec![("registrar", "Example Inc")],
+        )];
         let score = compute_confidence(&records);
         assert!(score.overall > 0.0);
         assert!(score.field_scores.get("registrar").unwrap().score > 0.0);
@@ -147,9 +165,12 @@ mod tests {
 
     #[test]
     fn test_failed_sources_excluded() {
-        let records = vec![
-            SourceRecord::err(LookupSource::Whois, "fail.com", "timeout", 5000),
-        ];
+        let records = vec![SourceRecord::err(
+            LookupSource::Whois,
+            "fail.com",
+            "timeout",
+            5000,
+        )];
         let score = compute_confidence(&records);
         assert_eq!(score.overall, 0.0);
     }

@@ -59,7 +59,10 @@ impl TransferRequest {
     }
 
     pub fn is_terminal(&self) -> bool {
-        matches!(self.status, TransferStatus::Completed | TransferStatus::Failed | TransferStatus::Cancelled)
+        matches!(
+            self.status,
+            TransferStatus::Completed | TransferStatus::Failed | TransferStatus::Cancelled
+        )
     }
 }
 
@@ -76,7 +79,8 @@ pub struct TransferBatch {
 impl TransferBatch {
     pub fn new(target_registrar: impl Into<String>, domains: Vec<String>) -> Self {
         let target = target_registrar.into();
-        let transfers = domains.into_iter()
+        let transfers = domains
+            .into_iter()
             .map(|d| TransferRequest::new(d, target.clone()))
             .collect();
         Self {
@@ -87,24 +91,37 @@ impl TransferBatch {
         }
     }
 
-    pub fn len(&self) -> usize { self.transfers.len() }
-    pub fn is_empty(&self) -> bool { self.transfers.is_empty() }
+    pub fn len(&self) -> usize {
+        self.transfers.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.transfers.is_empty()
+    }
 
     /// Count by status.
     pub fn count_by_status(&self, status: &TransferStatus) -> usize {
-        self.transfers.iter().filter(|t| t.status == *status).count()
+        self.transfers
+            .iter()
+            .filter(|t| t.status == *status)
+            .count()
     }
 
     /// Transfers needing auth codes.
     pub fn needs_auth_code(&self) -> Vec<&TransferRequest> {
-        self.transfers.iter()
-            .filter(|t| t.status == TransferStatus::AuthCodeRequired || (t.status == TransferStatus::Pending && t.auth_code.is_none()))
+        self.transfers
+            .iter()
+            .filter(|t| {
+                t.status == TransferStatus::AuthCodeRequired
+                    || (t.status == TransferStatus::Pending && t.auth_code.is_none())
+            })
             .collect()
     }
 
     /// Overall completion rate.
     pub fn completion_rate(&self) -> f64 {
-        if self.transfers.is_empty() { return 0.0; }
+        if self.transfers.is_empty() {
+            return 0.0;
+        }
         let completed = self.transfers.iter().filter(|t| t.is_terminal()).count();
         completed as f64 / self.transfers.len() as f64
     }
@@ -114,7 +131,13 @@ impl TransferBatch {
         let completed = self.count_by_status(&TransferStatus::Completed);
         let failed = self.count_by_status(&TransferStatus::Failed);
         let pending = self.transfers.iter().filter(|t| !t.is_terminal()).count();
-        format!("{} transfers: {} completed, {} failed, {} pending", self.len(), completed, failed, pending)
+        format!(
+            "{} transfers: {} completed, {} failed, {} pending",
+            self.len(),
+            completed,
+            failed,
+            pending
+        )
     }
 }
 
@@ -133,8 +156,7 @@ mod tests {
 
     #[test]
     fn test_with_auth_code() {
-        let req = TransferRequest::new("example.com", "cloudflare")
-            .with_auth_code("AUTH123");
+        let req = TransferRequest::new("example.com", "cloudflare").with_auth_code("AUTH123");
         assert_eq!(req.status, TransferStatus::AuthCodeSubmitted);
     }
 

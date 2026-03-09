@@ -1,0 +1,9 @@
+[package]
+name = "wd-domain-text"
+version = "0.1.0"
+edition = "2021"
+description = "Text-processing domain facade for WHOIS parsing and wordlist transforms"
+
+[dependencies]
+wd-parser = { path = "../wd-parser" }
+wd-wordlist = { path = "../wd-wordlist" }

@@ -206,8 +206,8 @@ mod tests {
 
     #[test]
     fn test_effective_api_url_custom() {
-        let c = LlmConfig::new(ProviderKind::OpenAi, "gpt-4o")
-            .with_api_url("http://my-proxy.local/v1");
+        let c =
+            LlmConfig::new(ProviderKind::OpenAi, "gpt-4o").with_api_url("http://my-proxy.local/v1");
         assert_eq!(c.effective_api_url(), "http://my-proxy.local/v1");
     }
 
@@ -219,8 +219,7 @@ mod tests {
 
     #[test]
     fn test_validate_ok() {
-        let c = LlmConfig::new(ProviderKind::OpenAi, "gpt-4o")
-            .with_api_key("sk-xxx");
+        let c = LlmConfig::new(ProviderKind::OpenAi, "gpt-4o").with_api_key("sk-xxx");
         assert!(c.validate().is_ok());
     }
 
@@ -240,8 +239,7 @@ mod tests {
 
     #[test]
     fn test_validate_azure_needs_url() {
-        let c = LlmConfig::new(ProviderKind::AzureOpenAi, "my-model")
-            .with_api_key("key");
+        let c = LlmConfig::new(ProviderKind::AzureOpenAi, "my-model").with_api_key("key");
         let errs = c.validate().unwrap_err();
         assert!(errs.iter().any(|e| e.contains("api_url")));
     }

@@ -35,11 +35,7 @@ pub struct ResponseEvaluator;
 
 impl ResponseEvaluator {
     /// Evaluate a response against the original query and any tool results.
-    pub fn evaluate(
-        query: &str,
-        response: &str,
-        tool_results: &[(String, String)],
-    ) -> EvalResult {
+    pub fn evaluate(query: &str, response: &str, tool_results: &[(String, String)]) -> EvalResult {
         let mut checks = Vec::new();
 
         // Check 1: Response is non-empty
@@ -63,10 +59,7 @@ impl ResponseEvaluator {
         });
 
         // Check 3: Response mentions query terms (basic grounding)
-        let query_words: Vec<&str> = query
-            .split_whitespace()
-            .filter(|w| w.len() > 3)
-            .collect();
+        let query_words: Vec<&str> = query.split_whitespace().filter(|w| w.len() > 3).collect();
         let response_lower = response.to_lowercase();
         let grounding_hits = query_words
             .iter()
@@ -152,9 +145,7 @@ impl ResponseEvaluator {
             EvalGrade::Failed
         };
 
-        let summary = format!(
-            "{passed}/{total} checks passed (score: {score:.2})",
-        );
+        let summary = format!("{passed}/{total} checks passed (score: {score:.2})",);
 
         EvalResult {
             grade,
@@ -198,7 +189,11 @@ mod tests {
             &[],
         );
         // Low grounding score
-        let grounding = result.checks.iter().find(|c| c.name == "grounding").unwrap();
+        let grounding = result
+            .checks
+            .iter()
+            .find(|c| c.name == "grounding")
+            .unwrap();
         assert!(!grounding.passed);
     }
 
@@ -209,7 +204,11 @@ mod tests {
             "I don't have access to that information, but I think it might be some company.",
             &[],
         );
-        let hallucination = result.checks.iter().find(|c| c.name == "no_hallucination").unwrap();
+        let hallucination = result
+            .checks
+            .iter()
+            .find(|c| c.name == "no_hallucination")
+            .unwrap();
         assert!(!hallucination.passed);
     }
 
@@ -220,7 +219,11 @@ mod tests {
             "Hi there! How can I help you with domain research today?",
             &[],
         );
-        let tool_ref = result.checks.iter().find(|c| c.name == "tool_reference").unwrap();
+        let tool_ref = result
+            .checks
+            .iter()
+            .find(|c| c.name == "tool_reference")
+            .unwrap();
         assert!(tool_ref.passed); // No tools to reference, so it passes
     }
 

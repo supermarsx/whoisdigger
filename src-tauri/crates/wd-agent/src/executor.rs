@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 /// Callback type for tool handlers.
-pub type ToolHandlerFn = Box<dyn Fn(&serde_json::Value) -> Result<serde_json::Value, String> + Send + Sync>;
+pub type ToolHandlerFn =
+    Box<dyn Fn(&serde_json::Value) -> Result<serde_json::Value, String> + Send + Sync>;
 
 /// Executes tool calls by dispatching to registered handlers.
 pub struct ToolExecutor {
@@ -100,7 +101,9 @@ mod tests {
     #[test]
     fn test_unknown_tool() {
         let executor = ToolExecutor::new();
-        let err = executor.execute("nope", &serde_json::json!({})).unwrap_err();
+        let err = executor
+            .execute("nope", &serde_json::json!({}))
+            .unwrap_err();
         assert!(err.contains("Unknown tool"));
     }
 
@@ -125,7 +128,9 @@ mod tests {
     fn test_handler_error() {
         let mut executor = ToolExecutor::new();
         executor.register("fail", |_| Err("oops".into()));
-        let err = executor.execute("fail", &serde_json::json!({})).unwrap_err();
+        let err = executor
+            .execute("fail", &serde_json::json!({}))
+            .unwrap_err();
         assert_eq!(err, "oops");
     }
 }

@@ -35,7 +35,11 @@ impl CacheMetrics {
         let h = self.hits.load(Ordering::Relaxed) as f64;
         let m = self.misses.load(Ordering::Relaxed) as f64;
         let total = h + m;
-        if total == 0.0 { 0.0 } else { (h / total) * 100.0 }
+        if total == 0.0 {
+            0.0
+        } else {
+            (h / total) * 100.0
+        }
     }
 
     /// Average GET latency in microseconds.
@@ -148,7 +152,9 @@ impl CacheBackend for AdaptiveCacheManager {
         if let Some(entry) = result {
             let elapsed = start.elapsed().as_nanos() as u64;
             self.metrics.hits.fetch_add(1, Ordering::Relaxed);
-            self.metrics.total_get_ns.fetch_add(elapsed, Ordering::Relaxed);
+            self.metrics
+                .total_get_ns
+                .fetch_add(elapsed, Ordering::Relaxed);
             self.metrics.get_count.fetch_add(1, Ordering::Relaxed);
             return Ok(Some(entry));
         }
@@ -162,7 +168,9 @@ impl CacheBackend for AdaptiveCacheManager {
 
                     let elapsed = start.elapsed().as_nanos() as u64;
                     self.metrics.hits.fetch_add(1, Ordering::Relaxed);
-                    self.metrics.total_get_ns.fetch_add(elapsed, Ordering::Relaxed);
+                    self.metrics
+                        .total_get_ns
+                        .fetch_add(elapsed, Ordering::Relaxed);
                     self.metrics.get_count.fetch_add(1, Ordering::Relaxed);
                     return Ok(Some(entry));
                 }
@@ -171,7 +179,9 @@ impl CacheBackend for AdaptiveCacheManager {
 
         let elapsed = start.elapsed().as_nanos() as u64;
         self.metrics.misses.fetch_add(1, Ordering::Relaxed);
-        self.metrics.total_get_ns.fetch_add(elapsed, Ordering::Relaxed);
+        self.metrics
+            .total_get_ns
+            .fetch_add(elapsed, Ordering::Relaxed);
         self.metrics.get_count.fetch_add(1, Ordering::Relaxed);
         Ok(None)
     }
@@ -190,7 +200,9 @@ impl CacheBackend for AdaptiveCacheManager {
         }
 
         let elapsed = start.elapsed().as_nanos() as u64;
-        self.metrics.total_set_ns.fetch_add(elapsed, Ordering::Relaxed);
+        self.metrics
+            .total_set_ns
+            .fetch_add(elapsed, Ordering::Relaxed);
         self.metrics.set_count.fetch_add(1, Ordering::Relaxed);
         Ok(())
     }
@@ -260,7 +272,9 @@ mod tests {
         let secondary = InMemoryCache::new(100);
 
         // Put data only in secondary
-        secondary.set(CacheEntry::new("deep.com", "from-secondary", None)).unwrap();
+        secondary
+            .set(CacheEntry::new("deep.com", "from-secondary", None))
+            .unwrap();
 
         let mgr = AdaptiveCacheManager::new(primary).with_secondary(secondary);
 
@@ -278,8 +292,7 @@ mod tests {
     #[test]
     fn test_write_through() {
         let sec_ref = InMemoryCache::new(100);
-        let mgr = AdaptiveCacheManager::new(InMemoryCache::new(100))
-            .with_secondary(sec_ref);
+        let mgr = AdaptiveCacheManager::new(InMemoryCache::new(100)).with_secondary(sec_ref);
 
         mgr.set(CacheEntry::new("wt.com", "written", None)).unwrap();
 

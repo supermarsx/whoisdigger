@@ -71,7 +71,9 @@ impl ChatStore {
 
     /// Load a session by ID.
     pub fn load(&self, id: &str) -> SqlResult<Option<ChatSession>> {
-        let mut stmt = self.conn.prepare("SELECT data FROM sessions WHERE id = ?1")?;
+        let mut stmt = self
+            .conn
+            .prepare("SELECT data FROM sessions WHERE id = ?1")?;
         let mut rows = stmt.query(params![id])?;
         if let Some(row) = rows.next()? {
             let data: String = row.get(0)?;

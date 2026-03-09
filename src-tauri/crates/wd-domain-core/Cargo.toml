@@ -1,0 +1,18 @@
+[package]
+name = "wd-domain-core"
+version = "0.1.0"
+edition = "2021"
+description = "Primary app-facing domain facade for core lookup, availability, export, storage, network, and text concerns"
+
+[features]
+default = []
+proxy-sqlite = ["wd-domain-network/proxy-sqlite"]
+proxy-postgres = ["wd-domain-network/proxy-postgres"]
+
+[dependencies]
+wd-domain-storage = { path = "../wd-domain-storage" }
+wd-domain-network = { path = "../wd-domain-network", default-features = false }
+wd-domain-text = { path = "../wd-domain-text" }
+wd-availability = { path = "../wd-availability" }
+wd-export = { path = "../wd-export" }
+wd-ai = { path = "../wd-ai" }

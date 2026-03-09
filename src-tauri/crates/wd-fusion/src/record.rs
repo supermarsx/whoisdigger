@@ -40,7 +40,13 @@ pub struct SourceRecord {
 
 impl SourceRecord {
     /// Create a successful source record.
-    pub fn ok(source: LookupSource, domain: impl Into<String>, raw: impl Into<String>, fields: HashMap<String, String>, latency_ms: u64) -> Self {
+    pub fn ok(
+        source: LookupSource,
+        domain: impl Into<String>,
+        raw: impl Into<String>,
+        fields: HashMap<String, String>,
+        latency_ms: u64,
+    ) -> Self {
         Self {
             source,
             domain: domain.into(),
@@ -54,7 +60,12 @@ impl SourceRecord {
     }
 
     /// Create an error source record.
-    pub fn err(source: LookupSource, domain: impl Into<String>, error: impl Into<String>, latency_ms: u64) -> Self {
+    pub fn err(
+        source: LookupSource,
+        domain: impl Into<String>,
+        error: impl Into<String>,
+        latency_ms: u64,
+    ) -> Self {
         Self {
             source,
             domain: domain.into(),
@@ -105,7 +116,8 @@ impl FusedRecord {
 
     /// Fields where sources disagreed.
     pub fn conflicts(&self) -> Vec<(&str, &FusedField)> {
-        self.fields.iter()
+        self.fields
+            .iter()
             .filter(|(_, f)| !f.consensus && f.provided_by.len() > 1)
             .map(|(k, f)| (k.as_str(), f))
             .collect()
@@ -113,7 +125,8 @@ impl FusedRecord {
 
     /// Fields with high confidence (>= threshold).
     pub fn high_confidence_fields(&self, threshold: f64) -> Vec<(&str, &FusedField)> {
-        self.fields.iter()
+        self.fields
+            .iter()
             .filter(|(_, f)| f.confidence >= threshold)
             .map(|(k, f)| (k.as_str(), f))
             .collect()
@@ -149,12 +162,15 @@ mod tests {
     #[test]
     fn test_fused_record_get() {
         let mut fields = HashMap::new();
-        fields.insert("registrar".into(), FusedField {
-            value: "Example Inc".into(),
-            provided_by: vec![LookupSource::Whois, LookupSource::Rdap],
-            confidence: 1.0,
-            consensus: true,
-        });
+        fields.insert(
+            "registrar".into(),
+            FusedField {
+                value: "Example Inc".into(),
+                provided_by: vec![LookupSource::Whois, LookupSource::Rdap],
+                confidence: 1.0,
+                consensus: true,
+            },
+        );
         let fused = FusedRecord {
             domain: "example.com".into(),
             fields,
@@ -170,18 +186,24 @@ mod tests {
     #[test]
     fn test_conflicts() {
         let mut fields = HashMap::new();
-        fields.insert("registrar".into(), FusedField {
-            value: "A".into(),
-            provided_by: vec![LookupSource::Whois, LookupSource::Rdap],
-            confidence: 0.5,
-            consensus: false,
-        });
-        fields.insert("nameserver".into(), FusedField {
-            value: "ns1.example.com".into(),
-            provided_by: vec![LookupSource::Dns],
-            confidence: 1.0,
-            consensus: true,
-        });
+        fields.insert(
+            "registrar".into(),
+            FusedField {
+                value: "A".into(),
+                provided_by: vec![LookupSource::Whois, LookupSource::Rdap],
+                confidence: 0.5,
+                consensus: false,
+            },
+        );
+        fields.insert(
+            "nameserver".into(),
+            FusedField {
+                value: "ns1.example.com".into(),
+                provided_by: vec![LookupSource::Dns],
+                confidence: 1.0,
+                consensus: true,
+            },
+        );
         let fused = FusedRecord {
             domain: "example.com".into(),
             fields,
@@ -198,10 +220,31 @@ mod tests {
     #[test]
     fn test_high_confidence_fields() {
         let mut fields = HashMap::new();
-        fields.insert("a".into(), FusedField { value: "v".into(), provided_by: vec![], confidence: 0.9, consensus: true });
-        fields.insert("b".into(), FusedField { value: "v".into(), provided_by: vec![], confidence: 0.3, consensus: true });
+        fields.insert(
+            "a".into(),
+            FusedField {
+                value: "v".into(),
+                provided_by: vec![],
+                confidence: 0.9,
+                consensus: true,
+            },
+        );
+        fields.insert(
+            "b".into(),
+            FusedField {
+                value: "v".into(),
+                provided_by: vec![],
+                confidence: 0.3,
+                consensus: true,
+            },
+        );
         let fused = FusedRecord {
-            domain: "t.com".into(), fields, sources: vec![], overall_confidence: 0.6, source_count: 1, fused_at: chrono::Utc::now(),
+            domain: "t.com".into(),
+            fields,
+            sources: vec![],
+            overall_confidence: 0.6,
+            source_count: 1,
+            fused_at: chrono::Utc::now(),
         };
         assert_eq!(fused.high_confidence_fields(0.8).len(), 1);
     }

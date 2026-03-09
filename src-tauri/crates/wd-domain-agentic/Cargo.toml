@@ -1,0 +1,10 @@
+[package]
+name = "wd-domain-agentic"
+version = "0.1.0"
+edition = "2021"
+description = "Second-level agentic domain facade for LLM, chat, and autonomous agent concerns"
+
+[dependencies]
+wd-llm = { path = "../wd-llm" }
+wd-chat = { path = "../wd-chat" }
+wd-agent = { path = "../wd-agent" }

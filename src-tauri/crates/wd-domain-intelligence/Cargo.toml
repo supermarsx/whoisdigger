@@ -1,0 +1,12 @@
+[package]
+name = "wd-domain-intelligence"
+version = "0.1.0"
+edition = "2021"
+description = "Second-level intelligence domain facade for fusion, generation, registrar, rate limiting, and threat analysis"
+
+[dependencies]
+wd-domgen = { path = "../wd-domgen" }
+wd-fusion = { path = "../wd-fusion" }
+wd-ratelimit = { path = "../wd-ratelimit" }
+wd-registrar = { path = "../wd-registrar" }
+wd-threat = { path = "../wd-threat" }

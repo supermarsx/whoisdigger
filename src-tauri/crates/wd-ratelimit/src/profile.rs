@@ -52,7 +52,9 @@ pub struct ServerRegistry {
 
 impl ServerRegistry {
     pub fn new() -> Self {
-        Self { profiles: HashMap::new() }
+        Self {
+            profiles: HashMap::new(),
+        }
     }
 
     /// Load the built-in set of known server profiles.
@@ -77,7 +79,9 @@ impl ServerRegistry {
     /// Get profile for a TLD (looks up by TLD field).
     pub fn get_by_tld(&self, tld: &str) -> Option<&ServerProfile> {
         let tld_lower = tld.to_lowercase().trim_start_matches('.').to_string();
-        self.profiles.values().find(|p| p.tld.as_deref().map(|t| t.trim_start_matches('.')) == Some(&tld_lower))
+        self.profiles
+            .values()
+            .find(|p| p.tld.as_deref().map(|t| t.trim_start_matches('.')) == Some(&tld_lower))
     }
 
     /// Get the recommended delay for a server in ms.
@@ -90,24 +94,34 @@ impl ServerRegistry {
         self.profiles.keys().map(|s| s.as_str()).collect()
     }
 
-    pub fn len(&self) -> usize { self.profiles.len() }
-    pub fn is_empty(&self) -> bool { self.profiles.is_empty() }
+    pub fn len(&self) -> usize {
+        self.profiles.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.profiles.is_empty()
+    }
 }
 
 /// Built-in profiles for well-known WHOIS servers.
 fn builtin_profiles() -> Vec<ServerProfile> {
     vec![
         ServerProfile::new("whois.verisign-grs.com", 60, 1000).with_tld("com"),
-        ServerProfile::new("whois.nic.io", 30, 2000).with_tld("io").strict(),
+        ServerProfile::new("whois.nic.io", 30, 2000)
+            .with_tld("io")
+            .strict(),
         ServerProfile::new("whois.nic.me", 30, 2000).with_tld("me"),
         ServerProfile::new("whois.donuts.co", 30, 2000),
         ServerProfile::new("whois.nic.cc", 30, 2000).with_tld("cc"),
         ServerProfile::new("whois.nic.tv", 30, 2000).with_tld("tv"),
         ServerProfile::new("whois.afilias.net", 60, 1000).with_tld("info"),
-        ServerProfile::new("whois.nic.ai", 20, 3000).with_tld("ai").strict(),
+        ServerProfile::new("whois.nic.ai", 20, 3000)
+            .with_tld("ai")
+            .strict(),
         ServerProfile::new("whois.nic.co", 30, 2000).with_tld("co"),
         ServerProfile::new("whois.pir.org", 60, 1000).with_tld("org"),
-        ServerProfile::new("whois.educause.edu", 10, 6000).with_tld("edu").strict(),
+        ServerProfile::new("whois.educause.edu", 10, 6000)
+            .with_tld("edu")
+            .strict(),
         ServerProfile::new("whois.ripe.net", 60, 1000),
         ServerProfile::new("whois.arin.net", 30, 2000),
         ServerProfile::new("whois.apnic.net", 30, 2000),

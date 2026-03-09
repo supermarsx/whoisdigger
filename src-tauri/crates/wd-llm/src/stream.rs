@@ -81,10 +81,7 @@ impl TextAccumulator {
                 arguments_delta,
             } => {
                 // Find or create accumulator for this tool call ID
-                let acc = self
-                    .tool_calls
-                    .iter_mut()
-                    .find(|tc| tc.id == *id);
+                let acc = self.tool_calls.iter_mut().find(|tc| tc.id == *id);
                 match acc {
                     Some(a) => a.apply_delta(id, name.as_deref(), arguments_delta),
                     None => {
@@ -240,10 +237,7 @@ pub fn parse_anthropic_sse_line(event_type: &str, data: &str) -> Option<StreamCh
             }
         }
         "message_delta" => {
-            let stop = json
-                .get("delta")?
-                .get("stop_reason")?
-                .as_str()?;
+            let stop = json.get("delta")?.get("stop_reason")?.as_str()?;
             let reason = match stop {
                 "end_turn" => FinishReason::Stop,
                 "tool_use" => FinishReason::ToolUse,

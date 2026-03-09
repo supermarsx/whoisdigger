@@ -86,26 +86,27 @@ impl FallbackChain {
     /// DNS-only chain for availability checks.
     pub fn dns_only() -> Self {
         Self {
-            chain: vec![
-                FallbackEntry {
-                    source: LookupSource::Dns,
-                    skip_on_timeout: false,
-                    max_retries: 3,
-                    timeout_ms: 5_000,
-                },
-            ],
+            chain: vec![FallbackEntry {
+                source: LookupSource::Dns,
+                skip_on_timeout: false,
+                max_retries: 3,
+                timeout_ms: 5_000,
+            }],
         }
     }
 
     /// Custom chain from a list of sources.
     pub fn custom(sources: Vec<LookupSource>) -> Self {
         Self {
-            chain: sources.into_iter().map(|s| FallbackEntry {
-                source: s,
-                skip_on_timeout: true,
-                max_retries: 1,
-                timeout_ms: 10_000,
-            }).collect(),
+            chain: sources
+                .into_iter()
+                .map(|s| FallbackEntry {
+                    source: s,
+                    skip_on_timeout: true,
+                    max_retries: 1,
+                    timeout_ms: 10_000,
+                })
+                .collect(),
         }
     }
 
@@ -114,8 +115,12 @@ impl FallbackChain {
         self.chain.iter().map(|e| &e.source).collect()
     }
 
-    pub fn len(&self) -> usize { self.chain.len() }
-    pub fn is_empty(&self) -> bool { self.chain.is_empty() }
+    pub fn len(&self) -> usize {
+        self.chain.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.chain.is_empty()
+    }
 }
 
 // ─── Tests ───────────────────────────────────────────────────────────────────

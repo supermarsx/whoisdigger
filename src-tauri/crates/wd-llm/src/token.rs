@@ -24,10 +24,7 @@ impl TokenEstimator {
 
     /// Estimate token count for a single message.
     pub fn estimate_message(msg: &Message) -> usize {
-        let content_tokens = msg
-            .content
-            .as_deref()
-            .map_or(0, Self::estimate_tokens);
+        let content_tokens = msg.content.as_deref().map_or(0, Self::estimate_tokens);
         let tool_tokens: usize = msg
             .tool_calls
             .iter()
@@ -98,9 +95,10 @@ impl TokenEstimator {
 
         while Self::estimate_messages(messages) > budget && messages.len() > 1 {
             // Find the first non-system message and remove it
-            if let Some(idx) = messages.iter().position(|m| {
-                !matches!(m.role, crate::message::Role::System)
-            }) {
+            if let Some(idx) = messages
+                .iter()
+                .position(|m| !matches!(m.role, crate::message::Role::System))
+            {
                 messages.remove(idx);
                 dropped += 1;
             } else {
@@ -117,8 +115,8 @@ impl TokenEstimator {
 mod tests {
     use super::*;
     use crate::message::Message;
-    use crate::tools::ToolBuilder;
     use crate::tools::ParamType;
+    use crate::tools::ToolBuilder;
 
     #[test]
     fn test_estimate_tokens_short() {
@@ -158,9 +156,9 @@ mod tests {
 
     #[test]
     fn test_fits_context_too_small() {
-        let msgs = vec![
-            Message::system("You are a long system prompt ".repeat(100).as_str()),
-        ];
+        let msgs = vec![Message::system(
+            "You are a long system prompt ".repeat(100).as_str(),
+        )];
         assert!(!TokenEstimator::fits_context(&msgs, &[], 10, 5));
     }
 
@@ -189,11 +187,9 @@ mod tests {
 
     #[test]
     fn test_estimate_tools() {
-        let tools = vec![
-            ToolBuilder::new("whois", "Whois lookup")
-                .param("domain", ParamType::String, "Domain", true)
-                .build(),
-        ];
+        let tools = vec![ToolBuilder::new("whois", "Whois lookup")
+            .param("domain", ParamType::String, "Domain", true)
+            .build()];
         let est = TokenEstimator::estimate_tools(&tools);
         assert!(est > 20);
     }

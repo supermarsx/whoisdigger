@@ -291,7 +291,9 @@ mod tests {
     #[test]
     fn test_security_scan_pipeline() {
         let p = Pipeline::security_scan("test.com");
-        assert!(p.steps.iter().any(|s| s.required_tools.contains(&"generate_typosquats".to_string())));
+        assert!(p.steps.iter().any(|s| s
+            .required_tools
+            .contains(&"generate_typosquats".to_string())));
     }
 
     #[test]

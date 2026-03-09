@@ -218,7 +218,10 @@ mod tests {
         sb.record_tool_call();
         sb.record_tool_call();
         let err = sb.check_tool("a").unwrap_err();
-        assert!(matches!(err, SandboxViolation::ToolCallLimitExceeded { .. }));
+        assert!(matches!(
+            err,
+            SandboxViolation::ToolCallLimitExceeded { .. }
+        ));
     }
 
     #[test]

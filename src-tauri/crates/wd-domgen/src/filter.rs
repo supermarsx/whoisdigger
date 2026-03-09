@@ -21,7 +21,9 @@ pub struct FilterConfig {
     pub dedup: bool,
 }
 
-fn default_true() -> bool { true }
+fn default_true() -> bool {
+    true
+}
 
 impl Default for FilterConfig {
     fn default() -> Self {
@@ -44,10 +46,12 @@ pub struct DomainFilter {
 
 impl DomainFilter {
     pub fn new(config: FilterConfig) -> Self {
-        let blocklist_set: HashSet<String> = config.blocklist.iter()
-            .map(|s| s.to_lowercase())
-            .collect();
-        Self { config, blocklist_set }
+        let blocklist_set: HashSet<String> =
+            config.blocklist.iter().map(|s| s.to_lowercase()).collect();
+        Self {
+            config,
+            blocklist_set,
+        }
     }
 
     /// Filter a list of domains, returning only those that pass all checks.
@@ -75,7 +79,12 @@ impl DomainFilter {
                 continue;
             }
 
-            if self.config.blocked_substrings.iter().any(|sub| label.contains(sub.as_str())) {
+            if self
+                .config
+                .blocked_substrings
+                .iter()
+                .any(|sub| label.contains(sub.as_str()))
+            {
                 continue;
             }
 
@@ -119,7 +128,10 @@ mod tests {
 
     #[test]
     fn test_min_length_filter() {
-        let config = FilterConfig { min_length: 4, ..Default::default() };
+        let config = FilterConfig {
+            min_length: 4,
+            ..Default::default()
+        };
         let f = DomainFilter::new(config);
         let input = vec!["ab.com".into(), "abcd.com".into()];
         let result = f.filter(&input);
@@ -159,7 +171,10 @@ mod tests {
 
     #[test]
     fn test_ascii_only_rejects_unicode() {
-        let f = DomainFilter::new(FilterConfig { ascii_only: true, ..Default::default() });
+        let f = DomainFilter::new(FilterConfig {
+            ascii_only: true,
+            ..Default::default()
+        });
         let input = vec!["日本語.com".into(), "ascii.com".into()];
         assert_eq!(f.filter(&input).len(), 1);
     }

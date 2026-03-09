@@ -56,7 +56,11 @@ pub struct Snapshot {
 
 impl Snapshot {
     /// Create a minimal snapshot.
-    pub fn new(domain: impl Into<String>, protocol: LookupProtocol, raw: impl Into<String>) -> Self {
+    pub fn new(
+        domain: impl Into<String>,
+        protocol: LookupProtocol,
+        raw: impl Into<String>,
+    ) -> Self {
         Self {
             id: None,
             domain: domain.into(),
@@ -147,8 +151,7 @@ mod tests {
 
     #[test]
     fn test_snapshot_serialization_roundtrip() {
-        let snap = Snapshot::new("x.com", LookupProtocol::Whois, "raw")
-            .with_field("key", "value");
+        let snap = Snapshot::new("x.com", LookupProtocol::Whois, "raw").with_field("key", "value");
         let json = serde_json::to_string(&snap).unwrap();
         let deser: Snapshot = serde_json::from_str(&json).unwrap();
         assert_eq!(deser.domain, "x.com");

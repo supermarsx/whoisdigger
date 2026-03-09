@@ -40,7 +40,11 @@ impl ImportFormat {
                 }
             }
         }
-        if trimmed.contains("\t") && (trimmed.contains("IN\tA") || trimmed.contains("IN\tNS") || trimmed.contains("IN\tSOA")) {
+        if trimmed.contains("\t")
+            && (trimmed.contains("IN\tA")
+                || trimmed.contains("IN\tNS")
+                || trimmed.contains("IN\tSOA"))
+        {
             return ImportFormat::ZoneFile;
         }
         let first_line = trimmed.lines().next().unwrap_or("");
@@ -103,7 +107,10 @@ mod tests {
     #[test]
     fn test_detect_newline_delimited() {
         let content = "example.com\nexample.org\nexample.net";
-        assert_eq!(ImportFormat::detect(content), ImportFormat::NewlineDelimited);
+        assert_eq!(
+            ImportFormat::detect(content),
+            ImportFormat::NewlineDelimited
+        );
     }
 
     #[test]
@@ -115,13 +122,21 @@ mod tests {
     #[test]
     fn test_detect_json_objects() {
         let content = r#"[{"domain": "example.com"}, {"domain": "example.org"}]"#;
-        assert_eq!(ImportFormat::detect(content), ImportFormat::JsonObjects { domain_key: "domain".into() });
+        assert_eq!(
+            ImportFormat::detect(content),
+            ImportFormat::JsonObjects {
+                domain_key: "domain".into()
+            }
+        );
     }
 
     #[test]
     fn test_detect_csv() {
         let content = "domain,status\nexample.com,active\nexample.org,expired";
-        assert_eq!(ImportFormat::detect(content), ImportFormat::Csv { domain_column: 0 });
+        assert_eq!(
+            ImportFormat::detect(content),
+            ImportFormat::Csv { domain_column: 0 }
+        );
     }
 
     #[test]

@@ -1,0 +1,16 @@
+[package]
+name = "wd-domain-automation"
+version = "0.1.0"
+edition = "2021"
+description = "Second-level automation domain facade for history, expiry, import, scheduling, and export concerns"
+
+[dependencies]
+wd-export = { path = "../wd-export" }
+wd-history = { path = "../wd-history", default-features = false }
+wd-expiry = { path = "../wd-expiry" }
+wd-import = { path = "../wd-import" }
+wd-scheduler = { path = "../wd-scheduler" }
+
+[features]
+default = []
+pricing = ["wd-history/pricing"]

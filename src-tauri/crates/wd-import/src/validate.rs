@@ -36,7 +36,10 @@ impl Default for DomainValidator {
 
 impl DomainValidator {
     pub fn strict() -> Self {
-        Self { level: ValidationLevel::Strict, ..Default::default() }
+        Self {
+            level: ValidationLevel::Strict,
+            ..Default::default()
+        }
     }
 
     /// Validate a single domain.
@@ -58,22 +61,40 @@ impl DomainValidator {
 
     fn basic_check(&self, domain: &str) -> bool {
         let d = domain.trim();
-        if d.len() < self.min_length || d.len() > self.max_length { return false; }
-        if d.contains(' ') || d.contains('\t') { return false; }
-        if !d.contains('.') { return false; }
-        if d.starts_with('.') || d.ends_with('.') { return false; }
-        if d.starts_with('-') || d.ends_with('-') { return false; }
-        if !self.allow_wildcards && d.starts_with("*.") { return false; }
+        if d.len() < self.min_length || d.len() > self.max_length {
+            return false;
+        }
+        if d.contains(' ') || d.contains('\t') {
+            return false;
+        }
+        if !d.contains('.') {
+            return false;
+        }
+        if d.starts_with('.') || d.ends_with('.') {
+            return false;
+        }
+        if d.starts_with('-') || d.ends_with('-') {
+            return false;
+        }
+        if !self.allow_wildcards && d.starts_with("*.") {
+            return false;
+        }
         true
     }
 
     fn strict_check(&self, domain: &str) -> bool {
-        if !self.basic_check(domain) { return false; }
+        if !self.basic_check(domain) {
+            return false;
+        }
 
         // Check each label
         for label in domain.split('.') {
-            if label.is_empty() || label.len() > 63 { return false; }
-            if label.starts_with('-') || label.ends_with('-') { return false; }
+            if label.is_empty() || label.len() > 63 {
+                return false;
+            }
+            if label.starts_with('-') || label.ends_with('-') {
+                return false;
+            }
 
             // Only allow alphanumeric and hyphens (plus IDN xn-- prefix)
             if !self.allow_idn {
@@ -162,7 +183,10 @@ mod tests {
 
     #[test]
     fn test_wildcard_allowed() {
-        let v = DomainValidator { allow_wildcards: true, ..Default::default() };
+        let v = DomainValidator {
+            allow_wildcards: true,
+            ..Default::default()
+        };
         assert!(v.is_valid("*.example.com"));
     }
 
@@ -177,7 +201,10 @@ mod tests {
 
     #[test]
     fn test_no_validation() {
-        let v = DomainValidator { level: ValidationLevel::None, ..Default::default() };
+        let v = DomainValidator {
+            level: ValidationLevel::None,
+            ..Default::default()
+        };
         assert!(v.is_valid("anything at all"));
     }
 }

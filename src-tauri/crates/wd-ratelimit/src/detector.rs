@@ -43,7 +43,12 @@ impl RateLimitDetector {
     }
 
     /// Analyse a WHOIS response for rate-limiting signals.
-    pub fn detect(&self, response: &str, latency_ms: u64, http_status: Option<u16>) -> Vec<RateLimitSignal> {
+    pub fn detect(
+        &self,
+        response: &str,
+        latency_ms: u64,
+        http_status: Option<u16>,
+    ) -> Vec<RateLimitSignal> {
         let mut signals = Vec::new();
         let lower = response.to_lowercase();
 
@@ -68,7 +73,10 @@ impl RateLimitDetector {
         }
 
         // Captcha patterns
-        if lower.contains("captcha") || lower.contains("challenge") || lower.contains("verify you are human") {
+        if lower.contains("captcha")
+            || lower.contains("challenge")
+            || lower.contains("verify you are human")
+        {
             signals.push(RateLimitSignal::CaptchaChallenge);
         }
 
@@ -76,13 +84,20 @@ impl RateLimitDetector {
     }
 
     /// Quick check: is this response rate-limited?
-    pub fn is_rate_limited(&self, response: &str, latency_ms: u64, http_status: Option<u16>) -> bool {
+    pub fn is_rate_limited(
+        &self,
+        response: &str,
+        latency_ms: u64,
+        http_status: Option<u16>,
+    ) -> bool {
         !self.detect(response, latency_ms, http_status).is_empty()
     }
 }
 
 impl Default for RateLimitDetector {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 /// Built-in patterns that indicate rate limiting in WHOIS responses.
@@ -150,7 +165,11 @@ mod tests {
     #[test]
     fn test_no_false_positive() {
         let d = RateLimitDetector::new();
-        let signals = d.detect("Domain Name: example.com\nRegistrar: Example Inc", 200, Some(200));
+        let signals = d.detect(
+            "Domain Name: example.com\nRegistrar: Example Inc",
+            200,
+            Some(200),
+        );
         assert!(signals.is_empty());
     }
 

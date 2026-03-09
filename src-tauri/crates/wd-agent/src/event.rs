@@ -94,18 +94,43 @@ mod tests {
     #[test]
     fn test_all_event_kinds_serialize() {
         let events = vec![
-            EventKind::RunStarted { run_id: "r".into(), query: "q".into() },
-            EventKind::RunCompleted { run_id: "r".into(), iterations: 3, cost: 0.01 },
+            EventKind::RunStarted {
+                run_id: "r".into(),
+                query: "q".into(),
+            },
+            EventKind::RunCompleted {
+                run_id: "r".into(),
+                iterations: 3,
+                cost: 0.01,
+            },
             EventKind::IterationStarted { iteration: 1 },
             EventKind::IterationLimitReached { iterations: 15 },
-            EventKind::BudgetExhausted { spent: 1.5, limit: 1.0 },
-            EventKind::ToolCallStarted { tool_name: "t".into() },
-            EventKind::ToolCallCompleted { tool_name: "t".into(), success: true },
-            EventKind::PlanCreated { goal: "g".into(), steps: 3 },
-            EventKind::PlanStepStarted { step_index: 1, description: "d".into() },
+            EventKind::BudgetExhausted {
+                spent: 1.5,
+                limit: 1.0,
+            },
+            EventKind::ToolCallStarted {
+                tool_name: "t".into(),
+            },
+            EventKind::ToolCallCompleted {
+                tool_name: "t".into(),
+                success: true,
+            },
+            EventKind::PlanCreated {
+                goal: "g".into(),
+                steps: 3,
+            },
+            EventKind::PlanStepStarted {
+                step_index: 1,
+                description: "d".into(),
+            },
             EventKind::PlanStepCompleted { step_index: 1 },
-            EventKind::Thinking { content: "hmm".into() },
-            EventKind::Error { message: "err".into() },
+            EventKind::Thinking {
+                content: "hmm".into(),
+            },
+            EventKind::Error {
+                message: "err".into(),
+            },
         ];
         for kind in events {
             let event = AgentEvent::new(kind);

@@ -54,11 +54,9 @@ impl Persona {
                 "Deep knowledge of DNS, registrars, and domain lifecycle",
                 "🌐",
             ),
-            PersonaKind::WhoisAnalyst => (
-                "WHOIS Analyst",
-                "Parses and interprets WHOIS records",
-                "🔍",
-            ),
+            PersonaKind::WhoisAnalyst => {
+                ("WHOIS Analyst", "Parses and interprets WHOIS records", "🔍")
+            }
             PersonaKind::SecurityResearcher => (
                 "Security Researcher",
                 "Threat analysis, phishing detection, DGA identification",
@@ -125,10 +123,7 @@ mod tests {
     #[test]
     fn test_persona_kind_display() {
         assert_eq!(PersonaKind::WhoisAnalyst.to_string(), "WHOIS Analyst");
-        assert_eq!(
-            PersonaKind::Custom("x".into()).to_string(),
-            "Custom (x)"
-        );
+        assert_eq!(PersonaKind::Custom("x".into()).to_string(), "Custom (x)");
     }
 
     #[test]

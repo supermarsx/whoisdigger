@@ -47,7 +47,8 @@ impl Blocklist {
 
     /// Parse a newline-delimited blocklist (common format).
     pub fn from_text(name: impl Into<String>, category: ThreatCategory, text: &str) -> Self {
-        let entries = text.lines()
+        let entries = text
+            .lines()
             .map(|l| l.trim().to_lowercase())
             .filter(|l| !l.is_empty() && !l.starts_with('#'))
             .collect();
@@ -82,8 +83,12 @@ impl Blocklist {
         false
     }
 
-    pub fn len(&self) -> usize { self.entries.len() }
-    pub fn is_empty(&self) -> bool { self.entries.is_empty() }
+    pub fn len(&self) -> usize {
+        self.entries.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.entries.is_empty()
+    }
 }
 
 /// Check a domain against multiple blocklists.
@@ -99,24 +104,53 @@ pub fn check_blocklists(domain: &str, blocklists: &[Blocklist]) -> BlocklistMatc
                     ThreatCategory::BlocklistMatch,
                     ThreatLevel::High,
                     format!("Domain found on blocklist '{}'", list.name),
-                ).with_evidence(format!("Category: {:?}", list.category))
-                .with_confidence(0.95)
+                )
+                .with_evidence(format!("Category: {:?}", list.category))
+                .with_confidence(0.95),
             );
         }
     }
 
-    BlocklistMatch { domain: domain.to_string(), matched_lists, indicators }
+    BlocklistMatch {
+        domain: domain.to_string(),
+        matched_lists,
+        indicators,
+    }
 }
 
 /// Well-known public blocklist sources.
 pub fn known_blocklist_urls() -> Vec<(&'static str, &'static str, ThreatCategory)> {
     vec![
-        ("URLhaus", "https://urlhaus.abuse.ch/downloads/text/", ThreatCategory::Malware),
-        ("PhishTank", "https://data.phishtank.com/data/online-valid.csv", ThreatCategory::Phishing),
-        ("OpenPhish", "https://openphish.com/feed.txt", ThreatCategory::Phishing),
-        ("Spamhaus DBL", "https://www.spamhaus.org/drop/drop.txt", ThreatCategory::Spam),
-        ("MalwareDomainList", "https://www.malwaredomainlist.com/hostslist/hosts.txt", ThreatCategory::Malware),
-        ("Abuse.ch Feodo", "https://feodotracker.abuse.ch/downloads/ipblocklist.txt", ThreatCategory::BotnetC2),
+        (
+            "URLhaus",
+            "https://urlhaus.abuse.ch/downloads/text/",
+            ThreatCategory::Malware,
+        ),
+        (
+            "PhishTank",
+            "https://data.phishtank.com/data/online-valid.csv",
+            ThreatCategory::Phishing,
+        ),
+        (
+            "OpenPhish",
+            "https://openphish.com/feed.txt",
+            ThreatCategory::Phishing,
+        ),
+        (
+            "Spamhaus DBL",
+            "https://www.spamhaus.org/drop/drop.txt",
+            ThreatCategory::Spam,
+        ),
+        (
+            "MalwareDomainList",
+            "https://www.malwaredomainlist.com/hostslist/hosts.txt",
+            ThreatCategory::Malware,
+        ),
+        (
+            "Abuse.ch Feodo",
+            "https://feodotracker.abuse.ch/downloads/ipblocklist.txt",
+            ThreatCategory::BotnetC2,
+        ),
     ]
 }
 
@@ -164,7 +198,10 @@ mod tests {
         list.add("bad-domain.com");
         let result = check_blocklists("bad-domain.com", &[list]);
         assert_eq!(result.matched_lists.len(), 1);
-        assert!(result.indicators.iter().any(|i| i.category == ThreatCategory::BlocklistMatch));
+        assert!(result
+            .indicators
+            .iter()
+            .any(|i| i.category == ThreatCategory::BlocklistMatch));
     }
 
     #[test]

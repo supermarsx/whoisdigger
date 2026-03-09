@@ -51,7 +51,10 @@ pub struct TldPricing {
 
 impl TldPricing {
     pub fn new(tld: impl Into<String>) -> Self {
-        Self { tld: tld.into(), quotes: Vec::new() }
+        Self {
+            tld: tld.into(),
+            quotes: Vec::new(),
+        }
     }
 
     pub fn add_quote(&mut self, quote: PriceQuote) {
@@ -60,21 +63,25 @@ impl TldPricing {
 
     /// Return the cheapest registration quote.
     pub fn cheapest_registration(&self) -> Option<&PriceQuote> {
-        self.quotes.iter()
+        self.quotes
+            .iter()
             .filter(|q| q.register_cents.is_some())
             .min_by_key(|q| q.register_cents.unwrap_or(u64::MAX))
     }
 
     /// Return the cheapest renewal quote.
     pub fn cheapest_renewal(&self) -> Option<&PriceQuote> {
-        self.quotes.iter()
+        self.quotes
+            .iter()
             .filter(|q| q.renewal_cents.is_some())
             .min_by_key(|q| q.renewal_cents.unwrap_or(u64::MAX))
     }
 
     /// Sort quotes by registration price ascending.
     pub fn sorted_by_registration(&self) -> Vec<&PriceQuote> {
-        let mut sorted: Vec<_> = self.quotes.iter()
+        let mut sorted: Vec<_> = self
+            .quotes
+            .iter()
             .filter(|q| q.register_cents.is_some())
             .collect();
         sorted.sort_by_key(|q| q.register_cents.unwrap_or(u64::MAX));
@@ -90,12 +97,15 @@ pub struct RegistrarPricing {
 
 impl RegistrarPricing {
     pub fn new() -> Self {
-        Self { tlds: HashMap::new() }
+        Self {
+            tlds: HashMap::new(),
+        }
     }
 
     /// Add a price quote, creating the TLD bucket if needed.
     pub fn add_quote(&mut self, tld: &str, quote: PriceQuote) {
-        self.tlds.entry(tld.to_lowercase())
+        self.tlds
+            .entry(tld.to_lowercase())
             .or_insert_with(|| TldPricing::new(tld))
             .add_quote(quote);
     }
@@ -107,7 +117,8 @@ impl RegistrarPricing {
 
     /// Return the globally cheapest registration across all TLDs.
     pub fn cheapest_overall_registration(&self) -> Option<&PriceQuote> {
-        self.tlds.values()
+        self.tlds
+            .values()
             .filter_map(|t| t.cheapest_registration())
             .min_by_key(|q| q.register_cents.unwrap_or(u64::MAX))
     }

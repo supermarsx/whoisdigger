@@ -32,14 +32,16 @@ pub fn parse_import(content: &str, format: &ImportFormat) -> ImportResult {
     let total_parsed = raw_domains.len();
 
     // Normalise: lowercase, trim, remove trailing dots
-    let normalised: Vec<String> = raw_domains.into_iter()
+    let normalised: Vec<String> = raw_domains
+        .into_iter()
         .map(|d| d.trim().to_lowercase().trim_end_matches('.').to_string())
         .filter(|d| !d.is_empty())
         .collect();
 
     // Deduplicate preserving order
     let mut seen = HashSet::new();
-    let deduped: Vec<String> = normalised.into_iter()
+    let deduped: Vec<String> = normalised
+        .into_iter()
         .filter(|d| seen.insert(d.clone()))
         .collect();
 
@@ -53,11 +55,15 @@ pub fn parse_import(content: &str, format: &ImportFormat) -> ImportResult {
         invalid_removed: 0, // validation happens later in validate module
     };
 
-    ImportResult { domains: deduped, stats }
+    ImportResult {
+        domains: deduped,
+        stats,
+    }
 }
 
 fn parse_newline(content: &str) -> Vec<String> {
-    content.lines()
+    content
+        .lines()
         .map(|l| l.trim().to_string())
         .filter(|l| !l.is_empty() && !l.starts_with('#'))
         .collect()
@@ -143,14 +149,16 @@ fn parse_ct_log(content: &str) -> Vec<String> {
 }
 
 fn parse_space_separated(content: &str) -> Vec<String> {
-    content.split_whitespace()
+    content
+        .split_whitespace()
         .map(|s| s.trim().to_string())
         .filter(|s| !s.is_empty())
         .collect()
 }
 
 fn parse_comma_separated(content: &str) -> Vec<String> {
-    content.split(',')
+    content
+        .split(',')
         .map(|s| s.trim().to_string())
         .filter(|s| !s.is_empty())
         .collect()
@@ -164,7 +172,10 @@ mod tests {
 
     #[test]
     fn test_parse_newline() {
-        let r = parse_import("example.com\nexample.org\n\n# comment\nexample.net", &ImportFormat::NewlineDelimited);
+        let r = parse_import(
+            "example.com\nexample.org\n\n# comment\nexample.net",
+            &ImportFormat::NewlineDelimited,
+        );
         assert_eq!(r.domains, vec!["example.com", "example.org", "example.net"]);
     }
 
@@ -185,20 +196,31 @@ mod tests {
     #[test]
     fn test_parse_json_objects() {
         let json = r#"[{"domain": "example.com"}, {"domain": "test.org"}]"#;
-        let r = parse_import(json, &ImportFormat::JsonObjects { domain_key: "domain".into() });
+        let r = parse_import(
+            json,
+            &ImportFormat::JsonObjects {
+                domain_key: "domain".into(),
+            },
+        );
         assert_eq!(r.domains, vec!["example.com", "test.org"]);
     }
 
     #[test]
     fn test_deduplication() {
-        let r = parse_import("example.com\nExample.COM\nexample.com", &ImportFormat::NewlineDelimited);
+        let r = parse_import(
+            "example.com\nExample.COM\nexample.com",
+            &ImportFormat::NewlineDelimited,
+        );
         assert_eq!(r.domains.len(), 1);
         assert_eq!(r.stats.duplicates_removed, 2);
     }
 
     #[test]
     fn test_trailing_dot_removal() {
-        let r = parse_import("example.com.\nexample.org.", &ImportFormat::NewlineDelimited);
+        let r = parse_import(
+            "example.com.\nexample.org.",
+            &ImportFormat::NewlineDelimited,
+        );
         assert_eq!(r.domains, vec!["example.com", "example.org"]);
     }
 
@@ -224,7 +246,8 @@ mod tests {
 
     #[test]
     fn test_parse_ct_log() {
-        let ct = r#"[{"dns_names": ["example.com", "*.example.com"], "common_name": "example.com"}]"#;
+        let ct =
+            r#"[{"dns_names": ["example.com", "*.example.com"], "common_name": "example.com"}]"#;
         let r = parse_import(ct, &ImportFormat::CtLog);
         assert!(r.domains.contains(&"example.com".to_string()));
     }

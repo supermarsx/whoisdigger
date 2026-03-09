@@ -31,7 +31,10 @@ impl Default for InMemoryCache {
 
 impl CacheBackend for InMemoryCache {
     fn get(&self, key: &str) -> CacheResult<Option<CacheEntry>> {
-        let mut store = self.store.lock().map_err(|e| CacheError::Backend(e.to_string()))?;
+        let mut store = self
+            .store
+            .lock()
+            .map_err(|e| CacheError::Backend(e.to_string()))?;
         if let Some(entry) = store.get_mut(key) {
             if entry.is_expired() {
                 store.remove(key);
@@ -45,10 +48,16 @@ impl CacheBackend for InMemoryCache {
     }
 
     fn set(&self, entry: CacheEntry) -> CacheResult<()> {
-        let mut store = self.store.lock().map_err(|e| CacheError::Backend(e.to_string()))?;
+        let mut store = self
+            .store
+            .lock()
+            .map_err(|e| CacheError::Backend(e.to_string()))?;
 
         // Evict oldest entry if at capacity (skip if updating existing key)
-        if self.max_entries > 0 && store.len() >= self.max_entries && !store.contains_key(&entry.key) {
+        if self.max_entries > 0
+            && store.len() >= self.max_entries
+            && !store.contains_key(&entry.key)
+        {
             if let Some(oldest_key) = store
                 .iter()
                 .min_by_key(|(_, v)| v.created_at)
@@ -63,24 +72,36 @@ impl CacheBackend for InMemoryCache {
     }
 
     fn remove(&self, key: &str) -> CacheResult<()> {
-        let mut store = self.store.lock().map_err(|e| CacheError::Backend(e.to_string()))?;
+        let mut store = self
+            .store
+            .lock()
+            .map_err(|e| CacheError::Backend(e.to_string()))?;
         store.remove(key);
         Ok(())
     }
 
     fn clear(&self) -> CacheResult<()> {
-        let mut store = self.store.lock().map_err(|e| CacheError::Backend(e.to_string()))?;
+        let mut store = self
+            .store
+            .lock()
+            .map_err(|e| CacheError::Backend(e.to_string()))?;
         store.clear();
         Ok(())
     }
 
     fn len(&self) -> CacheResult<usize> {
-        let store = self.store.lock().map_err(|e| CacheError::Backend(e.to_string()))?;
+        let store = self
+            .store
+            .lock()
+            .map_err(|e| CacheError::Backend(e.to_string()))?;
         Ok(store.len())
     }
 
     fn evict_expired(&self) -> CacheResult<u64> {
-        let mut store = self.store.lock().map_err(|e| CacheError::Backend(e.to_string()))?;
+        let mut store = self
+            .store
+            .lock()
+            .map_err(|e| CacheError::Backend(e.to_string()))?;
         let before = store.len();
         store.retain(|_, v| !v.is_expired());
         Ok((before - store.len()) as u64)
@@ -158,7 +179,9 @@ mod tests {
         let mut old = CacheEntry::new("old.com", "stale", Some(1));
         old.created_at = chrono::Utc::now() - chrono::Duration::seconds(10);
         cache.set(old).unwrap();
-        cache.set(CacheEntry::new("fresh.com", "fresh", Some(60_000))).unwrap();
+        cache
+            .set(CacheEntry::new("fresh.com", "fresh", Some(60_000)))
+            .unwrap();
 
         let evicted = cache.evict_expired().unwrap();
         assert_eq!(evicted, 1);
@@ -171,7 +194,9 @@ mod tests {
         cache.set(CacheEntry::new("a.com", "v1", None)).unwrap();
         cache.set(CacheEntry::new("b.com", "v2", None)).unwrap();
         // Update existing key — should NOT evict
-        cache.set(CacheEntry::new("a.com", "v1-updated", None)).unwrap();
+        cache
+            .set(CacheEntry::new("a.com", "v1-updated", None))
+            .unwrap();
         assert_eq!(cache.len().unwrap(), 2);
         assert_eq!(cache.get("a.com").unwrap().unwrap().value, "v1-updated");
     }

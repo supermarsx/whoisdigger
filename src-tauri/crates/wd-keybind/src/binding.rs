@@ -36,13 +36,18 @@ impl KeyCombo {
         let mut mods = modifiers;
         mods.sort();
         mods.dedup();
-        Self { modifiers: mods, key: key.into().to_lowercase() }
+        Self {
+            modifiers: mods,
+            key: key.into().to_lowercase(),
+        }
     }
 
     /// Parse from a string like "Ctrl+Shift+S".
     pub fn parse(s: &str) -> Option<Self> {
         let parts: Vec<&str> = s.split('+').map(|p| p.trim()).collect();
-        if parts.is_empty() { return None; }
+        if parts.is_empty() {
+            return None;
+        }
 
         let mut modifiers = vec![];
         let mut key = None;
@@ -62,18 +67,22 @@ impl KeyCombo {
 
     /// Convert to display string.
     pub fn display(&self, is_mac: bool) -> String {
-        let mut parts: Vec<String> = self.modifiers.iter().map(|m| {
-            if is_mac {
-                match m {
-                    Modifier::Ctrl => "⌃".into(),
-                    Modifier::Shift => "⇧".into(),
-                    Modifier::Alt => "⌥".into(),
-                    Modifier::Meta => "⌘".into(),
+        let mut parts: Vec<String> = self
+            .modifiers
+            .iter()
+            .map(|m| {
+                if is_mac {
+                    match m {
+                        Modifier::Ctrl => "⌃".into(),
+                        Modifier::Shift => "⇧".into(),
+                        Modifier::Alt => "⌥".into(),
+                        Modifier::Meta => "⌘".into(),
+                    }
+                } else {
+                    m.to_string()
                 }
-            } else {
-                m.to_string()
-            }
-        }).collect();
+            })
+            .collect();
         parts.push(self.key.to_uppercase());
         if is_mac {
             parts.join("")

@@ -6,10 +6,10 @@
 
 pub mod binding;
 pub mod context;
-pub mod registry;
 pub mod keymap;
+pub mod registry;
 
-pub use binding::{KeyBinding, KeyCombo, Modifier, Action};
+pub use binding::{Action, KeyBinding, KeyCombo, Modifier};
 pub use context::KeyContext;
-pub use registry::{KeyRegistry, ConflictError};
 pub use keymap::default_keymap;
+pub use registry::{ConflictError, KeyRegistry};

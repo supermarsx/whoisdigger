@@ -50,12 +50,20 @@ impl Attachment {
 
     /// Create from WHOIS result.
     pub fn whois(domain: &str, raw: &str) -> Self {
-        Self::new(AttachmentKind::WhoisResult, &format!("WHOIS: {domain}"), raw)
+        Self::new(
+            AttachmentKind::WhoisResult,
+            &format!("WHOIS: {domain}"),
+            raw,
+        )
     }
 
     /// Create from DNS result.
     pub fn dns(domain: &str, records: &str) -> Self {
-        Self::new(AttachmentKind::DnsResult, &format!("DNS: {domain}"), records)
+        Self::new(
+            AttachmentKind::DnsResult,
+            &format!("DNS: {domain}"),
+            records,
+        )
     }
 
     /// Create from a domain list.
@@ -85,7 +93,9 @@ impl Attachment {
     pub fn to_prompt_block(&self) -> String {
         format!(
             "<attachment kind=\"{}\" label=\"{}\">\n{}\n</attachment>",
-            serde_json::to_string(&self.kind).unwrap_or_default().trim_matches('"'),
+            serde_json::to_string(&self.kind)
+                .unwrap_or_default()
+                .trim_matches('"'),
             self.label,
             self.content,
         )

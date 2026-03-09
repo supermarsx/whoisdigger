@@ -110,13 +110,19 @@ impl ThrottleEngine {
     pub fn check(&self, server: &str, profile: Option<&ServerProfile>) -> ThrottleDecision {
         let mut buckets = self.buckets.lock().unwrap();
         let key = server.to_lowercase();
-        let delay = profile.map(|p| p.min_delay_ms).unwrap_or(self.default_delay_ms);
+        let delay = profile
+            .map(|p| p.min_delay_ms)
+            .unwrap_or(self.default_delay_ms);
 
         let bucket = buckets.entry(key).or_insert_with(|| {
             if let Some(p) = profile {
                 BucketState::new(p)
             } else {
-                BucketState::new(&ServerProfile::new(server, self.default_rpm, self.default_delay_ms))
+                BucketState::new(&ServerProfile::new(
+                    server,
+                    self.default_rpm,
+                    self.default_delay_ms,
+                ))
             }
         });
 
@@ -184,7 +190,7 @@ mod tests {
         let engine = ThrottleEngine::new(60, 0);
         let profile = ServerProfile::new("strict.com", 60, 0);
         engine.check("strict.com", Some(&profile)); // init bucket
-        // Report 3 consecutive rate limits → should trigger backoff
+                                                    // Report 3 consecutive rate limits → should trigger backoff
         engine.report_rate_limit("strict.com");
         engine.report_rate_limit("strict.com");
         engine.report_rate_limit("strict.com");
@@ -206,10 +212,7 @@ mod tests {
         engine.report_success("s.com");
         // Should still be under threshold
         let decision = engine.check("s.com", Some(&profile));
-        assert_ne!(
-            matches!(decision, ThrottleDecision::Deny { .. }),
-            true
-        );
+        assert_ne!(matches!(decision, ThrottleDecision::Deny { .. }), true);
     }
 
     #[test]

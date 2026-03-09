@@ -34,7 +34,9 @@ pub struct ShoppingCart {
 }
 
 impl ShoppingCart {
-    pub fn new() -> Self { Self { items: vec![] } }
+    pub fn new() -> Self {
+        Self { items: vec![] }
+    }
 
     pub fn add(&mut self, item: CartItem) {
         // Replace if same domain already in cart
@@ -48,10 +50,16 @@ impl ShoppingCart {
         self.items.len() < before
     }
 
-    pub fn clear(&mut self) { self.items.clear(); }
+    pub fn clear(&mut self) {
+        self.items.clear();
+    }
 
-    pub fn len(&self) -> usize { self.items.len() }
-    pub fn is_empty(&self) -> bool { self.items.is_empty() }
+    pub fn len(&self) -> usize {
+        self.items.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.items.is_empty()
+    }
 
     /// Total price in cents.
     pub fn total_cents(&self) -> u64 {
@@ -68,7 +76,9 @@ impl ShoppingCart {
     pub fn by_registrar(&self) -> std::collections::HashMap<String, Vec<&CartItem>> {
         let mut map = std::collections::HashMap::new();
         for item in &self.items {
-            map.entry(item.registrar_id.clone()).or_insert_with(Vec::new).push(item);
+            map.entry(item.registrar_id.clone())
+                .or_insert_with(Vec::new)
+                .push(item);
         }
         map
     }
@@ -85,13 +95,21 @@ impl ShoppingCart {
         let renewals = self.by_action(&CartAction::Renew).len();
         format!(
             "{} items: {} registrations, {} transfers, {} renewals — Total: {}",
-            self.len(), registrations, transfers, renewals, self.total_display()
+            self.len(),
+            registrations,
+            transfers,
+            renewals,
+            self.total_display()
         )
     }
 }
 
 impl CartItem {
-    pub fn register(domain: impl Into<String>, registrar_id: impl Into<String>, years: u32) -> Self {
+    pub fn register(
+        domain: impl Into<String>,
+        registrar_id: impl Into<String>,
+        years: u32,
+    ) -> Self {
         let domain = domain.into();
         let tld = domain.rsplit('.').next().unwrap_or("").to_string();
         Self {
