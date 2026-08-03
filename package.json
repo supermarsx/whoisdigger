@@ -84,7 +84,7 @@
     "postcss-cli": "^11.0.1",
     "prettier": "^3.6.2",
     "rimraf": "^6.0.1",
-    "ts-jest": "^29.4.0",
+    "ts-jest": "^29.4.12",
     "typescript": "^5.8.3",
     "watchboy": "^0.4.3"
   },
